@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -56,15 +56,15 @@ public class SmtpClientServiceCoverageTest
 		var session = await server.Session;
 
 		Assert.IsTrue(result.IsUndefined());
-		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith("EHLO ", StringComparison.OrdinalIgnoreCase)));
-		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith("AUTH login", StringComparison.OrdinalIgnoreCase)));
-		Assert.AreEqual("coverage-user", session.UserName);
-		Assert.AreEqual("coverage-password", session.Password);
-		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith("MAIL FROM:<sender@example.test>", StringComparison.OrdinalIgnoreCase)));
-		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith("RCPT TO:<recipient@example.test>", StringComparison.OrdinalIgnoreCase)));
-		StringAssert.Contains(session.Message, "Subject: Coverage subject");
-		StringAssert.Contains(session.Message, "text/html");
-		StringAssert.Contains(session.Message, "PGI+aHRtbCBib2R5PC9iPg==");
+		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith(value: "EHLO ", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith(value: "AUTH login", StringComparison.OrdinalIgnoreCase)));
+		Assert.AreEqual(expected: "coverage-user", session.UserName);
+		Assert.AreEqual(expected: "coverage-password", session.Password);
+		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith(value: "MAIL FROM:<sender@example.test>", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsTrue(session.Commands.Any(static command => command.StartsWith(value: "RCPT TO:<recipient@example.test>", StringComparison.OrdinalIgnoreCase)));
+		StringAssert.Contains(session.Message, substring: "Subject: Coverage subject");
+		StringAssert.Contains(session.Message, substring: "text/html");
+		StringAssert.Contains(session.Message, substring: "PGI+aHRtbCBib2R5PC9iPg==");
 	}
 
 	[TestMethod]
@@ -85,10 +85,10 @@ public class SmtpClientServiceCoverageTest
 		var session = await server.Session;
 
 		Assert.IsTrue(result.IsUndefined());
-		Assert.IsFalse(session.Commands.Any(static command => command.StartsWith("AUTH ", StringComparison.OrdinalIgnoreCase)));
-		Assert.IsFalse(session.Message.Contains("Subject:", StringComparison.Ordinal));
-		StringAssert.Contains(session.Message, "text/plain");
-		StringAssert.Contains(session.Message, "cGxhaW4gYm9keQ==");
+		Assert.IsFalse(session.Commands.Any(static command => command.StartsWith(value: "AUTH ", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsFalse(session.Message.Contains(value: "Subject:", StringComparison.Ordinal));
+		StringAssert.Contains(session.Message, substring: "text/plain");
+		StringAssert.Contains(session.Message, substring: "cGxhaW4gYm9keQ==");
 	}
 
 	[TestMethod]
@@ -138,20 +138,30 @@ public class SmtpClientServiceCoverageTest
 
 	private sealed class ExternalServiceSource : IExternalServiceSource
 	{
+	#region Interface IExternalServiceSource
+
 		public Uri? Source => null;
 
 		public string? RawContent => null;
 
 		public DataModelValue Content => DataModelValue.Undefined;
+
+	#endregion
 	}
 
 	private sealed class ExternalServiceParameters(DataModelValue parameters) : IExternalServiceParameters
 	{
+	#region Interface IExternalServiceParameters
+
 		public DataModelValue Parameters { get; } = parameters;
+
+	#endregion
 	}
 
 	private sealed class PassThroughTaskMonitor : ITaskMonitor
 	{
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task;
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
@@ -165,24 +175,26 @@ public class SmtpClientServiceCoverageTest
 		public void Forget(ValueTask valueTask) { }
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) { }
+
+	#endregion
 	}
 
 	private sealed class SmtpLoopbackServer : IAsyncDisposable
 	{
 		private readonly TcpListener _listener = new(IPAddress.Loopback, port: 0);
 
-		private readonly Task<SmtpSession> _session;
-
 		public SmtpLoopbackServer()
 		{
 			_listener.Start();
 			Port = ((IPEndPoint) _listener.LocalEndpoint).Port;
-			_session = Serve();
+			Session = Serve();
 		}
 
 		public int Port { get; }
 
-		public Task<SmtpSession> Session => _session;
+		public Task<SmtpSession> Session { get; }
+
+	#region Interface IAsyncDisposable
 
 		public async ValueTask DisposeAsync()
 		{
@@ -190,7 +202,7 @@ public class SmtpClientServiceCoverageTest
 
 			try
 			{
-				await _session.ConfigureAwait(false);
+				await Session.ConfigureAwait(false);
 			}
 			catch (SocketException)
 			{
@@ -198,16 +210,18 @@ public class SmtpClientServiceCoverageTest
 			}
 		}
 
+	#endregion
+
 		private async Task<SmtpSession> Serve()
 		{
 			using var client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
-			await using var stream = client.GetStream();
-			using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, leaveOpen: true);
-			await using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), leaveOpen: true)
-								 {
-									 NewLine = "\r\n",
-									 AutoFlush = true
-								 };
+			using var stream = client.GetStream();
+			using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 4096, leaveOpen: true);
+			using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), bufferSize: 4096, leaveOpen: true)
+							   {
+								   NewLine = "\r\n",
+								   AutoFlush = true
+							   };
 			var commands = new List<string>();
 			var message = new StringBuilder();
 			string? userName = null;
@@ -218,16 +232,16 @@ public class SmtpClientServiceCoverageTest
 			{
 				commands.Add(command);
 
-				if (command.StartsWith("EHLO ", StringComparison.OrdinalIgnoreCase))
+				if (command.StartsWith(value: "EHLO ", StringComparison.OrdinalIgnoreCase))
 				{
 					await writer.WriteLineAsync("250-localhost").ConfigureAwait(false);
 					await writer.WriteLineAsync("250-AUTH LOGIN").ConfigureAwait(false);
 					await writer.WriteLineAsync("250-8BITMIME").ConfigureAwait(false);
 					await writer.WriteLineAsync("250 SMTPUTF8").ConfigureAwait(false);
 				}
-				else if (command.StartsWith("AUTH login", StringComparison.OrdinalIgnoreCase))
+				else if (command.StartsWith(value: "AUTH login", StringComparison.OrdinalIgnoreCase))
 				{
-					var parts = command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+					var parts = command.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
 					if (parts.Length > 2)
 					{
@@ -243,12 +257,12 @@ public class SmtpClientServiceCoverageTest
 					password = DecodeBase64((await reader.ReadLineAsync().ConfigureAwait(false))!);
 					await writer.WriteLineAsync("235 2.7.0 Authentication successful").ConfigureAwait(false);
 				}
-				else if (command.StartsWith("MAIL FROM:", StringComparison.OrdinalIgnoreCase) ||
-						 command.StartsWith("RCPT TO:", StringComparison.OrdinalIgnoreCase))
+				else if (command.StartsWith(value: "MAIL FROM:", StringComparison.OrdinalIgnoreCase) ||
+						 command.StartsWith(value: "RCPT TO:", StringComparison.OrdinalIgnoreCase))
 				{
 					await writer.WriteLineAsync("250 2.1.0 OK").ConfigureAwait(false);
 				}
-				else if (command.Equals("DATA", StringComparison.OrdinalIgnoreCase))
+				else if (command.Equals(value: "DATA", StringComparison.OrdinalIgnoreCase))
 				{
 					await writer.WriteLineAsync("354 End data with <CR><LF>.<CR><LF>").ConfigureAwait(false);
 
@@ -259,7 +273,7 @@ public class SmtpClientServiceCoverageTest
 
 					await writer.WriteLineAsync("250 2.0.0 queued").ConfigureAwait(false);
 				}
-				else if (command.Equals("QUIT", StringComparison.OrdinalIgnoreCase))
+				else if (command.Equals(value: "QUIT", StringComparison.OrdinalIgnoreCase))
 				{
 					await writer.WriteLineAsync("221 2.0.0 closing connection").ConfigureAwait(false);
 
@@ -277,5 +291,9 @@ public class SmtpClientServiceCoverageTest
 		private static string DecodeBase64(string value) => Encoding.UTF8.GetString(Convert.FromBase64String(value));
 	}
 
-	private sealed record SmtpSession(IReadOnlyList<string> Commands, string Message, string? UserName, string? Password);
+	private sealed record SmtpSession(
+		IReadOnlyList<string> Commands,
+		string Message,
+		string? UserName,
+		string? Password);
 }

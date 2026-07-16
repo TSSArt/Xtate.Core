@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -46,9 +46,9 @@ public class CustomActionCoverageTest
 		var container = new CustomActionContainer(source, _ => action);
 
 		Assert.AreSame(source, ((IAncestorProvider) container).Ancestor);
-		Assert.AreEqual("urn:actions", container.XmlNamespace);
-		Assert.AreEqual("run", container.XmlName);
-		Assert.AreEqual("<run/>", container.Xml);
+		Assert.AreEqual(expected: "urn:actions", container.XmlNamespace);
+		Assert.AreEqual(expected: "run", container.XmlName);
+		Assert.AreEqual(expected: "<run/>", container.Xml);
 		Assert.HasCount(expected: 1, container.Values);
 		Assert.AreSame(includedValue, container.Values[0]);
 		Assert.HasCount(expected: 1, container.Locations);
@@ -89,11 +89,13 @@ public class CustomActionCoverageTest
 		Assert.AreEqual(expected: 2, providers.Count);
 		first.Verify(static p => p.TryGetActivator("urn:actions", "run"), Times.Once);
 		matching.Verify(static p => p.TryGetActivator("urn:actions", "run"), Times.Once);
-		activator.Verify(static a => a.Activate("<run id='1'/>") , Times.Once);
+		activator.Verify(static a => a.Activate("<run id='1'/>"), Times.Once);
 	}
 
 	private sealed class CustomActionSource : ICustomAction
 	{
+	#region Interface ICustomAction
+
 		public string? XmlNamespace { get; init; }
 
 		public string? XmlName { get; init; }
@@ -103,11 +105,15 @@ public class CustomActionCoverageTest
 		public ImmutableArray<ILocationExpression> Locations { get; init; }
 
 		public ImmutableArray<IValueExpression> Values { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TestAction(IEnumerable<IActionValue> values, IEnumerable<IActionLocation> locations) : IAction
 	{
 		public int ExecuteCount { get; private set; }
+
+	#region Interface IAction
 
 		public IEnumerable<IActionValue> GetValues() => values;
 
@@ -116,31 +122,54 @@ public class CustomActionCoverageTest
 		public ValueTask Execute()
 		{
 			ExecuteCount ++;
+
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class ActionValue : IActionValue, IValueEvaluator
 	{
-		public string? Expression { get; init; }
-
 		public IValueEvaluator? Evaluator { get; private set; }
 
+	#region Interface IActionValue
+
 		public void SetEvaluator(IValueEvaluator valueEvaluator) => Evaluator = valueEvaluator;
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ActionLocation : IActionLocation, ILocationEvaluator
 	{
-		public string? Expression { get; init; }
-
 		public ILocationEvaluator? Evaluator { get; private set; }
 
+	#region Interface IActionLocation
+
 		public void SetEvaluator(ILocationEvaluator locationEvaluator) => Evaluator = locationEvaluator;
+
+	#endregion
+
+	#region Interface ILocationEvaluator
 
 		public ValueTask SetValue(IObject value) => ValueTask.CompletedTask;
 
 		public ValueTask<IObject> GetValue() => new(DataModelValue.Undefined);
 
 		public ValueTask<string> GetName() => new("location");
+
+	#endregion
+
+	#region Interface ILocationExpression
+
+		public string? Expression { get; init; }
+
+	#endregion
 	}
 }

@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -29,8 +29,8 @@ public class ScxmlDirectorNestedCoverageTest
 	public void XmlLineInfoExposesLocationAndAncestor()
 	{
 		var ancestor = new object();
-		var type = typeof(ScxmlDirector).GetNestedType("XmlLineInfo", BindingFlags.NonPublic)!;
-		var instance = Activator.CreateInstance(type, [17, 23, ancestor])!;
+		var type = typeof(ScxmlDirector).GetNestedType(name: "XmlLineInfo", BindingFlags.NonPublic)!;
+		var instance = Activator.CreateInstance(type, 17, 23, ancestor)!;
 		var lineInfo = (IXmlLineInfo) instance;
 
 		Assert.IsTrue(lineInfo.HasLineInfo());
@@ -43,8 +43,8 @@ public class ScxmlDirectorNestedCoverageTest
 	public void XIncludeStringsInternsEveryAttributeAndNamespaceName()
 	{
 		var nameTable = new System.Xml.NameTable();
-		var type = typeof(XIncludeReader).GetNestedType("Strings", BindingFlags.NonPublic)!;
-		var strings = Activator.CreateInstance(type, [nameTable])!;
+		var type = typeof(XIncludeReader).GetNestedType(name: "Strings", BindingFlags.NonPublic)!;
+		var strings = Activator.CreateInstance(type, nameTable)!;
 		var expected = new Dictionary<string, string>
 					   {
 						   ["Accept"] = "accept",

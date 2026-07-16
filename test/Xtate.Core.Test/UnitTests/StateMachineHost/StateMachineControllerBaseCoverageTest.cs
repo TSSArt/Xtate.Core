@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -62,7 +62,7 @@ public class StateMachineControllerBaseCoverageTest
 		var monitor = new CapturingTaskMonitor();
 		var controller = CreateController(interpreter.Object, status.Object, Mock.Of<IEventDispatcher>(), monitor);
 
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => controller.GetResult());
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => controller.GetResult());
 		await ((IAsyncInitialization) controller).InitializeAsync();
 		var backgroundFailure = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await monitor.Tasks.Single());
 		var resultFailure = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await controller.GetResult());
@@ -117,11 +117,10 @@ public class StateMachineControllerBaseCoverageTest
 		return status;
 	}
 
-	private static TestStateMachineController CreateController(
-		IStateMachineInterpreter interpreter,
-		IStateMachineStatus status,
-		IEventDispatcher dispatcher,
-		ITaskMonitor monitor) =>
+	private static TestStateMachineController CreateController(IStateMachineInterpreter interpreter,
+															   IStateMachineStatus status,
+															   IEventDispatcher dispatcher,
+															   ITaskMonitor monitor) =>
 		new()
 		{
 			StateMachineInterpreter = interpreter,
@@ -137,6 +136,8 @@ public class StateMachineControllerBaseCoverageTest
 	{
 		public List<Task> Tasks { get; } = [];
 
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task;
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
@@ -150,5 +151,7 @@ public class StateMachineControllerBaseCoverageTest
 		public void Forget(ValueTask valueTask) => Tasks.Add(valueTask.AsTask());
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) => Tasks.Add(valueTask.AsTask());
+
+	#endregion
 	}
 }

@@ -68,7 +68,7 @@ public class LazyIdCoverageTest
 	}
 
 	[TestMethod]
-	[SuppressMessage("ReSharper", "StringLiteralTypo")]
+	[SuppressMessage(category: "ReSharper", checkId: "StringLiteralTypo")]
 	public void LazyIdParsesTrailingHexHashAndFallsBackWhenItCannot()
 	{
 		Assert.IsTrue(TestLazyId.TryReadHash(id: "prefix-7fffffff", out var lowerHash));

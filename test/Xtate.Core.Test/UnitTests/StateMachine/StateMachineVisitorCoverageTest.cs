@@ -1,22 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.StateMachine;
-using Xtate.StateMachine.Internal;
 using Xtate.StateMachine.Services;
 
 namespace Xtate.Test.UnitTests.StateMachine;
@@ -35,9 +34,9 @@ public class StateMachineVisitorCoverageTest
 
 		visitor.Process(ref machine);
 
-		Assert.AreEqual("MachineSource", visitor.RootPath);
-		Assert.AreEqual("MachineSource", visitor.CompletedPath);
-		Assert.AreEqual("MachineSource/IStateEntity[..]/FinalSource", visitor.FinalPath);
+		Assert.AreEqual(expected: "MachineSource", visitor.RootPath);
+		Assert.AreEqual(expected: "MachineSource", visitor.CompletedPath);
+		Assert.AreEqual(expected: "MachineSource/IStateEntity[..]/FinalSource", visitor.FinalPath);
 	}
 
 	[TestMethod]
@@ -58,9 +57,9 @@ public class StateMachineVisitorCoverageTest
 	{
 		var visitor = new PathVisitor(trackPath: true);
 
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.SetRoot(root: null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.SetRoot(root: null!));
 		visitor.SetRoot(new object());
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => visitor.SetRoot(new object()));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => visitor.SetRoot(new object()));
 	}
 
 	[TestMethod]
@@ -102,7 +101,7 @@ public class StateMachineVisitorCoverageTest
 		new ExpressionVisitor(replacement: null).Process(ref unchanged);
 
 		Assert.IsInstanceOfType<ValueExpression>(source);
-		Assert.AreEqual("changed", source.Expression);
+		Assert.AreEqual(expected: "changed", source.Expression);
 		Assert.AreSame(originalBox, unchanged);
 	}
 
@@ -117,12 +116,12 @@ public class StateMachineVisitorCoverageTest
 		IStateEntity state = null!;
 		IValueExpression expression = null!;
 
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref identifier));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref descriptor));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref outgoingEvent));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref executable));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref state));
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref expression));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref identifier));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref descriptor));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref outgoingEvent));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref executable));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref state));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref expression));
 	}
 
 	[TestMethod]
@@ -136,13 +135,13 @@ public class StateMachineVisitorCoverageTest
 		visitor.Process(ref list);
 
 		Assert.HasCount(expected: 2, list);
-		Assert.AreEqual("replacement", list[0].Expression);
-		Assert.AreEqual("replacement", list[1].Expression);
+		Assert.AreEqual(expected: "replacement", list[0].Expression);
+		Assert.AreEqual(expected: "replacement", list[1].Expression);
 		Assert.AreNotSame(first, list[0]);
 		Assert.AreNotSame(second, list[1]);
 
 		var defaultList = default(ImmutableArray<IValueExpression>);
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => visitor.Process(ref defaultList));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => visitor.Process(ref defaultList));
 	}
 
 	[TestMethod]
@@ -384,6 +383,8 @@ public class StateMachineVisitorCoverageTest
 
 	private sealed class MachineSource : IStateMachine
 	{
+	#region Interface IStateMachine
+
 		public string? Name => null;
 
 		public string? DataModelType => null;
@@ -397,35 +398,55 @@ public class StateMachineVisitorCoverageTest
 		public IDataModel? DataModel => null;
 
 		public IExecutableEntity? Script => null;
+
+	#endregion
 	}
 
 	private sealed class FinalSource : IFinal
 	{
-		public IIdentifier? Id => null;
+	#region Interface IFinal
 
 		public ImmutableArray<IOnEntry> OnEntry => default;
 
 		public ImmutableArray<IOnExit> OnExit => default;
 
 		public IDoneData? DoneData => null;
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id => null;
+
+	#endregion
 	}
 
 	private sealed class UnknownState : IStateEntity
 	{
+	#region Interface IStateEntity
+
 		public IIdentifier? Id => null;
+
+	#endregion
 	}
 
 	private sealed class UnknownExecutable : IExecutableEntity;
 
 	private sealed class ExpressionSource : IValueExpression
 	{
+	#region Interface IValueExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private enum TrackMutation
 	{
 		Insert,
+
 		Remove,
+
 		Restore
 	}
 }

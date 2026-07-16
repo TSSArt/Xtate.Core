@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -34,7 +34,7 @@ public class ExternalServiceInfrastructureCoverageTest
 	public async Task GlobalCollectionWaitsForRegisteredServiceWrapsEventsAndUnregisters()
 	{
 		var collection = new ExternalServiceGlobalCollection();
-		var invokeId = InvokeId.FromString("invoke", "unique-invoke");
+		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
 		var uniqueInvokeId = invokeId.UniqueId;
 		var sourceEvent = Mock.Of<IIncomingEvent>();
 		var dispatcher = new Mock<IEventDispatcher>();
@@ -85,7 +85,7 @@ public class ExternalServiceInfrastructureCoverageTest
 							 ExternalServiceGlobalCollection = global.Object,
 							 DeadLetterQueue = deadLetters.Object
 						 };
-		var invokeId = InvokeId.FromString("invoke", "unique-invoke");
+		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
 		var sourceEvent = Mock.Of<IIncomingEvent>();
 		var dispatcher = new Mock<IEventDispatcher>();
 		var service = dispatcher.As<IExternalService>().Object;
@@ -182,11 +182,11 @@ public class ExternalServiceInfrastructureCoverageTest
 					 };
 
 		await Assert.ThrowsExactlyAsync<PlatformException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(Mock.Of<IRouterEvent>(), CancellationToken.None));
+															   await router.Dispatch(Mock.Of<IRouterEvent>(), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<PlatformException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("#_")), CancellationToken.None));
+															   await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("#_")), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<PlatformException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("invoke")), CancellationToken.None));
+															   await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("invoke")), CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -235,7 +235,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		var router = (IEventRouter) processor;
 
 		Assert.AreEqual(Const.ScxmlIoProcessorId, ioProcessor.Id);
-		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, "#_scxml_session"), ioProcessor.Target);
+		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, relativeUri: "#_scxml_session"), ioProcessor.Target);
 		Assert.IsTrue(router.CanHandle(type: null));
 		Assert.IsTrue(router.CanHandle(Const.ScxmlIoProcessorId));
 		Assert.IsTrue(router.CanHandle(Const.ScxmlIoProcessorAliasId));
@@ -262,7 +262,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		var ioProcessor = (IIoProcessor) processor;
 		var router = (IEventRouter) processor;
 
-		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, "#_source"), ioProcessor.Target);
+		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, relativeUri: "#_source"), ioProcessor.Target);
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
 		var outgoingRouterEvent = await router.GetRouterEvent(outgoingEvent, CancellationToken.None);
 		Assert.AreSame(invokeId, outgoingRouterEvent.SenderServiceId);
@@ -291,17 +291,16 @@ public class ExternalServiceInfrastructureCoverageTest
 		var router = (IEventRouter) CreateScxmlIoProcessor(invokeId: null, SessionId.FromString("session"));
 
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("invalid")), CancellationToken.None));
+																await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("invalid")), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == Const.ParentTarget), CancellationToken.None));
+																await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == Const.ParentTarget), CancellationToken.None));
 	}
 
-	private static ScxmlIoProcessor CreateScxmlIoProcessor(
-		InvokeId? invokeId,
-		SessionId sessionId,
-		IEventDispatcher? self = null,
-		IParentEventDispatcher? parent = null,
-		IInternalEventDispatcher<ScxmlIoProcessor>? internalDispatcher = null) =>
+	private static ScxmlIoProcessor CreateScxmlIoProcessor(InvokeId? invokeId,
+														   SessionId sessionId,
+														   IEventDispatcher? self = null,
+														   IParentEventDispatcher? parent = null,
+														   IInternalEventDispatcher<ScxmlIoProcessor>? internalDispatcher = null) =>
 		new()
 		{
 			InvokeIdBase = invokeId is not null ? Mock.Of<IExternalServiceInvokeId>(i => i.InvokeId == invokeId) : null,
@@ -316,6 +315,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		foreach (var item in first)
 		{
 			yield return item;
+
 			await Task.Yield();
 		}
 	}

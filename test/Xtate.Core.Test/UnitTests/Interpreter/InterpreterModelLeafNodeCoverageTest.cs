@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -41,8 +41,8 @@ public class InterpreterModelLeafNodeCoverageTest
 
 		((IExternalScriptConsumer) node).SetContent("script body");
 
-		Assert.AreEqual("script body", node.StoredContent);
-		Assert.AreEqual("script body", source.Content);
+		Assert.AreEqual(expected: "script body", node.StoredContent);
+		Assert.AreEqual(expected: "script body", source.Content);
 	}
 
 	[TestMethod]
@@ -71,16 +71,16 @@ public class InterpreterModelLeafNodeCoverageTest
 		var node = new IdentifierNode(identifier);
 
 		Assert.AreSame(identifier, ((IAncestorProvider) node).Ancestor);
-		Assert.AreEqual("state-id", node.Value);
-		Assert.AreEqual("state-id", node.ToString());
-		Assert.AreEqual("state-id", typeof(IdentifierNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
+		Assert.AreEqual(expected: "state-id", node.Value);
+		Assert.AreEqual(expected: "state-id", node.ToString());
+		Assert.AreEqual(expected: "state-id", typeof(IdentifierNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
 		Assert.AreEqual(identifier.GetHashCode(), node.GetHashCode());
 		Assert.IsTrue(node.Equals(identifier));
 		Assert.IsFalse(node.Equals(Identifier.FromString("other")));
 		Assert.IsFalse((bool) typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, ["state-id"])!);
 		Assert.IsTrue((bool) typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [Identifier.FromString("state-id")])!);
 		Assert.IsFalse((bool) typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [null])!);
-		Assert.AreEqual("state-id", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "state-id", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -90,13 +90,13 @@ public class InterpreterModelLeafNodeCoverageTest
 		var node = new EventDescriptorNode(descriptor);
 
 		Assert.AreSame(descriptor, ((IAncestorProvider) node).Ancestor);
-		Assert.AreEqual("order.*", node.Value);
-		Assert.AreEqual("order.*", node.ToString());
-		Assert.AreEqual("order.*", typeof(EventDescriptorNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
+		Assert.AreEqual(expected: "order.*", node.Value);
+		Assert.AreEqual(expected: "order.*", node.ToString());
+		Assert.AreEqual(expected: "order.*", typeof(EventDescriptorNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
 		Assert.AreEqual(descriptor.GetHashCode(), node.GetHashCode());
 		Assert.IsTrue(node.Equals(descriptor));
 		Assert.IsFalse(node.Equals(EventDescriptor.FromString("payment.*")));
-		Assert.AreEqual("order.*", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "order.*", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(node.IsEventMatch(new IncomingEvent { Name = EventName.FromString("order.created") }));
 		Assert.IsFalse(node.IsEventMatch(new IncomingEvent { Name = EventName.FromString("payment.created") }));
 	}
@@ -120,13 +120,13 @@ public class InterpreterModelLeafNodeCoverageTest
 		var equal = EventDescriptor.FromString("event.name");
 		var different = EventDescriptor.FromString("other");
 
-		Assert.AreEqual("event.name", descriptor.Value);
-		Assert.AreEqual("event.name", descriptor.ToString());
+		Assert.AreEqual(expected: "event.name", descriptor.Value);
+		Assert.AreEqual(expected: "event.name", descriptor.ToString());
 		Assert.IsTrue(descriptor.Equals(descriptor));
 		Assert.IsTrue(descriptor.Equals(equal));
 		Assert.IsTrue(descriptor.Equals((object) equal));
 		Assert.IsFalse(descriptor.Equals(different));
-		Assert.IsFalse(descriptor.Equals((EventDescriptor?) null));
+		Assert.IsFalse(descriptor.Equals(null));
 		Assert.IsFalse(descriptor.Equals(new object()));
 		Assert.AreEqual(equal.GetHashCode(), descriptor.GetHashCode());
 	}
@@ -140,11 +140,15 @@ public class InterpreterModelLeafNodeCoverageTest
 		documentIds.First!.Value = 10;
 		documentIds.Last!.Value = 20;
 
-		Assert.IsLessThan(0, StateEntityNode.EntryOrder.Compare(first, second));
-		Assert.IsGreaterThan(0, StateEntityNode.ExitOrder.Compare(first, second));
+		Assert.IsLessThan(upperBound: 0, StateEntityNode.EntryOrder.Compare(first, second));
+		Assert.IsGreaterThan(lowerBound: 0, StateEntityNode.ExitOrder.Compare(first, second));
 		Assert.AreEqual(expected: 0, StateEntityNode.EntryOrder.Compare(first, first));
-		CollectionAssert.AreEqual(new[] { first, second }, new[] { second, first }.Order(StateEntityNode.EntryOrder).ToArray());
-		CollectionAssert.AreEqual(new[] { second, first }, new[] { first, second }.Order(StateEntityNode.ExitOrder).ToArray());
+		var collection = new List<TestStateEntityNode> { second, first };
+		collection.Sort(StateEntityNode.EntryOrder);
+		CollectionAssert.AreEqual(new[] { first, second }, collection);
+		var actual = new List<TestStateEntityNode> { first, second };
+		actual.Sort(StateEntityNode.ExitOrder);
+		CollectionAssert.AreEqual(new[] { second, first }, actual);
 	}
 
 	[TestMethod]
@@ -166,7 +170,7 @@ public class InterpreterModelLeafNodeCoverageTest
 
 		foreach (var accessor in accessors)
 		{
-			var exception = Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage] () => _ = accessor());
+			var exception = Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => _ = accessor());
 			StringAssert.Contains(exception.Message, nameof(BareStateEntityNode));
 		}
 	}
@@ -191,26 +195,43 @@ public class InterpreterModelLeafNodeCoverageTest
 
 	private sealed class ExternalScriptSource : IExternalScriptExpression, IExternalScriptConsumer
 	{
-		public Uri? Uri { get; init; }
-
 		public string? Content { get; private set; }
 
+	#region Interface IExternalScriptConsumer
+
 		public void SetContent(string content) => Content = content;
+
+	#endregion
+
+	#region Interface IExternalScriptExpression
+
+		public Uri? Uri { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ScriptSource : IScript, IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }
 
-		public IScriptExpression? Content { get; init; }
-
-		public IExternalScriptExpression? Source { get; init; }
+	#region Interface IExecEvaluator
 
 		public ValueTask Execute()
 		{
 			ExecuteCount ++;
+
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
+
+	#region Interface IScript
+
+		public IScriptExpression? Content { get; init; }
+
+		public IExternalScriptExpression? Source { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TestStateEntityNode(IIdentifier id, DocumentIdNode documentIdNode) : StateEntityNode(documentIdNode)

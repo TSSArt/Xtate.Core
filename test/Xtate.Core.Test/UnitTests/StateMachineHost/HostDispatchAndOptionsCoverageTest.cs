@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -27,7 +27,6 @@ using Xtate.Scxml;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
-using Xtate.StateMachineOptions;
 using Xtate.StateMachineOptions.Services;
 
 namespace Xtate.Test.UnitTests.StateMachineHost;
@@ -84,11 +83,11 @@ public class HostDispatchAndOptionsCoverageTest
 		var externalServices = new Mock<IExternalServiceCollection>();
 		var deadLetters = new Mock<IDeadLetterQueue<TestSource>>();
 		var dispatcher = new InternalEventDispatcher<TestSource>
-					 {
-						 StateMachineCollection = stateMachines.Object,
-						 ExternalServiceCollection = externalServices.Object,
-						 DeadLetterQueue = deadLetters.Object
-					 };
+						 {
+							 StateMachineCollection = stateMachines.Object,
+							 ExternalServiceCollection = externalServices.Object,
+							 DeadLetterQueue = deadLetters.Object
+						 };
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		using var cancellation = new CancellationTokenSource();
 		var sessionId = SessionId.FromString("session");
@@ -137,11 +136,11 @@ public class HostDispatchAndOptionsCoverageTest
 		var globalServices = new Mock<IExternalServiceGlobalCollection>();
 		var deadLetters = new Mock<IDeadLetterQueue<TestSource>>();
 		var dispatcher = new ExternalEventDispatcher<TestSource>
-					 {
-						 StateMachineCollection = stateMachines.Object,
-						 ExternalServiceGlobalCollection = globalServices.Object,
-						 DeadLetterQueue = deadLetters.Object
-					 };
+						 {
+							 StateMachineCollection = stateMachines.Object,
+							 ExternalServiceGlobalCollection = globalServices.Object,
+							 DeadLetterQueue = deadLetters.Object
+						 };
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		using var cancellation = new CancellationTokenSource();
 		var sessionId = SessionId.FromString("session");
@@ -168,15 +167,15 @@ public class HostDispatchAndOptionsCoverageTest
 	public async Task LocationChildStateMachineResolvesBothRelativeConstructorFormsAndForwardsParentEvents()
 	{
 		var baseUri = new Uri("https://example.test/machines/");
-		var fromString = new LocationChildStateMachine(baseUri, "child.scxml") { ParentEventDispatcher = null };
-		var fromUri = new LocationChildStateMachine(baseUri, new Uri("second.scxml", UriKind.Relative)) { ParentEventDispatcher = null };
+		var fromString = new LocationChildStateMachine(baseUri, relativeUri: "child.scxml") { ParentEventDispatcher = null };
+		var fromUri = new LocationChildStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative)) { ParentEventDispatcher = null };
 		Assert.AreEqual(new Uri("https://example.test/machines/child.scxml"), ((IStateMachineLocation) fromString).Location);
 		Assert.AreEqual(new Uri("https://example.test/machines/second.scxml"), ((IStateMachineLocation) fromUri).Location);
 
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		await ((IParentEventDispatcher) fromString).Dispatch(incomingEvent, CancellationToken.None);
 		var parent = new Mock<IEventDispatcher>();
-		fromUri = new LocationChildStateMachine(baseUri, new Uri("second.scxml", UriKind.Relative)) { ParentEventDispatcher = parent.Object };
+		fromUri = new LocationChildStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative)) { ParentEventDispatcher = parent.Object };
 		await ((IParentEventDispatcher) fromUri).Dispatch(incomingEvent, CancellationToken.None);
 		parent.Verify(p => p.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
 
@@ -198,8 +197,7 @@ public class HostDispatchAndOptionsCoverageTest
 		collection.Register(sessionId);
 		collection.SetController(sessionId, controller.Object);
 		await collection.Dispatch(sessionId, sourceEvent, cancellation.Token);
-		controller.Verify(c => c.Dispatch(
-			It.Is<IncomingEvent>(e => !ReferenceEquals(e, sourceEvent)), cancellation.Token), Times.Once);
+		controller.Verify(c => c.Dispatch(It.Is<IncomingEvent>(e => !ReferenceEquals(e, sourceEvent)), cancellation.Token), Times.Once);
 
 		var incomingEvent = new IncomingEvent { Name = EventName.FromString("event") };
 		await collection.Dispatch(sessionId, incomingEvent, cancellation.Token);

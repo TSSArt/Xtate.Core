@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Text;
 using Xtate.Ancestor;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
@@ -243,7 +244,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var entity = Init<ParamEntity, IParam>(source);
 		var same = Init<ParamEntity, IParam>(source);
 		var different = same;
-		different.Name = new string("param");
+		different.Name = new StringBuilder("param").ToString();
 
 		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
 		Assert.AreSame(source.Name, entity.Name);
@@ -284,7 +285,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var script = Init<ScriptExpression, IScriptExpression>(scriptSource);
 		var sameScript = Init<ScriptExpression, IScriptExpression>(scriptSource);
 		var differentScript = sameScript;
-		differentScript.Expression = new string("script()");
+		differentScript.Expression = new StringBuilder("script()").ToString();
 
 		Assert.AreSame(scriptSource, ((IAncestorProvider) script).Ancestor);
 		Assert.AreSame(scriptSource.Expression, script.Expression);
@@ -340,7 +341,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var send = Init<SendEntity, ISend>(sendSource);
 		var sameSend = Init<SendEntity, ISend>(sendSource);
 		var differentSend = sameSend;
-		differentSend.Id = new string("send");
+		differentSend.Id = new StringBuilder("send").ToString();
 
 		Assert.AreSame(sendSource, ((IAncestorProvider) send).Ancestor);
 		Assert.AreSame(sendSource.Id, send.Id);
@@ -365,7 +366,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var cancel = Init<CancelEntity, ICancel>(cancelSource);
 		var sameCancel = Init<CancelEntity, ICancel>(cancelSource);
 		var differentCancel = sameCancel;
-		differentCancel.SendId = new string("send");
+		differentCancel.SendId = new StringBuilder("send").ToString();
 
 		Assert.AreSame(cancelSource, ((IAncestorProvider) cancel).Ancestor);
 		Assert.AreSame(cancelSource.SendId, cancel.SendId);

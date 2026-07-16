@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -57,7 +57,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 		Assert.AreEqual(expected: 1, handler.ContentBodyVisits);
 		Assert.AreEqual(expected: 1, handler.InlineContentVisits);
 		Assert.AreEqual(expected: 1, handler.ExternalDataVisits);
-		Assert.AreEqual("text", contract.ConvertToText(new DataModelValue("text")));
+		Assert.AreEqual(expected: "text", contract.ConvertToText(new DataModelValue("text")));
 		Assert.IsFalse(contract.CaseInsensitive);
 		Assert.IsEmpty(contract.DataModelVars);
 	}
@@ -106,10 +106,10 @@ public class DataModelHandlerBaseProcessCoverageTest
 			DefaultContentBodyEvaluatorFactory = null!,
 			DefaultInlineContentEvaluatorFactory = null!,
 			DefaultExternalDataExpressionEvaluatorFactory = source => new DefaultExternalDataExpressionEvaluator(source)
-																									  {
-																										  DataConverter = null!,
-																										  ResourceLoader = null!
-																									  },
+																	  {
+																		  DataConverter = null!,
+																		  ResourceLoader = null!
+																	  },
 			CustomActionContainerFactory = null!
 		};
 
@@ -128,62 +128,94 @@ public class DataModelHandlerBaseProcessCoverageTest
 		protected override ILog GetEvaluator(ILog log)
 		{
 			LogVisits ++;
+
 			return log;
 		}
 
 		protected override IContentBody GetEvaluator(IContentBody contentBody)
 		{
 			ContentBodyVisits ++;
+
 			return contentBody;
 		}
 
 		protected override IInlineContent GetEvaluator(IInlineContent inlineContent)
 		{
 			InlineContentVisits ++;
+
 			return inlineContent;
 		}
 
 		protected override IExternalDataExpression GetEvaluator(IExternalDataExpression externalDataExpression)
 		{
 			ExternalDataVisits ++;
+
 			return externalDataExpression;
 		}
 	}
 
 	private sealed class LogSource : ILog
 	{
+	#region Interface ILog
+
 		public string? Label => "label";
 
 		public IValueExpression? Expression => null;
+
+	#endregion
 	}
 
 	private sealed class ValueSource : IValueExpression
 	{
+	#region Interface IValueExpression
+
 		public string? Expression => "value";
+
+	#endregion
 	}
 
 	private sealed class LocationSource : ILocationExpression
 	{
+	#region Interface ILocationExpression
+
 		public string? Expression => "location";
+
+	#endregion
 	}
 
 	private sealed class ConditionSource : IConditionExpression
 	{
+	#region Interface IConditionExpression
+
 		public string? Expression => "condition";
+
+	#endregion
 	}
 
 	private sealed class ContentBodySource : IContentBody
 	{
+	#region Interface IContentBody
+
 		public string? Value => "body";
+
+	#endregion
 	}
 
 	private sealed class InlineContentSource : IInlineContent
 	{
+	#region Interface IInlineContent
+
 		public string? Value => "inline";
+
+	#endregion
 	}
 
 	private sealed class ExternalDataSource : IExternalDataExpression
 	{
+	#region Interface IExternalDataExpression
+
 		public Uri? Uri => new("https://example.test/data");
+
+	#endregion
 	}
 }

@@ -1,24 +1,23 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections;
 using Xtate.DataModel;
 using Xtate.DataTypes;
-using Xtate.Interpreter;
 using Xtate.Interpreter.Internal;
 using Xtate.Interpreter.Services;
 using Xtate.Logging;
@@ -33,9 +32,9 @@ public class InterpreterUtilityCoverageTest
 	[TestMethod]
 	public void InvokeIdSetTracksUniqueIdsRaisesOnlyRealChangesAndEnumeratesBothWays()
 	{
-		var first = InvokeId.FromString("first", "unique-one");
-		var sameUniqueId = InvokeId.FromString("alias", "unique-one");
-		var second = InvokeId.FromString("second", "unique-two");
+		var first = InvokeId.FromString(invokeId: "first", uniqueInvokeId: "unique-one");
+		var sameUniqueId = InvokeId.FromString(invokeId: "alias", uniqueInvokeId: "unique-one");
+		var second = InvokeId.FromString(invokeId: "second", uniqueInvokeId: "unique-two");
 		var set = new InvokeIdSet();
 		var changes = new List<(InvokeIdSet.ChangedAction Action, InvokeId Id)>();
 		set.Changed += (action, id) => changes.Add((action, id));
@@ -54,7 +53,7 @@ public class InterpreterUtilityCoverageTest
 		Assert.AreEqual(InvokeIdSet.ChangedAction.Add, changes[1].Action);
 		Assert.AreEqual(InvokeIdSet.ChangedAction.Remove, changes[2].Action);
 		Assert.AreSame(second.UniqueId, set.Single());
-		Assert.AreEqual(expected: 1, ((IEnumerable) set).Cast<object>().Count());
+		Assert.AreEqual(expected: 1, set.Cast<object>().Count());
 		var interfaceMap = typeof(InvokeIdSet).GetInterfaceMap(typeof(IEnumerable));
 		var enumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(set, parameters: null)!;
 		Assert.IsTrue(enumerator.MoveNext());
@@ -73,14 +72,14 @@ public class InterpreterUtilityCoverageTest
 		Assert.IsEmpty(contract.EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == DataModelValue.Undefined))!);
 		var populated = contract.EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == new DataModelValue(17D)))!.ToArray();
 		Assert.HasCount(expected: 2, populated);
-		Assert.AreEqual("Data", populated[0].Name);
-		Assert.AreEqual("DataText", populated[1].Name);
-		Assert.AreEqual("converted-outgoing", populated[1].Value);
+		Assert.AreEqual(expected: "Data", populated[0].Name);
+		Assert.AreEqual(expected: "DataText", populated[1].Name);
+		Assert.AreEqual(expected: "converted-outgoing", populated[1].Value);
 
 		var fallback = new OutgoingEventVerboseEntityParser { DataModelHandler = static () => null };
 		var fallbackValues = ((IEntityParserHandler) fallback)
-			.EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == new DataModelValue(false)))!.ToArray();
-		Assert.AreEqual("False", fallbackValues[1].Value);
+							 .EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == new DataModelValue(false)))!.ToArray();
+		Assert.AreEqual(expected: "False", fallbackValues[1].Value);
 	}
 
 	[TestMethod]
@@ -95,21 +94,21 @@ public class InterpreterUtilityCoverageTest
 			new FullUri("service"),
 			Source: null,
 			RawContent: "raw",
-			Content: new DataModelValue("content"),
-			Parameters: new DataModelValue(17D));
+			new DataModelValue("content"),
+			new DataModelValue(17D));
 
 		var properties = contract.EnumerateProperties(invokeData)!.ToArray();
 
 		Assert.AreEqual(Level.Verbose, contract.Level);
 		Assert.HasCount(expected: 5, properties);
 		CollectionAssert.AreEqual(new[] { "RawContent", "Content", "ContentText", "Parameters", "ParametersText" }, properties.Select(static property => property.Name).ToArray());
-		Assert.AreEqual("converted:content", properties[2].Value);
-		Assert.AreEqual("converted:17", properties[4].Value);
+		Assert.AreEqual(expected: "converted:content", properties[2].Value);
+		Assert.AreEqual(expected: "converted:17", properties[4].Value);
 
 		var fallback = new InvokeDataVerboseEntityParser { DataModelHandler = static () => null };
 		var fallbackProperties = ((IEntityParserHandler) fallback).EnumerateProperties(invokeData with { RawContent = null, Parameters = DataModelValue.Undefined })!.ToArray();
 		Assert.HasCount(expected: 2, fallbackProperties);
-		Assert.AreEqual("content", fallbackProperties[1].Value);
+		Assert.AreEqual(expected: "content", fallbackProperties[1].Value);
 		Assert.IsEmpty(contract.EnumerateProperties(invokeData with { RawContent = null, Content = DataModelValue.Undefined, Parameters = DataModelValue.Undefined })!);
 	}
 }

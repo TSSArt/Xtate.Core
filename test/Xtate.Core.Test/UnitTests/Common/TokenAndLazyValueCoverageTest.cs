@@ -114,7 +114,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsFalse((bool) typeof(SessionId).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(sessionId, ["session-0000002a"])!);
 		Assert.AreEqual(expected: 42, sessionId.GetHashCode());
 		Assert.AreEqual(expected: "session-0000002a", (string) sessionId);
-		Assert.AreEqual(expected: "session-0000002a", typeof(SessionId).GetMethod("op_Implicit", [typeof(SessionId)])!.Invoke(obj: null, [sessionId]));
+		Assert.AreEqual(expected: "session-0000002a", typeof(SessionId).GetMethod(name: "op_Implicit", [typeof(SessionId)])!.Invoke(obj: null, [sessionId]));
 		string? missingSessionValue = (SessionId?) null;
 		Assert.IsNull(missingSessionValue);
 		string? nullValue = null;
@@ -134,7 +134,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsFalse(token.IsCancellationRequested);
 		Assert.IsTrue(token.Equals(same));
 		Assert.IsTrue(token.Equals((object) same));
-		Assert.IsFalse(token.Equals((object) "not a token"));
+		Assert.IsFalse(token.Equals("not a token"));
 		Assert.IsFalse((bool) typeof(DisposeToken).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(token, ["not a token"])!);
 		Assert.IsTrue(token == same);
 		Assert.IsFalse(token != same);

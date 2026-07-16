@@ -23,7 +23,7 @@ public class AnnotationCoverageTest
 	[TestMethod]
 	public void ContractAnnotationSupportsBothConstructors()
 	{
-		Assert.IsInstanceOfType<ContractAnnotationAttribute>(Activator.CreateInstance(typeof(ContractAnnotationAttribute), ["null => null"]));
-		Assert.IsInstanceOfType<ContractAnnotationAttribute>(Activator.CreateInstance(typeof(ContractAnnotationAttribute), ["null => null", true]));
+		Assert.IsInstanceOfType<ContractAnnotationAttribute>(Activator.CreateInstance(typeof(ContractAnnotationAttribute), "null => null"));
+		Assert.IsInstanceOfType<ContractAnnotationAttribute>(Activator.CreateInstance(typeof(ContractAnnotationAttribute), "null => null", true));
 	}
 }

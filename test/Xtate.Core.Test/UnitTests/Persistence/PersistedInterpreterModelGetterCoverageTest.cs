@@ -1,23 +1,22 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
 using Xtate.Interpreter;
-using Xtate.Interpreter.Services;
 using Xtate.Persistence;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
@@ -34,7 +33,7 @@ public class PersistedInterpreterModelGetterCoverageTest
 	public async Task UnsupportedPersistedVersionIsRejected()
 	{
 		using var storage = new TestTransactionalStorage();
-		new Bucket(storage).Add(Key.Version, 2);
+		new Bucket(storage).Add(Key.Version, value: 2);
 		var getter = CreateGetter(storage, SessionId.FromString("session"));
 
 		await Assert.ThrowsExactlyAsync<PersistenceException>([ExcludeFromCodeCoverage] async () => await getter.GetInterpreterModel());
@@ -45,7 +44,7 @@ public class PersistedInterpreterModelGetterCoverageTest
 	{
 		using var storage = new TestTransactionalStorage();
 		var bucket = new Bucket(storage);
-		bucket.Add(Key.Version, 1);
+		bucket.Add(Key.Version, value: 1);
 		bucket.AddId(Key.SessionId, SessionId.FromString("stored-session"));
 		var getter = CreateGetter(storage, SessionId.FromString("provided-session"));
 
@@ -78,6 +77,25 @@ public class PersistedInterpreterModelGetterCoverageTest
 	{
 		private readonly InMemoryStorage _storage = new(writeOnly: false);
 
+	#region Interface IAsyncDisposable
+
+		public ValueTask DisposeAsync()
+		{
+			Dispose();
+
+			return ValueTask.CompletedTask;
+		}
+
+	#endregion
+
+	#region Interface IDisposable
+
+		public void Dispose() => _storage.Dispose();
+
+	#endregion
+
+	#region Interface IStorage
+
 		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key) => _storage.Get(key);
 
 		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) => _storage.Set(key, value);
@@ -86,17 +104,14 @@ public class PersistedInterpreterModelGetterCoverageTest
 
 		public void RemoveAll(ReadOnlySpan<byte> prefix) => _storage.RemoveAll(prefix);
 
+	#endregion
+
+	#region Interface ITransactionalStorage
+
 		public ValueTask CheckPoint(int level) => ValueTask.CompletedTask;
 
 		public ValueTask Shrink() => ValueTask.CompletedTask;
 
-		public void Dispose() => _storage.Dispose();
-
-		public ValueTask DisposeAsync()
-		{
-			Dispose();
-
-			return ValueTask.CompletedTask;
-		}
+	#endregion
 	}
 }

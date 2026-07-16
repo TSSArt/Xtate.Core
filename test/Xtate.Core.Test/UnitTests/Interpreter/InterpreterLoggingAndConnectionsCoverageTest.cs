@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -63,13 +63,13 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 		var parameters = parserHandler.EnumerateProperties(new IncomingEvent { Data = new DataModelValue(12D) })!.ToArray();
 
 		Assert.HasCount(expected: 2, parameters);
-		Assert.AreEqual("Data", parameters[0].Name);
-		Assert.AreEqual("DataText", parameters[1].Name);
-		Assert.AreEqual("converted", parameters[1].Value);
+		Assert.AreEqual(expected: "Data", parameters[0].Name);
+		Assert.AreEqual(expected: "DataText", parameters[1].Name);
+		Assert.AreEqual(expected: "converted", parameters[1].Value);
 
 		var fallbackParser = new EventVerboseEntityParser { DataModelHandler = static () => null };
 		var fallback = ((IEntityParserHandler) fallbackParser).EnumerateProperties(new IncomingEvent { Data = new DataModelValue(true) })!.ToArray();
-		Assert.AreEqual("True", fallback[1].Value);
+		Assert.AreEqual(expected: "True", fallback[1].Value);
 	}
 
 	[TestMethod]
@@ -80,11 +80,11 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 		var populated = new InterpreterInfoLogEnricher<object> { StateMachineSessionId = () => session };
 
 		Assert.AreEqual(Level.Info, populated.Level);
-		Assert.AreEqual("ctx", populated.Namespace);
+		Assert.AreEqual(expected: "ctx", populated.Namespace);
 		Assert.IsEmpty(empty.EnumerateProperties());
 		var parameter = populated.EnumerateProperties().Single();
-		Assert.AreEqual("SessionId", parameter.Name);
-		Assert.AreEqual("session", parameter.Value!.ToString());
+		Assert.AreEqual(expected: "SessionId", parameter.Name);
+		Assert.AreEqual(expected: "session", parameter.Value!.ToString());
 	}
 
 	[TestMethod]
@@ -105,11 +105,11 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 					   };
 
 		Assert.AreEqual(Level.Debug, enricher.Level);
-		Assert.AreEqual("ctx", enricher.Namespace);
+		Assert.AreEqual(expected: "ctx", enricher.Namespace);
 		var parameters = enricher.EnumerateProperties().ToArray();
 		Assert.HasCount(expected: 2, parameters);
-		Assert.AreEqual("StateMachineName", parameters[0].Name);
-		Assert.AreEqual("ActiveStates", parameters[1].Name);
+		Assert.AreEqual(expected: "StateMachineName", parameters[0].Name);
+		Assert.AreEqual(expected: "ActiveStates", parameters[1].Name);
 
 		var empty = new InterpreterDebugLogEnricher<object>
 					{

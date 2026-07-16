@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -33,17 +33,17 @@ public class DataModelValueConversionCoverageTest
 		double? doubleValue = 3.5;
 		decimal? decimalValue = 4.5M;
 		DataModelNumber? numberValue = DataModelNumber.FromInt32(5);
-		var offset = new DateTimeOffset(2026, 7, 15, 12, 0, 0, TimeSpan.FromHours(2));
+		var offset = new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, TimeSpan.FromHours(2));
 		DateTimeOffset? offsetValue = offset;
 		DateTime? dateValue = offset.UtcDateTime;
 		DataModelDateTime? modelDateValue = DataModelDateTime.FromDateTimeOffset(offset);
 		bool? boolValue = true;
 
-		AssertNumber(new DataModelValue(intValue), 1);
-		AssertNumber(new DataModelValue(longValue), 2);
-		AssertNumber(new DataModelValue(doubleValue), 3.5);
-		AssertNumber(new DataModelValue(decimalValue), 4.5);
-		AssertNumber(new DataModelValue(numberValue), 5);
+		AssertNumber(new DataModelValue(intValue), expected: 1);
+		AssertNumber(new DataModelValue(longValue), expected: 2);
+		AssertNumber(new DataModelValue(doubleValue), expected: 3.5);
+		AssertNumber(new DataModelValue(decimalValue), expected: 4.5);
+		AssertNumber(new DataModelValue(numberValue), expected: 5);
 		Assert.AreEqual(offset, new DataModelValue(offsetValue).AsDateTime().ToDateTimeOffset());
 		Assert.AreEqual(offset.UtcDateTime, new DataModelValue(dateValue).AsDateTime().ToDateTime());
 		Assert.AreEqual(offset, new DataModelValue(modelDateValue).AsDateTime().ToDateTimeOffset());
@@ -82,17 +82,17 @@ public class DataModelValueConversionCoverageTest
 	public void ExplicitOperatorsAndNullableAccessorsReturnExpectedRepresentations()
 	{
 		DataModelValue number = 12;
-		Assert.AreEqual(12, (int) number);
-		Assert.AreEqual(12, (int?) number);
-		Assert.AreEqual(12L, (long) number);
-		Assert.AreEqual(12L, (long?) number);
-		Assert.AreEqual(12D, (double) number);
-		Assert.AreEqual(12D, (double?) number);
+		Assert.AreEqual(expected: 12, (int) number);
+		Assert.AreEqual(expected: 12, (int?) number);
+		Assert.AreEqual(expected: 12L, (long) number);
+		Assert.AreEqual(expected: 12L, (long?) number);
+		Assert.AreEqual(expected: 12D, (double) number);
+		Assert.AreEqual(expected: 12D, (double?) number);
 		Assert.AreEqual(DataModelNumber.FromInt32(12), (DataModelNumber) number);
 		Assert.AreEqual(DataModelNumber.FromInt32(12), (DataModelNumber?) number);
 		Assert.AreEqual(DataModelNumber.FromInt32(12), number.AsNullableNumber());
 
-		var offset = new DateTimeOffset(2026, 7, 15, 12, 0, 0, TimeSpan.FromHours(2));
+		var offset = new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, TimeSpan.FromHours(2));
 		DataModelValue date = offset;
 		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), (DataModelDateTime) date);
 		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), (DataModelDateTime?) date);
@@ -126,8 +126,8 @@ public class DataModelValueConversionCoverageTest
 		Assert.IsTrue(lazyBoolean.AsNullableBoolean());
 		Assert.IsTrue(lazyBoolean.AsBooleanOrDefault());
 		Assert.IsNull(number.AsBooleanOrDefault());
-		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage] () => number.AsBoolean());
-		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage] () => number.AsNullableBoolean());
+		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => number.AsBoolean());
+		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => number.AsNullableBoolean());
 		Assert.IsFalse(number.Equals((object) "12"));
 		Assert.IsTrue(number.Equals((object) new DataModelValue(12)));
 	}
@@ -139,23 +139,23 @@ public class DataModelValueConversionCoverageTest
 		[
 			5,
 			true,
-			new DateTime(2026, 7, 15, 12, 0, 0, DateTimeKind.Utc),
+			new DateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, DateTimeKind.Utc),
 			"1"
 		];
 
 		foreach (var value in values)
 		{
-			ExerciseConvertible((IConvertible) value);
+			ExerciseConvertible(value);
 		}
 
 		Assert.AreEqual(TypeCode.Int32, ((IConvertible) values[0]).GetTypeCode());
 		Assert.AreEqual(TypeCode.Boolean, ((IConvertible) values[1]).GetTypeCode());
 		Assert.AreEqual(TypeCode.DateTime, ((IConvertible) values[2]).GetTypeCode());
 		Assert.AreEqual(TypeCode.String, ((IConvertible) values[3]).GetTypeCode());
-		Assert.AreEqual(5, ((IConvertible) values[0]).ToInt32(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 5, ((IConvertible) values[0]).ToInt32(CultureInfo.InvariantCulture));
 		Assert.IsTrue(((IConvertible) values[1]).ToBoolean(CultureInfo.InvariantCulture));
-		Assert.AreEqual(new DateTime(2026, 7, 15, 12, 0, 0, DateTimeKind.Utc), ((IConvertible) values[2]).ToDateTime(CultureInfo.InvariantCulture));
-		Assert.AreEqual(1, ((IConvertible) values[3]).ToInt32(CultureInfo.InvariantCulture));
+		Assert.AreEqual(new DateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, DateTimeKind.Utc), ((IConvertible) values[2]).ToDateTime(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 1, ((IConvertible) values[3]).ToInt32(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -167,11 +167,11 @@ public class DataModelValueConversionCoverageTest
 
 #pragma warning disable SYSLIB0050
 		var info = new SerializationInfo(typeof(DataModelValue), new FormatterConverter());
-		((ISerializable) value).GetObjectData(info, default);
+		((ISerializable) value).GetObjectData(info, context: default);
 #pragma warning restore SYSLIB0050
 
-		Assert.IsNotNull(info.GetValue("V", typeof(object)));
-		Assert.AreEqual(42L, info.GetInt64("L"));
+		Assert.IsNotNull(info.GetValue(name: "V", typeof(object)));
+		Assert.AreEqual(expected: 42L, info.GetInt64("L"));
 	}
 
 	private static void AssertNumber(DataModelValue value, double expected) => Assert.AreEqual(expected, value.AsNumber().ToDouble());
@@ -181,11 +181,11 @@ public class DataModelValueConversionCoverageTest
 		foreach (var method in typeof(IConvertible).GetMethods())
 		{
 			object?[] arguments = method.Name switch
-			{
-				nameof(IConvertible.GetTypeCode) => [],
-				nameof(IConvertible.ToType)      => [typeof(string), CultureInfo.InvariantCulture],
-				_                                => [CultureInfo.InvariantCulture]
-			};
+								  {
+									  nameof(IConvertible.GetTypeCode) => [],
+									  nameof(IConvertible.ToType)      => [typeof(string), CultureInfo.InvariantCulture],
+									  _                                => [CultureInfo.InvariantCulture]
+								  };
 
 			try
 			{

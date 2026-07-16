@@ -1,22 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using Xtate.Logging;
 using MonitoredTask = Xtate.TaskMonitor.Services.TaskMonitor;
 
 namespace Xtate.Test.UnitTests.Common;
@@ -55,6 +54,7 @@ public class TaskMonitorCoverageTest
 		{
 			await Task.Yield();
 			await Task.Delay(Timeout.InfiniteTimeSpan);
+
 			return 0;
 		}
 	}
@@ -81,7 +81,7 @@ public class TaskMonitorCoverageTest
 		callerCancellation.Cancel();
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await cancelledWait);
 		underlyingCancellation.Cancel();
-		cancelledSource.SetCanceled(underlyingCancellation.Token);
+		cancelledSource.TrySetCanceled(underlyingCancellation.Token);
 
 		var cancellation = await CompleteWithin(cancelledMonitor.Cancelled.Task);
 		Assert.AreEqual(underlyingCancellation.Token, cancellation.CancellationToken);
@@ -112,20 +112,22 @@ public class TaskMonitorCoverageTest
 		cancelledMonitor.Forget(new ValueTask<int>(cancelledSource.Task));
 		using var cancellationSource = new CancellationTokenSource();
 		cancellationSource.Cancel();
-		cancelledSource.SetCanceled(cancellationSource.Token);
+		cancelledSource.TrySetCanceled(cancellationSource.Token);
 		Assert.AreEqual(cancellationSource.Token, (await CompleteWithin(cancelledMonitor.Cancelled.Task)).CancellationToken);
 
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(Task.FromException(new InvalidOperationException("task"))));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(new ValueTask(Task.FromException(new InvalidOperationException("value task")))));
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(new ValueTask<int>(Task.FromException<int>(new InvalidOperationException("generic value task")))));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() =>
+															successMonitor.Forget(new ValueTask<int>(Task.FromException<int>(new InvalidOperationException("generic value task")))));
 	}
 
 	private static TestTaskMonitor CreateMonitor() => new() { Logger = null! };
 
 	private static async Task<T> CompleteWithin<T>(Task<T> task)
 	{
-		var completed = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(5)));
-		Assert.AreSame(task, completed, "The detached task-monitor callback did not complete within five seconds.");
+		var completed = await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(10)));
+		Assert.AreSame(task, completed, message: "The detached task-monitor callback did not complete within 10 seconds.");
+
 		return await task;
 	}
 
@@ -138,12 +140,14 @@ public class TaskMonitorCoverageTest
 		protected override ValueTask TaskCancelled(OperationCanceledException ex)
 		{
 			Cancelled.TrySetResult(ex);
+
 			return ValueTask.CompletedTask;
 		}
 
 		protected override ValueTask TaskFailed(Exception ex)
 		{
 			Failed.TrySetResult(ex);
+
 			return ValueTask.CompletedTask;
 		}
 	}

@@ -1,20 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using Xtate.DataModel;
 using Xtate.Interpreter;
 using Xtate.Persistence;
@@ -22,6 +23,7 @@ using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
+using TypeInfo = Xtate.Persistence.Internal.TypeInfo;
 
 namespace Xtate.Test.UnitTests.Persistence;
 
@@ -37,14 +39,14 @@ public class StateMachinePersistedContextCoverageTest
 		await context.InitializeAsync();
 		await context.InitializeAsync();
 		var stateBucket = context.GetStateBucket();
-		stateBucket.Add("state-value", 42);
+		stateBucket.Add(key: "state-value", value: 42);
 		context.DataModel["persisted"] = "value";
 		context.ActiveInvokes.Add(InvokeId.FromString("active-invoke"));
 		await context.CheckPoint(level: 3);
 		await context.Shrink();
 
 		Assert.AreEqual(expected: 42, stateBucket.GetInt32("state-value"));
-		Assert.AreEqual("value", context.DataModel["persisted"].AsString());
+		Assert.AreEqual(expected: "value", context.DataModel["persisted"].AsString());
 		Assert.AreEqual(expected: 3, storage.CheckPointLevels.Single());
 		Assert.AreEqual(expected: 1, storage.ShrinkCount);
 
@@ -75,11 +77,11 @@ public class StateMachinePersistedContextCoverageTest
 		bucket.Add(Key.Type, EventType.External);
 
 		var restored = typeof(StateMachinePersistedContext)
-			.GetMethod("EventCreator", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-			.Invoke(obj: null, [bucket]);
+					   .GetMethod(name: "EventCreator", BindingFlags.Static | BindingFlags.NonPublic)!
+					   .Invoke(obj: null, [bucket]);
 
 		var incomingEvent = Assert.IsInstanceOfType<PersistedIncomingEvent>(restored);
-		Assert.AreEqual("persisted.event", incomingEvent.Name.ToString());
+		Assert.AreEqual(expected: "persisted.event", incomingEvent.Name.ToString());
 		Assert.AreEqual(EventType.External, incomingEvent.Type);
 	}
 
@@ -101,12 +103,16 @@ public class StateMachinePersistedContextCoverageTest
 
 	private sealed class EmptyEntityMap : IEntityMap
 	{
+	#region Interface IEntityMap
+
 		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity entity)
 		{
 			entity = null;
 
 			return false;
 		}
+
+	#endregion
 	}
 
 	private sealed class RecordingTransactionalStorage : ITransactionalStorage
@@ -121,6 +127,30 @@ public class StateMachinePersistedContextCoverageTest
 
 		public int DisposeAsyncCount { get; private set; }
 
+	#region Interface IAsyncDisposable
+
+		public ValueTask DisposeAsync()
+		{
+			DisposeAsyncCount ++;
+			_storage.Dispose();
+
+			return ValueTask.CompletedTask;
+		}
+
+	#endregion
+
+	#region Interface IDisposable
+
+		public void Dispose()
+		{
+			DisposeCount ++;
+			_storage.Dispose();
+		}
+
+	#endregion
+
+	#region Interface IStorage
+
 		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key) => _storage.Get(key);
 
 		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) => _storage.Set(key, value);
@@ -128,6 +158,10 @@ public class StateMachinePersistedContextCoverageTest
 		public void Remove(ReadOnlySpan<byte> key) => _storage.Remove(key);
 
 		public void RemoveAll(ReadOnlySpan<byte> prefix) => _storage.RemoveAll(prefix);
+
+	#endregion
+
+	#region Interface ITransactionalStorage
 
 		public ValueTask CheckPoint(int level)
 		{
@@ -143,18 +177,6 @@ public class StateMachinePersistedContextCoverageTest
 			return ValueTask.CompletedTask;
 		}
 
-		public void Dispose()
-		{
-			DisposeCount ++;
-			_storage.Dispose();
-		}
-
-		public ValueTask DisposeAsync()
-		{
-			DisposeAsyncCount ++;
-			_storage.Dispose();
-
-			return ValueTask.CompletedTask;
-		}
+	#endregion
 	}
 }

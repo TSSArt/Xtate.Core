@@ -1,22 +1,22 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Xml.XPath;
 using System.Reflection;
+using System.Xml.XPath;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
 
@@ -61,7 +61,7 @@ public class XPathNodeAdapterCoverageTest
 		Assert.AreEqual(XmlConverter.TypeAttributeName, node.GetLocalName());
 		Assert.AreEqual(XmlConverter.TypeAttributeName, node.GetName());
 		Assert.AreEqual(XmlConverter.XPathElementNamespace, node.GetNamespaceUri());
-		Assert.AreEqual("number", node.GetValue());
+		Assert.AreEqual(expected: "number", node.GetValue());
 	}
 
 	[TestMethod]
@@ -71,9 +71,9 @@ public class XPathNodeAdapterCoverageTest
 		var node = new DataModelXPathNavigator.Node(DataModelValue.Undefined, adapter);
 
 		Assert.AreEqual(XPathNodeType.Namespace, node.GetNodeType());
-		Assert.AreEqual("xml", node.GetLocalName());
-		Assert.AreEqual("xml", node.GetName());
-		Assert.AreEqual("http://www.w3.org/XML/1998/namespace", node.GetValue());
+		Assert.AreEqual(expected: "xml", node.GetLocalName());
+		Assert.AreEqual(expected: "xml", node.GetName());
+		Assert.AreEqual(expected: "http://www.w3.org/XML/1998/namespace", node.GetValue());
 	}
 
 	[TestMethod]
@@ -83,10 +83,10 @@ public class XPathNodeAdapterCoverageTest
 		var node = new DataModelXPathNavigator.Node(new DataModelValue("urn:test"), adapter, parentProperty: "prefix");
 
 		Assert.AreEqual(XPathNodeType.Namespace, node.GetNodeType());
-		Assert.AreEqual("prefix", node.GetLocalName());
-		Assert.AreEqual("prefix", node.GetName());
-		Assert.AreEqual("urn:test", node.GetValue());
-		Assert.AreEqual("prefix", typeof(NamespaceNodeAdapter).GetMethod(nameof(NamespaceNodeAdapter.GetLocalName))!.Invoke(adapter, [node]));
+		Assert.AreEqual(expected: "prefix", node.GetLocalName());
+		Assert.AreEqual(expected: "prefix", node.GetName());
+		Assert.AreEqual(expected: "urn:test", node.GetValue());
+		Assert.AreEqual(expected: "prefix", typeof(NamespaceNodeAdapter).GetMethod(nameof(NamespaceNodeAdapter.GetLocalName))!.Invoke(adapter, [node]));
 
 		try
 		{
@@ -108,11 +108,11 @@ public class XPathNodeAdapterCoverageTest
 		var node = new DataModelXPathNavigator.Node(new DataModelValue("attribute-value"), adapter, parentIndex: 0, parentProperty: "attribute", metadata: metadata);
 
 		Assert.AreEqual(XPathNodeType.Attribute, typeof(AttributeNodeAdapter).GetMethod(nameof(AttributeNodeAdapter.GetNodeType))!.Invoke(adapter, parameters: null));
-		Assert.AreEqual("attribute", typeof(AttributeNodeAdapter).GetMethod(nameof(AttributeNodeAdapter.GetLocalName))!.Invoke(adapter, [node]));
-		Assert.AreEqual("prefix:attribute", node.GetName());
-		Assert.AreEqual("prefix", node.GetPrefix());
-		Assert.AreEqual("urn:test", node.GetNamespaceUri());
-		Assert.AreEqual("attribute-value", node.GetValue());
+		Assert.AreEqual(expected: "attribute", typeof(AttributeNodeAdapter).GetMethod(nameof(AttributeNodeAdapter.GetLocalName))!.Invoke(adapter, [node]));
+		Assert.AreEqual(expected: "prefix:attribute", node.GetName());
+		Assert.AreEqual(expected: "prefix", node.GetPrefix());
+		Assert.AreEqual(expected: "urn:test", node.GetNamespaceUri());
+		Assert.AreEqual(expected: "attribute-value", node.GetValue());
 
 		var missingPropertyNode = new DataModelXPathNavigator.Node(new DataModelValue("value"), adapter);
 
@@ -137,7 +137,7 @@ public class XPathNodeAdapterCoverageTest
 			new("text"),
 			new(12D),
 			new(true),
-			new(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc))
+			new(new DateTime(year: 2026, month: 1, day: 2, hour: 3, minute: 4, second: 5, DateTimeKind.Utc))
 		];
 
 		foreach (var value in simpleValues)
@@ -152,7 +152,7 @@ public class XPathNodeAdapterCoverageTest
 		Assert.IsInstanceOfType<SimpleTypeNodeAdapter>(AdapterFactory.GetSimpleTypeAdapter(new DataModelValue("text")));
 		Assert.IsInstanceOfType<SimpleTypeNodeAdapter>(AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(1D)));
 		Assert.IsInstanceOfType<SimpleTypeNodeAdapter>(AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(false)));
-		Assert.IsInstanceOfType<SimpleTypeNodeAdapter>(AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(DateTime.UnixEpoch)));
+		Assert.IsInstanceOfType<SimpleTypeNodeAdapter>(AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(new DateTime(year: 1970, month: 1, day: 1))));
 
 		var items = new DataModelList
 					{
@@ -161,7 +161,7 @@ public class XPathNodeAdapterCoverageTest
 						"text",
 						1D,
 						true,
-						DateTime.UnixEpoch,
+						new DateTime(year: 1970, month: 1, day: 1),
 						new DataModelList()
 					};
 		Type[] expectedTypes =
@@ -183,9 +183,7 @@ public class XPathNodeAdapterCoverageTest
 			_ = AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(new DataModelList()));
 			Assert.Fail("A list cannot use a simple-type adapter.");
 		}
-		catch (NotSupportedException)
-		{
-		}
+		catch (NotSupportedException) { }
 	}
 
 	[TestMethod]
@@ -194,8 +192,8 @@ public class XPathNodeAdapterCoverageTest
 		var metadata = new DataModelList { "prefix", "urn:test" };
 
 		Assert.AreEqual(string.Empty, XPathMetadata.GetValue(metadata: null, index: 0, offset: 0));
-		Assert.AreEqual("prefix", XPathMetadata.GetValue(metadata, index: 0, offset: 0));
-		Assert.AreEqual("urn:test", XPathMetadata.GetValue(metadata, index: 0, offset: 1));
+		Assert.AreEqual(expected: "prefix", XPathMetadata.GetValue(metadata, index: 0, offset: 0));
+		Assert.AreEqual(expected: "urn:test", XPathMetadata.GetValue(metadata, index: 0, offset: 1));
 		Assert.AreEqual(string.Empty, XPathMetadata.GetValue(metadata, index: 5, offset: 1));
 	}
 
@@ -214,26 +212,26 @@ public class XPathNodeAdapterCoverageTest
 		Assert.AreEqual(XPathNodeType.Element, parent.GetNodeType());
 		Assert.IsFalse(parent.IsEmptyElement());
 		Assert.IsTrue(parent.GetFirstChild(out var first));
-		Assert.AreEqual("first", first.GetLocalName());
-		Assert.AreEqual("one", first.GetValue());
+		Assert.AreEqual(expected: "first", first.GetLocalName());
+		Assert.AreEqual(expected: "one", first.GetValue());
 		Assert.IsTrue(parent.GetNextChild(ref first));
-		Assert.AreEqual("second", first.GetLocalName());
+		Assert.AreEqual(expected: "second", first.GetLocalName());
 		var second = first;
 		Assert.IsTrue(parent.GetNextChild(ref first));
-		Assert.AreEqual("nested", first.GetLocalName());
+		Assert.AreEqual(expected: "nested", first.GetLocalName());
 		Assert.IsInstanceOfType<ListItemNodeAdapter>(first.Adapter);
 		Assert.IsTrue(first.GetFirstChild(out var inner));
-		Assert.AreEqual("inner", inner.GetLocalName());
-		Assert.AreEqual("nested-value", inner.GetValue());
+		Assert.AreEqual(expected: "inner", inner.GetLocalName());
+		Assert.AreEqual(expected: "nested-value", inner.GetValue());
 		Assert.IsFalse(first.GetNextChild(ref inner));
 		Assert.IsTrue(parent.GetPreviousChild(ref second));
-		Assert.AreEqual("first", second.GetLocalName());
+		Assert.AreEqual(expected: "first", second.GetLocalName());
 
-		Assert.AreEqual("onetwonested-value", parent.GetValue());
+		Assert.AreEqual(expected: "onetwonested-value", parent.GetValue());
 		Assert.AreEqual(expected: 18, parent.Adapter.GetBufferSizeForValue(parent));
 		Span<char> buffer = stackalloc char[18];
 		Assert.AreEqual(expected: 18, parent.Adapter.WriteValueToSpan(parent, buffer));
-		Assert.AreEqual("onetwonested-value", buffer.ToString());
+		Assert.AreEqual(expected: "onetwonested-value", buffer.ToString());
 
 		var empty = new DataModelXPathNavigator.Node(new DataModelValue([]), new ListNodeAdapter());
 		Assert.IsTrue(empty.IsEmptyElement());
@@ -250,10 +248,10 @@ public class XPathNodeAdapterCoverageTest
 		Assert.IsInstanceOfType<ListItemNodeAdapter>(nestedNode.Adapter);
 		Assert.IsTrue(nestedNode.GetFirstChild(out var child));
 		Assert.IsTrue(nestedNode.GetNextChild(ref child));
-		Assert.AreEqual("two", child.GetLocalName());
+		Assert.AreEqual(expected: "two", child.GetLocalName());
 
 		Assert.IsTrue(nestedNode.GetPreviousChild(ref child));
-		Assert.AreEqual("one", child.GetLocalName());
+		Assert.AreEqual(expected: "one", child.GetLocalName());
 		Assert.IsFalse(nestedNode.GetPreviousChild(ref child));
 	}
 
@@ -266,33 +264,32 @@ public class XPathNodeAdapterCoverageTest
 						   "attribute", "attribute-value", "a", "urn:attribute",
 						   "ns", "urn:declared", string.Empty, XPathMetadata.XmlnsNamespace
 					   };
-		var item = new DataModelXPathNavigator.Node(
-			new DataModelValue("text"), new ItemNodeAdapter(), parentProperty: "item", metadata: metadata);
+		var item = new DataModelXPathNavigator.Node(new DataModelValue("text"), new ItemNodeAdapter(), parentProperty: "item", metadata: metadata);
 
-		Assert.AreEqual("item", item.GetLocalName());
-		Assert.AreEqual("elementPrefix", item.GetPrefix());
-		Assert.AreEqual("elementPrefix:item", item.GetName());
-		Assert.AreEqual("urn:element", item.GetNamespaceUri());
+		Assert.AreEqual(expected: "item", item.GetLocalName());
+		Assert.AreEqual(expected: "elementPrefix", item.GetPrefix());
+		Assert.AreEqual(expected: "elementPrefix:item", item.GetName());
+		Assert.AreEqual(expected: "urn:element", item.GetNamespaceUri());
 		Assert.IsTrue(item.GetFirstAttribute(out var attribute));
 		Assert.IsInstanceOfType<AttributeNodeAdapter>(attribute.Adapter);
-		Assert.AreEqual("attribute", attribute.GetLocalName());
-		Assert.AreEqual("a", attribute.GetPrefix());
-		Assert.AreEqual("a:attribute", attribute.GetName());
-		Assert.AreEqual("urn:attribute", attribute.GetNamespaceUri());
-		Assert.AreEqual("attribute-value", attribute.GetValue());
+		Assert.AreEqual(expected: "attribute", attribute.GetLocalName());
+		Assert.AreEqual(expected: "a", attribute.GetPrefix());
+		Assert.AreEqual(expected: "a:attribute", attribute.GetName());
+		Assert.AreEqual(expected: "urn:attribute", attribute.GetNamespaceUri());
+		Assert.AreEqual(expected: "attribute-value", attribute.GetValue());
 		Assert.IsFalse(item.GetNextAttribute(ref attribute));
 
 		Assert.IsTrue(item.GetFirstNamespace(out var namespaceNode));
 		Assert.IsInstanceOfType<NamespaceNodeAdapter>(namespaceNode.Adapter);
-		Assert.AreEqual("ns", namespaceNode.GetLocalName());
-		Assert.AreEqual("urn:declared", namespaceNode.GetValue());
+		Assert.AreEqual(expected: "ns", namespaceNode.GetLocalName());
+		Assert.AreEqual(expected: "urn:declared", namespaceNode.GetValue());
 		Assert.IsFalse(item.GetNextNamespace(ref namespaceNode));
 
 		var number = new DataModelXPathNavigator.Node(new DataModelValue(12D), new ItemNodeAdapter(), parentProperty: "number");
 		Assert.IsTrue(number.GetFirstAttribute(out var typeAttribute));
 		Assert.IsInstanceOfType<TypeAttributeNodeAdapter>(typeAttribute.Adapter);
 		Assert.AreEqual(XmlConverter.TypeAttributeName, typeAttribute.GetLocalName());
-		Assert.AreEqual("number", typeAttribute.GetValue());
+		Assert.AreEqual(expected: "number", typeAttribute.GetValue());
 		Assert.IsFalse(number.GetNextAttribute(ref typeAttribute));
 		Assert.IsFalse(number.GetFirstNamespace(out _));
 	}

@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -32,27 +32,25 @@ public class IoBoundTaskSchedulerCoverageTest
 		using var started = new ManualResetEventSlim(initialState: false);
 		using var release = new ManualResetEventSlim(initialState: false);
 		var executionThreads = new List<int>();
-		var first = factory.StartNew(
-			() =>
-			{
-				lock (executionThreads)
-				{
-					executionThreads.Add(Environment.CurrentManagedThreadId);
-				}
+		var first = factory.StartNew(() =>
+									 {
+										 lock (executionThreads)
+										 {
+											 executionThreads.Add(Environment.CurrentManagedThreadId);
+										 }
 
-				started.Set();
-				release.Wait();
-			});
+										 started.Set();
+										 release.Wait();
+									 });
 
-		Assert.IsTrue(started.Wait(TimeSpan.FromSeconds(5)), "The first scheduler worker did not start.");
-		var second = factory.StartNew(
-			() =>
-			{
-				lock (executionThreads)
-				{
-					executionThreads.Add(Environment.CurrentManagedThreadId);
-				}
-			});
+		Assert.IsTrue(started.Wait(TimeSpan.FromSeconds(5)), message: "The first scheduler worker did not start.");
+		var second = factory.StartNew(() =>
+									  {
+										  lock (executionThreads)
+										  {
+											  executionThreads.Add(Environment.CurrentManagedThreadId);
+										  }
+									  });
 
 		try
 		{
@@ -86,13 +84,15 @@ public class IoBoundTaskSchedulerCoverageTest
 
 	private static Task[] GetScheduledTasks(IoBoundTaskScheduler scheduler)
 	{
-		var method = typeof(IoBoundTaskScheduler).GetMethod("GetScheduledTasks", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var method = typeof(IoBoundTaskScheduler).GetMethod(name: "GetScheduledTasks", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
 		return ((IEnumerable<Task>) method.Invoke(scheduler, parameters: null)!).ToArray();
 	}
 
 	private static bool TryExecuteInline(IoBoundTaskScheduler scheduler, Task task)
 	{
-		var method = typeof(IoBoundTaskScheduler).GetMethod("TryExecuteTaskInline", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var method = typeof(IoBoundTaskScheduler).GetMethod(name: "TryExecuteTaskInline", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
 		return (bool) method.Invoke(scheduler, [task, true])!;
 	}
 }

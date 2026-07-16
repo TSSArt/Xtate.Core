@@ -36,12 +36,12 @@ public class XPathEvaluatorCoverageTest
 	public void XPathLocationExpressionForwardsSourceAndParsesEveryAssignType()
 	{
 		var source = new LocationExpressionSource { Expression = "/root/value" };
-		var expression = new XPathLocationExpression(source, XPathAssignType.AddAttribute, "status");
+		var expression = new XPathLocationExpression(source, XPathAssignType.AddAttribute, attribute: "status");
 
 		Assert.AreSame(source, ((IAncestorProvider) expression).Ancestor);
-		Assert.AreEqual("/root/value", expression.Expression);
+		Assert.AreEqual(expected: "/root/value", expression.Expression);
 		Assert.AreEqual(XPathAssignType.AddAttribute, expression.AssignType);
-		Assert.AreEqual("status", expression.Attribute);
+		Assert.AreEqual(expected: "status", expression.Attribute);
 
 		(string? Input, XPathAssignType Expected)[] mappings =
 		[
@@ -63,7 +63,7 @@ public class XPathEvaluatorCoverageTest
 			Assert.AreEqual(expected, actual);
 		}
 
-		Assert.IsFalse(XPathLocationExpression.TryParseAssignType("unsupported", out var unknown));
+		Assert.IsFalse(XPathLocationExpression.TryParseAssignType(value: "unsupported", out var unknown));
 		Assert.AreEqual(XPathAssignType.Unknown, unknown);
 	}
 
@@ -216,7 +216,11 @@ public class XPathEvaluatorCoverageTest
 
 	private sealed class LocationExpressionSource : ILocationExpression
 	{
+	#region Interface ILocationExpression
+
 		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TestInlineContentEvaluator(IInlineContent inlineContent, DataModelValue value) : InlineContentEvaluator(inlineContent)

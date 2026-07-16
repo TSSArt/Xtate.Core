@@ -1,26 +1,28 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Interpreter;
+using System.Reflection;
 using Xtate.DataModel;
+using Xtate.Interpreter;
 using Xtate.Persistence;
 using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
+using TypeInfo = Xtate.Persistence.Internal.TypeInfo;
 
 namespace Xtate.Test.UnitTests.Persistence;
 
@@ -54,17 +56,17 @@ public class StateMachineReaderCoverageTest
 	{
 		var reader = new StateMachineReader();
 		var empty = new Bucket(new InMemoryStorage(writeOnly: false));
-		Assert.ThrowsExactly<PersistenceException>([ExcludeFromCodeCoverage] () => reader.Build(empty));
+		Assert.ThrowsExactly<PersistenceException>([ExcludeFromCodeCoverage]() => reader.Build(empty));
 
 		var mismatch = new Bucket(new InMemoryStorage(writeOnly: false));
 		mismatch.Add(Key.TypeInfo, TypeInfo.StateNode);
-		Assert.ThrowsExactly<PersistenceException>([ExcludeFromCodeCoverage] () => reader.Build(mismatch));
+		Assert.ThrowsExactly<PersistenceException>([ExcludeFromCodeCoverage]() => reader.Build(mismatch));
 
 		var unknown = new Bucket(new InMemoryStorage(writeOnly: false));
 		unknown.Add(Key.TypeInfo, TypeInfo.StateMachineNode);
-		AssertInvocationPersistenceException(reader, "RestoreCondition", unknown);
-		AssertInvocationPersistenceException(reader, "RestoreExecutableEntity", unknown);
-		AssertInvocationPersistenceException(reader, "RestoreStateEntity", unknown);
+		AssertInvocationPersistenceException(reader, methodName: "RestoreCondition", unknown);
+		AssertInvocationPersistenceException(reader, methodName: "RestoreExecutableEntity", unknown);
+		AssertInvocationPersistenceException(reader, methodName: "RestoreStateEntity", unknown);
 	}
 
 	[TestMethod]
@@ -72,20 +74,20 @@ public class StateMachineReaderCoverageTest
 	{
 		var reader = new StateMachineReader();
 		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
-		bucket.Add(Key.DocumentId, 17);
-		AssertInvocationPersistenceException(reader, "ForwardExecEntity", bucket);
+		bucket.Add(Key.DocumentId, value: 17);
+		AssertInvocationPersistenceException(reader, methodName: "ForwardExecEntity", bucket);
 
 		var map = new StubEntityMap(found: false, entity: null);
 		SetEntityMap(reader, map);
-		AssertInvocationPersistenceException(reader, "ForwardExecEntity", bucket);
+		AssertInvocationPersistenceException(reader, methodName: "ForwardExecEntity", bucket);
 
 		map.Found = true;
 		map.Entity = Mock.Of<IEntity>();
-		AssertInvocationPersistenceException(reader, "ForwardExecEntity", bucket);
+		AssertInvocationPersistenceException(reader, methodName: "ForwardExecEntity", bucket);
 
 		var executable = Mock.Of<IExecutableEntity>();
 		map.Entity = executable;
-		Assert.AreSame(executable, Invoke(reader, "ForwardExecEntity", bucket));
+		Assert.AreSame(executable, Invoke(reader, methodName: "ForwardExecEntity", bucket));
 	}
 
 	[TestMethod]
@@ -94,16 +96,16 @@ public class StateMachineReaderCoverageTest
 		var reader = new StateMachineReader();
 		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
 		bucket.Add(Key.TypeInfo, TypeInfo.ExternalScriptExpressionNode);
-		bucket.Add(Key.DocumentId, 19);
+		bucket.Add(Key.DocumentId, value: 19);
 		bucket.Add(Key.Uri, new Uri("https://example.test/script.js"));
-		bucket.Add(Key.Content, "embedded script");
+		bucket.Add(Key.Content, value: "embedded script");
 
-		var restored = Invoke(reader, "RestoreExternalScriptExpression", bucket);
+		var restored = Invoke(reader, methodName: "RestoreExternalScriptExpression", bucket);
 
 		Assert.IsInstanceOfType<IExternalScriptExpression>(restored);
 		Assert.IsInstanceOfType<IExternalScriptProvider>(restored);
 		Assert.AreEqual(new Uri("https://example.test/script.js"), ((IExternalScriptExpression) restored).Uri);
-		Assert.AreEqual("embedded script", ((IExternalScriptProvider) restored).Content);
+		Assert.AreEqual(expected: "embedded script", ((IExternalScriptProvider) restored).Content);
 	}
 
 	[TestMethod]
@@ -112,42 +114,42 @@ public class StateMachineReaderCoverageTest
 		var reader = new StateMachineReader();
 		var sendBucket = new Bucket(new InMemoryStorage(writeOnly: false));
 		sendBucket.Add(Key.TypeInfo, TypeInfo.SendNode);
-		sendBucket.Add(Key.DocumentId, 23);
-		sendBucket.Add(Key.Id, "send-id");
+		sendBucket.Add(Key.DocumentId, value: 23);
+		sendBucket.Add(Key.Id, value: "send-id");
 		sendBucket.Add(Key.Type, new FullUri("https://example.test/send"));
-		sendBucket.Add(Key.Event, "event.name");
+		sendBucket.Add(Key.Event, value: "event.name");
 		sendBucket.Add(Key.Target, new FullUri("https://example.test/target"));
-		sendBucket.Add(Key.DelayMs, 125);
-		sendBucket.Add(Key.NameList, 0);
-		sendBucket.Add(Key.Parameters, 0);
-		AddContent(sendBucket.Nested(Key.Content), "send content");
+		sendBucket.Add(Key.DelayMs, value: 125);
+		sendBucket.Add(Key.NameList, value: 0);
+		sendBucket.Add(Key.Parameters, value: 0);
+		AddContent(sendBucket.Nested(Key.Content), body: "send content");
 
-		var send = Assert.IsInstanceOfType<ISend>(Invoke(reader, "RestoreSend", sendBucket));
-		Assert.AreEqual("send-id", send.Id);
+		var send = Assert.IsInstanceOfType<ISend>(Invoke(reader, methodName: "RestoreSend", sendBucket));
+		Assert.AreEqual(expected: "send-id", send.Id);
 		Assert.AreEqual(new FullUri("https://example.test/send"), send.Type);
-		Assert.AreEqual("event.name", send.EventName);
+		Assert.AreEqual(expected: "event.name", send.EventName);
 		Assert.AreEqual(new FullUri("https://example.test/target"), send.Target);
-		Assert.AreEqual(125, send.DelayMs);
+		Assert.AreEqual(expected: 125, send.DelayMs);
 		Assert.IsTrue(send.NameList.IsEmpty);
 		Assert.IsTrue(send.Parameters.IsEmpty);
-		Assert.AreEqual("send content", send.Content?.Body?.Value);
+		Assert.AreEqual(expected: "send content", send.Content?.Body?.Value);
 
 		var invokeBucket = new Bucket(new InMemoryStorage(writeOnly: false));
 		invokeBucket.Add(Key.TypeInfo, TypeInfo.InvokeNode);
-		invokeBucket.Add(Key.DocumentId, 29);
-		invokeBucket.Add(Key.Id, "invoke-id");
+		invokeBucket.Add(Key.DocumentId, value: 29);
+		invokeBucket.Add(Key.Id, value: "invoke-id");
 		invokeBucket.Add(Key.Type, new FullUri("https://example.test/invoke"));
 		invokeBucket.Add(Key.Source, new Uri("https://example.test/source"));
-		invokeBucket.Add(Key.AutoForward, true);
-		invokeBucket.Add(Key.NameList, 0);
-		invokeBucket.Add(Key.Parameters, 0);
+		invokeBucket.Add(Key.AutoForward, value: true);
+		invokeBucket.Add(Key.NameList, value: 0);
+		invokeBucket.Add(Key.Parameters, value: 0);
 		var finalizeBucket = invokeBucket.Nested(Key.Finalize);
 		finalizeBucket.Add(Key.TypeInfo, TypeInfo.FinalizeNode);
-		finalizeBucket.Add(Key.Parameters, 0);
-		AddContent(invokeBucket.Nested(Key.Content), "invoke content");
+		finalizeBucket.Add(Key.Parameters, value: 0);
+		AddContent(invokeBucket.Nested(Key.Content), body: "invoke content");
 
-		var invoke = Assert.IsInstanceOfType<IInvoke>(Invoke(reader, "RestoreInvoke", invokeBucket));
-		Assert.AreEqual("invoke-id", invoke.Id);
+		var invoke = Assert.IsInstanceOfType<IInvoke>(Invoke(reader, methodName: "RestoreInvoke", invokeBucket));
+		Assert.AreEqual(expected: "invoke-id", invoke.Id);
 		Assert.AreEqual(new FullUri("https://example.test/invoke"), invoke.Type);
 		Assert.AreEqual(new Uri("https://example.test/source"), invoke.Source);
 		Assert.IsTrue(invoke.AutoForward);
@@ -155,7 +157,7 @@ public class StateMachineReaderCoverageTest
 		Assert.IsTrue(invoke.Parameters.IsEmpty);
 		Assert.IsNotNull(invoke.Finalize);
 		Assert.IsTrue(invoke.Finalize.Action.IsEmpty);
-		Assert.AreEqual("invoke content", invoke.Content?.Body?.Value);
+		Assert.AreEqual(expected: "invoke content", invoke.Content?.Body?.Value);
 	}
 
 	[TestMethod]
@@ -163,11 +165,11 @@ public class StateMachineReaderCoverageTest
 	{
 		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
 		bucket.Add(Key.TypeInfo, TypeInfo.DoneDataNode);
-		bucket.Add(Key.Parameters, 0);
-		AddContent(bucket.Nested(Key.Content), "done content");
+		bucket.Add(Key.Parameters, value: 0);
+		AddContent(bucket.Nested(Key.Content), body: "done content");
 
-		var doneData = Assert.IsInstanceOfType<IDoneData>(Invoke(new StateMachineReader(), "RestoreDoneData", bucket));
-		Assert.AreEqual("done content", doneData.Content?.Body?.Value);
+		var doneData = Assert.IsInstanceOfType<IDoneData>(Invoke(new StateMachineReader(), methodName: "RestoreDoneData", bucket));
+		Assert.AreEqual(expected: "done content", doneData.Content?.Body?.Value);
 		Assert.IsTrue(doneData.Parameters.IsEmpty);
 	}
 
@@ -179,7 +181,7 @@ public class StateMachineReaderCoverageTest
 
 	private static object? Invoke(StateMachineReader reader, string methodName, Bucket bucket)
 	{
-		var method = typeof(StateMachineReader).GetMethod(methodName, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+		var method = typeof(StateMachineReader).GetMethod(methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic)!;
 
 		return method.Invoke(method.IsStatic ? null : reader, [bucket]);
 	}
@@ -191,14 +193,14 @@ public class StateMachineReaderCoverageTest
 			_ = Invoke(reader, methodName, bucket);
 			Assert.Fail($"{methodName} did not throw.");
 		}
-		catch (System.Reflection.TargetInvocationException exception)
+		catch (TargetInvocationException exception)
 		{
 			Assert.IsInstanceOfType<PersistenceException>(exception.InnerException);
 		}
 	}
 
 	private static void SetEntityMap(StateMachineReader reader, IEntityMap map) =>
-		typeof(StateMachineReader).GetField("_forwardEntities", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(reader, map);
+		typeof(StateMachineReader).GetField(name: "_forwardEntities", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(reader, map);
 
 	private sealed class StubEntityMap(bool found, IEntity? entity) : IEntityMap
 	{
@@ -206,11 +208,15 @@ public class StateMachineReaderCoverageTest
 
 		public IEntity? Entity { get; set; } = entity;
 
+	#region Interface IEntityMap
+
 		public bool TryGetEntityByDocumentId(int id, [NotNullWhen(true)] out IEntity? entityResult)
 		{
 			entityResult = Entity;
 
 			return Found;
 		}
+
+	#endregion
 	}
 }

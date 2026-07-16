@@ -58,8 +58,7 @@ public class DataModelListCoverageTest
 		CollectionAssert.AreEqual(new[] { "lower", "upper" }, list.ListValues(key: "item", caseInsensitive: true).Select(value => value.AsString()).ToArray());
 		CollectionAssert.AreEqual(new[] { "item=lower" }, list.ListKeyValues(key: "item", caseInsensitive: false).Select(value => $"{value.Key}={value.Value.AsString()}").ToArray());
 		CollectionAssert.AreEqual(new[] { "item=lower", "ITEM=upper" }, list.ListKeyValues(key: "item", caseInsensitive: true).Select(value => $"{value.Key}={value.Value.AsString()}").ToArray());
-		CollectionAssert.AreEqual(
-			new[] { "0:item:lower" }, list.ListEntries(key: "item", caseInsensitive: false).Select(entry => $"{entry.Index}:{entry.Key}:{entry.Value.AsString()}").ToArray());
+		CollectionAssert.AreEqual(new[] { "0:item:lower" }, list.ListEntries(key: "item", caseInsensitive: false).Select(entry => $"{entry.Index}:{entry.Key}:{entry.Value.AsString()}").ToArray());
 		CollectionAssert.AreEqual(
 			new[] { "0:item:lower", "1:item:upper" }, list.ListEntries(key: "item", caseInsensitive: true).Select(entry => $"{entry.Index}:{entry.Key}:{entry.Value.AsString()}").ToArray());
 	}
@@ -70,20 +69,20 @@ public class DataModelListCoverageTest
 		var list = new DataModelList { "first", "second" };
 		list.SetLength(3);
 
-		var values = list.ListValues(key: null!, caseInsensitive: true).GetEnumerator();
+		var values = list.ListValues(null!, caseInsensitive: true).GetEnumerator();
 		Assert.AreEqual(DataModelValueType.Undefined, values.Current.Type);
 		Assert.IsTrue(values.MoveNext());
-		Assert.AreEqual("first", values.Current.AsString());
-		Assert.AreEqual("first", ((DataModelValue) ((IEnumerator) values).Current).AsString());
+		Assert.AreEqual(expected: "first", values.Current.AsString());
+		Assert.AreEqual(expected: "first", ((DataModelValue) ((IEnumerator) values).Current).AsString());
 		Assert.IsTrue(values.MoveNext());
-		Assert.AreEqual("second", values.Current.AsString());
+		Assert.AreEqual(expected: "second", values.Current.AsString());
 		Assert.IsTrue(values.MoveNext());
 		Assert.AreEqual(DataModelValueType.Undefined, values.Current.Type);
 		Assert.IsFalse(values.MoveNext());
 		values.Reset();
 		Assert.IsTrue(values.MoveNext());
 
-		var keyValues = list.ListKeyValues(key: null!, caseInsensitive: true).GetEnumerator();
+		var keyValues = list.ListKeyValues(null!, caseInsensitive: true).GetEnumerator();
 		Assert.IsTrue(keyValues.MoveNext());
 		Assert.IsNull(keyValues.Current.Key);
 		Assert.IsNull(((DataModelList.KeyValue) ((IEnumerator) keyValues).Current).Key);
@@ -95,7 +94,7 @@ public class DataModelListCoverageTest
 		keyValues.Reset();
 		Assert.IsTrue(keyValues.MoveNext());
 
-		var entries = list.ListEntries(key: null!, caseInsensitive: true).GetEnumerator();
+		var entries = list.ListEntries(null!, caseInsensitive: true).GetEnumerator();
 		Assert.IsTrue(entries.MoveNext());
 		Assert.IsNull(entries.Current.Key);
 		Assert.IsNull(((DataModelList.Entry) ((IEnumerator) entries).Current).Key);
@@ -112,9 +111,9 @@ public class DataModelListCoverageTest
 
 		CollectionAssert.AreEqual(
 			new[] { DataModelValueType.Undefined, DataModelValueType.Undefined },
-			sparse.ListValues(key: null!, caseInsensitive: true).Select(value => value.Type).ToArray());
-		Assert.IsTrue(sparse.ListKeyValues(key: null!, caseInsensitive: true).All(item => item.Key is null && item.Value.Type == DataModelValueType.Undefined));
-		Assert.IsTrue(sparse.ListEntries(key: null!, caseInsensitive: true).All(item => item.Key is null && item.Value.Type == DataModelValueType.Undefined));
+			sparse.ListValues(null!, caseInsensitive: true).Select(value => value.Type).ToArray());
+		Assert.IsTrue(sparse.ListKeyValues(null!, caseInsensitive: true).All(item => item.Key is null && item.Value.Type == DataModelValueType.Undefined));
+		Assert.IsTrue(sparse.ListEntries(null!, caseInsensitive: true).All(item => item.Key is null && item.Value.Type == DataModelValueType.Undefined));
 	}
 
 	[TestMethod]
@@ -177,12 +176,12 @@ public class DataModelListCoverageTest
 		var enumerator = list.KeyValuePairs.GetEnumerator();
 
 		Assert.IsTrue(enumerator.MoveNext());
-		Assert.AreEqual("first", enumerator.Current.Key);
-		Assert.AreEqual("first", ((KeyValuePair<string, DataModelValue>) ((IEnumerator) enumerator).Current).Key);
+		Assert.AreEqual(expected: "first", enumerator.Current.Key);
+		Assert.AreEqual(expected: "first", ((KeyValuePair<string, DataModelValue>) ((IEnumerator) enumerator).Current).Key);
 		enumerator.Reset();
 		Assert.IsNull(enumerator.Current.Key);
 		Assert.IsTrue(enumerator.MoveNext());
-		Assert.AreEqual("first", enumerator.Current.Key);
+		Assert.AreEqual(expected: "first", enumerator.Current.Key);
 	}
 
 	[TestMethod]
@@ -192,38 +191,38 @@ public class DataModelListCoverageTest
 
 		var keys = list.Keys.GetEnumerator();
 		Assert.IsTrue(keys.MoveNext());
-		Assert.AreEqual("key", keys.Current);
-		Assert.AreEqual("key", ((IEnumerator) keys).Current);
+		Assert.AreEqual(expected: "key", keys.Current);
+		Assert.AreEqual(expected: "key", ((IEnumerator) keys).Current);
 		keys.Reset();
 		Assert.IsTrue(keys.MoveNext());
-		Assert.AreEqual("key", GetFirst((IEnumerable) list.Keys));
+		Assert.AreEqual(expected: "key", GetFirst(list.Keys));
 
 		var values = list.Values.GetEnumerator();
 		Assert.IsTrue(values.MoveNext());
-		Assert.AreEqual("value", values.Current.AsString());
-		Assert.AreEqual("value", ((DataModelValue) ((IEnumerator) values).Current).AsString());
+		Assert.AreEqual(expected: "value", values.Current.AsString());
+		Assert.AreEqual(expected: "value", ((DataModelValue) ((IEnumerator) values).Current).AsString());
 		values.Reset();
 		Assert.IsTrue(values.MoveNext());
-		Assert.AreEqual("value", ((DataModelValue) GetFirst((IEnumerable) list.Values)).AsString());
+		Assert.AreEqual(expected: "value", ((DataModelValue) GetFirst(list.Values)).AsString());
 
 		var keyValues = list.KeyValues.GetEnumerator();
 		Assert.IsTrue(keyValues.MoveNext());
-		Assert.AreEqual("key", ((DataModelList.KeyValue) ((IEnumerator) keyValues).Current).Key);
+		Assert.AreEqual(expected: "key", ((DataModelList.KeyValue) ((IEnumerator) keyValues).Current).Key);
 		keyValues.Reset();
 		Assert.IsTrue(keyValues.MoveNext());
-		Assert.AreEqual("key", ((DataModelList.KeyValue) GetFirst((IEnumerable) list.KeyValues)).Key);
+		Assert.AreEqual(expected: "key", ((DataModelList.KeyValue) GetFirst(list.KeyValues)).Key);
 
 		var entries = list.Entries.GetEnumerator();
 		Assert.IsTrue(entries.MoveNext());
-		Assert.AreEqual("key", ((DataModelList.Entry) ((IEnumerator) entries).Current).Key);
+		Assert.AreEqual(expected: "key", ((DataModelList.Entry) ((IEnumerator) entries).Current).Key);
 		entries.Reset();
 		Assert.IsTrue(entries.MoveNext());
-		Assert.AreEqual("key", ((DataModelList.Entry) GetFirst((IEnumerable) list.Entries)).Key);
+		Assert.AreEqual(expected: "key", ((DataModelList.Entry) GetFirst(list.Entries)).Key);
 
-		Assert.AreEqual("value", ((DataModelValue) GetFirst((IEnumerable) list.ListValues("key", caseInsensitive: false))).AsString());
-		Assert.AreEqual("key", ((DataModelList.KeyValue) GetFirst((IEnumerable) list.ListKeyValues("key", caseInsensitive: false))).Key);
-		Assert.AreEqual("key", ((DataModelList.Entry) GetFirst((IEnumerable) list.ListEntries("key", caseInsensitive: false))).Key);
-		Assert.AreEqual("key", ((KeyValuePair<string, DataModelValue>) GetFirst((IEnumerable) list.KeyValuePairs)).Key);
+		Assert.AreEqual(expected: "value", ((DataModelValue) GetFirst(list.ListValues(key: "key", caseInsensitive: false))).AsString());
+		Assert.AreEqual(expected: "key", ((DataModelList.KeyValue) GetFirst(list.ListKeyValues(key: "key", caseInsensitive: false))).Key);
+		Assert.AreEqual(expected: "key", ((DataModelList.Entry) GetFirst(list.ListEntries(key: "key", caseInsensitive: false))).Key);
+		Assert.AreEqual(expected: "key", ((KeyValuePair<string, DataModelValue>) GetFirst(list.KeyValuePairs)).Key);
 	}
 
 	[TestMethod]
@@ -264,7 +263,7 @@ public class DataModelListCoverageTest
 		Assert.AreEqual(expected: "meta", clone.Entries.Single().Metadata!["kind"].AsString());
 		Assert.AreEqual(expected: "metadata", clone.GetMetadata()!["root"].AsString());
 		Assert.IsFalse(clone.CanSet(key: "name", caseInsensitive: true));
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => clone["name"] = "changed");
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => clone["name"] = "changed");
 	}
 
 	[TestMethod]
@@ -276,7 +275,7 @@ public class DataModelListCoverageTest
 
 		Assert.AreSame(metadata, array.GetMetadata(index: 0));
 		Assert.IsNull(array.GetMetadata(index: 3));
-		Assert.AreEqual("[one,two]", array.ToString(format: null, CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "[one,two]", array.ToString(format: null, CultureInfo.InvariantCulture));
 
 		var writable = array.CloneAsWritable();
 		Assert.AreNotSame(array, writable);
@@ -291,19 +290,19 @@ public class DataModelListCoverageTest
 		var keyed = new DataModelList { ["remove"] = "first", ["keep"] = "second" };
 		Assert.IsTrue(keyed.RemoveFirst("remove"));
 		Assert.IsFalse(keyed.RemoveFirst("missing"));
-		Assert.AreEqual("second", keyed["keep"].AsString());
+		Assert.AreEqual(expected: "second", keyed["keep"].AsString());
 	}
 
 	[TestMethod]
 	public void PrivateAdaptersCreateEmptyAndSizedArraysAndRejectUnavailableAccess()
 	{
 		var listType = typeof(DataModelList);
-		var argsType = listType.GetNestedType("Args", BindingFlags.NonPublic)!;
+		var argsType = listType.GetNestedType(name: "Args", BindingFlags.NonPublic)!;
 
 		foreach (var adapterName in new[] { "ValueAdapter", "KeyValueAdapter", "MetaValueAdapter", "KeyMetaValueAdapter" })
 		{
 			var adapter = listType.GetField($"{adapterName}Instance", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(obj: null)!;
-			var createArray = adapter.GetType().GetMethod("CreateArray", BindingFlags.Instance | BindingFlags.Public)!;
+			var createArray = adapter.GetType().GetMethod(name: "CreateArray", BindingFlags.Instance | BindingFlags.Public)!;
 			object?[] emptyArguments = [Activator.CreateInstance(argsType), 0];
 			object?[] sizedArguments = [Activator.CreateInstance(argsType), 2];
 
@@ -314,7 +313,7 @@ public class DataModelListCoverageTest
 		foreach (var adapterName in new[] { "ValueAdapter", "KeyValueAdapter" })
 		{
 			var adapter = listType.GetField($"{adapterName}Instance", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(obj: null)!;
-			var getAccess = adapter.GetType().GetMethod("GetAccessByIndex", BindingFlags.Instance | BindingFlags.Public)!;
+			var getAccess = adapter.GetType().GetMethod(name: "GetAccessByIndex", BindingFlags.Instance | BindingFlags.Public)!;
 
 			try
 			{

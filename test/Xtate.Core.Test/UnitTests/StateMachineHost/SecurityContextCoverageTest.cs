@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -70,8 +70,7 @@ public class SecurityContextCoverageTest
 		Assert.IsFalse(context.HasPermissions(SecurityContextPermissions.RunIoBoundTask));
 		Assert.AreEqual(SecurityContextType.InvokedService, created.Type);
 		Assert.AreEqual(SecurityContextPermissions.RunIoBoundTask, created.Permissions);
-		Assert.ThrowsExactly<StateMachineSecurityException>(
-			[ExcludeFromCodeCoverage] () => context.CheckPermissions(SecurityContextPermissions.RunIoBoundTask));
+		Assert.ThrowsExactly<StateMachineSecurityException>([ExcludeFromCodeCoverage]() => context.CheckPermissions(SecurityContextPermissions.RunIoBoundTask));
 	}
 
 	[TestMethod]
@@ -101,9 +100,9 @@ public class SecurityContextCoverageTest
 		var scheduler = SecurityContext.NoAccess.Factory.Scheduler!;
 		var flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-		AssertSchedulerCallThrows(scheduler.GetType().GetMethod("GetScheduledTasks", flags)!, scheduler, parameters: null);
-		AssertSchedulerCallThrows(scheduler.GetType().GetMethod("QueueTask", flags)!, scheduler, [Task.CompletedTask]);
-		AssertSchedulerCallThrows(scheduler.GetType().GetMethod("TryExecuteTaskInline", flags)!, scheduler, [Task.CompletedTask, false]);
+		AssertSchedulerCallThrows(scheduler.GetType().GetMethod(name: "GetScheduledTasks", flags)!, scheduler, parameters: null);
+		AssertSchedulerCallThrows(scheduler.GetType().GetMethod(name: "QueueTask", flags)!, scheduler, [Task.CompletedTask]);
+		AssertSchedulerCallThrows(scheduler.GetType().GetMethod(name: "TryExecuteTaskInline", flags)!, scheduler, [Task.CompletedTask, false]);
 	}
 
 	private static void AssertSchedulerCallThrows(MethodInfo method, TaskScheduler scheduler, object?[]? parameters)

@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -51,9 +51,9 @@ public class InterpreterModelStateWrapperCoverageTest
 
 		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
 		Assert.AreEqual(expected: 21, node.DocumentId);
-		Assert.AreEqual("(#21)", node.EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "(#21)", node.EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.AreEqual(TransitionType.External, node.Type);
-		Assert.AreEqual("event", node.EventDescriptors[0].Value);
+		Assert.AreEqual(expected: "event", node.EventDescriptors[0].Value);
 		Assert.AreSame(condition, node.Condition);
 		Assert.AreEqual(expected: 2, node.Target.Count);
 		Assert.AreSame(action, node.Action[0]);
@@ -73,7 +73,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(node, self);
 		Assert.AreEqual(TransitionType.External, type);
 		Assert.AreEqual(expected: 2, target.Count);
-		Assert.AreEqual("event", descriptors[0].Value);
+		Assert.AreEqual(expected: "event", descriptors[0].Value);
 	}
 
 	[TestMethod]
@@ -92,7 +92,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(node, transition.Source);
 		Assert.AreSame(transitionSource, ((IInitial) node).Transition);
 		Assert.AreSame(transitionSource, typeof(IInitial).GetProperty(nameof(IInitial.Transition))!.GetValue(node));
-		Assert.AreEqual("(#22)", node.EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "(#22)", node.EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -103,7 +103,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		transitionSource.Ancestor = transition;
 		IInitial initial = new TestInitialNode(new DocumentIdNode(list: null), transition);
 
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => _ = initial.Transition);
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => _ = initial.Transition);
 	}
 
 	[TestMethod]
@@ -124,7 +124,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(transition, node.Transition);
 		Assert.AreSame(node, transition.Source);
 		Assert.AreSame(transitionSource, ((IHistory) node).Transition);
-		Assert.AreEqual("history(#23)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "history(#23)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -155,7 +155,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsEmpty(final.OnEntry);
 		Assert.IsEmpty(final.OnExit);
 		Assert.IsNull(final.DoneData);
-		Assert.AreEqual("final($24)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "final($24)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -180,7 +180,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsEmpty(state.Invoke);
 		Assert.IsEmpty(state.OnEntry);
 		Assert.IsEmpty(state.OnExit);
-		Assert.AreEqual("atomic(#25)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "atomic(#25)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -211,7 +211,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(node, child.Parent);
 		Assert.AreSame(child, node.States[0]);
 		Assert.AreSame(initial, ((IState) node).Initial);
-		Assert.AreEqual("compound(#26)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "compound(#26)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -243,7 +243,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsEmpty(parallel.Invoke);
 		Assert.IsEmpty(parallel.OnEntry);
 		Assert.IsEmpty(parallel.OnExit);
-		Assert.AreEqual("parallel(#27)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "parallel(#27)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -272,8 +272,8 @@ public class InterpreterModelStateWrapperCoverageTest
 		var machine = (IStateMachine) node;
 
 		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
-		Assert.AreEqual("machine", node.Name);
-		Assert.AreEqual("null", node.DataModelType);
+		Assert.AreEqual(expected: "machine", node.Name);
+		Assert.AreEqual(expected: "null", node.DataModelType);
 		Assert.AreEqual(BindingType.Late, node.Binding);
 		Assert.IsNull(node.Script);
 		Assert.IsNull(node.ScriptEvaluator);
@@ -285,7 +285,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(child, node.States[0]);
 		Assert.AreSame(initial, machine.Initial);
 		Assert.AreSame(child, machine.States[0]);
-		Assert.AreEqual("machine(#28)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "machine(#28)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	private static TransitionSource CreateEmptyTransitionSource() =>
@@ -299,7 +299,13 @@ public class InterpreterModelStateWrapperCoverageTest
 
 	private sealed class TransitionSource : ITransition, IAncestorProvider
 	{
+	#region Interface IAncestorProvider
+
 		public object? Ancestor { get; set; }
+
+	#endregion
+
+	#region Interface ITransition
 
 		public EventDescriptors EventDescriptors { get; init; }
 
@@ -310,97 +316,154 @@ public class InterpreterModelStateWrapperCoverageTest
 		public TransitionType Type { get; init; }
 
 		public ImmutableArray<IExecutableEntity> Action { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ActionSource : IExecutableEntity, IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }
 
+	#region Interface IExecEvaluator
+
 		public ValueTask Execute()
 		{
 			ExecuteCount ++;
+
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class ConditionSource : IConditionExpression, IBooleanEvaluator
 	{
-		public string? Expression { get; init; }
+	#region Interface IBooleanEvaluator
 
 		public ValueTask<bool> EvaluateBoolean() => new(true);
+
+	#endregion
+
+	#region Interface IConditionExpression
+
+		public string? Expression { get; init; }
+
+	#endregion
 	}
 
 	private sealed class InitialSource : IInitial, IAncestorProvider
 	{
+	#region Interface IAncestorProvider
+
 		public object? Ancestor { get; set; }
 
+	#endregion
+
+	#region Interface IInitial
+
 		public ITransition? Transition { get; init; }
+
+	#endregion
 	}
 
 	private sealed class HistorySource : IHistory
 	{
+	#region Interface IHistory
+
 		public IIdentifier? Id { get; init; }
 
 		public HistoryType Type { get; init; }
 
 		public ITransition? Transition { get; init; }
+
+	#endregion
 	}
 
 	private sealed class FinalSource : IFinal
 	{
-		public IIdentifier? Id { get; init; }
+	#region Interface IFinal
 
 		public ImmutableArray<IOnEntry> OnEntry { get; init; }
 
 		public ImmutableArray<IOnExit> OnExit { get; init; }
 
 		public IDoneData? DoneData { get; init; }
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id { get; init; }
+
+	#endregion
 	}
 
 	private sealed class StateSource : IState, IAncestorProvider
 	{
+	#region Interface IAncestorProvider
+
 		public object? Ancestor { get; set; }
 
-		public IIdentifier? Id { get; init; }
+	#endregion
+
+	#region Interface IState
 
 		public IInitial? Initial { get; init; }
 
 		public ImmutableArray<IStateEntity> States { get; init; } = [];
 
-		public ImmutableArray<IHistory> HistoryStates { get; init; } = [];
+		public ImmutableArray<IHistory> HistoryStates { get; } = [];
 
-		public ImmutableArray<ITransition> Transitions { get; init; } = [];
+		public ImmutableArray<ITransition> Transitions { get; } = [];
 
 		public IDataModel? DataModel { get; init; }
 
-		public ImmutableArray<IOnEntry> OnEntry { get; init; } = [];
+		public ImmutableArray<IOnEntry> OnEntry { get; } = [];
 
-		public ImmutableArray<IOnExit> OnExit { get; init; } = [];
+		public ImmutableArray<IOnExit> OnExit { get; } = [];
 
-		public ImmutableArray<IInvoke> Invoke { get; init; } = [];
+		public ImmutableArray<IInvoke> Invoke { get; } = [];
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id { get; init; }
+
+	#endregion
 	}
 
 	private sealed class ParallelSource : IParallel
 	{
-		public IIdentifier? Id { get; init; }
+	#region Interface IParallel
 
 		public ImmutableArray<IStateEntity> States { get; init; } = [];
 
-		public ImmutableArray<IHistory> HistoryStates { get; init; } = [];
+		public ImmutableArray<IHistory> HistoryStates { get; } = [];
 
-		public ImmutableArray<ITransition> Transitions { get; init; } = [];
+		public ImmutableArray<ITransition> Transitions { get; } = [];
 
 		public IDataModel? DataModel { get; init; }
 
-		public ImmutableArray<IOnEntry> OnEntry { get; init; } = [];
+		public ImmutableArray<IOnEntry> OnEntry { get; } = [];
 
-		public ImmutableArray<IOnExit> OnExit { get; init; } = [];
+		public ImmutableArray<IOnExit> OnExit { get; } = [];
 
-		public ImmutableArray<IInvoke> Invoke { get; init; } = [];
+		public ImmutableArray<IInvoke> Invoke { get; } = [];
+
+	#endregion
+
+	#region Interface IStateEntity
+
+		public IIdentifier? Id { get; init; }
+
+	#endregion
 	}
 
 	private sealed class StateMachineSource : IStateMachine
 	{
+	#region Interface IStateMachine
+
 		public string? Name { get; init; }
 
 		public string? DataModelType { get; init; }
@@ -414,6 +477,8 @@ public class InterpreterModelStateWrapperCoverageTest
 		public IDataModel? DataModel { get; init; }
 
 		public IExecutableEntity? Script { get; init; }
+
+	#endregion
 	}
 
 	private sealed class TestStateNode(IIdentifier id) : StateEntityNode(new DocumentIdNode(list: null))

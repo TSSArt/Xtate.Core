@@ -1,22 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataTypes;
-using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
 namespace Xtate.Test.UnitTests.Persistence;
@@ -50,7 +49,7 @@ public class DataModelReferenceTrackerCoverageTest
 		{
 			var restored = (DataModelList) restoredTracker.GetValue(refId, DataModelValueType.List, baseList: null);
 			Assert.IsTrue(restored.CaseInsensitive);
-			Assert.AreEqual("original", restored["name"].AsString());
+			Assert.AreEqual(expected: "original", restored["name"].AsString());
 			Assert.AreSame(restored, restoredTracker.GetValue(refId, DataModelValueType.List, baseList: null));
 		}
 
@@ -58,9 +57,8 @@ public class DataModelReferenceTrackerCoverageTest
 		{
 			var supplied = new DataModelList(caseInsensitive: true);
 			Assert.AreSame(supplied, baseTracker.GetValue(refId, DataModelValueType.List, supplied));
-			Assert.AreEqual("original", supplied["name"].AsString());
-			Assert.ThrowsExactly<InvalidOperationException>(
-				[ExcludeFromCodeCoverage] () => baseTracker.GetValue(refId, DataModelValueType.List, new DataModelList()));
+			Assert.AreEqual(expected: "original", supplied["name"].AsString());
+			Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => baseTracker.GetValue(refId, DataModelValueType.List, new DataModelList()));
 		}
 	}
 
@@ -73,10 +71,8 @@ public class DataModelReferenceTrackerCoverageTest
 
 		tracker.AddReference(scalar);
 		tracker.RemoveReference(scalar);
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => tracker.GetRefId(scalar));
-		Assert.ThrowsExactly<InvalidOperationException>(
-			[ExcludeFromCodeCoverage] () => tracker.GetValue(refId: 0, DataModelValueType.String, baseList: null));
-		Assert.ThrowsExactly<InvalidOperationException>(
-			[ExcludeFromCodeCoverage] () => tracker.GetValue(refId: 0, DataModelValueType.String, new DataModelList()));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetRefId(scalar));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetValue(refId: 0, DataModelValueType.String, baseList: null));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetValue(refId: 0, DataModelValueType.String, new DataModelList()));
 	}
 }

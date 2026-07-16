@@ -1,32 +1,29 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
-using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.IoC.Options;
 using Xtate.IoC.Tools;
 using Xtate.IoProcessors;
 using Xtate.IoProcessors.Http;
-using Xtate.IoProcessors.Http.Internal;
 using Xtate.IoProcessors.Http.Services;
 using Xtate.IoProcessors.NamedPipe;
 using Xtate.IoProcessors.NamedPipe.Services;
@@ -85,7 +82,9 @@ public class IoProcessorAndHostCoverageTest
 				   };
 
 		await ((IIoProcessorHost) host).Start();
-		await monitor.LastTask!.WaitAsync(TimeSpan.FromSeconds(5));
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await monitor.LastTask!.WaitAsync(cts.Token);
 
 		Assert.AreEqual(expected: 2, host.AttemptCount);
 		logger.Verify(static l => l.Write(Level.Error, eventId: 1, It.IsAny<string>(), It.IsAny<Exception>()), Times.Once);
@@ -105,10 +104,13 @@ public class IoProcessorAndHostCoverageTest
 					   LoggerBase = logger.Object
 				   };
 
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+
 		await ((IIoProcessorHost) host).Start();
-		await host.Entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		await host.Entered.Task.WaitAsync(cts.Token);
 		await ((IIoProcessorHost) host).Stop();
-		await monitor.LastTask!.WaitAsync(TimeSpan.FromSeconds(5));
+		await monitor.LastTask!.WaitAsync(cts.Token);
 
 		logger.Verify(static l => l.Write(Level.Error, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Exception>()), Times.Never);
 	}
@@ -174,13 +176,16 @@ public class IoProcessorAndHostCoverageTest
 	[TestMethod]
 	public async Task HttpIoProcessorRejectsDelayedAndMissingTargetEvents()
 	{
-		var processor = CreateHttpIoProcessor(CreateHttpController(new CapturingHttpMessageHandler()), Mock.Of<IInternalEventDispatcher<HttpIoProcessor>>(), null, SessionId.FromString("session"));
+		var processor = CreateHttpIoProcessor(
+			CreateHttpController(new CapturingHttpMessageHandler()), Mock.Of<IInternalEventDispatcher<HttpIoProcessor>>(), invokeId: null, SessionId.FromString("session"));
 		var router = (IEventRouter) processor;
 
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(CreateRouterEvent(new FullUri("https://remote.test/"), SessionId.FromString("session"), delayMs: 1), CancellationToken.None));
+																	   await router.Dispatch(
+																		   CreateRouterEvent(new FullUri("https://remote.test/"), SessionId.FromString("session"), delayMs: 1),
+																		   CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(CreateRouterEvent(target: null, SessionId.FromString("session")), CancellationToken.None));
+																await router.Dispatch(CreateRouterEvent(target: null, SessionId.FromString("session")), CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -203,7 +208,7 @@ public class IoProcessorAndHostCoverageTest
 		Assert.IsFalse(controller.TryMatchTarget(new Uri("https://localhost:8443/root/session"), out _));
 
 		var data = new DataModelList();
-		data.Add("key", "value");
+		data.Add(key: "key", value: "value");
 		var formEvent = CreateRouterEvent(
 			new FullUri("https://remote.test/form"),
 			sessionId,
@@ -228,7 +233,8 @@ public class IoProcessorAndHostCoverageTest
 		await controller.SendEvent(new FullUri("https://remote.test/empty"), CreateRouterEvent(new FullUri("https://remote.test/empty"), sender), CancellationToken.None);
 		Assert.IsNull(handler.Content);
 
-		await controller.SendEvent(new FullUri("https://remote.test/number"), CreateRouterEvent(new FullUri("https://remote.test/number"), sender, data: new DataModelValue(42)), CancellationToken.None);
+		await controller.SendEvent(
+			new FullUri("https://remote.test/number"), CreateRouterEvent(new FullUri("https://remote.test/number"), sender, data: new DataModelValue(42)), CancellationToken.None);
 		Assert.AreEqual(expected: "text/xml", handler.ContentType);
 		Assert.IsNotNull(handler.Content);
 
@@ -239,11 +245,16 @@ public class IoProcessorAndHostCoverageTest
 
 		var limited = CreateHttpController(new CapturingHttpMessageHandler(), maxMessageSize: 2);
 		await Assert.ThrowsExactlyAsync<HttpRequestException>([ExcludeFromCodeCoverage] async () =>
-			await limited.SendEvent(new FullUri("https://remote.test/large"), CreateRouterEvent(new FullUri("https://remote.test/large"), sender, data: new DataModelValue("payload")), CancellationToken.None));
+																  await limited.SendEvent(
+																	  new FullUri("https://remote.test/large"),
+																	  CreateRouterEvent(new FullUri("https://remote.test/large"), sender, data: new DataModelValue("payload")),
+																	  CancellationToken.None));
 
 		var failed = CreateHttpController(new CapturingHttpMessageHandler(HttpStatusCode.BadRequest));
 		await Assert.ThrowsExactlyAsync<HttpRequestException>([ExcludeFromCodeCoverage] async () =>
-			await failed.SendEvent(new FullUri("https://remote.test/failure"), CreateRouterEvent(new FullUri("https://remote.test/failure"), sender), CancellationToken.None));
+																  await failed.SendEvent(
+																	  new FullUri("https://remote.test/failure"), CreateRouterEvent(new FullUri("https://remote.test/failure"), sender),
+																	  CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -255,7 +266,8 @@ public class IoProcessorAndHostCoverageTest
 		await controller.SendEvent(new FullUri("https://remote.test/empty"), CreateRouterEvent(new FullUri("https://remote.test/empty"), sender), CancellationToken.None);
 		Assert.IsNull(handler.Content);
 
-		await controller.SendEvent(new FullUri("https://remote.test/number"), CreateRouterEvent(new FullUri("https://remote.test/number"), sender, data: new DataModelValue(42)), CancellationToken.None);
+		await controller.SendEvent(
+			new FullUri("https://remote.test/number"), CreateRouterEvent(new FullUri("https://remote.test/number"), sender, data: new DataModelValue(42)), CancellationToken.None);
 		Assert.AreEqual(expected: "text/xml", handler.ContentType);
 		Assert.IsNotNull(handler.Content);
 
@@ -266,11 +278,16 @@ public class IoProcessorAndHostCoverageTest
 
 		var limited = CreateHttpController(new CapturingHttpMessageHandler(), maxMessageSize: 2);
 		await Assert.ThrowsExactlyAsync<HttpRequestException>([ExcludeFromCodeCoverage] async () =>
-			await limited.SendEvent(new FullUri("https://remote.test/large"), CreateRouterEvent(new FullUri("https://remote.test/large"), sender, data: new DataModelValue("payload")), CancellationToken.None));
+																  await limited.SendEvent(
+																	  new FullUri("https://remote.test/large"),
+																	  CreateRouterEvent(new FullUri("https://remote.test/large"), sender, data: new DataModelValue("payload")),
+																	  CancellationToken.None));
 
 		var failed = CreateHttpController(new CapturingHttpMessageHandler(HttpStatusCode.BadRequest));
 		await Assert.ThrowsExactlyAsync<HttpRequestException>([ExcludeFromCodeCoverage] async () =>
-			await failed.SendEvent(new FullUri("https://remote.test/failure"), CreateRouterEvent(new FullUri("https://remote.test/failure"), sender), CancellationToken.None));
+																  await failed.SendEvent(
+																	  new FullUri("https://remote.test/failure"), CreateRouterEvent(new FullUri("https://remote.test/failure"), sender),
+																	  CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -303,12 +320,14 @@ public class IoProcessorAndHostCoverageTest
 		var targetId = SessionId.FromString("target");
 		var incomingEvent = new IncomingEvent { Name = (EventName) "event", Data = new DataModelValue("payload") };
 		NamedPipeEventMessage? received = null;
-		var server = controller.ReceiveAndProcessEvent(message =>
-											 {
-												 received = message;
+		var server = controller.ReceiveAndProcessEvent(
+								   message =>
+								   {
+									   received = message;
 
-												 return ValueTask.CompletedTask;
-											 }, CancellationToken.None).AsTask();
+									   return ValueTask.CompletedTask;
+								   }, CancellationToken.None)
+							   .AsTask();
 		await controller.SendEvent(host: null, name: null, targetId, incomingEvent, CancellationToken.None);
 		await server;
 		Assert.IsNotNull(received);
@@ -316,10 +335,9 @@ public class IoProcessorAndHostCoverageTest
 		Assert.AreEqual(expected: "event", received.Name.ToString());
 		Assert.AreEqual(expected: "payload", received.Data.AsString());
 
-		var failedServer = controller.ReceiveAndProcessEvent(
-			static _ => ValueTask.FromException(new InvalidOperationException("consumer failure")), CancellationToken.None).AsTask();
+		var failedServer = controller.ReceiveAndProcessEvent(static _ => ValueTask.FromException(new InvalidOperationException("consumer failure")), CancellationToken.None).AsTask();
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-			await controller.SendEvent(host: null, name: null, targetId, incomingEvent, CancellationToken.None));
+																await controller.SendEvent(host: null, name: null, targetId, incomingEvent, CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await failedServer);
 	}
 
@@ -341,12 +359,12 @@ public class IoProcessorAndHostCoverageTest
 		Assert.IsTrue(router.CanHandle(new FullUri("net.pipe")));
 		var invokeId = InvokeId.FromString("source-invoke");
 		var invokedProcessor = new NamedPipeIoProcessor
-						   {
-							   NamedPipeController = controller,
-							   InternalEventDispatcher = internalDispatcher.Object,
-							   InvokeIdBase = Mock.Of<IExternalServiceInvokeId>(source => source.InvokeId == invokeId),
-							   SessionIdBase = Mock.Of<IStateMachineSessionId>(source => source.SessionId == sessionId)
-						   };
+							   {
+								   NamedPipeController = controller,
+								   InternalEventDispatcher = internalDispatcher.Object,
+								   InvokeIdBase = Mock.Of<IExternalServiceInvokeId>(source => source.InvokeId == invokeId),
+								   SessionIdBase = Mock.Of<IStateMachineSessionId>(source => source.SessionId == sessionId)
+							   };
 		Assert.AreEqual(controller.ToInvokeTarget(invokeId), ((IIoProcessor) invokedProcessor).Target);
 
 		var localEvent = CreateRouterEvent(controller.ToInvokeTarget(InvokeId.FromString("target")), sessionId);
@@ -354,11 +372,11 @@ public class IoProcessorAndHostCoverageTest
 		internalDispatcher.Verify(d => d.Dispatch(It.Is<InvokeId>(id => id.Value == "target"), localEvent, CancellationToken.None), Times.Once);
 
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(CreateRouterEvent(controller.ToSessionTarget(sessionId), sessionId, delayMs: 1), CancellationToken.None));
+																	   await router.Dispatch(CreateRouterEvent(controller.ToSessionTarget(sessionId), sessionId, delayMs: 1), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(CreateRouterEvent(target: null, sessionId), CancellationToken.None));
+																await router.Dispatch(CreateRouterEvent(target: null, sessionId), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-			await router.Dispatch(CreateRouterEvent(new FullUri("https://invalid.test/"), sessionId), CancellationToken.None));
+																await router.Dispatch(CreateRouterEvent(new FullUri("https://invalid.test/"), sessionId), CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -411,11 +429,10 @@ public class IoProcessorAndHostCoverageTest
 			   };
 	}
 
-	private static HttpIoProcessor CreateHttpIoProcessor(
-		HttpController controller,
-		IInternalEventDispatcher<HttpIoProcessor> dispatcher,
-		InvokeId? invokeId,
-		SessionId sessionId) =>
+	private static HttpIoProcessor CreateHttpIoProcessor(HttpController controller,
+														 IInternalEventDispatcher<HttpIoProcessor> dispatcher,
+														 InvokeId? invokeId,
+														 SessionId sessionId) =>
 		new()
 		{
 			HttpController = controller,
@@ -427,6 +444,7 @@ public class IoProcessorAndHostCoverageTest
 	private static NamedPipeController CreateNamedPipeController(string? name, string host = ".")
 	{
 		var options = new NamedPipeIoProcessorOptions { Name = name, Timeout = TimeSpan.FromSeconds(5) };
+
 		if (host != ".")
 		{
 			options.Host = host;
@@ -449,14 +467,13 @@ public class IoProcessorAndHostCoverageTest
 			   };
 	}
 
-	private static IRouterEvent CreateRouterEvent(
-		FullUri? target,
-		ServiceId sender,
-		int delayMs = 0,
-		string? name = null,
-		DataModelValue data = default,
-		SendId? sendId = null,
-		InvokeId? invokeId = null)
+	private static IRouterEvent CreateRouterEvent(FullUri? target,
+												  ServiceId sender,
+												  int delayMs = 0,
+												  string? name = null,
+												  DataModelValue data = default,
+												  SendId? sendId = null,
+												  InvokeId? invokeId = null)
 	{
 		var routerEvent = new Mock<IRouterEvent>();
 		routerEvent.SetupGet(static e => e.Target).Returns(target);
@@ -538,6 +555,8 @@ public class IoProcessorAndHostCoverageTest
 	{
 		public Task? LastTask { get; private set; }
 
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task;
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
@@ -551,6 +570,8 @@ public class IoProcessorAndHostCoverageTest
 		public void Forget(ValueTask valueTask) => LastTask = valueTask.AsTask();
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) => LastTask = valueTask.AsTask();
+
+	#endregion
 	}
 
 	private sealed class CapturingHttpMessageHandler(HttpStatusCode statusCode = HttpStatusCode.OK) : HttpMessageHandler
@@ -570,11 +591,11 @@ public class IoProcessorAndHostCoverageTest
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 		{
 			RequestUri = request.RequestUri;
-			Content = request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken);
+			Content = request.Content is null ? null : await request.Content.ReadAsStringAsync();
 			ContentType = request.Content?.Headers.ContentType?.MediaType;
-			Origin = request.Headers.TryGetValues("Origin", out var origins) ? origins.Single() : null;
-			SendId = request.Headers.TryGetValues("SCXML-SendId", out var sendIds) ? sendIds.Single() : null;
-			InvokeId = request.Headers.TryGetValues("SCXML-InvokeId", out var invokeIds) ? invokeIds.Single() : null;
+			Origin = request.Headers.TryGetValues(name: "Origin", out var origins) ? origins.Single() : null;
+			SendId = request.Headers.TryGetValues(name: "SCXML-SendId", out var sendIds) ? sendIds.Single() : null;
+			InvokeId = request.Headers.TryGetValues(name: "SCXML-InvokeId", out var invokeIds) ? invokeIds.Single() : null;
 
 			return new HttpResponseMessage(statusCode);
 		}

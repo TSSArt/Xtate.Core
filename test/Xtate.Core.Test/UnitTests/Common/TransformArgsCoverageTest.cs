@@ -1,26 +1,25 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using Xtate.IoC;
-using Xtate.IoC.DependencyInjection;
 using Xtate.IoC.TransformArgs.DependencyInjection;
 using Xtate.IoC.TransformArgs.Internal;
 using Xtate.IoC.TransformArgs.Services;
-using System.Reflection;
 
 namespace Xtate.Test.UnitTests.Common;
 
@@ -70,8 +69,8 @@ public class TransformArgsCoverageTest
 
 		var asyncException = Assert.ThrowsExactly<DependencyInjectionException>([ExcludeFromCodeCoverage]() => asyncOnly.Factory("value"));
 		var missingException = Assert.ThrowsExactly<DependencyInjectionException>([ExcludeFromCodeCoverage]() => missing.Factory("value"));
-		StringAssert.Contains(asyncException.Message, "Async args transformer");
-		StringAssert.Contains(missingException.Message, "no suitable args transformer", StringComparison.OrdinalIgnoreCase);
+		StringAssert.Contains(asyncException.Message, substring: "Async args transformer");
+		StringAssert.Contains(missingException.Message, substring: "no suitable args transformer", StringComparison.OrdinalIgnoreCase);
 	}
 
 	[TestMethod]
@@ -112,14 +111,17 @@ public class TransformArgsCoverageTest
 		services.ForServiceSync<Result, int>().TransformArgs<string>(static value => value.Length).IfAncestor<Ancestor>();
 		services.ForServiceSync<Result, int>().TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0).IfAncestor<Ancestor>();
 		services.ForServiceSync<Result, int>().TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0).IfAncestor<Ancestor>();
-		services.ForServiceSync<Result, int>().TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => flag ? (value.Length + add) * multiply : 0).IfAncestor<Ancestor>();
+		services.ForServiceSync<Result, int>()
+				.TransformArgs<string, bool, int, int>(static (value, flag, add,
+															   multiply) => flag ? (value.Length + add) * multiply : 0)
+				.IfAncestor<Ancestor>();
 
 		_ = services.ForServiceSync<Result>();
 		_ = services.ForServiceSync<Result, string, bool>();
 		_ = services.ForServiceSync<Result, string, bool, int>();
 		_ = services.ForServiceSync<Result, string, bool, int, long>();
 
-		Assert.IsGreaterThan(0, services.Count());
+		Assert.IsGreaterThan(lowerBound: 0, services.Count());
 	}
 
 	[TestMethod]
@@ -136,15 +138,21 @@ public class TransformArgsCoverageTest
 		services.ForService<Result, int>().TransformArgs<string, bool>(static (value, flag) => new ValueTask<int>(flag ? value.Length : 0)).IfAncestor<Ancestor>();
 		services.ForService<Result, int>().TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0).IfAncestor<Ancestor>();
 		services.ForService<Result, int>().TransformArgs<string, bool, int>(static (value, flag, add) => new ValueTask<int>(flag ? value.Length + add : 0)).IfAncestor<Ancestor>();
-		services.ForService<Result, int>().TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => flag ? (value.Length + add) * multiply : 0).IfAncestor<Ancestor>();
-		services.ForService<Result, int>().TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => new ValueTask<int>(flag ? (value.Length + add) * multiply : 0)).IfAncestor<Ancestor>();
+		services.ForService<Result, int>()
+				.TransformArgs<string, bool, int, int>(static (value, flag, add,
+															   multiply) => flag ? (value.Length + add) * multiply : 0)
+				.IfAncestor<Ancestor>();
+		services.ForService<Result, int>()
+				.TransformArgs<string, bool, int, int>(static (value, flag, add,
+															   multiply) => new ValueTask<int>(flag ? (value.Length + add) * multiply : 0))
+				.IfAncestor<Ancestor>();
 
 		_ = services.ForService<Result>();
 		_ = services.ForService<Result, string, bool>();
 		_ = services.ForService<Result, string, bool, int>();
 		_ = services.ForService<Result, string, bool, int, long>();
 
-		Assert.IsGreaterThan(0, services.Count());
+		Assert.IsGreaterThan(lowerBound: 0, services.Count());
 	}
 
 	[TestMethod]
@@ -154,28 +162,38 @@ public class TransformArgsCoverageTest
 		var sync = services.ForServiceSync<Result, int>();
 		var asyncSelector = services.ForService<Result, int>();
 
-		Assert.AreEqual(7, Invoke(sync.UseArgValue(7), newArg: null));
-		Assert.AreEqual(8, Invoke(sync.UseArgFactory(static () => 8), newArg: null));
-		Assert.AreEqual(3, Invoke(sync.TransformArgs<string>(static value => value.Length), "abc"));
-		Assert.AreEqual(3, Invoke(sync.TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0), ("abc", true)));
-		Assert.AreEqual(5, Invoke(sync.TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0), ("abc", true, 2)));
-		Assert.AreEqual(10, Invoke(sync.TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => flag ? (value.Length + add) * multiply : 0), ("abc", true, 2, 2)));
+		Assert.AreEqual(expected: 7, Invoke(sync.UseArgValue(7), newArg: null));
+		Assert.AreEqual(expected: 8, Invoke(sync.UseArgFactory(static () => 8), newArg: null));
+		Assert.AreEqual(expected: 3, Invoke(sync.TransformArgs<string>(static value => value.Length), newArg: "abc"));
+		Assert.AreEqual(expected: 3, Invoke(sync.TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0), ("abc", true)));
+		Assert.AreEqual(expected: 5, Invoke(sync.TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0), ("abc", true, 2)));
+		Assert.AreEqual(
+			expected: 10, Invoke(
+				sync.TransformArgs<string, bool, int, int>(static (value, flag, add,
+																   multiply) => flag ? (value.Length + add) * multiply : 0), ("abc", true, 2, 2)));
 
-		Assert.AreEqual(9, await InvokeAsync(asyncSelector.UseArgValue(9), newArg: null));
-		Assert.AreEqual(10, await InvokeAsync(asyncSelector.UseArgFactory(static () => 10), newArg: null));
-		Assert.AreEqual(11, await InvokeAsync(asyncSelector.UseArgFactory(static () => new ValueTask<int>(11)), newArg: null));
-		Assert.AreEqual(3, await InvokeAsync(asyncSelector.TransformArgs<string>(static value => value.Length), "abc"));
-		Assert.AreEqual(4, await InvokeAsync(asyncSelector.TransformArgs<string>(static value => new ValueTask<int>(value.Length)), "four"));
-		Assert.AreEqual(3, await InvokeAsync(asyncSelector.TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0), ("abc", true)));
-		Assert.AreEqual(4, await InvokeAsync(asyncSelector.TransformArgs<string, bool>(static (value, flag) => new ValueTask<int>(flag ? value.Length : 0)), ("four", true)));
-		Assert.AreEqual(5, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0), ("abc", true, 2)));
-		Assert.AreEqual(6, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int>(static (value, flag, add) => new ValueTask<int>(flag ? value.Length + add : 0)), ("four", true, 2)));
-		Assert.AreEqual(10, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => flag ? (value.Length + add) * multiply : 0), ("abc", true, 2, 2)));
-		Assert.AreEqual(12, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int, int>(static (value, flag, add, multiply) => new ValueTask<int>(flag ? (value.Length + add) * multiply : 0)), ("four", true, 2, 2)));
+		Assert.AreEqual(expected: 9, await InvokeAsync(asyncSelector.UseArgValue(9), newArg: null));
+		Assert.AreEqual(expected: 10, await InvokeAsync(asyncSelector.UseArgFactory(static () => 10), newArg: null));
+		Assert.AreEqual(expected: 11, await InvokeAsync(asyncSelector.UseArgFactory(static () => new ValueTask<int>(11)), newArg: null));
+		Assert.AreEqual(expected: 3, await InvokeAsync(asyncSelector.TransformArgs<string>(static value => value.Length), newArg: "abc"));
+		Assert.AreEqual(expected: 4, await InvokeAsync(asyncSelector.TransformArgs<string>(static value => new ValueTask<int>(value.Length)), newArg: "four"));
+		Assert.AreEqual(expected: 3, await InvokeAsync(asyncSelector.TransformArgs<string, bool>(static (value, flag) => flag ? value.Length : 0), ("abc", true)));
+		Assert.AreEqual(expected: 4, await InvokeAsync(asyncSelector.TransformArgs<string, bool>(static (value, flag) => new ValueTask<int>(flag ? value.Length : 0)), ("four", true)));
+		Assert.AreEqual(expected: 5, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int>(static (value, flag, add) => flag ? value.Length + add : 0), ("abc", true, 2)));
+		Assert.AreEqual(
+			expected: 6, await InvokeAsync(asyncSelector.TransformArgs<string, bool, int>(static (value, flag, add) => new ValueTask<int>(flag ? value.Length + add : 0)), ("four", true, 2)));
+		Assert.AreEqual(
+			expected: 10, await InvokeAsync(
+				asyncSelector.TransformArgs<string, bool, int, int>(static (value, flag, add,
+																			multiply) => flag ? (value.Length + add) * multiply : 0), ("abc", true, 2, 2)));
+		Assert.AreEqual(
+			expected: 12, await InvokeAsync(
+				asyncSelector.TransformArgs<string, bool, int, int>(static (value, flag, add,
+																			multiply) => new ValueTask<int>(flag ? (value.Length + add) * multiply : 0)),
+				("four", true, 2, 2)));
 	}
 
-	private static TArg Invoke<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull =>
-		(TArg) GetTransform(transformArgs).DynamicInvoke(newArg)!;
+	private static TArg Invoke<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull => (TArg) GetTransform(transformArgs).DynamicInvoke(newArg)!;
 
 	private static async ValueTask<TArg> InvokeAsync<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull
 	{
@@ -185,7 +203,7 @@ public class TransformArgsCoverageTest
 	}
 
 	private static Delegate GetTransform<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs) where T : notnull =>
-		(Delegate) typeof(TransformArgs<T, TArg, TNewArg>).GetField("_transform", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(transformArgs)!;
+		(Delegate) typeof(TransformArgs<T, TArg, TNewArg>).GetField(name: "_transform", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(transformArgs)!;
 
 	private sealed record Result(int Value);
 
@@ -193,6 +211,8 @@ public class TransformArgsCoverageTest
 
 	private sealed class DisabledTransformer<T, TArg, TNewArg> : IArgsTransformer<T, TArg, TNewArg>
 	{
+	#region Interface IArgsTransformer<T,TArg,TNewArg>
+
 		public bool CanTransformSync() => false;
 
 		public bool CanTransformAsync() => false;
@@ -200,5 +220,7 @@ public class TransformArgsCoverageTest
 		public TArg TransformSync(TNewArg newArg) => default!;
 
 		public ValueTask<TArg> TransformAsync(TNewArg newArg) => new(default(TArg)!);
+
+	#endregion
 	}
 }

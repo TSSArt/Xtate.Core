@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -30,10 +30,11 @@ public class StateMachineValidatorCoverageTest
 		var (validator, errors) = CreateValidator();
 
 		validator.ValidateAssign(Mock.Of<IAssign>());
-		validator.ValidateAssign(Mock.Of<IAssign>(assign =>
-			assign.Location == Location() &&
-			assign.Expression == Value() &&
-			assign.InlineContent == InlineContent()));
+		validator.ValidateAssign(
+			Mock.Of<IAssign>(assign =>
+								 assign.Location == Location() &&
+								 assign.Expression == Value() &&
+								 assign.InlineContent == InlineContent()));
 		validator.ValidateCancel(Mock.Of<ICancel>());
 		validator.ValidateCancel(Mock.Of<ICancel>(cancel => cancel.SendId == string.Empty && cancel.SendIdExpression == Value()));
 
@@ -68,9 +69,10 @@ public class StateMachineValidatorCoverageTest
 
 		validator.ValidateHistory(Mock.Of<IHistory>(history => history.Type == (HistoryType) 99));
 		validator.ValidateForEach(Mock.Of<IForEach>());
-		validator.ValidateIf(Mock.Of<IIf>(item =>
-			item.Condition == null! &&
-			item.Action == ImmutableArray.Create<IExecutableEntity>(firstElse, elseIf, secondElse)));
+		validator.ValidateIf(
+			Mock.Of<IIf>(item =>
+							 item.Condition == null! &&
+							 item.Action == ImmutableArray.Create<IExecutableEntity>(firstElse, elseIf, secondElse)));
 
 		VerifyErrors(errors, count: 7);
 	}
@@ -136,8 +138,8 @@ public class StateMachineValidatorCoverageTest
 		var transition = Mock.Of<ITransition>(item => item.Condition == Condition());
 		var initial = Mock.Of<IInitial>(item => item.Transition == transition);
 		var machine = Mock.Of<IStateMachine>(item =>
-			item.Initial == initial &&
-			item.Binding == (BindingType) 99);
+												 item.Initial == initial &&
+												 item.Binding == (BindingType) 99);
 		var state = Mock.Of<IState>(item => item.Initial == initial);
 
 		validator.ValidateFinalize(Mock.Of<IFinalize>(item => item.Action == ImmutableArray.Create<IExecutableEntity>(raise, send)));

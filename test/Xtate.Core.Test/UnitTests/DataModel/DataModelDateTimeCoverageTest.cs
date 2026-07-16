@@ -64,7 +64,7 @@ public class DataModelDateTimeCoverageTest
 	[TestMethod]
 	public void ExplicitConvertibleToTypeCoversBothResultBranches()
 	{
-		var value = (object) DataModelDateTime.FromDateTimeOffset(new DateTimeOffset(2026, 7, 15, 12, 30, 0, TimeSpan.FromHours(2)));
+		var value = (object) DataModelDateTime.FromDateTimeOffset(new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 30, second: 0, TimeSpan.FromHours(2)));
 		var method = GetConvertibleTarget(nameof(IConvertible.ToType));
 
 		Assert.IsInstanceOfType<DateTimeOffset>(method.Invoke(value, [typeof(DateTimeOffset), CultureInfo.InvariantCulture]));
@@ -74,13 +74,13 @@ public class DataModelDateTimeCoverageTest
 	[TestMethod]
 	public void ObjectComparisonFormattingAndEqualityCoverInterfaceBranches()
 	{
-		var dateTime = DataModelDateTime.FromDateTime(new DateTime(2026, 7, 15, 12, 30, 0, DateTimeKind.Utc));
-		var dateTimeOffset = DataModelDateTime.FromDateTimeOffset(new DateTimeOffset(2026, 7, 15, 12, 30, 0, TimeSpan.FromHours(2)));
+		var dateTime = DataModelDateTime.FromDateTime(new DateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 30, second: 0, DateTimeKind.Utc));
+		var dateTimeOffset = DataModelDateTime.FromDateTimeOffset(new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 30, second: 0, TimeSpan.FromHours(2)));
 		Span<char> buffer = stackalloc char[64];
 
-		Assert.IsTrue(TryFormat((ISpanFormattable) dateTime, buffer, out var dateTimeLength));
+		Assert.IsTrue(TryFormat(dateTime, buffer, out var dateTimeLength));
 		Assert.IsTrue(dateTimeLength > 0);
-		Assert.IsTrue(TryFormat((ISpanFormattable) dateTimeOffset, buffer, out var offsetLength));
+		Assert.IsTrue(TryFormat(dateTimeOffset, buffer, out var offsetLength));
 		Assert.IsTrue(offsetLength > 0);
 		Assert.IsFalse(EqualsObject(dateTime, other: "not a date"));
 		Assert.AreEqual(expected: 1, CompareObject(dateTime, other: null));
@@ -90,9 +90,7 @@ public class DataModelDateTimeCoverageTest
 			_ = CompareObject(dateTime, other: "not a date");
 			Assert.Fail("Comparing with an unrelated type did not throw.");
 		}
-		catch (ArgumentException)
-		{
-		}
+		catch (ArgumentException) { }
 	}
 
 	private static MethodInfo GetConvertibleTarget(string methodName)
@@ -104,8 +102,7 @@ public class DataModelDateTimeCoverageTest
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining)]
-	private static bool TryFormat(ISpanFormattable value, Span<char> destination, out int charsWritten) =>
-		value.TryFormat(destination, out charsWritten, format: "O", CultureInfo.InvariantCulture);
+	private static bool TryFormat(ISpanFormattable value, Span<char> destination, out int charsWritten) => value.TryFormat(destination, out charsWritten, format: "O", CultureInfo.InvariantCulture);
 
 	[MethodImpl(MethodImplOptions.NoInlining)]
 	private static bool EqualsObject(DataModelDateTime value, object other) => value.Equals(other);

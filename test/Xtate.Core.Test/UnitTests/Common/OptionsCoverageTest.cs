@@ -1,25 +1,25 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
 using Xtate.IoC.Options;
 using Xtate.IoC.Options.DependencyInjection;
 using Xtate.IoC.Options.Internal;
 using Xtate.IoC.Options.Services;
-using Xtate.IoC;
 
 namespace Xtate.Test.UnitTests.Common;
 
@@ -30,12 +30,12 @@ public class OptionsCoverageTest
 	public async Task ConfigureAsyncInvokesProvidedDelegate()
 	{
 		var options = new TestOptions();
-		var configure = new ConfigureAsync<TestOptions>(
-			static value =>
-			{
-				value.Entries.Add("configured");
-				return ValueTask.CompletedTask;
-			});
+		var configure = new ConfigureAsync<TestOptions>(static value =>
+														{
+															value.Entries.Add("configured");
+
+															return ValueTask.CompletedTask;
+														});
 
 		await configure.Configure(options);
 
@@ -59,19 +59,19 @@ public class OptionsCoverageTest
 	public async Task OptionsAsyncAppliesConfiguratorsThenPostConfiguratorsAndCachesInstance()
 	{
 		var configureCount = 0;
-		var configure = new ConfigureAsync<TestOptions>(
-			value =>
-			{
-				configureCount ++;
-				value.Entries.Add("configure");
-				return ValueTask.CompletedTask;
-			});
-		var postConfigure = new PostConfigure(
-			static value =>
-			{
-				value.Entries.Add("post-configure");
-				return ValueTask.CompletedTask;
-			});
+		var configure = new ConfigureAsync<TestOptions>(value =>
+														{
+															configureCount ++;
+															value.Entries.Add("configure");
+
+															return ValueTask.CompletedTask;
+														});
+		var postConfigure = new PostConfigure(static value =>
+											  {
+												  value.Entries.Add("post-configure");
+
+												  return ValueTask.CompletedTask;
+											  });
 		var options = new OptionsAsyncImpl<TestOptions>
 					  {
 						  Configurators = ToAsyncEnumerable<IConfigureOptions<TestOptions>>(configure),
@@ -90,7 +90,7 @@ public class OptionsCoverageTest
 	public async Task ServiceCollectionConfigureRegistersSynchronousConfigurator()
 	{
 		var services = new ServiceCollection();
-		services.Configure<TestOptions>((Action<TestOptions>) (static options => options.Entries.Add("sync")));
+		services.Configure<TestOptions>(static options => options.Entries.Add("sync"));
 		var provider = services.BuildProvider();
 		var configure = await provider.GetRequiredService<IConfigureOptions<TestOptions>>();
 		var options = new TestOptions();
@@ -104,12 +104,12 @@ public class OptionsCoverageTest
 	public async Task ServiceCollectionConfigureRegistersAsynchronousConfigurator()
 	{
 		var services = new ServiceCollection();
-		services.Configure<TestOptions>(
-			static options =>
-			{
-				options.Entries.Add("async");
-				return ValueTask.CompletedTask;
-			});
+		services.Configure<TestOptions>(static options =>
+										{
+											options.Entries.Add("async");
+
+											return ValueTask.CompletedTask;
+										});
 		var provider = services.BuildProvider();
 		var configure = await provider.GetRequiredService<IConfigureOptions<TestOptions>>();
 		var options = new TestOptions();
@@ -136,6 +136,10 @@ public class OptionsCoverageTest
 
 	private sealed class PostConfigure(Func<TestOptions, ValueTask> configure) : IPostConfigureOptions<TestOptions>
 	{
+	#region Interface IPostConfigureOptions<TestOptions>
+
 		public ValueTask Configure(TestOptions options) => configure(options);
+
+	#endregion
 	}
 }

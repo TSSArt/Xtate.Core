@@ -1,20 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using Xtate.Interpreter.Model;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
@@ -28,14 +29,14 @@ public class StateMachinePersistingInterpreterCoverageTest
 	public void FindTransitionNodeSearchesDirectAndNestedStateRanges()
 	{
 		var direct = CreateTransition(documentId: 5);
-		var directRoot = CreateState(documentId: 1, transitions: [direct]);
+		var directRoot = CreateState(documentId: 1, [direct]);
 		Assert.AreSame(direct, FindTransitionNode(directRoot, documentId: 5));
 
 		var firstNested = CreateTransition(documentId: 15);
 		var secondNested = CreateTransition(documentId: 20);
-		var firstChild = CreateState(documentId: 10, transitions: [firstNested, secondNested]);
+		var firstChild = CreateState(documentId: 10, [firstNested, secondNested]);
 		var lastNested = CreateTransition(documentId: 35);
-		var lastChild = CreateState(documentId: 30, transitions: [lastNested]);
+		var lastChild = CreateState(documentId: 30, [lastNested]);
 		var nestedRoot = CreateState(documentId: 1, states: [firstChild, lastChild]);
 
 		Assert.AreSame(secondNested, FindTransitionNode(nestedRoot, documentId: 20));
@@ -46,7 +47,7 @@ public class StateMachinePersistingInterpreterCoverageTest
 	public void FindTransitionNodeRejectsUnknownDocumentIds()
 	{
 		var transition = CreateTransition(documentId: 5);
-		var directRoot = CreateState(documentId: 1, transitions: [transition]);
+		var directRoot = CreateState(documentId: 1, [transition]);
 		AssertFindThrows(directRoot, documentId: 6);
 
 		AssertFindThrows(CreateState(documentId: 1), documentId: 9);
@@ -72,8 +73,8 @@ public class StateMachinePersistingInterpreterCoverageTest
 
 	private static TransitionNode FindTransitionNode(StateEntityNode state, int documentId) =>
 		(TransitionNode) typeof(StateMachinePersistingInterpreter)
-			.GetMethod("FindTransitionNode", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
-			.Invoke(obj: null, [state, documentId])!;
+						 .GetMethod(name: "FindTransitionNode", BindingFlags.Static | BindingFlags.NonPublic)!
+						 .Invoke(obj: null, [state, documentId])!;
 
 	private static void AssertFindThrows(StateEntityNode state, int documentId)
 	{
@@ -82,7 +83,7 @@ public class StateMachinePersistingInterpreterCoverageTest
 			_ = FindTransitionNode(state, documentId);
 			Assert.Fail("The missing transition was restored.");
 		}
-		catch (System.Reflection.TargetInvocationException exception)
+		catch (TargetInvocationException exception)
 		{
 			Assert.IsInstanceOfType<KeyNotFoundException>(exception.InnerException);
 		}

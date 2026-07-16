@@ -1,27 +1,27 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Reflection;
 using System.Xml;
 using Xtate.Interpreter;
 using Xtate.NameTable;
 using Xtate.Scxml;
 using Xtate.Scxml.Services;
 using Xtate.StateMachine.Validator;
-using System.Reflection;
 
 namespace Xtate.Test.UnitTests.Scxml;
 
@@ -48,9 +48,10 @@ public class ScxmlGetterInfrastructureCoverageTest
 		Assert.IsTrue(settings.Async);
 		Assert.AreEqual(DtdProcessing.Parse, settings.DtdProcessing);
 		Assert.AreSame(nameTable, context.NameTable);
-		Assert.AreEqual("https://example.test/machine.scxml", context.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/machine.scxml", context.BaseURI);
 		Assert.AreEqual(XmlSpace.None, context.XmlSpace);
-		Assert.AreEqual("https://example.test/machine.scxml", typeof(ScxmlLocationStateMachineGetter).GetProperty("Location", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(getter));
+		Assert.AreEqual(
+			expected: "https://example.test/machine.scxml", typeof(ScxmlLocationStateMachineGetter).GetProperty(name: "Location", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(getter));
 	}
 
 	[TestMethod]
@@ -67,7 +68,7 @@ public class ScxmlGetterInfrastructureCoverageTest
 
 		try
 		{
-			_ = typeof(ScxmlLocationStateMachineGetter).GetProperty("Location", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(getter);
+			_ = typeof(ScxmlLocationStateMachineGetter).GetProperty(name: "Location", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(getter);
 			Assert.Fail("A missing location did not fail.");
 		}
 		catch (TargetInvocationException exception)
@@ -95,7 +96,7 @@ public class ScxmlGetterInfrastructureCoverageTest
 			nameTable,
 			resolver,
 			Mock.Of<IStateMachineLocation>(static value => value.Location == new Uri("file:///machine.scxml")));
-		Assert.AreEqual("file:///machine.scxml", locatedGetter.Context().BaseURI);
+		Assert.AreEqual(expected: "file:///machine.scxml", locatedGetter.Context().BaseURI);
 	}
 
 	private static TestReaderGetter CreateReaderGetter(System.Xml.NameTable nameTable, XmlResolver resolver, IStateMachineLocation? location) =>

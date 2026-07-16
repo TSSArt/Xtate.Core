@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -65,7 +65,9 @@ public class StateMachineDestroyOnIdleCoverageTest
 		Assert.IsNotNull(tracker);
 
 		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
-		await destroyed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await destroyed.Task.WaitAsync(cts.Token);
 		await ((IAsyncDisposable) tracker).DisposeAsync();
 
 		interpreter.Verify(static item => item.TriggerDestroySignal(), Times.Once);
@@ -80,14 +82,17 @@ public class StateMachineDestroyOnIdleCoverageTest
 		interpreter.Setup(static item => item.TriggerDestroySignal()).Throws(failure);
 		var logger = new Mock<ILogger<StateMachineDestroyOnIdle>>();
 		logger.Setup(item => item.Write(Level.Error, 1, It.IsAny<string>(), It.IsAny<Exception>()))
-			  .Callback<Level, int, string?, Exception>((_, _, _, exception) => logged.TrySetResult(exception))
+			  .Callback<Level, int, string?, Exception>((_, _, _,
+														 exception) => logged.TrySetResult(exception))
 			  .Returns(ValueTask.CompletedTask);
 		var service = CreateService(TimeSpan.Zero, interpreter.Object, logger.Object);
 		var tracker = await service.Factory();
 		Assert.IsNotNull(tracker);
 
 		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
-		var loggedException = await logged.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		var loggedException = await logged.Task.WaitAsync(cts.Token);
 		await ((IAsyncDisposable) tracker).DisposeAsync();
 
 		Assert.AreSame(failure, loggedException);
@@ -104,17 +109,17 @@ public class StateMachineDestroyOnIdleCoverageTest
 				   Logger = Mock.Of<ILogger<StateMachineDestroyOnIdle>>(),
 				   DestroyOnIdleTimeout = timeout is { } value ? new DestroyOnIdleTimeout(value) : null,
 				   StateMachineInterpreterFactory = () =>
-												{
-													counter.Count ++;
-													return new ValueTask<IStateMachineInterpreter>(interpreter);
-												}
+													{
+														counter.Count ++;
+
+														return new ValueTask<IStateMachineInterpreter>(interpreter);
+													}
 			   };
 	}
 
-	private static StateMachineDestroyOnIdle CreateService(
-		TimeSpan timeout,
-		IStateMachineInterpreter interpreter,
-		ILogger<StateMachineDestroyOnIdle> logger) =>
+	private static StateMachineDestroyOnIdle CreateService(TimeSpan timeout,
+														   IStateMachineInterpreter interpreter,
+														   ILogger<StateMachineDestroyOnIdle> logger) =>
 		new()
 		{
 			Logger = logger,

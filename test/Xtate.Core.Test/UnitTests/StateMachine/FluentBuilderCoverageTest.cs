@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -229,9 +229,9 @@ public class FluentBuilderCoverageTest
 		Assert.AreSame(fluent, fluent.BeginHistory("history").EndHistory());
 		Assert.AreSame(fluent, fluent.BeginHistory(id).EndHistory());
 		Assert.AreSame(fluent, fluent.BeginTransition().EndTransition());
-		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, target: "target"));
 		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, id));
-		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, target: "target"));
 		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, id));
 		Assert.AreSame(outer, fluent.EndState());
 		Assert.AreSame(builtState, captured);
@@ -276,9 +276,9 @@ public class FluentBuilderCoverageTest
 		Assert.AreSame(fluent, fluent.BeginHistory("history").EndHistory());
 		Assert.AreSame(fluent, fluent.BeginHistory(id).EndHistory());
 		Assert.AreSame(fluent, fluent.BeginTransition().EndTransition());
-		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, target: "target"));
 		Assert.AreSame(fluent, fluent.AddTransition(eventDescriptor, id));
-		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, "target"));
+		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, target: "target"));
 		Assert.AreSame(fluent, fluent.AddTransition([ExcludeFromCodeCoverage] static () => true, id));
 		Assert.AreSame(outer, fluent.EndParallel());
 		Assert.AreSame(builder.Object.Build(), captured);
@@ -315,33 +315,43 @@ public class FluentBuilderCoverageTest
 		var builder = new Mock<TBuilder>();
 		var entity = Mock.Of<TEntity>();
 
-		switch ((object) builder)
+		switch (builder)
 		{
 			case Mock<IInitialBuilder> initial:
-				initial.Setup(static value => value.Build()).Returns((IInitial) (object) entity);
+				initial.Setup(static value => value.Build()).Returns((IInitial) entity);
+
 				break;
 			case Mock<IStateBuilder> state:
-				state.Setup(static value => value.Build()).Returns((IState) (object) entity);
+				state.Setup(static value => value.Build()).Returns((IState) entity);
+
 				break;
 			case Mock<IParallelBuilder> parallel:
-				parallel.Setup(static value => value.Build()).Returns((IParallel) (object) entity);
+				parallel.Setup(static value => value.Build()).Returns((IParallel) entity);
+
 				break;
 			case Mock<IFinalBuilder> final:
-				final.Setup(static value => value.Build()).Returns((IFinal) (object) entity);
+				final.Setup(static value => value.Build()).Returns((IFinal) entity);
+
 				break;
 			case Mock<IHistoryBuilder> history:
-				history.Setup(static value => value.Build()).Returns((IHistory) (object) entity);
+				history.Setup(static value => value.Build()).Returns((IHistory) entity);
+
 				break;
 			case Mock<ITransitionBuilder> transition:
-				transition.Setup(static value => value.Build()).Returns((ITransition) (object) entity);
+				transition.Setup(static value => value.Build()).Returns((ITransition) entity);
+
 				break;
 		}
 
 		return builder;
 	}
 
-	private static InitialFluentBuilder<TOuter> CreateInitialBuilder<TOuter>(TOuter outer, Action<IInitial> built, IInitialBuilder builder, ITransitionBuilder transitionBuilder)
-		where TOuter : notnull => new()
+	private static InitialFluentBuilder<TOuter> CreateInitialBuilder<TOuter>(TOuter outer,
+																			 Action<IInitial> built,
+																			 IInitialBuilder builder,
+																			 ITransitionBuilder transitionBuilder)
+		where TOuter : notnull =>
+		new()
 		{
 			Builder = builder,
 			BuiltAction = built,
@@ -349,8 +359,12 @@ public class FluentBuilderCoverageTest
 			TransitionFluentBuilderFactory = (initial, transitionBuilt) => CreateTransitionBuilder(initial, transitionBuilt, transitionBuilder)
 		};
 
-	private static HistoryFluentBuilder<TOuter> CreateHistoryBuilder<TOuter>(TOuter outer, Action<IHistory> built, IHistoryBuilder builder, ITransitionBuilder transitionBuilder)
-		where TOuter : notnull => new()
+	private static HistoryFluentBuilder<TOuter> CreateHistoryBuilder<TOuter>(TOuter outer,
+																			 Action<IHistory> built,
+																			 IHistoryBuilder builder,
+																			 ITransitionBuilder transitionBuilder)
+		where TOuter : notnull =>
+		new()
 		{
 			Builder = builder,
 			BuiltAction = built,
@@ -384,8 +398,9 @@ public class FluentBuilderCoverageTest
 			TransitionFluentBuilderFactory = null!
 		};
 
-	private static StateFluentBuilder<StateMachineFluentBuilder.StateMachineFluentBuilder> CreateStateBuilder(
-		StateMachineFluentBuilder.StateMachineFluentBuilder outer, Action<IState> built, IStateBuilder builder) =>
+	private static StateFluentBuilder<StateMachineFluentBuilder.StateMachineFluentBuilder> CreateStateBuilder(StateMachineFluentBuilder.StateMachineFluentBuilder outer,
+																											  Action<IState> built,
+																											  IStateBuilder builder) =>
 		new()
 		{
 			Builder = builder,
@@ -399,8 +414,9 @@ public class FluentBuilderCoverageTest
 			TransitionFluentBuilderFactory = null!
 		};
 
-	private static ParallelFluentBuilder<StateMachineFluentBuilder.StateMachineFluentBuilder> CreateParallelBuilder(
-		StateMachineFluentBuilder.StateMachineFluentBuilder outer, Action<IParallel> built, IParallelBuilder builder) =>
+	private static ParallelFluentBuilder<StateMachineFluentBuilder.StateMachineFluentBuilder> CreateParallelBuilder(StateMachineFluentBuilder.StateMachineFluentBuilder outer,
+																													Action<IParallel> built,
+																													IParallelBuilder builder) =>
 		new()
 		{
 			Builder = builder,
@@ -412,8 +428,7 @@ public class FluentBuilderCoverageTest
 			TransitionFluentBuilderFactory = null!
 		};
 
-	private static FinalFluentBuilder<TOuter> CreateFinalBuilder<TOuter>(
-		TOuter outer, Action<IFinal> built, IFinalBuilder builder) where TOuter : notnull =>
+	private static FinalFluentBuilder<TOuter> CreateFinalBuilder<TOuter>(TOuter outer, Action<IFinal> built, IFinalBuilder builder) where TOuter : notnull =>
 		new()
 		{
 			Builder = builder,
@@ -423,7 +438,6 @@ public class FluentBuilderCoverageTest
 			DoneDataBuilderFactory = null!
 		};
 
-	private static TransitionFluentBuilder<TOuter> CreateTransitionBuilder<TOuter>(
-		TOuter outer, Action<ITransition> built, ITransitionBuilder builder) where TOuter : notnull =>
+	private static TransitionFluentBuilder<TOuter> CreateTransitionBuilder<TOuter>(TOuter outer, Action<ITransition> built, ITransitionBuilder builder) where TOuter : notnull =>
 		new() { Builder = builder, BuiltAction = built, OuterBuilder = outer };
 }

@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -39,7 +39,7 @@ public class HttpClientServiceCoverageTest
 		await using var server = new HttpLoopbackServer(
 			"HTTP/1.1 201 Created\r\nContent-Type: application/custom\r\nX-Result: first\r\nX-Result: second\r\nContent-Length: 7\r\nConnection: close\r\n\r\nignored");
 		var firstHandler = new RecordingMimeTypeHandler();
-		using var requestContent = new StringContent("handler-content", Encoding.UTF8, "application/custom");
+		using var requestContent = new StringContent(content: "handler-content", Encoding.UTF8, mediaType: "application/custom");
 		var secondHandler = new RecordingMimeTypeHandler
 							{
 								RequestContent = requestContent,
@@ -49,7 +49,7 @@ public class HttpClientServiceCoverageTest
 		options.MimeTypeHandlers.Clear();
 		options.MimeTypeHandlers.Add(firstHandler);
 		options.MimeTypeHandlers.Add(secondHandler);
-		var expires = new DateTime(2030, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+		var expires = new DateTime(year: 2030, month: 1, day: 2, hour: 3, minute: 4, second: 5, DateTimeKind.Utc);
 		var parameters = new DataModelList
 						 {
 							 ["method"] = "POST",
@@ -80,12 +80,12 @@ public class HttpClientServiceCoverageTest
 		var result = (await ((IExternalService) service).GetResult()).AsList();
 		var request = await server.Request;
 
-		Assert.AreEqual("POST", request.Method);
-		Assert.AreEqual("/service", request.Path);
-		Assert.AreEqual("handler-content", request.Body);
-		Assert.Contains("X-Request: object-header", request.Headers);
-		Assert.Contains("Accept: application/custom", request.Headers);
-		Assert.Contains("Cookie: session=abc", request.Headers);
+		Assert.AreEqual(expected: "POST", request.Method);
+		Assert.AreEqual(expected: "/service", request.Path);
+		Assert.AreEqual(expected: "handler-content", request.Body);
+		Assert.Contains(substring: "X-Request: object-header", request.Headers);
+		Assert.Contains(substring: "Accept: application/custom", request.Headers);
+		Assert.Contains(substring: "Cookie: session=abc", request.Headers);
 		Assert.AreEqual(expected: 1, firstHandler.PrepareCount);
 		Assert.AreEqual(expected: 1, firstHandler.CreateCount);
 		Assert.AreEqual(expected: 1, firstHandler.ParseCount);
@@ -93,17 +93,17 @@ public class HttpClientServiceCoverageTest
 		Assert.AreEqual(expected: 1, secondHandler.CreateCount);
 		Assert.AreEqual(expected: 1, secondHandler.ParseCount);
 		Assert.AreEqual(expected: 201, result["statusCode"].AsNumber());
-		Assert.AreEqual("Created", result["statusDescription"].AsString());
+		Assert.AreEqual(expected: "Created", result["statusDescription"].AsString());
 		Assert.IsNull(result["webExceptionStatus"].AsStringOrDefault());
-		Assert.AreEqual("parsed-response", result["content"].AsString());
+		Assert.AreEqual(expected: "parsed-response", result["content"].AsString());
 		var responseHeader = result["headers"].AsList().Single(item => item.AsList()["name"].AsString() == "X-Result").AsList();
-		Assert.Contains("first", responseHeader["value"].AsString());
-		Assert.Contains("second", responseHeader["value"].AsString());
+		Assert.Contains(substring: "first", responseHeader["value"].AsString());
+		Assert.Contains(substring: "second", responseHeader["value"].AsString());
 		var responseCookie = result["cookies"].AsList().Single().AsList();
-		Assert.AreEqual("session", responseCookie["name"].AsString());
-		Assert.AreEqual("abc", responseCookie["value"].AsString());
-		Assert.AreEqual("/", responseCookie["path"].AsString());
-		Assert.AreEqual("127.0.0.1", responseCookie["domain"].AsString());
+		Assert.AreEqual(expected: "session", responseCookie["name"].AsString());
+		Assert.AreEqual(expected: "abc", responseCookie["value"].AsString());
+		Assert.AreEqual(expected: "/", responseCookie["path"].AsString());
+		Assert.AreEqual(expected: "127.0.0.1", responseCookie["domain"].AsString());
 		Assert.IsTrue(responseCookie["httpOnly"].AsBoolean());
 		Assert.IsFalse(responseCookie["secure"].AsBoolean());
 		Assert.AreEqual(expires, responseCookie["expires"].AsDateTime().ToDateTime());
@@ -112,8 +112,7 @@ public class HttpClientServiceCoverageTest
 	[TestMethod]
 	public async Task ProtocolErrorUsesDefaultContentArrayHeadersAndEmptyResponseCollections()
 	{
-		await using var server = new HttpLoopbackServer(
-			"HTTP/1.1 422 Unprocessable Entity\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+		await using var server = new HttpLoopbackServer("HTTP/1.1 422 Unprocessable Entity\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
 		var options = HttpClientServiceOptions.CreateDefault();
 		options.MimeTypeHandlers.Clear();
 		var parameters = new DataModelList
@@ -131,12 +130,12 @@ public class HttpClientServiceCoverageTest
 		var result = (await ((IExternalService) service).GetResult()).AsList();
 		var request = await server.Request;
 
-		Assert.AreEqual("PUT", request.Method);
-		Assert.AreEqual("default-content", request.Body);
-		Assert.Contains("X-Array: array-header", request.Headers);
+		Assert.AreEqual(expected: "PUT", request.Method);
+		Assert.AreEqual(expected: "default-content", request.Body);
+		Assert.Contains(substring: "X-Array: array-header", request.Headers);
 		Assert.AreEqual(expected: 422, result["statusCode"].AsNumber());
-		Assert.AreEqual("Unprocessable Entity", result["statusDescription"].AsString());
-		Assert.AreEqual("ProtocolError", result["webExceptionStatus"].AsString());
+		Assert.AreEqual(expected: "Unprocessable Entity", result["statusDescription"].AsString());
+		Assert.AreEqual(expected: "ProtocolError", result["webExceptionStatus"].AsString());
 		Assert.AreEqual(expected: 0, result["cookies"].AsList().Count);
 		Assert.IsTrue(result["content"].IsUndefined());
 	}
@@ -169,8 +168,7 @@ public class HttpClientServiceCoverageTest
 	{
 		// Current product defect: WriteContent must skip opening the request stream for methods that do not permit
 		// an entity body. Retain this test so the documented default GET behavior can be enabled after that fix.
-		await using var server = new HttpLoopbackServer(
-			"HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+		await using var server = new HttpLoopbackServer("HTTP/1.1 204 No Content\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
 		var options = HttpClientServiceOptions.CreateDefault();
 		options.MimeTypeHandlers.Clear();
 		var service = CreateService(options, server.Uri, new DataModelList(), DataModelValue.Undefined);
@@ -180,11 +178,10 @@ public class HttpClientServiceCoverageTest
 		Assert.AreEqual(expected: 204, result["statusCode"].AsNumber());
 	}
 
-	private static HttpClientService CreateService(
-		HttpClientServiceOptions options,
-		Uri source,
-		DataModelValue parameters,
-		DataModelValue content)
+	private static HttpClientService CreateService(HttpClientServiceOptions options,
+												   Uri source,
+												   DataModelValue parameters,
+												   DataModelValue content)
 	{
 		var monitor = new PassThroughTaskMonitor();
 
@@ -209,9 +206,16 @@ public class HttpClientServiceCoverageTest
 
 		public int ParseCount { get; private set; }
 
-		public override void PrepareRequest(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value) => PrepareCount ++;
+		public override void PrepareRequest(WebRequest webRequest,
+											string? contentType,
+											DataModelList parameters,
+											DataModelValue value) =>
+			PrepareCount ++;
 
-		public override HttpContent? TryCreateHttpContent(WebRequest webRequest, string? contentType, DataModelList parameters, DataModelValue value)
+		public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
+														  string? contentType,
+														  DataModelList parameters,
+														  DataModelValue value)
 		{
 			CreateCount ++;
 
@@ -228,20 +232,30 @@ public class HttpClientServiceCoverageTest
 
 	private sealed class ExternalServiceSource(Uri source, DataModelValue content) : IExternalServiceSource
 	{
+	#region Interface IExternalServiceSource
+
 		public Uri Source { get; } = source;
 
 		public string? RawContent => null;
 
 		public DataModelValue Content { get; } = content;
+
+	#endregion
 	}
 
 	private sealed class ExternalServiceParameters(DataModelValue parameters) : IExternalServiceParameters
 	{
+	#region Interface IExternalServiceParameters
+
 		public DataModelValue Parameters { get; } = parameters;
+
+	#endregion
 	}
 
 	private sealed class PassThroughTaskMonitor : ITaskMonitor
 	{
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task;
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
@@ -255,25 +269,27 @@ public class HttpClientServiceCoverageTest
 		public void Forget(ValueTask valueTask) { }
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) { }
+
+	#endregion
 	}
 
 	private sealed class HttpLoopbackServer : IAsyncDisposable
 	{
 		private readonly TcpListener _listener = new(IPAddress.Loopback, port: 0);
 
-		private readonly Task<HttpRequestData> _request;
-
 		public HttpLoopbackServer(string? response)
 		{
 			_listener.Start();
 			var endpoint = (IPEndPoint) _listener.LocalEndpoint;
 			Uri = new Uri($"http://127.0.0.1:{endpoint.Port}/service");
-			_request = Serve(response);
+			Request = Serve(response);
 		}
 
 		public Uri Uri { get; }
 
-		public Task<HttpRequestData> Request => _request;
+		public Task<HttpRequestData> Request { get; }
+
+	#region Interface IAsyncDisposable
 
 		public async ValueTask DisposeAsync()
 		{
@@ -281,7 +297,7 @@ public class HttpClientServiceCoverageTest
 
 			try
 			{
-				await _request.ConfigureAwait(false);
+				await Request.ConfigureAwait(false);
 			}
 			catch (SocketException)
 			{
@@ -289,16 +305,18 @@ public class HttpClientServiceCoverageTest
 			}
 		}
 
+	#endregion
+
 		private async Task<HttpRequestData> Serve(string? response)
 		{
 			using var client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
-			await using var stream = client.GetStream();
+			using var stream = client.GetStream();
 			var request = await ReadRequest(stream).ConfigureAwait(false);
 
 			if (response is not null)
 			{
 				var responseBytes = Encoding.ASCII.GetBytes(response);
-				await stream.WriteAsync(responseBytes).ConfigureAwait(false);
+				await stream.WriteAsync(responseBytes, offset: 0, responseBytes.Length).ConfigureAwait(false);
 			}
 			else
 			{
@@ -319,7 +337,7 @@ public class HttpClientServiceCoverageTest
 
 			while (true)
 			{
-				var read = await stream.ReadAsync(buffer).ConfigureAwait(false);
+				var read = await stream.ReadAsync(buffer, offset: 0, buffer.Length).ConfigureAwait(false);
 
 				if (read == 0)
 				{
@@ -344,7 +362,7 @@ public class HttpClientServiceCoverageTest
 
 			var data = request.ToArray();
 			var headerText = Encoding.ASCII.GetString(data, index: 0, headerEnd);
-			var firstLineEnd = headerText.IndexOf("\r\n", StringComparison.Ordinal);
+			var firstLineEnd = headerText.IndexOf(value: "\r\n", StringComparison.Ordinal);
 			var requestLine = headerText[..firstLineEnd].Split(' ');
 			var body = contentLength > 0 ? Encoding.UTF8.GetString(data, headerEnd + 4, contentLength) : string.Empty;
 
@@ -366,13 +384,13 @@ public class HttpClientServiceCoverageTest
 
 		private static int GetContentLength(string headers)
 		{
-			foreach (var line in headers.Split("\r\n"))
+			foreach (var line in headers.Split('\r'))
 			{
 				const string prefix = "Content-Length:";
 
-				if (line.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+				if (line.Trim().StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
 				{
-					return int.Parse(line[prefix.Length..].Trim());
+					return int.Parse(line.Trim()[prefix.Length..].Trim());
 				}
 			}
 
@@ -380,5 +398,9 @@ public class HttpClientServiceCoverageTest
 		}
 	}
 
-	private sealed record HttpRequestData(string Method, string Path, string Headers, string Body);
+	private sealed record HttpRequestData(
+		string Method,
+		string Path,
+		string Headers,
+		string Body);
 }

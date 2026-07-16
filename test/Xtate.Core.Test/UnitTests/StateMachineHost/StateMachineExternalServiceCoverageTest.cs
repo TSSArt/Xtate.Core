@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -22,7 +22,6 @@ using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.IoC.Tools;
 using Xtate.Scxml;
-using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
@@ -42,7 +41,7 @@ public class StateMachineExternalServiceCoverageTest
 		scopeManager.Setup(s => s.Execute(It.IsAny<StateMachineClass>(), SecurityContextType.InvokedService))
 					.Callback<StateMachineClass, SecurityContextType>((stateMachineClass, _) => child = stateMachineClass)
 					.ReturnsAsync(new DataModelValue("result"));
-		var service = CreateService(scopeManager.Object, collection.Object, source: null, rawContent: scxml, DataModelValue.Undefined);
+		var service = CreateService(scopeManager.Object, collection.Object, source: null, scxml, DataModelValue.Undefined);
 
 		await ((IEventDispatcher) service).Dispatch(Mock.Of<IIncomingEvent>(), CancellationToken.None);
 		collection.VerifyNoOtherCalls();
@@ -74,7 +73,7 @@ public class StateMachineExternalServiceCoverageTest
 		var service = CreateService(
 			scopeManager.Object,
 			collection.Object,
-			new Uri("child.scxml", UriKind.Relative),
+			new Uri(uriString: "child.scxml", UriKind.Relative),
 			rawContent: null,
 			DataModelValue.Undefined);
 
@@ -108,21 +107,20 @@ public class StateMachineExternalServiceCoverageTest
 	public void ProviderRecognizesScxmlServicePrimaryAndAliasTypes()
 	{
 		IExternalServiceProvider provider = new StateMachineExternalService.Provider
-											  {
-												  ServiceFactoryFunc = static () => new ValueTask<StateMachineExternalService>((StateMachineExternalService) null!)
-											  };
+											{
+												ServiceFactoryFunc = static () => new ValueTask<StateMachineExternalService>((StateMachineExternalService) null!)
+											};
 
 		Assert.IsNotNull(provider.TryGetActivator(Const.ScxmlServiceTypeId));
 		Assert.IsNotNull(provider.TryGetActivator(Const.ScxmlServiceAliasTypeId));
 		Assert.IsNull(provider.TryGetActivator(new FullUri("urn:other")));
 	}
 
-	private static StateMachineExternalService CreateService(
-		IStateMachineScopeManager scopeManager,
-		IStateMachineCollection collection,
-		Uri? source,
-		string? rawContent,
-		DataModelValue content)
+	private static StateMachineExternalService CreateService(IStateMachineScopeManager scopeManager,
+															 IStateMachineCollection collection,
+															 Uri? source,
+															 string? rawContent,
+															 DataModelValue content)
 	{
 		var taskMonitor = new PassThroughTaskMonitor();
 
@@ -141,21 +139,31 @@ public class StateMachineExternalServiceCoverageTest
 
 	private sealed class ExternalServiceSource(Uri? source, string? rawContent, DataModelValue content) : IExternalServiceSource
 	{
+	#region Interface IExternalServiceSource
+
 		public Uri? Source { get; } = source;
 
 		public string? RawContent { get; } = rawContent;
 
 		public DataModelValue Content { get; } = content;
+
+	#endregion
 	}
 
 	private sealed class ExternalServiceParameters(DataModelValue parameters) : IExternalServiceParameters
 	{
+	#region Interface IExternalServiceParameters
+
 		public DataModelValue Parameters { get; } = parameters;
+
+	#endregion
 	}
 
 	[ExcludeFromCodeCoverage]
 	private sealed class PassThroughTaskMonitor : ITaskMonitor
 	{
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task;
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task;
@@ -169,5 +177,7 @@ public class StateMachineExternalServiceCoverageTest
 		public void Forget(ValueTask valueTask) { }
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) { }
+
+	#endregion
 	}
 }

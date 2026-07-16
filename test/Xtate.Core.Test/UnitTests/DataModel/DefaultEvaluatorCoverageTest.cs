@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -87,9 +87,9 @@ public class DefaultEvaluatorCoverageTest
 		Assert.AreSame(expressionLocation, expressionEvaluator.Location);
 		Assert.AreSame(expression, expressionEvaluator.Expression);
 		Assert.AreSame(ignoredInline, expressionEvaluator.InlineContent);
-		Assert.AreEqual("type", expressionEvaluator.Type);
-		Assert.AreEqual("attribute", expressionEvaluator.Attribute);
-		Assert.AreEqual("expression", DataModelValue.FromObject(expressionLocation.Value!.ToObject()).AsString());
+		Assert.AreEqual(expected: "type", expressionEvaluator.Type);
+		Assert.AreEqual(expected: "attribute", expressionEvaluator.Attribute);
+		Assert.AreEqual(expected: "expression", DataModelValue.FromObject(expressionLocation.Value!.ToObject()).AsString());
 
 		var inlineLocation = new LocationExpression();
 		var inlineSource = new AssignSource(inlineLocation, expression: null, new InlineObjectContent("inline"));
@@ -97,7 +97,7 @@ public class DefaultEvaluatorCoverageTest
 
 		await inlineEvaluator.Execute();
 
-		Assert.AreEqual("inline", DataModelValue.FromObject(inlineLocation.Value!.ToObject()).AsString());
+		Assert.AreEqual(expected: "inline", DataModelValue.FromObject(inlineLocation.Value!.ToObject()).AsString());
 	}
 
 	[TestMethod]
@@ -109,9 +109,9 @@ public class DefaultEvaluatorCoverageTest
 		await evaluator.Execute();
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.AreEqual("urn:test", evaluator.XmlNamespace);
-		Assert.AreEqual("custom", evaluator.XmlName);
-		Assert.AreEqual("<custom />", evaluator.Xml);
+		Assert.AreEqual(expected: "urn:test", evaluator.XmlNamespace);
+		Assert.AreEqual(expected: "custom", evaluator.XmlName);
+		Assert.AreEqual(expected: "<custom />", evaluator.Xml);
 		Assert.IsEmpty(evaluator.Values);
 		Assert.IsEmpty(evaluator.Locations);
 	}
@@ -141,13 +141,13 @@ public class DefaultEvaluatorCoverageTest
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.IsNotNull(controller.Sent);
-		Assert.AreEqual("dynamic.event", controller.Sent.Name.ToString());
+		Assert.AreEqual(expected: "dynamic.event", controller.Sent.Name.ToString());
 		Assert.AreEqual(new FullUri("urn:dynamic-target"), controller.Sent.Target);
 		Assert.AreEqual(new FullUri("urn:dynamic-type"), controller.Sent.Type);
 		Assert.AreEqual(expected: 25, controller.Sent.DelayMs);
-		Assert.AreEqual("raw-content", controller.Sent.Data.AsString());
-		Assert.AreEqual("raw-content", controller.RawData);
-		Assert.AreEqual("send-id", controller.Sent.SendId!.ToString());
+		Assert.AreEqual(expected: "raw-content", controller.Sent.Data.AsString());
+		Assert.AreEqual(expected: "raw-content", controller.RawData);
+		Assert.AreEqual(expected: "send-id", controller.Sent.SendId!.ToString());
 		Assert.AreSame(controller.Sent.SendId, idLocation.Value);
 	}
 
@@ -167,7 +167,7 @@ public class DefaultEvaluatorCoverageTest
 		await evaluator.Execute();
 
 		Assert.IsNotNull(controller.Sent);
-		Assert.AreEqual("static.event", controller.Sent.Name.ToString());
+		Assert.AreEqual(expected: "static.event", controller.Sent.Name.ToString());
 		Assert.AreEqual(new FullUri("urn:static-target"), controller.Sent.Target);
 		Assert.AreEqual(new FullUri("urn:static-type"), controller.Sent.Type);
 		Assert.AreEqual(expected: 0, controller.Sent.DelayMs);
@@ -187,87 +187,152 @@ public class DefaultEvaluatorCoverageTest
 	{
 		public int EvaluateCount { get; private set; }
 
-		public string? Expression => result.ToString();
+	#region Interface IBooleanEvaluator
 
 		public ValueTask<bool> EvaluateBoolean()
 		{
 			EvaluateCount ++;
+
 			return new ValueTask<bool>(result);
 		}
+
+	#endregion
+
+	#region Interface IConditionExpression
+
+		public string? Expression => result.ToString();
+
+	#endregion
 	}
 
 	private sealed class ExecutableAction : IExecutableEntity, IExecEvaluator
 	{
 		public int ExecuteCount { get; private set; }
 
+	#region Interface IExecEvaluator
+
 		public ValueTask Execute()
 		{
 			ExecuteCount ++;
+
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class IfSource(IConditionExpression condition, ImmutableArray<IExecutableEntity> action) : IIf
 	{
+	#region Interface IIf
+
 		public IConditionExpression? Condition => condition;
 
 		public ImmutableArray<IExecutableEntity> Action => action;
+
+	#endregion
 	}
 
 	private sealed class ElseIfSource(IConditionExpression condition) : IElseIf
 	{
+	#region Interface IElseIf
+
 		public IConditionExpression? Condition => condition;
+
+	#endregion
 	}
 
 	private sealed class ElseSource : IElse;
 
 	private sealed class ObjectValueExpression(string value) : IValueExpression, IObjectEvaluator
 	{
-		public string? Expression => value;
+	#region Interface IObjectEvaluator
 
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression => value;
+
+	#endregion
 	}
 
 	private sealed class StringValueExpression(string value) : IValueExpression, IStringEvaluator
 	{
-		public string? Expression => value;
+	#region Interface IStringEvaluator
 
 		public ValueTask<string> EvaluateString() => new(value);
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression => value;
+
+	#endregion
 	}
 
 	private sealed class IntegerValueExpression(int value) : IValueExpression, IIntegerEvaluator
 	{
-		public string? Expression => value.ToString();
+	#region Interface IIntegerEvaluator
 
 		public ValueTask<int> EvaluateInteger() => new(value);
+
+	#endregion
+
+	#region Interface IValueExpression
+
+		public string? Expression => value.ToString();
+
+	#endregion
 	}
 
 	private sealed class InlineObjectContent(string value) : IInlineContent, IObjectEvaluator
 	{
+	#region Interface IInlineContent
+
 		public string? Value => value;
 
+	#endregion
+
+	#region Interface IObjectEvaluator
+
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
+
+	#endregion
 	}
 
 	private sealed class LocationExpression : ILocationExpression, ILocationEvaluator
 	{
 		public IObject? Value { get; private set; }
 
-		public string? Expression => "location";
+	#region Interface ILocationEvaluator
 
 		public ValueTask SetValue(IObject value)
 		{
 			Value = value;
+
 			return ValueTask.CompletedTask;
 		}
 
 		public ValueTask<IObject> GetValue() => new(Value ?? DataModelValue.Undefined);
 
 		public ValueTask<string> GetName() => new("location");
+
+	#endregion
+
+	#region Interface ILocationExpression
+
+		public string? Expression => "location";
+
+	#endregion
 	}
 
 	private sealed class AssignSource(ILocationExpression location, IValueExpression? expression, IInlineContent inlineContent) : IAssign
 	{
+	#region Interface IAssign
+
 		public ILocationExpression? Location => location;
 
 		public IValueExpression? Expression => expression;
@@ -277,24 +342,40 @@ public class DefaultEvaluatorCoverageTest
 		public string? Type => "type";
 
 		public string? Attribute => "attribute";
+
+	#endregion
 	}
 
 	private sealed class StringContentBody(string value) : IContentBody, IStringEvaluator
 	{
+	#region Interface IContentBody
+
 		public string? Value => value;
 
+	#endregion
+
+	#region Interface IStringEvaluator
+
 		public ValueTask<string> EvaluateString() => new(value);
+
+	#endregion
 	}
 
 	private sealed class ContentSource(IValueExpression? expression, IContentBody? body) : IContent
 	{
+	#region Interface IContent
+
 		public IValueExpression? Expression => expression;
 
 		public IContentBody? Body => body;
+
+	#endregion
 	}
 
 	private sealed class SendSource : ISend
 	{
+	#region Interface ISend
+
 		public string? EventName { get; init; }
 
 		public IValueExpression? EventExpression { get; init; }
@@ -315,11 +396,13 @@ public class DefaultEvaluatorCoverageTest
 
 		public IValueExpression? DelayExpression { get; init; }
 
-		public ImmutableArray<ILocationExpression> NameList { get; init; } = [];
+		public ImmutableArray<ILocationExpression> NameList { get; } = [];
 
-		public ImmutableArray<IParam> Parameters { get; init; } = [];
+		public ImmutableArray<IParam> Parameters { get; } = [];
 
 		public IContent? Content { get; init; }
+
+	#endregion
 	}
 
 	private sealed class EventController : IEventController
@@ -328,18 +411,25 @@ public class DefaultEvaluatorCoverageTest
 
 		public string? RawData { get; private set; }
 
+	#region Interface IEventController
+
 		public ValueTask Send(IOutgoingEvent outgoingEvent)
 		{
 			Sent = outgoingEvent;
 			RawData = outgoingEvent is EventEntity eventEntity ? eventEntity.RawData : null;
+
 			return ValueTask.CompletedTask;
 		}
 
 		public ValueTask Cancel(SendId sendId) => ValueTask.CompletedTask;
+
+	#endregion
 	}
 
 	private sealed class CustomActionSource : ICustomAction
 	{
+	#region Interface ICustomAction
+
 		public string? XmlNamespace => "urn:test";
 
 		public string? XmlName => "custom";
@@ -349,5 +439,7 @@ public class DefaultEvaluatorCoverageTest
 		public ImmutableArray<ILocationExpression> Locations => [];
 
 		public ImmutableArray<IValueExpression> Values => [];
+
+	#endregion
 	}
 }

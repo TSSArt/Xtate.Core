@@ -63,10 +63,8 @@ public class DataModelValueNestedCoverageTest
 	{
 		var nullMarker = GetNestedValue(DataModelValue.Null)!;
 		var markerType = nullMarker.GetType();
-		var anotherNullMarker = Activator.CreateInstance(
-			markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Null], culture: null)!;
-		var booleanMarker = Activator.CreateInstance(
-			markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Boolean], culture: null)!;
+		var anotherNullMarker = Activator.CreateInstance(markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Null], culture: null)!;
+		var booleanMarker = Activator.CreateInstance(markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Boolean], culture: null)!;
 
 		Assert.IsTrue(nullMarker.Equals(nullMarker));
 		Assert.IsTrue(nullMarker.Equals(anotherNullMarker));
@@ -84,9 +82,9 @@ public class DataModelValueNestedCoverageTest
 		Assert.AreEqual(intNumber.GetHashCode(), anotherIntNumber.GetHashCode());
 		Assert.IsFalse(new DataModelValue(1).Equals(new DataModelValue("1")));
 
-		var firstDate = GetNestedValue(new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(1))))!;
-		var sameDateKind = GetNestedValue(new DataModelValue(new DateTimeOffset(2027, 2, 3, 4, 5, 6, TimeSpan.FromHours(1))))!;
-		var differentDateKind = GetNestedValue(new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2))))!;
+		var firstDate = GetNestedValue(new DataModelValue(new DateTimeOffset(year: 2026, month: 1, day: 2, hour: 3, minute: 4, second: 5, TimeSpan.FromHours(1))))!;
+		var sameDateKind = GetNestedValue(new DataModelValue(new DateTimeOffset(year: 2027, month: 2, day: 3, hour: 4, minute: 5, second: 6, TimeSpan.FromHours(1))))!;
+		var differentDateKind = GetNestedValue(new DataModelValue(new DateTimeOffset(year: 2026, month: 1, day: 2, hour: 3, minute: 4, second: 5, TimeSpan.FromHours(2))))!;
 
 		Assert.IsTrue(firstDate.Equals(sameDateKind));
 		Assert.IsFalse(firstDate.Equals(differentDateKind));
@@ -132,6 +130,8 @@ public class DataModelValueNestedCoverageTest
 		Assert.AreEqual(noncachedValue, new DataModelValue(noncachedOffset));
 	}
 
+	private static object? GetNestedValue(DataModelValue value) => typeof(DataModelValue).GetField(name: "_value", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value);
+
 	private sealed class CountingObject(object? value) : IObject
 	{
 		public int ToObjectCalls { get; private set; }
@@ -147,7 +147,4 @@ public class DataModelValueNestedCoverageTest
 
 	#endregion
 	}
-
-	private static object? GetNestedValue(DataModelValue value) =>
-		typeof(DataModelValue).GetField("_value", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value);
 }

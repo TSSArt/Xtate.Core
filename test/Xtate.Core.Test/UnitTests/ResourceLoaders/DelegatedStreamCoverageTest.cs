@@ -126,7 +126,7 @@ public class DelegatedStreamCoverageTest
 
 	private sealed class TestDelegatedStream(Stream innerStream) : DelegatedStream(innerStream)
 	{
-		public void DisposeCore(bool disposing) => base.Dispose(disposing);
+		public void DisposeCore(bool disposing) => Dispose(disposing);
 	}
 
 	private sealed class ProbeStream : MemoryStream

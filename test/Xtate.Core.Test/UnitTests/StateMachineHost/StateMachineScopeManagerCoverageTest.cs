@@ -1,23 +1,22 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
 using Xtate.Class;
-using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.IoC;
 using Xtate.StateMachine;
@@ -41,7 +40,7 @@ public class StateMachineScopeManagerCoverageTest
 
 		var result = await manager.Execute(CreateStateMachine(sessionId), SecurityContextType.NewTrustedStateMachine);
 
-		Assert.AreEqual("execute-result", result.AsString());
+		Assert.AreEqual(expected: "execute-result", result.AsString());
 		collection.Verify(value => value.Register(sessionId), Times.Once);
 		collection.Verify(value => value.SetController(sessionId, controller.Object), Times.Once);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
@@ -60,7 +59,7 @@ public class StateMachineScopeManagerCoverageTest
 		var manager = await CreateManager(controller.Object, collection.Object, new CapturingTaskMonitor());
 
 		var thrown = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await manager.Execute(CreateStateMachine(sessionId), SecurityContextType.NewStateMachine));
+																					await manager.Execute(CreateStateMachine(sessionId), SecurityContextType.NewStateMachine));
 
 		Assert.AreSame(failure, thrown);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
@@ -84,8 +83,10 @@ public class StateMachineScopeManagerCoverageTest
 		Assert.IsFalse(monitor.ForgottenTasks[0].IsCompleted);
 
 		completion.SetResult(new DataModelValue("started-result"));
-		Assert.AreEqual("started-result", (await stateMachineResult.GetResult()).AsString());
-		await monitor.ForgottenTasks[0].WaitAsync(TimeSpan.FromSeconds(5));
+		Assert.AreEqual(expected: "started-result", (await stateMachineResult.GetResult()).AsString());
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await monitor.ForgottenTasks[0].WaitAsync(cts.Token);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
 		manager.Dispose();
 	}
@@ -105,8 +106,10 @@ public class StateMachineScopeManagerCoverageTest
 
 		completion.SetException(failure);
 		var thrown = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await stateMachineResult.GetResult());
-		await monitor.ForgottenTasks.Single().WaitAsync(TimeSpan.FromSeconds(5));
+																					await stateMachineResult.GetResult());
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
 
 		Assert.AreSame(failure, thrown);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
@@ -129,7 +132,7 @@ public class StateMachineScopeManagerCoverageTest
 		var result = await manager.Start(stateMachine, SecurityContextType.NewTrustedStateMachine);
 
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await manager.Start(stateMachine, SecurityContextType.NewTrustedStateMachine));
+																	   await manager.Start(stateMachine, SecurityContextType.NewTrustedStateMachine));
 		await manager.Destroy(SessionId.FromString("missing-session"));
 		var destroyAll = manager.DestroyAll();
 		Assert.IsFalse(destroyAll.IsCompletedSuccessfully);
@@ -143,7 +146,9 @@ public class StateMachineScopeManagerCoverageTest
 		await manager.Destroy(sessionId);
 		resultCompletion.SetResult(DataModelValue.Null);
 		Assert.AreEqual(DataModelValue.Null, await result.GetResult());
-		await monitor.ForgottenTasks.Single().WaitAsync(TimeSpan.FromSeconds(5));
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
 		manager.Dispose();
 	}
@@ -156,22 +161,21 @@ public class StateMachineScopeManagerCoverageTest
 		syncManager.Dispose();
 		syncManager.Dispose();
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
-			await syncManager.Start(CreateStateMachine(SessionId.FromString("sync-disposed")), SecurityContextType.NewTrustedStateMachine));
+																	 await syncManager.Start(CreateStateMachine(SessionId.FromString("sync-disposed")), SecurityContextType.NewTrustedStateMachine));
 
 		var asyncManager = await CreateManager(controller, Mock.Of<IStateMachineCollection>(), new CapturingTaskMonitor());
 		await asyncManager.DisposeAsync();
 		await asyncManager.DisposeAsync();
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
-			await asyncManager.Execute(CreateStateMachine(SessionId.FromString("async-disposed")), SecurityContextType.NewTrustedStateMachine));
+																	 await asyncManager.Execute(
+																		 CreateStateMachine(SessionId.FromString("async-disposed")), SecurityContextType.NewTrustedStateMachine));
 	}
 
-	private static RuntimeStateMachine CreateStateMachine(SessionId sessionId) =>
-		new(Mock.Of<IStateMachine>(static value => value.Name == "coverage-machine")) { SessionId = sessionId };
+	private static RuntimeStateMachine CreateStateMachine(SessionId sessionId) => new(Mock.Of<IStateMachine>(static value => value.Name == "coverage-machine")) { SessionId = sessionId };
 
-	private static async ValueTask<StateMachineScopeManager> CreateManager(
-		IStateMachineController controller,
-		IStateMachineCollection collection,
-		ITaskMonitor taskMonitor)
+	private static async ValueTask<StateMachineScopeManager> CreateManager(IStateMachineController controller,
+																		   IStateMachineCollection collection,
+																		   ITaskMonitor taskMonitor)
 	{
 		var services = new ServiceCollection();
 		services.AddConstant(controller);
@@ -192,6 +196,8 @@ public class StateMachineScopeManagerCoverageTest
 	{
 		public List<Task> ForgottenTasks { get; } = [];
 
+	#region Interface ITaskMonitor
+
 		public Task WaitAsync(Task task, CancellationToken token) => task.WaitAsync(token);
 
 		public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task.WaitAsync(token);
@@ -205,5 +211,7 @@ public class StateMachineScopeManagerCoverageTest
 		public void Forget(ValueTask valueTask) => ForgottenTasks.Add(valueTask.AsTask());
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) => ForgottenTasks.Add(valueTask.AsTask());
+
+	#endregion
 	}
 }

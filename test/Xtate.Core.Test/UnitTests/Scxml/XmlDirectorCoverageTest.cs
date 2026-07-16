@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -34,43 +34,43 @@ public class XmlDirectorCoverageTest
 		var director = CreateDirector(xml, useAsync: true);
 		var model = await director.PopulateModel();
 
-		Assert.AreEqual("yes", model.Required);
-		Assert.AreEqual("value", model.Optional);
+		Assert.AreEqual(expected: "yes", model.Required);
+		Assert.AreEqual(expected: "value", model.Optional);
 		CollectionAssert.AreEqual(new[] { "optional", "single", "multiple", "multiple" }, model.Elements);
-		CollectionAssert.Contains(director.Namespaces, "p");
+		CollectionAssert.Contains(director.Namespaces, element: "p");
 		Assert.IsNotEmpty(director.Errors);
 	}
 
 	[TestMethod]
 	public async Task PopulateReportsMissingRequiredMembersAndCapturesRawContent()
 	{
-		var invalid = CreateDirector("<wrong><unknown/></wrong>", useAsync: true);
+		var invalid = CreateDirector(xml: "<wrong><unknown/></wrong>", useAsync: true);
 		_ = await invalid.PopulateModel();
 
-		Assert.IsGreaterThanOrEqualTo(2, invalid.Errors.Count);
+		Assert.IsGreaterThanOrEqualTo(lowerBound: 2, invalid.Errors.Count);
 
-		var raw = CreateDirector("<raw><child>text</child></raw>", useAsync: true);
+		var raw = CreateDirector(xml: "<raw><child>text</child></raw>", useAsync: true);
 		var model = await raw.PopulateRaw();
 
-		StringAssert.Contains(model.RawContent, "<child>text</child>");
+		StringAssert.Contains(model.RawContent, substring: "<child>text</child>");
 	}
 
 	[TestMethod]
 	public async Task ReaderHelpersUseSyncAndAsyncReaderOperations()
 	{
-		var syncSkip = CreateDirector("<root><skip><child/></skip><after/></root>", useAsync: false);
+		var syncSkip = CreateDirector(xml: "<root><skip><child/></skip><after/></root>", useAsync: false);
 		syncSkip.MoveToFirstElement();
 		syncSkip.MoveToFirstElement();
 		await syncSkip.SkipCurrent();
-		Assert.AreEqual("after", syncSkip.Name);
+		Assert.AreEqual(expected: "after", syncSkip.Name);
 
-		var syncOuter = CreateDirector("<outer><child/></outer>", useAsync: false);
+		var syncOuter = CreateDirector(xml: "<outer><child/></outer>", useAsync: false);
 		syncOuter.MoveToFirstElement();
-		StringAssert.Contains(await syncOuter.ReadOuter(), "<outer>");
+		StringAssert.Contains(await syncOuter.ReadOuter(), substring: "<outer>");
 
-		var asyncOuter = CreateDirector("<outer><child/></outer>", useAsync: true);
+		var asyncOuter = CreateDirector(xml: "<outer><child/></outer>", useAsync: true);
 		await asyncOuter.MoveToFirstElementAsync();
-		StringAssert.Contains(await asyncOuter.ReadOuter(), "<outer>");
+		StringAssert.Contains(await asyncOuter.ReadOuter(), substring: "<outer>");
 	}
 
 	private static CoverageDirector CreateDirector(string xml, bool useAsync)
@@ -82,23 +82,23 @@ public class XmlDirectorCoverageTest
 
 	private sealed class CoverageDirector : XmlDirector<CoverageDirector>
 	{
-		private readonly XmlReader _reader;
-
 		private static readonly Policy<Model> ModelPolicy = BuildPolicy<Model>(builder =>
-		{
-			builder.IgnoreUnknownElements(false)
-				   .ValidateElementName("root")
-				   .RequiredAttribute("required", static (director, model) => model.Required = director.AttributeValue)
-				   .OptionalAttribute("optional", static (director, model) => model.Optional = director.AttributeValue)
-				   .OptionalElement("optional", VisitElement)
-				   .SingleElement("single", VisitElement)
-				   .MultipleElements("multiple", VisitElement)
-				   .IgnoreUnknownElements()
-				   .DenyUnknownElements();
-		});
+																			   {
+																				   builder.IgnoreUnknownElements(false)
+																						  .ValidateElementName("root")
+																						  .RequiredAttribute(name: "required", static (director, model) => model.Required = director.AttributeValue)
+																						  .OptionalAttribute(name: "optional", static (director, model) => model.Optional = director.AttributeValue)
+																						  .OptionalElement(name: "optional", VisitElement)
+																						  .SingleElement(name: "single", VisitElement)
+																						  .MultipleElements(name: "multiple", VisitElement)
+																						  .IgnoreUnknownElements()
+																						  .DenyUnknownElements();
+																			   });
 
 		private static readonly Policy<Model> RawPolicy = BuildPolicy<Model>(builder =>
-			builder.ValidateElementName("raw").RawContent(static (director, model) => model.RawContent = director.RawContent));
+																				 builder.ValidateElementName("raw").RawContent(static (director, model) => model.RawContent = director.RawContent));
+
+		private readonly XmlReader _reader;
 
 		public CoverageDirector(XmlReader reader) : base(reader)
 		{

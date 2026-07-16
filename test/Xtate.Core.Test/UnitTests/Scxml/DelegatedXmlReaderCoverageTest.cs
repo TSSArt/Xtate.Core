@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.IO;
 using System.Xml;
 using System.Xml.Schema;
-using System.IO;
 using Xtate.Scxml.Services;
 
 namespace Xtate.Test.UnitTests.Scxml;
@@ -76,26 +76,26 @@ public class DelegatedXmlReaderCoverageTest
 		inner.Setup(static reader => reader.ReadAttributeValue()).Returns(true);
 		var reader = new TestDelegatedXmlReader(inner.Object);
 
-		Assert.AreEqual("urn:base", reader.BaseURI);
+		Assert.AreEqual(expected: "urn:base", reader.BaseURI);
 		Assert.AreEqual(expected: 2, reader.AttributeCount);
 		Assert.AreEqual(expected: 3, reader.Depth);
 		Assert.IsTrue(reader.EOF);
 		Assert.IsTrue(reader.HasValue);
 		Assert.IsTrue(reader.IsDefault);
 		Assert.IsTrue(reader.IsEmptyElement);
-		Assert.AreEqual("indexed", reader[1]);
-		Assert.AreEqual("named", reader["name"]);
-		Assert.AreEqual("qualified", reader["local", "urn:test"]);
-		Assert.AreEqual("local", reader.LocalName);
-		Assert.AreEqual("p:local", reader.Name);
-		Assert.AreEqual("urn:test", reader.NamespaceURI);
+		Assert.AreEqual(expected: "indexed", reader[1]);
+		Assert.AreEqual(expected: "named", reader["name"]);
+		Assert.AreEqual(expected: "qualified", reader[name: "local", namespaceUri: "urn:test"]);
+		Assert.AreEqual(expected: "local", reader.LocalName);
+		Assert.AreEqual(expected: "p:local", reader.Name);
+		Assert.AreEqual(expected: "urn:test", reader.NamespaceURI);
 		Assert.AreSame(nameTable, reader.NameTable);
 		Assert.AreEqual(XmlNodeType.Element, reader.NodeType);
-		Assert.AreEqual("p", reader.Prefix);
+		Assert.AreEqual(expected: "p", reader.Prefix);
 		Assert.AreEqual(expected: '\'', reader.QuoteChar);
 		Assert.AreEqual(ReadState.Interactive, reader.ReadState);
-		Assert.AreEqual("value", reader.Value);
-		Assert.AreEqual("en", reader.XmlLang);
+		Assert.AreEqual(expected: "value", reader.Value);
+		Assert.AreEqual(expected: "en", reader.XmlLang);
 		Assert.AreEqual(XmlSpace.Preserve, reader.XmlSpace);
 		Assert.AreSame(settings, reader.Settings);
 		Assert.AreEqual(typeof(string), reader.ValueType);
@@ -106,14 +106,14 @@ public class DelegatedXmlReaderCoverageTest
 		Assert.AreEqual(expected: 11, reader.LinePosition);
 		Assert.IsTrue(reader.Read());
 		Assert.IsTrue(await reader.ReadAsync());
-		Assert.AreEqual("async-value", await reader.GetValueAsync());
-		Assert.AreEqual("attribute-index", reader.GetAttribute(1));
-		Assert.AreEqual("attribute-name", reader.GetAttribute("name"));
-		Assert.AreEqual("attribute-qualified", reader.GetAttribute("local", "urn:test"));
-		Assert.AreEqual("urn:test", reader.LookupNamespace("p"));
+		Assert.AreEqual(expected: "async-value", await reader.GetValueAsync());
+		Assert.AreEqual(expected: "attribute-index", reader.GetAttribute(1));
+		Assert.AreEqual(expected: "attribute-name", reader.GetAttribute("name"));
+		Assert.AreEqual(expected: "attribute-qualified", reader.GetAttribute(localName: "local", namespaceUri: "urn:test"));
+		Assert.AreEqual(expected: "urn:test", reader.LookupNamespace("p"));
 		reader.MoveToAttribute(1);
 		Assert.IsTrue(reader.MoveToAttribute("name"));
-		Assert.IsTrue(reader.MoveToAttribute("local", "urn:test"));
+		Assert.IsTrue(reader.MoveToAttribute(localName: "local", namespaceUri: "urn:test"));
 		Assert.IsTrue(reader.MoveToElement());
 		Assert.IsTrue(reader.MoveToFirstAttribute());
 		Assert.IsTrue(reader.MoveToNextAttribute());
@@ -140,23 +140,23 @@ public class DelegatedXmlReaderCoverageTest
 	public void XmlBaseReaderTracksNestedAndEmptyElementBaseUrisSynchronously()
 	{
 		const string source = "<root xml:base='a/'><child/><nested xml:base='../b/'></nested></root>";
-		using var inner = XmlReader.Create(new StringReader(source), new XmlReaderSettings(), "https://example.test/root/document.scxml");
+		using var inner = XmlReader.Create(new StringReader(source), new XmlReaderSettings(), baseUri: "https://example.test/root/document.scxml");
 		using var reader = new XmlBaseReader(inner) { XmlResolver = new XmlUrlResolver() };
 		var baseUriProperty = typeof(XmlBaseReader).GetProperty(nameof(XmlReader.BaseURI))!;
 
-		Assert.AreEqual("https://example.test/root/document.scxml", baseUriProperty.GetValue(reader));
+		Assert.AreEqual(expected: "https://example.test/root/document.scxml", baseUriProperty.GetValue(reader));
 		Assert.IsTrue(reader.Read());
-		Assert.AreEqual("https://example.test/root/a/", baseUriProperty.GetValue(reader));
+		Assert.AreEqual(expected: "https://example.test/root/a/", baseUriProperty.GetValue(reader));
 		Assert.IsTrue(reader.Read());
-		Assert.AreEqual("https://example.test/root/a/", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/a/", reader.BaseURI);
 		Assert.IsTrue(reader.Read());
-		Assert.AreEqual("https://example.test/root/b/", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/b/", reader.BaseURI);
 		Assert.IsTrue(reader.Read());
-		Assert.AreEqual("https://example.test/root/b/", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/b/", reader.BaseURI);
 		Assert.IsTrue(reader.Read());
-		Assert.AreEqual("https://example.test/root/a/", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/a/", reader.BaseURI);
 		Assert.IsFalse(reader.Read());
-		Assert.AreEqual("https://example.test/root/document.scxml", baseUriProperty.GetValue(reader));
+		Assert.AreEqual(expected: "https://example.test/root/document.scxml", baseUriProperty.GetValue(reader));
 	}
 
 	[TestMethod]
@@ -164,26 +164,26 @@ public class DelegatedXmlReaderCoverageTest
 	{
 		const string source = "<root><empty xml:base='relative/'/></root>";
 		var settings = new XmlReaderSettings { Async = true };
-		using var inner = XmlReader.Create(new StringReader(source), settings, "https://example.test/root/document.scxml");
+		using var inner = XmlReader.Create(new StringReader(source), settings, baseUri: "https://example.test/root/document.scxml");
 		using var reader = new XmlBaseReader(inner) { XmlResolver = new XmlUrlResolver() };
 
 		Assert.IsTrue(await reader.ReadAsync());
-		Assert.AreEqual("https://example.test/root/document.scxml", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/document.scxml", reader.BaseURI);
 		Assert.IsTrue(await reader.ReadAsync());
-		Assert.AreEqual("https://example.test/root/relative/", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/relative/", reader.BaseURI);
 		Assert.IsTrue(await reader.ReadAsync());
-		Assert.AreEqual("https://example.test/root/document.scxml", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/document.scxml", reader.BaseURI);
 		Assert.IsFalse(await reader.ReadAsync());
 	}
 
 	[TestMethod]
 	public void XmlBaseReaderShouldResolveXmlBaseAttributeValue()
 	{
-		using var inner = XmlReader.Create(new StringReader("<root xml:base='relative/'/>"), new XmlReaderSettings(), "https://example.test/root/document.scxml");
+		using var inner = XmlReader.Create(new StringReader("<root xml:base='relative/'/>"), new XmlReaderSettings(), baseUri: "https://example.test/root/document.scxml");
 		using var reader = new XmlBaseReader(inner) { XmlResolver = new XmlUrlResolver() };
 
 		Assert.IsTrue(reader.Read());
-		Assert.AreEqual("https://example.test/root/relative/", reader.BaseURI);
+		Assert.AreEqual(expected: "https://example.test/root/relative/", reader.BaseURI);
 	}
 
 	private sealed class TestDelegatedXmlReader(XmlReader innerReader) : DelegatedXmlReader(innerReader);

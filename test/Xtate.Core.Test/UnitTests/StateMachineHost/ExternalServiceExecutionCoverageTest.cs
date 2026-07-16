@@ -1,22 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Threading;
-using Xtate.Class;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
@@ -36,12 +35,12 @@ public class ExternalServiceExecutionCoverageTest
 	[TestMethod]
 	public async Task ExternalServiceClassForwardsInvokeContextAndRegistersEveryForwardingService()
 	{
-		var invokeId = InvokeId.FromString("invoke", "unique-invoke");
+		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
 		var invokeData = new InvokeData(
 			invokeId,
 			new FullUri("urn:service"),
-			new Uri("child.scxml", UriKind.Relative),
-			"raw",
+			new Uri(uriString: "child.scxml", UriKind.Relative),
+			RawContent: "raw",
 			new DataModelValue("content"),
 			new DataModelValue("parameters"));
 		var targetDispatcher = new Mock<IEventDispatcher>();
@@ -67,12 +66,13 @@ public class ExternalServiceExecutionCoverageTest
 		var sourceEvent = Mock.Of<IIncomingEvent>();
 		await ((IParentEventDispatcher) serviceClass).Dispatch(sourceEvent, CancellationToken.None);
 		await ((IParentEventDispatcher) serviceClass).Dispatch(sourceEvent, CancellationToken.None);
-		targetDispatcher.Verify(d => d.Dispatch(
-			It.Is<IncomingEvent>(e => e.Type == EventType.External &&
-									 e.OriginType == invokeData.Type &&
-									 e.Origin == new FullUri("#_invoke") &&
-									 e.InvokeId == invokeId),
-			CancellationToken.None), Times.Exactly(2));
+		targetDispatcher.Verify(
+			d => d.Dispatch(
+				It.Is<IncomingEvent>(e => e.Type == EventType.External &&
+										  e.OriginType == invokeData.Type &&
+										  e.Origin == new FullUri("#_invoke") &&
+										  e.InvokeId == invokeId),
+				CancellationToken.None), Times.Exactly(2));
 
 		var services = new ServiceCollection();
 		serviceClass.AddServices(services);
@@ -148,10 +148,10 @@ public class ExternalServiceExecutionCoverageTest
 		var calls = new List<string>();
 		var first = new Mock<IIoProcessorHost>();
 		var second = new Mock<IIoProcessorHost>();
-		first.Setup(static h => h.Start()).Returns(() => Record(calls, "start-first"));
-		first.Setup(static h => h.Stop()).Returns(() => Record(calls, "stop-first"));
-		second.Setup(static h => h.Start()).Returns(() => Record(calls, "start-second"));
-		second.Setup(static h => h.Stop()).Returns(() => Record(calls, "stop-second"));
+		first.Setup(static h => h.Start()).Returns(() => Record(calls, value: "start-first"));
+		first.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-first"));
+		second.Setup(static h => h.Start()).Returns(() => Record(calls, value: "start-second"));
+		second.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-second"));
 		IStateMachineHostNew host = new StateMachineHostNew { IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object) };
 
 		await host.Start();
@@ -161,11 +161,10 @@ public class ExternalServiceExecutionCoverageTest
 		CollectionAssert.AreEqual(new[] { "start-first", "start-second", "stop-second", "stop-first" }, calls);
 	}
 
-	private static ExternalServiceRunner CreateRunner(
-		InvokeId invokeId,
-		IExternalService service,
-		IExternalCommunication communication,
-		ILogger<ExternalServiceRunner> logger) =>
+	private static ExternalServiceRunner CreateRunner(InvokeId invokeId,
+													  IExternalService service,
+													  IExternalCommunication communication,
+													  ILogger<ExternalServiceRunner> logger) =>
 		new(Mock.Of<IExternalServiceInvokeId>(i => i.InvokeId == invokeId))
 		{
 			ExternalService = service,
@@ -200,6 +199,7 @@ public class ExternalServiceExecutionCoverageTest
 		foreach (var item in items)
 		{
 			yield return item;
+
 			await Task.Yield();
 		}
 	}

@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -43,20 +43,20 @@ public class XPathEngineEvaluatorCoverageTest
 
 		Assert.AreEqual(expected: "root", FirstValue(engine.GetVariable("existing")));
 		Assert.AreEqual(string.Empty, FirstValue(engine.GetVariable("created")));
-		Assert.IsTrue(root.ContainsKey("created", caseInsensitive: false));
+		Assert.IsTrue(root.ContainsKey(key: "created", caseInsensitive: false));
 
 		engine.EnterScope();
-		var local = Compile("local", engine);
+		var local = Compile(expression: "local", engine);
 		engine.DeclareVariable(local);
-		Assert.IsFalse(root.ContainsKey("local", caseInsensitive: false));
+		Assert.IsFalse(root.ContainsKey(key: "local", caseInsensitive: false));
 		Assert.AreEqual(string.Empty, FirstValue(engine.GetVariable("local")));
 		Assert.AreEqual(expected: "local", engine.GetName(local));
 		engine.LeaveScope();
 
-		Assert.IsFalse(root.ContainsKey("local", caseInsensitive: false));
-		engine.DeclareVariable(Compile("ignored", engine));
-		Assert.IsFalse(root.ContainsKey("ignored", caseInsensitive: false));
-		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage] () => engine.GetVariable(string.Empty));
+		Assert.IsFalse(root.ContainsKey(key: "local", caseInsensitive: false));
+		engine.DeclareVariable(Compile(expression: "ignored", engine));
+		Assert.IsFalse(root.ContainsKey(key: "ignored", caseInsensitive: false));
+		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => engine.GetVariable(string.Empty));
 	}
 
 	[TestMethod]
@@ -66,9 +66,9 @@ public class XPathEngineEvaluatorCoverageTest
 		var root = new DataModelList { ["number"] = 7, ["items"] = items };
 		var engine = CreateEngine(root);
 
-		var number = await engine.EvalObject(Compile("number(number)", engine), stripRoots: false);
+		var number = await engine.EvalObject(Compile(expression: "number(number)", engine), stripRoots: false);
 		Assert.AreEqual(expected: 7, number.AsInteger());
-		var nodes = await engine.EvalObject(Compile("items/item", engine), stripRoots: true);
+		var nodes = await engine.EvalObject(Compile(expression: "items/item", engine), stripRoots: true);
 		var iterator = nodes.AsIterator();
 		Assert.IsTrue(iterator.MoveNext());
 		Assert.AreEqual(expected: "one", iterator.Current!.Value);
@@ -80,32 +80,33 @@ public class XPathEngineEvaluatorCoverageTest
 	public async Task EngineAssignmentCoversEveryMutationModeAndNonNodeResults()
 	{
 		foreach (var assignType in new[]
-							 {
-								 XPathAssignType.ReplaceChildren,
-								 XPathAssignType.FirstChild,
-								 XPathAssignType.LastChild,
-								 XPathAssignType.PreviousSibling,
-								 XPathAssignType.NextSibling,
-								 XPathAssignType.Replace,
-								 XPathAssignType.Delete
-							 })
+								   {
+									   XPathAssignType.ReplaceChildren,
+									   XPathAssignType.FirstChild,
+									   XPathAssignType.LastChild,
+									   XPathAssignType.PreviousSibling,
+									   XPathAssignType.NextSibling,
+									   XPathAssignType.Replace,
+									   XPathAssignType.Delete
+								   })
 		{
 			var root = new DataModelList { ["before"] = "before", ["target"] = new DataModelList { ["child"] = "old" }, ["after"] = "after" };
 			var engine = CreateEngine(root);
-			await engine.Assign(Compile("target", engine), assignType, attributeName: null, new XPathObject("new"));
+			await engine.Assign(Compile(expression: "target", engine), assignType, attributeName: null, new XPathObject("new"));
 		}
-		
+
 		var attributeRoot = new DataModelList { ["target"] = "value" };
 		var attributeEngine = CreateEngine(attributeRoot);
-		await attributeEngine.Assign(Compile("target", attributeEngine), XPathAssignType.AddAttribute, "attr", new XPathObject("attribute"));
-		Assert.Contains("attr=\"attribute\"", DataModelConverter.ToXml(attributeRoot));
-		
+		await attributeEngine.Assign(Compile(expression: "target", attributeEngine), XPathAssignType.AddAttribute, attributeName: "attr", new XPathObject("attribute"));
+		Assert.Contains(substring: "attr=\"attribute\"", DataModelConverter.ToXml(attributeRoot));
+
 		var unchangedRoot = new DataModelList { ["target"] = "value" };
 		var unchangedEngine = CreateEngine(unchangedRoot);
-		await unchangedEngine.Assign(Compile("1 + 1", unchangedEngine), XPathAssignType.Delete, attributeName: null, new XPathObject("ignored"));
+		await unchangedEngine.Assign(Compile(expression: "1 + 1", unchangedEngine), XPathAssignType.Delete, attributeName: null, new XPathObject("ignored"));
 		Assert.AreEqual(expected: "value", unchangedRoot["target"].AsString());
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await unchangedEngine.Assign(Compile("target", unchangedEngine), XPathAssignType.Unknown, attributeName: null, new XPathObject("ignored")));
+																	   await unchangedEngine.Assign(
+																		   Compile(expression: "target", unchangedEngine), XPathAssignType.Unknown, attributeName: null, new XPathObject("ignored")));
 	}
 
 	[TestMethod]
@@ -115,7 +116,7 @@ public class XPathEngineEvaluatorCoverageTest
 		var root = new DataModelList { ["number"] = 7, ["items"] = items };
 		var engine = CreateEngine(root);
 		var expression = Mock.Of<IValueExpression>(e => e.Expression == "number");
-		var scalar = new XPathValueExpressionEvaluator(expression, Compile("number", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var scalar = new XPathValueExpressionEvaluator(expression, Compile(expression: "number", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
 		Assert.AreSame(expression, ((IAncestorProvider) scalar).Ancestor);
 		Assert.AreEqual(expected: "number", scalar.Expression);
@@ -123,8 +124,7 @@ public class XPathEngineEvaluatorCoverageTest
 		Assert.AreEqual(expected: 7, await ((IIntegerEvaluator) scalar).EvaluateInteger());
 		Assert.AreEqual(expected: "7", (await ((IObjectEvaluator) scalar).EvaluateObject()).ToObject());
 
-
-		var array = new XPathValueExpressionEvaluator(Mock.Of<IValueExpression>(), Compile("items/item", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var array = new XPathValueExpressionEvaluator(Mock.Of<IValueExpression>(), Compile(expression: "items/item", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 		var values = await array.EvaluateArray();
 		Assert.HasCount(expected: 2, values);
 		Assert.AreEqual(expected: "one", values[0].ToObject());
@@ -138,7 +138,7 @@ public class XPathEngineEvaluatorCoverageTest
 		var root = new DataModelList { ["number"] = 7, ["items"] = items };
 		var engine = CreateEngine(root);
 		var expression = Mock.Of<IValueExpression>(e => e.Expression == "number");
-		var scalar = new XPathValueExpressionEvaluator(expression, Compile("number", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var scalar = new XPathValueExpressionEvaluator(expression, Compile(expression: "number", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
 		Assert.AreSame(expression, ((IAncestorProvider) scalar).Ancestor);
 		Assert.AreEqual(expected: "number", scalar.Expression);
@@ -146,7 +146,7 @@ public class XPathEngineEvaluatorCoverageTest
 		Assert.AreEqual(expected: 7, await ((IIntegerEvaluator) scalar).EvaluateInteger());
 		Assert.AreEqual(XPathObjectType.NodeSet, ((XPathObject) await ((IObjectEvaluator) scalar).EvaluateObject()).Type);
 
-		var array = new XPathValueExpressionEvaluator(Mock.Of<IValueExpression>(), Compile("items/item", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var array = new XPathValueExpressionEvaluator(Mock.Of<IValueExpression>(), Compile(expression: "items/item", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 		var values = await array.EvaluateArray();
 		Assert.HasCount(expected: 2, values);
 		Assert.AreEqual(expected: "one", ((XPathObject) values[0]).AsString());
@@ -159,7 +159,7 @@ public class XPathEngineEvaluatorCoverageTest
 		var root = new DataModelList { ["target"] = "old" };
 		var engine = CreateEngine(root);
 		var source = Mock.Of<ILocationExpression>(e => e.Expression == "target");
-		var evaluator = new XPathLocationExpressionEvaluator(source, Compile("target", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var evaluator = new XPathLocationExpressionEvaluator(source, Compile(expression: "target", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.AreEqual(expected: "target", evaluator.Expression);
@@ -170,7 +170,7 @@ public class XPathEngineEvaluatorCoverageTest
 
 		engine.EnterScope();
 		var localSource = new XPathLocationExpression(Mock.Of<ILocationExpression>(e => e.Expression == "local"), XPathAssignType.Replace, attribute: null);
-		var local = new XPathLocationExpressionEvaluator(localSource, Compile("local", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var local = new XPathLocationExpressionEvaluator(localSource, Compile(expression: "local", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 		await local.DeclareLocalVariable();
 		Assert.AreEqual(string.Empty, FirstValue(engine.GetVariable("local")));
 		engine.LeaveScope();
@@ -182,7 +182,7 @@ public class XPathEngineEvaluatorCoverageTest
 		var root = new DataModelList { ["target"] = "old" };
 		var engine = CreateEngine(root);
 		var source = Mock.Of<ILocationExpression>(e => e.Expression == "target");
-		var evaluator = new XPathLocationExpressionEvaluator(source, Compile("target", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var evaluator = new XPathLocationExpressionEvaluator(source, Compile(expression: "target", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
 		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
 		Assert.AreEqual(expected: "target", evaluator.Expression);
@@ -191,7 +191,7 @@ public class XPathEngineEvaluatorCoverageTest
 
 		engine.EnterScope();
 		var localSource = new XPathLocationExpression(Mock.Of<ILocationExpression>(e => e.Expression == "local"), XPathAssignType.Replace, attribute: null);
-		var local = new XPathLocationExpressionEvaluator(localSource, Compile("local", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
+		var local = new XPathLocationExpressionEvaluator(localSource, Compile(expression: "local", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 		await local.DeclareLocalVariable();
 		Assert.AreEqual(string.Empty, FirstValue(engine.GetVariable("local")));
 		engine.LeaveScope();
@@ -218,18 +218,18 @@ public class XPathEngineEvaluatorCoverageTest
 
 		Assert.IsFalse(context.Whitespace);
 		Assert.IsFalse(context.PreserveWhitespace(new DataModelXPathNavigator(DataModelValue.Undefined)));
-		Assert.IsTrue(context.CompareDocument("a", "b") < 0);
+		Assert.IsTrue(context.CompareDocument(baseUri: "a", nextbaseUri: "b") < 0);
 		Assert.AreEqual(expected: "urn:test", context.LookupNamespace("p"));
-		Assert.AreSame(variable, context.ResolveVariable(prefix: string.Empty, name: "variable"));
-		Assert.AreSame(function, context.ResolveFunction(prefix: string.Empty, name: "function", []));
+		Assert.AreSame(variable, context.ResolveVariable(string.Empty, name: "variable"));
+		Assert.AreSame(function, context.ResolveFunction(string.Empty, name: "function", []));
 		await context.EnsureInitialized();
 		await context.EnsureInitialized();
 		Assert.AreSame(engine, variable.InitializedEngine);
 		Assert.AreEqual(expected: 1, function.InitializeCount);
 
-		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage] () => context.ResolveVariable("p", "variable"));
-		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage] () => context.ResolveFunction(string.Empty, "missing", []));
-		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage] () => context.LookupNamespace("missing"));
+		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage]() => context.ResolveVariable(prefix: "p", name: "variable"));
+		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage]() => context.ResolveFunction(string.Empty, name: "missing", []));
+		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage]() => context.LookupNamespace("missing"));
 	}
 
 	[TestMethod]
@@ -245,6 +245,7 @@ public class XPathEngineEvaluatorCoverageTest
 	public async Task ExternalDataEvaluatorParsesApplicationAndTextXmlResources()
 	{
 		var evaluator = CreateExternalDataEvaluator();
+
 		foreach (var mediaType in new[] { "application/xml", "text/xml" })
 		{
 			await using var resource = new Resource(new MemoryStream(Encoding.UTF8.GetBytes("<root>value</root>")), new ContentType(mediaType));
@@ -264,8 +265,8 @@ public class XPathEngineEvaluatorCoverageTest
 		await withIndex.Execute();
 		await withoutIndex.Execute();
 
-		Assert.IsFalse(root.ContainsKey("item", caseInsensitive: false));
-		Assert.IsFalse(root.ContainsKey("index", caseInsensitive: false));
+		Assert.IsFalse(root.ContainsKey(key: "item", caseInsensitive: false));
+		Assert.IsFalse(root.ContainsKey(key: "index", caseInsensitive: false));
 	}
 
 	[TestMethod]
@@ -278,12 +279,11 @@ public class XPathEngineEvaluatorCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.IsFalse(root.ContainsKey("item", caseInsensitive: false));
-		Assert.IsFalse(root.ContainsKey("index", caseInsensitive: false));
+		Assert.IsFalse(root.ContainsKey(key: "item", caseInsensitive: false));
+		Assert.IsFalse(root.ContainsKey(key: "index", caseInsensitive: false));
 	}
 
-	private static XPathEngine CreateEngine(DataModelList dataModel) =>
-		new(Mock.Of<IDataModelController>(controller => controller.DataModel == dataModel));
+	private static XPathEngine CreateEngine(DataModelList dataModel) => new(Mock.Of<IDataModelController>(controller => controller.DataModel == dataModel));
 
 	private static XPathCompiledExpression Compile(string expression, XPathEngine engine)
 	{
@@ -313,12 +313,12 @@ public class XPathEngineEvaluatorCoverageTest
 					{
 						EngineFactory = () => new ValueTask<XPathEngine>(engine)
 					};
-		var item = new XPathLocationExpressionEvaluator(Mock.Of<ILocationExpression>(e => e.Expression == "item"), Compile("item", engine))
+		var item = new XPathLocationExpressionEvaluator(Mock.Of<ILocationExpression>(e => e.Expression == "item"), Compile(expression: "item", engine))
 				   {
 					   EngineFactory = () => new ValueTask<XPathEngine>(engine)
 				   };
 		var index = includeIndex
-			? new XPathLocationExpressionEvaluator(Mock.Of<ILocationExpression>(e => e.Expression == "index"), Compile("index", engine))
+			? new XPathLocationExpressionEvaluator(Mock.Of<ILocationExpression>(e => e.Expression == "index"), Compile(expression: "index", engine))
 			  {
 				  EngineFactory = () => new ValueTask<XPathEngine>(engine)
 			  }

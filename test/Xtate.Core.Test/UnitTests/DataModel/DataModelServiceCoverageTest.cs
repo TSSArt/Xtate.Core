@@ -112,7 +112,7 @@ public class DataModelServiceCoverageTest
 	{
 		var errorProcessor = new Mock<IErrorProcessorService<UnknownDataModelHandler>>();
 		var handler = CreateUnknownHandler(errorProcessor.Object);
-		IScript script = Mock.Of<IScript>();
+		var script = Mock.Of<IScript>();
 
 		InvokeVisit(handler, script);
 
@@ -129,7 +129,7 @@ public class DataModelServiceCoverageTest
 	{
 		var errorProcessor = new Mock<IErrorProcessorService<UnknownDataModelHandler>>();
 		var handler = CreateUnknownHandler(errorProcessor.Object);
-		IDataModel dataModel = Mock.Of<IDataModel>();
+		var dataModel = Mock.Of<IDataModel>();
 
 		InvokeVisit(handler, dataModel);
 
@@ -140,8 +140,7 @@ public class DataModelServiceCoverageTest
 
 	private static void InvokeVisit<T>(UnknownDataModelHandler handler, T entity)
 	{
-		var method = typeof(UnknownDataModelHandler).GetMethod(
-			"Visit", BindingFlags.Instance | BindingFlags.NonPublic, binder: null, [typeof(T).MakeByRefType()], modifiers: null)!;
+		var method = typeof(UnknownDataModelHandler).GetMethod(name: "Visit", BindingFlags.Instance | BindingFlags.NonPublic, binder: null, [typeof(T).MakeByRefType()], modifiers: null)!;
 		object?[] arguments = [entity];
 
 		method.Invoke(handler, arguments);

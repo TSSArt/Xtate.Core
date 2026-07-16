@@ -100,8 +100,8 @@ public class ExtCollectionCoverageTest
 		Assert.AreEqual(expected: 0, ((ICollection<int>) emptyType.GetProperty(nameof(emptyDictionary.Values))!.GetValue(emptyDictionary)!).Count);
 		Assert.IsFalse(((IEnumerator<KeyValuePair<string, int>>) emptyType.GetMethod(nameof(emptyDictionary.GetEnumerator))!.Invoke(emptyDictionary, parameters: null)!).MoveNext());
 
-		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, "missing");
-		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, null);
+		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, key: "missing");
+		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, key: null);
 
 		var dictionary = new ExtDictionary<string, int> { ["one"] = 1 };
 		var type = dictionary.GetType();
@@ -113,14 +113,14 @@ public class ExtCollectionCoverageTest
 
 		var genericEnumerator = (IEnumerator<KeyValuePair<string, int>>) type.GetMethod(nameof(dictionary.GetEnumerator))!.Invoke(dictionary, parameters: null)!;
 		Assert.IsTrue(genericEnumerator.MoveNext());
-		Assert.AreEqual("one", genericEnumerator.Current.Key);
+		Assert.AreEqual(expected: "one", genericEnumerator.Current.Key);
 
 		var interfaceMap = type.GetInterfaceMap(typeof(IEnumerable));
 		var nonGenericEnumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(dictionary, parameters: null)!;
 		Assert.IsTrue(nonGenericEnumerator.MoveNext());
-		Assert.AreEqual("one", ((KeyValuePair<string, int>) nonGenericEnumerator.Current).Key);
+		Assert.AreEqual(expected: "one", ((KeyValuePair<string, int>) nonGenericEnumerator.Current).Key);
 
-		AssertIndexerThrows<KeyNotFoundException>(type, dictionary, "missing");
+		AssertIndexerThrows<KeyNotFoundException>(type, dictionary, key: "missing");
 	}
 
 	private static void AssertIndexerThrows<TException>(Type type, object dictionary, object? key) where TException : Exception

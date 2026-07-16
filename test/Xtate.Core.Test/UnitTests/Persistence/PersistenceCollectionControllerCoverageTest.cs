@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -32,8 +32,8 @@ public class PersistenceCollectionControllerCoverageTest
 	{
 		using var storage = new InMemoryStorage(writeOnly: false);
 		var bucket = new Bucket(storage);
-		var first = InvokeId.FromString("first", "unique-first");
-		var second = InvokeId.FromString("second", "unique-second");
+		var first = InvokeId.FromString(invokeId: "first", uniqueInvokeId: "unique-first");
+		var second = InvokeId.FromString(invokeId: "second", uniqueInvokeId: "unique-second");
 		var source = new InvokeIdSet();
 
 		using (new InvokeIdSetPersistingController(bucket, source))
@@ -43,6 +43,7 @@ public class PersistenceCollectionControllerCoverageTest
 		}
 
 		var restored = new InvokeIdSet();
+
 		using (new InvokeIdSetPersistingController(bucket, restored))
 		{
 			Assert.AreEqual(expected: 2, restored.Count);
@@ -65,8 +66,8 @@ public class PersistenceCollectionControllerCoverageTest
 		// InvokeId with the unsupported generic converter. Keep this exact round-trip disabled until AddId is used there.
 		using var storage = new InMemoryStorage(writeOnly: false);
 		var bucket = new Bucket(storage);
-		var first = InvokeId.FromString("first", "unique-first");
-		var second = InvokeId.FromString("second", "unique-second");
+		var first = InvokeId.FromString(invokeId: "first", uniqueInvokeId: "unique-first");
+		var second = InvokeId.FromString(invokeId: "second", uniqueInvokeId: "unique-second");
 		var source = new InvokeIdSet();
 
 		using (new InvokeIdSetPersistingController(bucket, source))
@@ -94,15 +95,16 @@ public class PersistenceCollectionControllerCoverageTest
 			source.Enqueue(new StoredEntity("first"));
 			source.Enqueue(new StoredEntity("second"));
 			source.Enqueue(new StoredEntity("third"));
-			Assert.AreEqual("first", source.Dequeue().Value);
+			Assert.AreEqual(expected: "first", source.Dequeue().Value);
 		}
 
 		var restored = new EntityQueue<StoredEntity>();
+
 		using (new EntityQueuePersistingController<StoredEntity>(bucket, restored, CreateStoredEntity))
 		{
 			Assert.HasCount(expected: 2, restored);
-			Assert.AreEqual("second", restored.Dequeue().Value);
-			Assert.AreEqual("third", restored.Dequeue().Value);
+			Assert.AreEqual(expected: "second", restored.Dequeue().Value);
+			Assert.AreEqual(expected: "third", restored.Dequeue().Value);
 		}
 
 		var empty = new EntityQueue<StoredEntity>();
@@ -130,7 +132,7 @@ public class PersistenceCollectionControllerCoverageTest
 		Assert.IsTrue(bucket.Nested(0).TryGet(key: 0, out int storedKeyId));
 		Assert.AreEqual(expected: 0, storedKeyId);
 		Assert.IsTrue(bucket.Nested(0).TryGet(key: 1, out var storedList));
-		Assert.AreEqual(expected: sizeof(int), storedList.Length);
+		Assert.AreEqual(sizeof(int), storedList.Length);
 	}
 
 	[TestMethod]
@@ -149,6 +151,7 @@ public class PersistenceCollectionControllerCoverageTest
 		}
 
 		var restored = new OrderedSet<DocumentEntity>();
+
 		using (new OrderedSetPersistingController<DocumentEntity>(bucket, restored, map))
 		{
 			CollectionAssert.AreEqual(new[] { first, second }, restored.ToArray());
@@ -169,18 +172,30 @@ public class PersistenceCollectionControllerCoverageTest
 	{
 		public string Value { get; } = value;
 
+	#region Interface IStoreSupport
+
 		public void Store(Bucket bucket) => bucket.Add(key: 0, Value);
+
+	#endregion
 	}
 
 	private sealed class DocumentEntity(int documentId) : IEntity, IDocumentId
 	{
+	#region Interface IDocumentId
+
 		public int DocumentId { get; } = documentId;
+
+	#endregion
 	}
 
-	private sealed class DictionaryEntityMap(params DocumentEntity[] entities) : Xtate.Interpreter.IEntityMap
+	private sealed class DictionaryEntityMap(params DocumentEntity[] entities) : IEntityMap
 	{
 		private readonly Dictionary<int, IEntity> _entities = entities.ToDictionary(static entity => entity.DocumentId, static entity => (IEntity) entity);
 
+	#region Interface IEntityMap
+
 		public bool TryGetEntityByDocumentId(int id, [NotNullWhen(true)] out IEntity? entity) => _entities.TryGetValue(id, out entity);
+
+	#endregion
 	}
 }

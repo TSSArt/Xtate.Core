@@ -15,9 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.IO;
 using System.Net.Mime;
 using System.Text;
-using System.IO;
 using System.Threading;
 using Xtate.DataTypes;
 using Xtate.Http;
@@ -40,10 +40,10 @@ public class HttpContentCoverageTest
 
 		Assert.AreEqual(expected: "\"hello\"", serialized);
 
-		await using var legacyStream = new MemoryStream();
+		using var legacyStream = new MemoryStream();
 		await content.SerializeLegacy(legacyStream);
 		Assert.AreEqual(expected: "\"hello\"", Encoding.UTF8.GetString(legacyStream.ToArray()));
-		await using var syncStream = new MemoryStream();
+		using var syncStream = new MemoryStream();
 		content.SerializeSync(syncStream, CancellationToken.None);
 		Assert.AreEqual(expected: "\"hello\"", Encoding.UTF8.GetString(syncStream.ToArray()));
 	}
@@ -61,10 +61,10 @@ public class HttpContentCoverageTest
 
 		Assert.AreEqual(expected: "hello", serialized);
 
-		await using var legacyStream = new MemoryStream();
+		using var legacyStream = new MemoryStream();
 		await content.SerializeLegacy(legacyStream);
 		Assert.AreEqual(expected: "hello", Encoding.UTF8.GetString(legacyStream.ToArray()).TrimStart('\uFEFF'));
-		await using var syncStream = new MemoryStream();
+		using var syncStream = new MemoryStream();
 		content.SerializeSync(syncStream, CancellationToken.None);
 		Assert.AreEqual(expected: "hello", Encoding.UTF8.GetString(syncStream.ToArray()).TrimStart('\uFEFF'));
 	}
@@ -73,13 +73,13 @@ public class HttpContentCoverageTest
 	{
 		public Task SerializeLegacy(Stream stream) => SerializeToStreamAsync(stream, context: null);
 
-		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStream(stream, context: null, token);
+		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStreamAsync(stream, context: null).Wait(token);
 	}
 
 	private sealed class TestXmlHttpContent(DataModelValue value) : XmlHttpContent(value)
 	{
 		public Task SerializeLegacy(Stream stream) => SerializeToStreamAsync(stream, context: null);
 
-		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStream(stream, context: null, token);
+		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStreamAsync(stream, context: null).Wait(token);
 	}
 }

@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -37,8 +37,8 @@ public class EventAndInvokeControllerCoverageTest
 		communication.Setup(static c => c.TrySend(It.IsAny<IOutgoingEvent>())).ReturnsAsync(SendStatus.ToInternalQueue);
 		var queue = new EntityQueue<IIncomingEvent>();
 		var controller = CreateEventController(communication.Object, queue);
-		var explicitInternal = CreateOutgoingEvent(target: Const.InternalTarget, type: null, delayMs: 0);
-		var selectedInternal = CreateOutgoingEvent(target: new FullUri("target"), type: new FullUri("processor"), delayMs: 0);
+		var explicitInternal = CreateOutgoingEvent(Const.InternalTarget, type: null, delayMs: 0);
+		var selectedInternal = CreateOutgoingEvent(new FullUri("target"), new FullUri("processor"), delayMs: 0);
 
 		await controller.Send(explicitInternal);
 		await controller.Send(selectedInternal);
@@ -46,9 +46,11 @@ public class EventAndInvokeControllerCoverageTest
 		communication.Verify(c => c.TrySend(explicitInternal), Times.Never);
 		communication.Verify(c => c.TrySend(selectedInternal), Times.Once);
 		Assert.AreEqual(expected: 2, queue.Count);
-		Assert.IsTrue(queue.TryDequeue(out var first));
+		Assert.IsTrue(queue.Count > 0);
+		var first = queue.Dequeue();
 		Assert.AreEqual(EventType.Internal, first.Type);
-		Assert.IsTrue(queue.TryDequeue(out var second));
+		Assert.IsTrue(queue.Count > 0);
+		var second = queue.Dequeue();
 		Assert.AreEqual(EventType.Internal, second.Type);
 	}
 
@@ -60,9 +62,9 @@ public class EventAndInvokeControllerCoverageTest
 		var controller = CreateEventController(communication.Object, new EntityQueue<IIncomingEvent>());
 
 		await Assert.ThrowsExactlyAsync<ExecutionException>([ExcludeFromCodeCoverage] async () =>
-			await controller.Send(CreateOutgoingEvent(Const.InternalTarget, type: null, delayMs: 1)));
+																await controller.Send(CreateOutgoingEvent(Const.InternalTarget, type: null, delayMs: 1)));
 		await Assert.ThrowsExactlyAsync<ExecutionException>([ExcludeFromCodeCoverage] async () =>
-			await controller.Send(CreateOutgoingEvent(new FullUri("target"), new FullUri("processor"), delayMs: 1)));
+																await controller.Send(CreateOutgoingEvent(new FullUri("target"), new FullUri("processor"), delayMs: 1)));
 	}
 
 	[TestMethod]
@@ -185,10 +187,9 @@ public class EventAndInvokeControllerCoverageTest
 		Assert.AreSame(platform, await Assert.ThrowsExactlyAsync<PlatformException>([ExcludeFromCodeCoverage] async () => await controller.Forward(invokeId, Mock.Of<IIncomingEvent>())));
 	}
 
-	private static EventController CreateEventController(
-		IExternalCommunication communication,
-		EntityQueue<IIncomingEvent> queue,
-		StateMachineRuntimeError? runtimeError = null) =>
+	private static EventController CreateEventController(IExternalCommunication communication,
+														 EntityQueue<IIncomingEvent> queue,
+														 StateMachineRuntimeError? runtimeError = null) =>
 		new()
 		{
 			ExternalCommunication = communication,
@@ -197,10 +198,9 @@ public class EventAndInvokeControllerCoverageTest
 			StateMachineContext = Mock.Of<IStateMachineContext>(context => context.InternalQueue == queue)
 		};
 
-	private static InvokeController CreateInvokeController(
-		IExternalServiceManager manager,
-		ILogger<IInvokeController>? logger = null,
-		StateMachineRuntimeError? runtimeError = null) =>
+	private static InvokeController CreateInvokeController(IExternalServiceManager manager,
+														   ILogger<IInvokeController>? logger = null,
+														   StateMachineRuntimeError? runtimeError = null) =>
 		new()
 		{
 			ExternalServiceManager = manager,
@@ -208,8 +208,7 @@ public class EventAndInvokeControllerCoverageTest
 			StateMachineRuntimeError = runtimeError ?? new StateMachineRuntimeError(new ScopeObject())
 		};
 
-	private static InvokeData CreateInvokeData(InvokeId invokeId) =>
-		new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
+	private static InvokeData CreateInvokeData(InvokeId invokeId) => new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
 	private static IOutgoingEvent CreateOutgoingEvent(FullUri? target, FullUri? type, int delayMs) =>
 		new OutgoingEvent
@@ -224,6 +223,8 @@ public class EventAndInvokeControllerCoverageTest
 
 	private sealed class OutgoingEvent : IOutgoingEvent
 	{
+	#region Interface IOutgoingEvent
+
 		public SendId? SendId { get; init; }
 
 		public EventName Name { get; init; }
@@ -235,5 +236,7 @@ public class EventAndInvokeControllerCoverageTest
 		public int DelayMs { get; init; }
 
 		public DataModelValue Data { get; init; }
+
+	#endregion
 	}
 }

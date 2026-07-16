@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -44,16 +44,16 @@ public class XmlAndConsoleInfrastructureCoverageTest
 						 Namespaces = [("a", "urn:a"), ("b", "urn:b")]
 					 };
 		var providedFactory = new XPathXmlParserContextFactory
-						  {
-							  NameTableProvider = Mock.Of<INameTableProvider>(provider => provider.GetNameTable() == nameTable)
-						  };
+							  {
+								  NameTableProvider = Mock.Of<INameTableProvider>(provider => provider.GetNameTable() == nameTable)
+							  };
 
 		var provided = providedFactory.CreateContext(source);
 		var fallback = new XPathXmlParserContextFactory { NameTableProvider = null }.CreateContext(new object());
 
 		Assert.AreSame(nameTable, provided.NameTable);
-		Assert.AreEqual("urn:a", provided.NamespaceManager!.LookupNamespace("a"));
-		Assert.AreEqual("urn:b", provided.NamespaceManager.LookupNamespace("b"));
+		Assert.AreEqual(expected: "urn:a", provided.NamespaceManager!.LookupNamespace("a"));
+		Assert.AreEqual(expected: "urn:b", provided.NamespaceManager.LookupNamespace("b"));
 		Assert.IsInstanceOfType<System.Xml.NameTable>(fallback.NameTable);
 		Assert.AreEqual(XmlSpace.None, fallback.XmlSpace);
 	}
@@ -73,30 +73,28 @@ public class XmlAndConsoleInfrastructureCoverageTest
 		Assert.IsTrue(resolver.SupportsType(uri, typeof(Resource)));
 		Assert.IsFalse(resolver.SupportsType(uri, typeof(string)));
 
-		await using var stream = (Stream) await resolver.GetEntityAsync(uri, role: null, typeof(Stream));
+		using var stream = (Stream) await resolver.GetEntityAsync(uri, role: null, typeof(Stream));
 		var bytes = new byte[2];
-		Assert.AreEqual(expected: 2, await stream.ReadAsync(bytes));
+		Assert.AreEqual(expected: 2, await stream.ReadAsync(bytes, offset: 0, bytes.Length));
 		CollectionAssert.AreEqual(new byte[] { 1, 2 }, bytes);
 
 		await using var resource = (Resource) await resolver.GetEntityAsync(uri, headers, typeof(Resource));
 		CollectionAssert.AreEqual(new byte[] { 3, 4 }, await resource.GetBytes());
-		Assert.AreEqual("application/xml", resource.ContentType!.MediaType);
+		Assert.AreEqual(expected: "application/xml", resource.ContentType!.MediaType);
 		loader.Verify(l => l.Request(uri, headers), Times.Once);
 
-		Assert.ThrowsExactly<NotSupportedException>(
-			[ExcludeFromCodeCoverage] () => resolver.GetEntity(uri, role: null, typeof(Stream)));
-		await Assert.ThrowsExactlyAsync<ArgumentException>(
-			[ExcludeFromCodeCoverage] async () => await resolver.GetEntityAsync(uri, headers, typeof(string)));
+		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => resolver.GetEntity(uri, role: null, typeof(Stream)));
+		await Assert.ThrowsExactlyAsync<ArgumentException>([ExcludeFromCodeCoverage] async () => await resolver.GetEntityAsync(uri, headers, typeof(string)));
 		var disabled = CreateResolver(loader.Object, allowed: false);
-		await Assert.ThrowsExactlyAsync<XmlException>(
-			[ExcludeFromCodeCoverage] async () => await disabled.GetEntityAsync(uri, headers, typeof(Stream)));
+		await Assert.ThrowsExactlyAsync<XmlException>([ExcludeFromCodeCoverage] async () => await disabled.GetEntityAsync(uri, headers, typeof(Stream)));
 	}
 
 	[TestMethod]
 	public void ConsoleTraceListenerPrivateInstanceUsesConsoleWriterAndClearsItOnDispose()
 	{
-		var nestedType = typeof(ConsoleLogProvider<>).GetNestedType("ConsoleTraceListener", BindingFlags.NonPublic);
+		var nestedType = typeof(ConsoleLogProvider<>).GetNestedType(name: "ConsoleTraceListener", BindingFlags.NonPublic);
 		Assert.IsNotNull(nestedType);
+
 		if (nestedType.ContainsGenericParameters)
 		{
 			nestedType = nestedType.MakeGenericType(typeof(ConsoleSource));
@@ -122,13 +120,21 @@ public class XmlAndConsoleInfrastructureCoverageTest
 
 	private sealed class NamespaceSource : IXmlNamespacesInfo
 	{
+	#region Interface IXmlNamespacesInfo
+
 		public ImmutableArray<(string Prefix, string Namespace)> Namespaces { get; init; }
+
+	#endregion
 	}
 
 	private sealed record XIncludeOptions(bool XIncludeAllowed) : IXIncludeOptions
 	{
+	#region Interface IXIncludeOptions
+
 		[ExcludeFromCodeCoverage]
 		public int MaxNestingLevel => 10;
+
+	#endregion
 	}
 
 	private sealed class ConsoleSource;

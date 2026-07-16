@@ -1,21 +1,20 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections;
 using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
@@ -50,8 +49,8 @@ public class InterpreterContextAndErrorCoverageTest
 		Assert.AreEqual(KeyList<int>.ChangedAction.Set, changes[0].Action);
 		Assert.AreSame(first, changes[0].Values);
 		Assert.AreEqual(expected: 1, keyList.Count());
-		Assert.AreEqual(expected: 1, ((IEnumerable<KeyValuePair<IEntity, List<int>>>) keyList).Count());
-		Assert.AreEqual(expected: 1, ((IEnumerable) keyList).Cast<object>().Count());
+		Assert.AreEqual(expected: 1, keyList.Count());
+		Assert.AreEqual(expected: 1, keyList.Cast<object>().Count());
 	}
 
 	[TestMethod]
@@ -68,12 +67,12 @@ public class InterpreterContextAndErrorCoverageTest
 		var dataModel = context.DataModel;
 
 		Assert.AreSame(dataModel, context.DataModel);
-		Assert.AreEqual("machine", dataModel["_name"].AsString());
-		Assert.AreEqual("session", dataModel["_sessionid"].AsString());
+		Assert.AreEqual(expected: "machine", dataModel["_name"].AsString());
+		Assert.AreEqual(expected: "session", dataModel["_sessionid"].AsString());
 		Assert.AreEqual(DataModelValueType.Undefined, dataModel["_event"].Type);
-		Assert.AreEqual("https://example.test/events", dataModel["_ioprocessors"].AsListOrEmpty()["processor"].AsListOrEmpty()["location"].AsString());
-		Assert.AreEqual("platform-value", dataModel["_x"].AsListOrEmpty()["property"].AsString());
-		Assert.IsTrue(dataModel.ContainsKey("_NAME", caseInsensitive: true));
+		Assert.AreEqual(expected: "https://example.test/events", dataModel["_ioprocessors"].AsListOrEmpty()["processor"].AsListOrEmpty()["location"].AsString());
+		Assert.AreEqual(expected: "platform-value", dataModel["_x"].AsListOrEmpty()["property"].AsString());
+		Assert.IsTrue(dataModel.ContainsKey(key: "_NAME", caseInsensitive: true));
 		Assert.AreEqual(expected: 0, context.Configuration.Count);
 		Assert.AreEqual(expected: 0, context.HistoryValue.Count());
 		Assert.AreEqual(expected: 0, context.InternalQueue.Count);
@@ -101,12 +100,12 @@ public class InterpreterContextAndErrorCoverageTest
 		Assert.AreEqual(DestroyReason.DestroySignal, destroySignal.Reason);
 		Assert.AreSame(inner, destroySignal.InnerException);
 		Assert.IsTrue(errors.IsDestroyError(liveLock));
-		Assert.IsTrue(errors.IsDestroyError(new Exception("outer", queueClosed)));
+		Assert.IsTrue(errors.IsDestroyError(new Exception(message: "outer", queueClosed)));
 		Assert.IsFalse(otherScope.IsDestroyError(liveLock));
 
 		var platformMessage = errors.PlatformError("message");
 		var platformInner = errors.PlatformError(inner);
-		Assert.AreEqual("message", platformMessage.Message);
+		Assert.AreEqual(expected: "message", platformMessage.Message);
 		Assert.AreSame(inner, platformInner.InnerException);
 		Assert.IsTrue(errors.IsPlatformError(platformMessage));
 		Assert.IsFalse(otherScope.IsPlatformError(platformMessage));

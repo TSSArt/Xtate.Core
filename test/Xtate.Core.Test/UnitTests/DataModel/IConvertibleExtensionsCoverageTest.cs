@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -49,6 +49,8 @@ public class IConvertibleExtensionsCoverageTest
 
 	private readonly struct ExplicitConvertible(int value) : IConvertible
 	{
+	#region Interface IConvertible
+
 		TypeCode IConvertible.GetTypeCode() => TypeCode.Int32;
 
 		bool IConvertible.ToBoolean(IFormatProvider? provider) => value != 0;
@@ -82,5 +84,7 @@ public class IConvertibleExtensionsCoverageTest
 		uint IConvertible.ToUInt32(IFormatProvider? provider) => (uint) value;
 
 		ulong IConvertible.ToUInt64(IFormatProvider? provider) => (ulong) value;
+
+	#endregion
 	}
 }

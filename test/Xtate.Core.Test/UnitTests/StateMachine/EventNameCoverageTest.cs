@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
 using System.Collections;
+using Xtate.StateMachine;
 
 namespace Xtate.Test.UnitTests.StateMachine;
 
@@ -96,7 +96,7 @@ public class EventNameCoverageTest
 		}
 
 		CollectionAssert.AreEqual(new[] { "error", "platform" }, nonGenericValues);
-		CollectionAssert.AreEqual(new[] { "error", "platform" }, ((IEnumerable) eventName).Cast<IIdentifier>().Select(item => item.Value).ToArray());
+		CollectionAssert.AreEqual(new[] { "error", "platform" }, eventName.Select(item => item.Value).ToArray());
 		Assert.IsTrue(eventName.Equals((object) same));
 		Assert.IsFalse(eventName.Equals((object) different));
 		Assert.IsFalse(eventName.Equals("error.platform"));

@@ -1,22 +1,21 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Xml;
-using System.Xml.XPath;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
 
@@ -49,8 +48,8 @@ public class XPathObjectCoverageTest
 		Assert.AreEqual(expected: 0, falseValue.AsInteger());
 		Assert.IsFalse(falseValue.AsBoolean());
 
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => _ = new XPathObject(new object()));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage] () => text.AsIterator());
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => _ = new XPathObject(new object()));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => text.AsIterator());
 	}
 
 	[TestMethod]
@@ -85,7 +84,7 @@ public class XPathObjectCoverageTest
 		var data = XmlConverter.FromXml(xml);
 		var navigator = new DataModelXPathNavigator(data);
 		var namespaces = new XmlNamespaceManager(new System.Xml.NameTable());
-		namespaces.AddNamespace("p", "urn:test");
+		namespaces.AddNamespace(prefix: "p", uri: "urn:test");
 		var expression = navigator.Compile("root/p:first | root/second");
 		expression.SetContext(namespaces);
 		var iterator = navigator.Select(expression);
@@ -111,15 +110,15 @@ public class XPathObjectCoverageTest
 		Assert.IsFalse(navigator.MoveToPrevious());
 		Assert.IsFalse(navigator.MoveToNextAttribute());
 		navigator.SetValue("ignored-at-root");
-		Assert.AreEqual("first", list[0].AsString());
+		Assert.AreEqual(expected: "first", list[0].AsString());
 
 		Assert.IsTrue(navigator.MoveToFirstChild());
 		navigator.SetValue("changed");
-		Assert.AreEqual("changed", list[0].AsString());
+		Assert.AreEqual(expected: "changed", list[0].AsString());
 		Assert.IsTrue(navigator.MoveToNext());
-		Assert.AreEqual("second", navigator.Value);
+		Assert.AreEqual(expected: "second", navigator.Value);
 		Assert.IsTrue(navigator.MoveToPrevious());
-		Assert.AreEqual("changed", navigator.Value);
+		Assert.AreEqual(expected: "changed", navigator.Value);
 
 		var xmlData = XmlConverter.FromXml("<root first='1' second='2'/>");
 		var element = new DataModelXPathNavigator(xmlData).SelectSingleNode("root")!;

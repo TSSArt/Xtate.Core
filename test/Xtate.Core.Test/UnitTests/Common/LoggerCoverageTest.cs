@@ -1,22 +1,22 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Globalization;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using Xtate.Logging;
 using Xtate.Logging.Internal;
@@ -63,14 +63,14 @@ public class LoggerCoverageTest
 		Assert.IsTrue(provider.IsEnabled(Level.Verbose));
 
 		await provider.Write(Level.Info, eventId: 10, message: null, parameters: null);
-		await provider.Write(Level.Warning, eventId: 11, message: "short", [new LoggingParameter("name", "value")]);
+		await provider.Write(Level.Warning, eventId: 11, message: "short", [new LoggingParameter(name: "name", value: "value")]);
 		var longParameters = Enumerable.Range(start: 0, count: 17).Select(static i => new LoggingParameter($"p{i}", i));
 		await provider.Write(Level.Error, eventId: 12, message: "long", longParameters);
 
-		StringAssert.Contains(listener.Output, "short");
-		StringAssert.Contains(listener.Output, "value");
-		StringAssert.Contains(listener.Output, "long");
-		StringAssert.Contains(listener.Output, "p16");
+		StringAssert.Contains(listener.Output, substring: "short");
+		StringAssert.Contains(listener.Output, substring: "value");
+		StringAssert.Contains(listener.Output, substring: "long");
+		StringAssert.Contains(listener.Output, substring: "p16");
 	}
 
 	[TestMethod]
@@ -78,12 +78,12 @@ public class LoggerCoverageTest
 	{
 		var generic = new CapturingGenericProvider(Level.Info, Level.Debug, Level.Warning);
 		var nonGeneric = new CapturingNonGenericProvider(Level.Info, Level.Debug, Level.Warning);
-		var parser = new Parser(Level.Debug, new LoggingParameter("entity", "parsed"));
+		var parser = new Parser(Level.Debug, new LoggingParameter(name: "entity", value: "parsed"));
 		var nullParser = new Parser(Level.Debug, parameter: null);
-		var disabledParser = new Parser(Level.Trace, new LoggingParameter("disabled", true));
-		var namedEnricher = new Enricher(Level.Warning, "context", new LoggingParameter("named", 7));
-		var fallbackEnricher = new Enricher(Level.Warning, ns: null, new LoggingParameter("fallback", 8));
-		var disabledEnricher = new Enricher(Level.Trace, "disabled", new LoggingParameter("ignored", 9));
+		var disabledParser = new Parser(Level.Trace, new LoggingParameter(name: "disabled", value: true));
+		var namedEnricher = new Enricher(Level.Warning, ns: "context", new LoggingParameter(name: "named", value: 7));
+		var fallbackEnricher = new Enricher(Level.Warning, ns: null, new LoggingParameter(name: "fallback", value: 8));
+		var disabledEnricher = new Enricher(Level.Trace, ns: "disabled", new LoggingParameter(name: "ignored", value: 9));
 		var logger = new Logger<TestSource>
 					 {
 						 LogWriters = [generic],
@@ -97,7 +97,7 @@ public class LoggerCoverageTest
 
 		Assert.HasCount(expected: 2, generic.Entries);
 		Assert.HasCount(expected: 2, nonGeneric.Entries);
-		Assert.AreEqual("plain", generic.Entries[0].Message);
+		Assert.AreEqual(expected: "plain", generic.Entries[0].Message);
 		Assert.AreEqual(expected: 21, generic.Entries[0].EventId);
 		CollectionAssert.AreEqual(
 			new[] { "prop::entity", "context::named", $"{nameof(Enricher)}::fallback" },
@@ -133,17 +133,17 @@ public class LoggerCoverageTest
 		var plain = new PlainValue("plain");
 
 		await logger.Write(Level.Info, eventId: 31, $"N={number,5:D3}; F={formattable,-15:U}; P={plain}");
-		await logger.Write(Level.Info, eventId: 32, $"literal only");
+		await logger.Write(Level.Info, eventId: 32, "literal only");
 
 		Assert.HasCount(expected: 2, generic.Entries);
-		Assert.AreEqual("N=  042; F=FORMATTABLE    ; P=plain", generic.Entries[0].Message);
+		Assert.AreEqual(expected: "N=  042; F=FORMATTABLE    ; P=plain", generic.Entries[0].Message);
 		Assert.HasCount(expected: 3, generic.Entries[0].Parameters);
 		Assert.AreEqual(nameof(number), generic.Entries[0].Parameters[0].Name);
-		Assert.AreEqual("D3", generic.Entries[0].Parameters[0].Format);
+		Assert.AreEqual(expected: "D3", generic.Entries[0].Parameters[0].Format);
 		Assert.AreSame(formattable, generic.Entries[0].Parameters[1].Value);
-		Assert.AreEqual("U", generic.Entries[0].Parameters[1].Format);
+		Assert.AreEqual(expected: "U", generic.Entries[0].Parameters[1].Format);
 		Assert.AreSame(plain, generic.Entries[0].Parameters[2].Value);
-		Assert.AreEqual("literal only", generic.Entries[1].Message);
+		Assert.AreEqual(expected: "literal only", generic.Entries[1].Message);
 		Assert.IsEmpty(generic.Entries[1].Parameters);
 
 		var disabledLogger = new ToggleLogger(enabled: false);
@@ -165,6 +165,7 @@ public class LoggerCoverageTest
 	private static async IAsyncEnumerable<T> EmptyAsync<T>()
 	{
 		await Task.Yield();
+
 		yield break;
 	}
 
@@ -197,13 +198,21 @@ public class LoggerCoverageTest
 
 		public List<GenericEntry> Entries { get; } = [];
 
+	#region Interface ILogProvider<TestSource>
+
 		public bool IsEnabled(Level level) => _enabledLevels.Contains(level);
 
-		public ValueTask Write(Level level, int eventId, string? message, IEnumerable<LoggingParameter>? parameters = null)
+		public ValueTask Write(Level level,
+							   int eventId,
+							   string? message,
+							   IEnumerable<LoggingParameter>? parameters = null)
 		{
 			Entries.Add(new GenericEntry(level, eventId, message, parameters?.ToArray() ?? []));
+
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class CapturingNonGenericProvider(params Level[] enabledLevels) : ILogProvider
@@ -212,53 +221,80 @@ public class LoggerCoverageTest
 
 		public List<NonGenericEntry> Entries { get; } = [];
 
+	#region Interface ILogProvider
+
 		public bool IsEnabled(Type source, Level level) => _enabledLevels.Contains(level);
 
-		public ValueTask Write(Type source, Level level, int eventId, string? message, IEnumerable<LoggingParameter>? parameters = null)
+		public ValueTask Write(Type source,
+							   Level level,
+							   int eventId,
+							   string? message,
+							   IEnumerable<LoggingParameter>? parameters = null)
 		{
 			Entries.Add(new NonGenericEntry(source, level, eventId, message, parameters?.ToArray() ?? []));
+
 			return ValueTask.CompletedTask;
 		}
+
+	#endregion
 	}
 
 	private sealed class Parser(Level level, LoggingParameter? parameter) : IEntityParserHandler
 	{
 		public int Calls { get; private set; }
 
-		public Level Level { get; } = level;
+	#region Interface IEntityParserHandler
 
 		public IEnumerable<LoggingParameter>? EnumerateProperties<T>(T entity)
 		{
 			Calls ++;
+
 			return parameter is { } value ? [value] : null;
 		}
+
+		public Level Level { get; } = level;
+
+	#endregion
 	}
 
 	private sealed class Enricher(Level level, string? ns, LoggingParameter parameter) : ILogEnricher<TestSource>
 	{
 		public int Calls { get; private set; }
 
-		public string? Namespace { get; } = ns;
-
-		public Level Level { get; } = level;
+	#region Interface ILogEnricher<TestSource>
 
 		public IEnumerable<LoggingParameter> EnumerateProperties()
 		{
 			Calls ++;
+
 			return [parameter];
 		}
+
+		public string? Namespace { get; } = ns;
+
+		public Level Level { get; } = level;
+
+	#endregion
 	}
 
 	private sealed class ToggleLogger(bool enabled) : ILogger
 	{
-		public IFormatProvider? FormatProvider => CultureInfo.InvariantCulture;
+	#region Interface ILogger
 
 		public bool IsEnabled(Level level) => enabled;
+
+		public IFormatProvider? FormatProvider => CultureInfo.InvariantCulture;
+
+	#endregion
 	}
 
 	private sealed class FormattableValue(string value) : IFormattable
 	{
+	#region Interface IFormattable
+
 		public string ToString(string? format, IFormatProvider? formatProvider) => format == "U" ? value.ToUpperInvariant() : value;
+
+	#endregion
 	}
 
 	private sealed class PlainValue(string value)
@@ -266,7 +302,16 @@ public class LoggerCoverageTest
 		public override string ToString() => value;
 	}
 
-	private sealed record GenericEntry(Level Level, int EventId, string? Message, LoggingParameter[] Parameters);
+	private sealed record GenericEntry(
+		Level Level,
+		int EventId,
+		string? Message,
+		LoggingParameter[] Parameters);
 
-	private sealed record NonGenericEntry(Type Source, Level Level, int EventId, string? Message, LoggingParameter[] Parameters);
+	private sealed record NonGenericEntry(
+		Type Source,
+		Level Level,
+		int EventId,
+		string? Message,
+		LoggingParameter[] Parameters);
 }

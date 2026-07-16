@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -20,12 +20,12 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Mime;
+using System.Reflection;
 using System.Text;
 using System.Threading;
+using Xtate.Interpreter;
 using Xtate.IoBoundTask;
 using Xtate.IoC.Tools;
-using Xtate.Interpreter;
 using Xtate.ResourceLoaders;
 using Xtate.ResourceLoaders.File.Services;
 using Xtate.ResourceLoaders.Resx.Services;
@@ -40,18 +40,20 @@ public class ResourceLoaderHandlersCoverageTest
 	[TestMethod]
 	public async Task FileResourceLoaderReadsRelativeAndAbsoluteFileUris()
 	{
-		var name = System.Reflection.Assembly.GetAssembly(typeof(ResourceLoaderHandlersCoverageTest))!.GetName().Name;
+#if NET8_0_OR_GREATER
+		var name = Assembly.GetAssembly(typeof(ResourceLoaderHandlersCoverageTest))!.GetName().Name;
 		var relativePath = name + @".runtime" + "config.json";
 		var loader = CreateFileLoader();
 
 		await using var relativeResource = await loader.Request(new Uri(relativePath, UriKind.Relative), headers: null);
 		var relativeContent = await relativeResource.GetContent();
-		StringAssert.Contains(relativeContent, "runtimeOptions");
+		StringAssert.Contains(relativeContent, substring: "runtimeOptions");
 
 		var absoluteUri = new Uri(Path.GetFullPath(relativePath));
 		await using var absoluteResource = await loader.Request(absoluteUri, new NameValueCollection { ["Ignored"] = "header" });
 		var absoluteContent = await absoluteResource.GetContent();
-		StringAssert.Contains(absoluteContent, "runtimeOptions");
+		StringAssert.Contains(absoluteContent, substring: "runtimeOptions");
+#endif
 	}
 
 	[TestMethod]
@@ -62,7 +64,7 @@ public class ResourceLoaderHandlersCoverageTest
 
 		await using var relativeResource = await loader.Request(new Uri(relativePath, UriKind.Relative), headers: null);
 		var relativeBytes = await relativeResource.GetBytes();
-		Assert.IsGreaterThan(0, relativeBytes.Length);
+		Assert.IsGreaterThan(lowerBound: 0, relativeBytes.Length);
 
 		var absoluteUri = new Uri(Path.GetFullPath(relativePath));
 		await using var absoluteResource = await loader.Request(absoluteUri, new NameValueCollection { ["Ignored"] = "header" });
@@ -76,10 +78,10 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = new TestFileResourceLoader
 					 {
 						 ExternalResources = Mock.Of<IIoBoundTask>(),
-						 ResourceFactory = [ExcludeFromCodeCoverage] (stream, contentType) => new ValueTask<Resource>(new Resource(stream, contentType))
+						 ResourceFactory = [ExcludeFromCodeCoverage](stream, contentType) => new ValueTask<Resource>(new Resource(stream, contentType))
 					 };
 
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage] () => loader.Open(null!));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => loader.Open(null!));
 	}
 
 	[TestMethod]
@@ -88,7 +90,7 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = CreateFileLoader();
 		IResourceLoaderProvider provider = new FileResourceLoader.Provider { ResourceLoaderFactory = () => new ValueTask<FileResourceLoader>(loader) };
 
-		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("relative.scxml", UriKind.Relative)));
+		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri(uriString: "relative.scxml", UriKind.Relative)));
 		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("file:///C:/state.scxml")));
 		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("file://server/share/state.scxml")));
 		Assert.IsNull(await provider.TryGetResourceLoader(new Uri("https://example.test/state.scxml")));
@@ -108,12 +110,12 @@ public class ResourceLoaderHandlersCoverageTest
 
 		await using var resource = await loader.Request(new Uri("https://example.test/resource"), headers);
 
-		Assert.AreEqual("web payload", await resource.GetContent());
-		Assert.AreEqual("text/plain", resource.ContentType!.MediaType);
+		Assert.AreEqual(expected: "web payload", await resource.GetContent());
+		Assert.AreEqual(expected: "text/plain", resource.ContentType!.MediaType);
 		Assert.AreEqual(HttpMethod.Get, handler.Request!.Method);
 		Assert.AreEqual(new Uri("https://example.test/resource"), handler.Request.RequestUri);
-		Assert.AreEqual("first", handler.Request.Headers.GetValues("X-Test").Single());
-		Assert.AreEqual("second", handler.Request.Headers.GetValues("X-Second").Single());
+		Assert.AreEqual(expected: "first", handler.Request.Headers.GetValues("X-Test").Single());
+		Assert.AreEqual(expected: "second", handler.Request.Headers.GetValues("X-Second").Single());
 		Assert.IsFalse(handler.CancellationToken.IsCancellationRequested);
 	}
 
@@ -131,7 +133,7 @@ public class ResourceLoaderHandlersCoverageTest
 		await using var resource = await loader.Request(new Uri("http://example.test/resource"), headers: null);
 
 		Assert.IsNull(resource.ContentType);
-		Assert.AreEqual("web payload", await resource.GetContent());
+		Assert.AreEqual(expected: "web payload", await resource.GetContent());
 	}
 
 	[TestMethod]
@@ -140,15 +142,15 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = new WebResourceLoader
 					 {
 						 DisposeToken = default,
-						 HttpClientFactory = [ExcludeFromCodeCoverage] () => new HttpClient(),
-						 ResourceFactory = [ExcludeFromCodeCoverage] (stream, contentType) => new Resource(stream, contentType)
+						 HttpClientFactory = [ExcludeFromCodeCoverage]() => new HttpClient(),
+						 ResourceFactory = [ExcludeFromCodeCoverage](stream, contentType) => new Resource(stream, contentType)
 					 };
 		IResourceLoaderProvider provider = new WebResourceLoader.Provider { ResourceLoaderFactory = () => new ValueTask<WebResourceLoader>(loader) };
 
 		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("http://example.test/resource")));
 		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("https://example.test/resource")));
 		Assert.IsNull(await provider.TryGetResourceLoader(new Uri("ftp://example.test/resource")));
-		Assert.IsNull(await provider.TryGetResourceLoader(new Uri("relative", UriKind.Relative)));
+		Assert.IsNull(await provider.TryGetResourceLoader(new Uri(uriString: "relative", UriKind.Relative)));
 	}
 
 	[TestMethod]
@@ -169,7 +171,7 @@ public class ResourceLoaderHandlersCoverageTest
 					  };
 		var headers = new NameValueCollection { ["X-Test"] = "value" };
 
-		await using var resource = await service.Request(new Uri("child.scxml", UriKind.Relative), headers);
+		await using var resource = await service.Request(new Uri(uriString: "child.scxml", UriKind.Relative), headers);
 
 		Assert.AreSame(expectedResource, resource);
 		loader.Verify(l => l.Request(expectedUri, headers), Times.Once);
@@ -209,7 +211,7 @@ public class ResourceLoaderHandlersCoverageTest
 		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("res://assembly/resource")));
 		Assert.AreSame(loader, await provider.TryGetResourceLoader(new Uri("resx://assembly/resource")));
 		Assert.IsNull(await provider.TryGetResourceLoader(new Uri("https://example.test/resource")));
-		Assert.IsNull(await provider.TryGetResourceLoader(new Uri("relative", UriKind.Relative)));
+		Assert.IsNull(await provider.TryGetResourceLoader(new Uri(uriString: "relative", UriKind.Relative)));
 	}
 
 	[ExcludeFromCodeCoverage]
@@ -248,6 +250,7 @@ public class ResourceLoaderHandlersCoverageTest
 		protected override Stream GetResourceStream(Uri uri)
 		{
 			RequestedUri = uri;
+
 			return new MemoryStream([4, 5, 6]);
 		}
 	}
@@ -264,6 +267,7 @@ public class ResourceLoaderHandlersCoverageTest
 			CancellationToken = cancellationToken;
 
 			var content = new ByteArrayContent(Encoding.UTF8.GetBytes("web payload"));
+
 			if (includeContentType)
 			{
 				content.Headers.ContentType = new MediaTypeHeaderValue("text/plain");

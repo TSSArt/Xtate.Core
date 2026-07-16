@@ -138,12 +138,12 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.AreEqual(expected: "event", service.LastDispatchedEventName);
 
 		var defaultDispatchService = new DefaultDispatchExternalService
-								 {
-									 ExternalServiceSourceBase = new TestExternalServiceSource(new Uri("urn:default"), rawContent: "raw", DataModelValue.Null),
-									 ExternalServiceParametersBase = new TestExternalServiceParameters(DataModelValue.Null),
-									 DisposeTokenBase = new DisposeToken(disposingToken.Token),
-									 TaskMonitorBase = new PassThroughTaskMonitor()
-								 };
+									 {
+										 ExternalServiceSourceBase = new TestExternalServiceSource(new Uri("urn:default"), rawContent: "raw", DataModelValue.Null),
+										 ExternalServiceParametersBase = new TestExternalServiceParameters(DataModelValue.Null),
+										 DisposeTokenBase = new DisposeToken(disposingToken.Token),
+										 TaskMonitorBase = new PassThroughTaskMonitor()
+									 };
 		await ((IEventDispatcher) defaultDispatchService).Dispatch(new IncomingEvent(), CancellationToken.None);
 		Assert.AreEqual(DataModelValueType.Null, (await ((IExternalService) defaultDispatchService).GetResult()).Type);
 	}
@@ -215,10 +215,10 @@ public class CommunicationAndUtilityCoverageTest
 		CollectionAssert.AreEqual(new[] { "one", null, "three" }, list.ToArray());
 		var directEnumerator = list.GetEnumerator();
 		Assert.IsTrue(directEnumerator.MoveNext());
-		Assert.AreEqual("one", directEnumerator.Current);
+		Assert.AreEqual(expected: "one", directEnumerator.Current);
 		var nonGenericEnumerator = ((IEnumerable) list).GetEnumerator();
 		Assert.IsTrue(nonGenericEnumerator.MoveNext());
-		Assert.AreEqual("one", nonGenericEnumerator.Current);
+		Assert.AreEqual(expected: "one", nonGenericEnumerator.Current);
 		Assert.AreEqual(expected: 0, new TestReadOnlyList<string>(default).Count);
 
 		var genericCopy = new string?[3];

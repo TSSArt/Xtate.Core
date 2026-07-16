@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -50,7 +50,9 @@ public class ExternalServiceScopeManagerCoverageTest
 		Assert.IsFalse(monitor.ForgottenTasks[0].IsCompleted);
 
 		runnerCompletion.SetResult();
-		await monitor.ForgottenTasks[0].WaitAsync(TimeSpan.FromSeconds(5));
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await monitor.ForgottenTasks[0].WaitAsync(cts.Token);
 		collection.Verify(c => c.Unregister(invokeId), Times.Once);
 		await manager.Cancel(invokeId, CancellationToken.None);
 		await manager.DisposeAsync();
@@ -71,7 +73,9 @@ public class ExternalServiceScopeManagerCoverageTest
 		await manager.Cancel(invokeId, CancellationToken.None);
 		await manager.Cancel(invokeId, CancellationToken.None);
 		runnerCompletion.SetResult();
-		await monitor.ForgottenTasks.Single().WaitAsync(TimeSpan.FromSeconds(5));
+		var cts = new CancellationTokenSource();
+		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
 
 		collection.Verify(c => c.Unregister(invokeId), Times.Once);
 		manager.Dispose();
@@ -96,7 +100,7 @@ public class ExternalServiceScopeManagerCoverageTest
 					  };
 
 		var thrown = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-			await manager.Start(CreateInvokeData(invokeId), CancellationToken.None));
+																					await manager.Start(CreateInvokeData(invokeId), CancellationToken.None));
 
 		Assert.AreSame(failure, thrown);
 		collection.Verify(c => c.Unregister(invokeId), Times.Once);
@@ -113,20 +117,19 @@ public class ExternalServiceScopeManagerCoverageTest
 		syncManager.Dispose();
 
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
-			await syncManager.Start(CreateInvokeData(InvokeId.FromString("sync")), CancellationToken.None));
+																	 await syncManager.Start(CreateInvokeData(InvokeId.FromString("sync")), CancellationToken.None));
 
 		var asyncManager = await CreateManager(runner, Mock.Of<IExternalService>(), collection.Object, new CapturingTaskMonitor());
 		await asyncManager.DisposeAsync();
 		await asyncManager.DisposeAsync();
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
-			await asyncManager.Start(CreateInvokeData(InvokeId.FromString("async")), CancellationToken.None));
+																	 await asyncManager.Start(CreateInvokeData(InvokeId.FromString("async")), CancellationToken.None));
 	}
 
-	private static async ValueTask<ExternalServiceScopeManager> CreateManager(
-		IExternalServiceRunner runner,
-		IExternalService externalService,
-		IExternalServiceCollection collection,
-		ITaskMonitor taskMonitor)
+	private static async ValueTask<ExternalServiceScopeManager> CreateManager(IExternalServiceRunner runner,
+																			  IExternalService externalService,
+																			  IExternalServiceCollection collection,
+																			  ITaskMonitor taskMonitor)
 	{
 		var services = new ServiceCollection();
 		services.AddConstant(runner);
@@ -152,13 +155,14 @@ public class ExternalServiceScopeManagerCoverageTest
 			Mock.Of<IStateMachineLocation>(),
 			Mock.Of<ICaseSensitivity>());
 
-	private static InvokeData CreateInvokeData(InvokeId invokeId) =>
-		new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
+	private static InvokeData CreateInvokeData(InvokeId invokeId) => new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
 	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor
 	{
 		public List<Task> ForgottenTasks { get; } = [];
+
+	#region Interface ITaskMonitor
 
 		public Task WaitAsync(Task task, CancellationToken token) => task.WaitAsync(token);
 
@@ -173,5 +177,7 @@ public class ExternalServiceScopeManagerCoverageTest
 		public void Forget(ValueTask valueTask) => ForgottenTasks.Add(valueTask.AsTask());
 
 		public void Forget<TResult>(ValueTask<TResult> valueTask) => ForgottenTasks.Add(valueTask.AsTask());
+
+	#endregion
 	}
 }

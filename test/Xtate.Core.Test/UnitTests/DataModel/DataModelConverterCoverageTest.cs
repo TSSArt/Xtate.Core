@@ -1,17 +1,17 @@
 // Copyright © 2019-2026 Sergii Artemenko
-//
+// 
 // This file is part of the Xtate project. <https://xtate.net/>
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published
 // by the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
+// 
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -35,7 +35,7 @@ public class DataModelConverterCoverageTest
 		var array = new DataModelList { "value" };
 		var obj = new DataModelList { ["key"] = "value" };
 		var forcedArray = DataModelConverter.CreateAsArray();
-		forcedArray.Add("key", "value");
+		forcedArray.Add(key: "key", value: "value");
 		var forcedObject = DataModelConverter.CreateAsObject();
 		forcedObject.Add("value");
 
@@ -102,7 +102,7 @@ public class DataModelConverterCoverageTest
 						["flag"] = true,
 						["null"] = DataModelValue.Null,
 						["undefined"] = DataModelValue.Undefined,
-						["date"] = new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2))
+						["date"] = new DateTimeOffset(year: 2026, month: 1, day: 2, hour: 3, minute: 4, second: 5, TimeSpan.FromHours(2))
 					};
 		var xml = DataModelConverter.ToXml(value, DataModelConverter.XmlOptions.WriteIndented);
 		StringAssert.Contains(xml, Environment.NewLine);
@@ -143,7 +143,7 @@ public class DataModelConverterCoverageTest
 		using var syncStream = new MemoryStream();
 		DataModelConverter.ToXml(syncStream, value);
 		syncStream.Position = 0;
-		using var syncReader = new StreamReader(syncStream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, leaveOpen: true);
+		using var syncReader = new StreamReader(syncStream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 4096, leaveOpen: true);
 		Assert.AreEqual(expected: 42d, DataModelConverter.FromXml(await syncReader.ReadToEndAsync()).AsList()["number"].AsNumber().ToDouble());
 
 		using var asyncStream = new MemoryStream();
@@ -157,9 +157,9 @@ public class DataModelConverterCoverageTest
 		Assert.AreEqual(expected: "item", XmlConverter.KeyToLocalName(key: null));
 		Assert.AreEqual(expected: "empty", XmlConverter.KeyToLocalName(string.Empty));
 		Assert.AreEqual(expected: "a_x0020_b", XmlConverter.KeyToLocalName("a b"));
-		Assert.IsNull(XmlConverter.NsNameToKey(XmlConverter.XPathElementNamespace, "item"));
-		Assert.AreEqual(string.Empty, XmlConverter.NsNameToKey(XmlConverter.XPathElementNamespace, "empty"));
-		Assert.AreEqual(expected: "a b", XmlConverter.NsNameToKey(ns: string.Empty, "a_x0020_b"));
+		Assert.IsNull(XmlConverter.NsNameToKey(XmlConverter.XPathElementNamespace, localName: "item"));
+		Assert.AreEqual(string.Empty, XmlConverter.NsNameToKey(XmlConverter.XPathElementNamespace, localName: "empty"));
+		Assert.AreEqual(expected: "a b", XmlConverter.NsNameToKey(string.Empty, localName: "a_x0020_b"));
 		Assert.AreEqual(XmlConverter.XPathElementNamespace, XmlConverter.KeyToNamespaceOrDefault(key: null));
 		Assert.AreEqual(XmlConverter.XPathElementNamespace, XmlConverter.KeyToNamespaceOrDefault(string.Empty));
 		Assert.IsNull(XmlConverter.KeyToNamespaceOrDefault("key"));
@@ -175,13 +175,13 @@ public class DataModelConverterCoverageTest
 			new(4_000_000_000L),
 			new(1.25d),
 			new(true),
-			new(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)),
-			new(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2)))
+			new(new DateTime(year: 2026, month: 1, day: 2, hour: 3, minute: 4, second: 5, DateTimeKind.Utc)),
+			new(new DateTimeOffset(year: 2026, month: 1, day: 2, hour: 3, minute: 4, second: 5, TimeSpan.FromHours(2)))
 		];
 
 		foreach (var value in values)
 		{
-			var buffer = new char[Math.Max(XmlConverter.GetBufferSizeForValue(value), 1)];
+			var buffer = new char[Math.Max(XmlConverter.GetBufferSizeForValue(value), val2: 1)];
 			var count = XmlConverter.WriteValueToSpan(value, buffer);
 			Assert.AreEqual(XmlConverter.ToString(value), new string(buffer, startIndex: 0, count));
 		}
@@ -191,13 +191,14 @@ public class DataModelConverterCoverageTest
 		Assert.AreEqual(expected: "datetime", XmlConverter.GetTypeValue(new DataModelValue(DateTimeOffset.UtcNow)).AsString());
 		Assert.AreEqual(expected: "null", XmlConverter.GetTypeValue(DataModelValue.Null).AsString());
 		Assert.AreEqual(expected: "undefined", XmlConverter.GetTypeValue(DataModelValue.Undefined).AsString());
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage] () => XmlConverter.GetTypeValue(new DataModelValue("text")));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => XmlConverter.GetTypeValue(new DataModelValue("text")));
 	}
 
 	[TestMethod]
 	public async Task XmlParserReadsExplicitTypesMetadataEmptyElementsAndAsyncContent()
 	{
-		const string xml = "<root xmlns:x='http://xtate.net/xpath' attr='value'><b x:type='bool'>true</b><n x:type='number'>1.5</n><d x:type='datetime'>2026-01-02T03:04:05+02:00</d><z x:type='null'/><u x:type='undefined'/><empty/></root>";
+		const string xml =
+			"<root xmlns:x='http://xtate.net/xpath' attr='value'><b x:type='bool'>true</b><n x:type='number'>1.5</n><d x:type='datetime'>2026-01-02T03:04:05+02:00</d><z x:type='null'/><u x:type='undefined'/><empty/></root>";
 		var root = DataModelConverter.FromXml(xml).AsList()["root"].AsList();
 		Assert.IsTrue(root["b"].AsBoolean());
 		Assert.AreEqual(expected: 1.5d, root["n"].AsNumber().ToDouble());
@@ -214,7 +215,8 @@ public class DataModelConverterCoverageTest
 	[TestMethod]
 	public void XmlParserReadsExplicitTypesMetadataAndEmptyElementsSynchronously()
 	{
-		const string xml = "<root xmlns:x='http://xtate.net/xpath' attr='value'><b x:type='bool'>true</b><n x:type='number'>1.5</n><d x:type='datetime'>2026-01-02T03:04:05+02:00</d><z x:type='null'/><u x:type='undefined'/><empty/></root>";
+		const string xml =
+			"<root xmlns:x='http://xtate.net/xpath' attr='value'><b x:type='bool'>true</b><n x:type='number'>1.5</n><d x:type='datetime'>2026-01-02T03:04:05+02:00</d><z x:type='null'/><u x:type='undefined'/><empty/></root>";
 		var parsed = DataModelConverter.FromXml(xml).AsList();
 		var rootValue = parsed["root"];
 		var root = rootValue.AsList();

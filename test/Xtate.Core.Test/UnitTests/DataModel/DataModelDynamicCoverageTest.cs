@@ -147,13 +147,13 @@ public class DataModelDynamicCoverageTest
 		object metadataByKey = dyn.GetMetadata("named");
 		object allMetadata = dyn.GetMetadata();
 
-		Assert.AreEqual("two", convertedIndex);
+		Assert.AreEqual(expected: "two", convertedIndex);
 		Assert.AreEqual(expected: 4, length);
 		Assert.AreSame(indexMetadata, metadataByConvertedIndex);
 		Assert.AreSame(indexMetadata, metadataByIntIndex);
 		Assert.AreSame(keyMetadata, metadataByKey);
 		Assert.AreSame(rootMetadata, allMetadata);
-		Assert.AreEqual("one", list[1].AsString());
+		Assert.AreEqual(expected: "one", list[1].AsString());
 		Assert.IsTrue(list.ContainsKey("named"));
 	}
 
@@ -166,5 +166,4 @@ public class DataModelDynamicCoverageTest
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => dyn[0, 1] = 3);
 		Assert.ThrowsExactly<MissingMethodException>([ExcludeFromCodeCoverage]() => dyn.UnknownMethod());
 	}
-
 }
