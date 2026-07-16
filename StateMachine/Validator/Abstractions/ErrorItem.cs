@@ -53,7 +53,7 @@ public sealed class ErrorItem(
 
 		if (Exception is not null)
 		{
-			sb.AppendLine().Append('\t').Append(@"Exception ==> ").Append(Exception);
+			sb.AppendLine().Append('\t').Append(@$"{Exception.GetType().Name}: {Exception.Message}");
 		}
 
 		return sb.ToString();

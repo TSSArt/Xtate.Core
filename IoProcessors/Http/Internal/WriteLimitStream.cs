@@ -27,7 +27,7 @@ internal class WriteLimitStream(long maxWriteBytes) : CounterStream(Null)
 	{
 		if (count > maxWriteBytes - _totalCount)
 		{
-			throw new IOException($"Write limit exceeded: {_totalCount + count} > {maxWriteBytes} bytes");
+			throw new IOException(Res.Format(Resources.Exception_WriteLimitExceeded, _totalCount + count, maxWriteBytes));
 		}
 	}
 

@@ -27,7 +27,7 @@ public class NamedPipeIoProcessorOptions
 		{
 			if (Uri.CheckHostName(value) == UriHostNameType.Unknown)
 			{
-				throw new ArgumentException($"'{value}' is not a valid host name.", nameof(value));
+				throw new ArgumentException(Res.Format(Resources.Exception_IsNotValidHostName, value), nameof(value));
 			}
 
 			field = value;
@@ -48,7 +48,7 @@ public class NamedPipeIoProcessorOptions
 
 			if (value == string.Empty || value == @"." || value == @".." || Uri.EscapeDataString(value) != value)
 			{
-				throw new ArgumentException($"'{value}' is not a valid name. It should contain only alphanumeric characters.", nameof(value));
+				throw new ArgumentException(Res.Format(Resources.Exception_IsNotValidNameItShouldContainOnlyAlphanumericCharacters, value), nameof(value));
 			}
 
 			field = value;
@@ -73,7 +73,7 @@ public class NamedPipeIoProcessorOptions
 		{
 			if (value < System.Threading.Timeout.InfiniteTimeSpan)
 			{
-				throw new ArgumentException($"'{value}' is not a valid timeout value.", nameof(value));
+				throw new ArgumentException(Res.Format(Resources.Exception_IsNotValidTimeoutValue, value), nameof(value));
 			}
 
 			field = value;

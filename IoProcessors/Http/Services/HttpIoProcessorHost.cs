@@ -17,7 +17,6 @@
 
 using System.Net;
 using Xtate.IoC.Options;
-using Xtate.StateMachineHost;
 
 namespace Xtate.IoProcessors.Http.Services;
 
@@ -37,8 +36,6 @@ public class HttpIoProcessorHost : ResilientIoProcessorHostBase, IDisposable
 	protected HttpListener Listener { get; }
 
 	public required HttpController HttpController { private get; [SetByIoC] init; }
-
-	public required IExternalEventDispatcher<HttpIoProcessorHost> ExternalEventDispatcher { private get; [SetByIoC] init; }
 
 #region Interface IDisposable
 

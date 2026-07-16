@@ -16,8 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Dynamic;
-using System.Globalization;
-using System.Reflection;
 using Xtate.DataTypes.Internal;
 
 namespace Xtate.DataTypes;
@@ -26,7 +24,6 @@ public partial class DataModelList : IDynamicMetaObjectProvider
 {
 #region Interface IDynamicMetaObjectProvider
 
-	//	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new MetaObject(parameter, this, Dynamic.CreateMetaObject);
 	DynamicMetaObject IDynamicMetaObjectProvider.GetMetaObject(Expression parameter) => new DataModelListMetaObject(parameter, this);
 
 #endregion

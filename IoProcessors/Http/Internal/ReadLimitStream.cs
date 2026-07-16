@@ -33,7 +33,7 @@ internal class ReadLimitStream(Stream stream, long maxReadBytes) : CounterStream
 
 		if (_totalCount >= maxReadBytes)
 		{
-			throw new HttpRequestProcessException($"Read limit exceeded: {_totalCount + count} > {maxReadBytes} bytes") { StatusCode = HttpStatusCode.RequestEntityTooLarge };
+			throw new HttpRequestProcessException(Res.Format(Resources.Exception_ReadLimitExceeded, _totalCount + count, maxReadBytes)) { StatusCode = HttpStatusCode.RequestEntityTooLarge };
 		}
 
 		if (count > maxReadBytes - _totalCount)

@@ -283,14 +283,15 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 
 	private DynamicMetaObject ThrowWrongIndexCount()
 	{
-		var exception = Expression.New(typeof(ArgumentException).GetConstructor([typeof(string)])!, Expression.Constant("DataModelList supports exactly one index argument string or numeric."));
+		var exception = Expression.New(
+			typeof(ArgumentException).GetConstructor([typeof(string)])!, Expression.Constant(Resources.Exception_DataModelListSupportsExactlyOneIndexArgumentStringOrNumeric));
 
 		return new DynamicMetaObject(Expression.Throw(exception, typeof(object)), SameTypeRestriction());
 	}
 
 	private DynamicMetaObject ThrowMethodDoesNotExist()
 	{
-		var exception = Expression.New(typeof(MissingMethodException).GetConstructor([typeof(string)])!, Expression.Constant("The method does not exist."));
+		var exception = Expression.New(typeof(MissingMethodException).GetConstructor([typeof(string)])!, Expression.Constant(Resources.Exception_TheMethodDoesNotExist));
 
 		return new DynamicMetaObject(Expression.Throw(exception, typeof(object)), SameTypeRestriction());
 	}

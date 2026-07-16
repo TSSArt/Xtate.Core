@@ -42,7 +42,7 @@ public class ServiceFactoryNewArgsAsync<T, TArg, TNewArg>
 			}
 		}
 
-		throw new DependencyInjectionException("There is no suitable args transformer available.");
+		throw new DependencyInjectionException(Resources.Exception_ThereIsNoSuitableArgsTransformerAvailable);
 	}
 
 	private async ValueTask<T> FactoryAsync(IArgsTransformer<T, TArg, TNewArg> argsTransformer, TNewArg newArg)

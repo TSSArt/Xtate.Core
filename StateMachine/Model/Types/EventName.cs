@@ -168,7 +168,9 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 		SetParts(buf, name);
 
+#pragma warning disable IDE0028
 		return new EventName(ImmutableCollectionsMarshal.AsImmutableArray(buf));
+#pragma warning restore IDE0028
 	}
 
 	private static EventName GetEventName(IIdentifier id1, IIdentifier id2, string name)
@@ -187,7 +189,9 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 		SetParts(buf.AsSpan(start: 2, count), name);
 
+#pragma warning disable IDE0028
 		return new EventName(ImmutableCollectionsMarshal.AsImmutableArray(buf));
+#pragma warning restore IDE0028
 	}
 
 	public bool IsError() => !_parts.IsDefaultOrEmpty && _parts[0].Equals(ErrorIdentifier);

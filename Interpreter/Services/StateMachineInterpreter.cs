@@ -404,12 +404,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		{
 			var incomingEvent = await ReadExternalEvent().ConfigureAwait(false);
 
-			if (incomingEvent.InvokeId is null)
-			{
-				return incomingEvent;
-			}
-
-			if (IsInvokeActive(incomingEvent.InvokeId))
+			if (incomingEvent.InvokeId is null || IsInvokeActive(incomingEvent.InvokeId))
 			{
 				return incomingEvent;
 			}

@@ -30,7 +30,7 @@ public class LocationStateMachine : StateMachineClass
 	{
 		if (!absoluteUri.IsAbsoluteUri)
 		{
-			throw new ArgumentException(message: "The URI must be absolute.", nameof(absoluteUri));
+			throw new ArgumentException(Resources.Exception_TheUriMustBeAbsolute, nameof(absoluteUri));
 		}
 
 		Location = absoluteUri;

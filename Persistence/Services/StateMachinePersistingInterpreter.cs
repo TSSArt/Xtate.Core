@@ -84,7 +84,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 			if (_persistenceLevel == PersistenceLevel.None)
 			{
-				throw new ArgumentException(message: "PersistenceLevel should not be None", nameof(value));
+				throw new ArgumentException(Resources.Exception_PersistenceLevelShouldNotBeNone, nameof(value));
 			}
 		}
 	}
@@ -191,35 +191,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 		return true;
 	}
-
-	private static TransitionNode FindTransitionNode(StateEntityNode node, int documentId)
-	{
-		if (node.Transitions is { IsDefaultOrEmpty: false } transitions && transitions[0].DocumentId <= documentId)
-		{
-			foreach (var transition in transitions)
-			{
-				if (transition.DocumentId == documentId)
-				{
-					return transition;
-				}
-			}
-		}
-		else if (node.States is { IsDefaultOrEmpty: false } states)
-		{
-			for (var i = 1; i < states.Length; i ++)
-			{
-				if (documentId < states[i].DocumentId)
-				{
-					return FindTransitionNode(states[i - 1], documentId);
-				}
-			}
-
-			return FindTransitionNode(states[^1], documentId);
-		}
-
-		throw new KeyNotFoundException(Res.Format(Resources.Exception_TransitionNodeWithDocumentIdNotFound, documentId));
-	}
-
+	
 	private void Exit(StateBagKey key, List<TransitionNode> result)
 	{
 		Exit(key, out var bucket, iteration: false);

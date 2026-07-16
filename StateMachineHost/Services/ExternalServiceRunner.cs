@@ -70,8 +70,8 @@ public class ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvok
 		}
 		catch (Exception ex)
 		{
-			await Logger.Write(Level.Error, eventId: 1, message: "Service Execution error.", exception).ConfigureAwait(false);
-			await Logger.Write(Level.Error, eventId: 2, message: "Error on sending error to Parent.", ex).ConfigureAwait(false);
+			await Logger.Write(Level.Error, eventId: 1, Resources.Message_ServiceExecutionError, exception).ConfigureAwait(false);
+			await Logger.Write(Level.Error, eventId: 2, Resources.Message_ErrorOnSendingErrorToParent, ex).ConfigureAwait(false);
 		}
 	}
 
