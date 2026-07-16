@@ -38,10 +38,10 @@ public class ServiceFactoryNewArgsSync<T, TArg, TNewArg>
 
 			if (argsTransformer.CanTransformAsync())
 			{
-				throw new DependencyInjectionException("Async args transformer is not supported in synchrounous context.");
+				throw new DependencyInjectionException(Resources.Exception_AsyncArgsTransformerIsNotSupportedInSynchronousContext);
 			}
 		}
 
-		throw new DependencyInjectionException("There is no suitable args transformer available.");
+		throw new DependencyInjectionException(Resources.Exception_ThereIsNoSuitableArgsTransformerAvailable);
 	}
 }

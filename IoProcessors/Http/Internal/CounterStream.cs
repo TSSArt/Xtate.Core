@@ -30,10 +30,12 @@ internal class CounterStream(Stream stream) : DelegatedStream(stream)
 
 		if (count == 0)
 		{
-			return newCount == 0 ? 0 : throw new InvalidOperationException("PreRead modified the count from 0 to a non-zero value.");
+			return newCount == 0 ? 0 : throw new InvalidOperationException(Resources.Exception_PreReadModifiedTheCountFrom0ToANonZeroValue);
 		}
 
-		return newCount >= 1 && newCount <= count ? newCount : throw new InvalidOperationException($"PreRead modified the count to an invalid value: {newCount}. Valid range is 1 to {count}.");
+		return newCount >= 1 && newCount <= count
+			? newCount
+			: throw new InvalidOperationException(Res.Format(Resources.Exception_PreReadModifiedTheCountToAnInvalidValueValidRangeIs1ToCount, newCount, count));
 	}
 
 	private int PostReadInt(int count)

@@ -169,6 +169,7 @@ public class StateMachineReader
 		return typeInfo switch
 			   {
 				   TypeInfo.ConditionExpressionNode => RestoreConditionExpression(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),
+				   // ReSharper disable once SuspiciousTypeConversion.Global
 				   TypeInfo.RuntimeExecNode         => (IConditionExpression) ForwardExecEntity(bucket),
 				   _                                => throw new PersistenceException(Resources.Exception_UnknownConditionType)
 			   };

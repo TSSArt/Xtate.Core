@@ -95,7 +95,7 @@ public class StateMachineDestroyOnIdle
 			}
 			catch (Exception ex)
 			{
-				owner.Logger.Write(Level.Error, eventId: 1, message: "An error occurred while triggering the destroy signal.", ex);
+				owner.Logger.Write(Level.Error, eventId: 1, Resources.Message_AnErrorOccurredWhileTriggeringTheDestroySignal, ex);
 			}
 		}
 	}

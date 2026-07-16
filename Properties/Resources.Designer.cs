@@ -225,7 +225,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Array property required for ForEach element.
+        ///   Looks up a localized string similar to Array property required for ForEach element..
         /// </summary>
         internal static string ErrorMessage_ArrayPropertyRequiredForForEach {
             get {
@@ -261,7 +261,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to At least one attribute url or urlExpr must be specified.
+        ///   Looks up a localized string similar to At least one attribute url or urlExpr must be specified..
         /// </summary>
         internal static string ErrorMessage_AtLeastOneUrlMustBeSpecified {
             get {
@@ -1073,6 +1073,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Async args transformer is not supported in synchronous context..
+        /// </summary>
+        internal static string Exception_AsyncArgsTransformerIsNotSupportedInSynchronousContext {
+            get {
+                return ResourceManager.GetString("Exception_AsyncArgsTransformerIsNotSupportedInSynchronousContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find ResourceLoader to load external resource: {0}.
         /// </summary>
         internal static string Exception_CannotFindResourceLoaderToLoadExternalResource {
@@ -1208,6 +1217,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Content length exceeds the maximum allowed length..
+        /// </summary>
+        internal static string Exception_ContentLengthExceedsTheMaximumAllowedLength {
+            get {
+                return ResourceManager.GetString("Exception_ContentLengthExceedsTheMaximumAllowedLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Context is not available at this place..
         /// </summary>
         internal static string Exception_ContextIsNotAvailableAtThisPlace {
@@ -1240,6 +1258,15 @@ namespace Xtate {
         internal static string Exception_DataFormatNotSupported {
             get {
                 return ResourceManager.GetString("Exception_DataFormatNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DataModelList supports exactly one index argument string or numeric..
+        /// </summary>
+        internal static string Exception_DataModelListSupportsExactlyOneIndexArgumentStringOrNumeric {
+            get {
+                return ResourceManager.GetString("Exception_DataModelListSupportsExactlyOneIndexArgumentStringOrNumeric", resourceCulture);
             }
         }
         
@@ -1353,7 +1380,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Events for external services can&apos;t be delayed.
+        ///   Looks up a localized string similar to Events for external services can&apos;t be delayed..
         /// </summary>
         internal static string Exception_EventsForExternalServicesCantBeDelayed {
             get {
@@ -1362,7 +1389,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Events from external services can&apos;t be delayed.
+        ///   Looks up a localized string similar to Events from external services can&apos;t be delayed..
         /// </summary>
         internal static string Exception_EventsFromExternalServicesCantBeDelayed {
             get {
@@ -1515,7 +1542,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Incorrect security context.
+        ///   Looks up a localized string similar to Incorrect security context..
         /// </summary>
         internal static string Exception_IncorrectSecurityContext {
             get {
@@ -1650,6 +1677,33 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid host name..
+        /// </summary>
+        internal static string Exception_IsNotValidHostName {
+            get {
+                return ResourceManager.GetString("Exception_IsNotValidHostName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid name. It should contain only alphanumeric characters..
+        /// </summary>
+        internal static string Exception_IsNotValidNameItShouldContainOnlyAlphanumericCharacters {
+            get {
+                return ResourceManager.GetString("Exception_IsNotValidNameItShouldContainOnlyAlphanumericCharacters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not a valid timeout value..
+        /// </summary>
+        internal static string Exception_IsNotValidTimeoutValue {
+            get {
+                return ResourceManager.GetString("Exception_IsNotValidTimeoutValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item can&apos;t be null..
         /// </summary>
         internal static string Exception_ItemCantBeNull {
@@ -1668,7 +1722,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key should not be empty.
+        ///   Looks up a localized string similar to Key should not be empty..
         /// </summary>
         internal static string Exception_KeyShouldNotBeEmpty {
             get {
@@ -1938,6 +1992,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to PersistenceLevel should not be None..
+        /// </summary>
+        internal static string Exception_PersistenceLevelShouldNotBeNone {
+            get {
+                return ResourceManager.GetString("Exception_PersistenceLevelShouldNotBeNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Prefix {0} can&apos;t be resolved..
         /// </summary>
         internal static string Exception_PrefixCantBeResolved {
@@ -1947,11 +2010,47 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to PreRead modified the count from 0 to a non-zero value..
+        /// </summary>
+        internal static string Exception_PreReadModifiedTheCountFrom0ToANonZeroValue {
+            get {
+                return ResourceManager.GetString("Exception_PreReadModifiedTheCountFrom0ToANonZeroValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PreRead modified the count to an invalid value: {0}. Valid range is 1 to {1}..
+        /// </summary>
+        internal static string Exception_PreReadModifiedTheCountToAnInvalidValueValidRangeIs1ToCount {
+            get {
+                return ResourceManager.GetString("Exception_PreReadModifiedTheCountToAnInvalidValueValidRangeIs1ToCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Processing messages larger than 2GB is not supported..
+        /// </summary>
+        internal static string Exception_ProcessingMessagesLargerThan2GBIsNotSupported {
+            get {
+                return ResourceManager.GetString("Exception_ProcessingMessagesLargerThan2GBIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Property available in Evaluate() method..
         /// </summary>
         internal static string Exception_PropertyAvailableInEvaluateMethod {
             get {
                 return ResourceManager.GetString("Exception_PropertyAvailableInEvaluateMethod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read limit exceeded: {0} &gt; {1} bytes..
+        /// </summary>
+        internal static string Exception_ReadLimitExceeded {
+            get {
+                return ResourceManager.GetString("Exception_ReadLimitExceeded", resourceCulture);
             }
         }
         
@@ -2209,7 +2308,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Storage not available for read operations.
+        ///   Looks up a localized string similar to Storage not available for read operations..
         /// </summary>
         internal static string Exception_StorageNotAvailableForReadOperations {
             get {
@@ -2227,7 +2326,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Target is not defined.
+        ///   Looks up a localized string similar to Target is not defined..
         /// </summary>
         internal static string Exception_TargetIsNotDefined {
             get {
@@ -2245,7 +2344,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Target value is missed.
+        ///   Looks up a localized string similar to Target value is missed..
         /// </summary>
         internal static string Exception_TargetValueIsMissed {
             get {
@@ -2254,7 +2353,16 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.
+        ///   Looks up a localized string similar to The method does not exist..
+        /// </summary>
+        internal static string Exception_TheMethodDoesNotExist {
+            get {
+                return ResourceManager.GetString("Exception_TheMethodDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;..
         /// </summary>
         internal static string Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode {
             get {
@@ -2273,6 +2381,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no suitable args transformer available..
+        /// </summary>
+        internal static string Exception_ThereIsNoSuitableArgsTransformerAvailable {
+            get {
+                return ResourceManager.GetString("Exception_ThereIsNoSuitableArgsTransformerAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The stream &apos;{0}&apos; is currently being read from or written to..
         /// </summary>
         internal static string Exception_TheStreamIsCurrentlyBeingReadFromOrWrittenTo {
@@ -2287,6 +2404,15 @@ namespace Xtate {
         internal static string Exception_TheStreamIsCurrentlyBeingWrittenTo {
             get {
                 return ResourceManager.GetString("Exception_TheStreamIsCurrentlyBeingWrittenTo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The URI must be absolute..
+        /// </summary>
+        internal static string Exception_TheUriMustBeAbsolute {
+            get {
+                return ResourceManager.GetString("Exception_TheUriMustBeAbsolute", resourceCulture);
             }
         }
         
@@ -2399,8 +2525,7 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unexpected TypeInfo value.
-        ///.
+        ///   Looks up a localized string similar to Unexpected TypeInfo value..
         /// </summary>
         internal static string Exception_UnexpectedTypeInfoValue {
             get {
@@ -2504,6 +2629,15 @@ namespace Xtate {
         internal static string Exception_UnsupportedClass {
             get {
                 return ResourceManager.GetString("Exception_UnsupportedClass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported media type: {0}.
+        /// </summary>
+        internal static string Exception_UnsupportedMediaType {
+            get {
+                return ResourceManager.GetString("Exception_UnsupportedMediaType", resourceCulture);
             }
         }
         
@@ -2670,6 +2804,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Write limit exceeded: {0} &gt; {1} bytes..
+        /// </summary>
+        internal static string Exception_WriteLimitExceeded {
+            get {
+                return ResourceManager.GetString("Exception_WriteLimitExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} Line {1}, Position {2}..
         /// </summary>
         internal static string Exception_XIncludeExceptionLinePosition {
@@ -2720,6 +2863,33 @@ namespace Xtate {
         internal static string Message_AnErrorOccurredInTheBackgroundProcess {
             get {
                 return ResourceManager.GetString("Message_AnErrorOccurredInTheBackgroundProcess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while triggering the destroy signal..
+        /// </summary>
+        internal static string Message_AnErrorOccurredWhileTriggeringTheDestroySignal {
+            get {
+                return ResourceManager.GetString("Message_AnErrorOccurredWhileTriggeringTheDestroySignal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error on sending error to Parent..
+        /// </summary>
+        internal static string Message_ErrorOnSendingErrorToParent {
+            get {
+                return ResourceManager.GetString("Message_ErrorOnSendingErrorToParent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Service Execution error..
+        /// </summary>
+        internal static string Message_ServiceExecutionError {
+            get {
+                return ResourceManager.GetString("Message_ServiceExecutionError", resourceCulture);
             }
         }
         

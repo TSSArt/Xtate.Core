@@ -41,6 +41,7 @@ public class StateMachineNode : StateEntityNode, IStateMachine, IAncestorProvide
 		States = stateMachine.States.UseAncestor.ItemsAs<StateEntityNode>(true);
 
 		Register(Initial);
+		// ReSharper disable once VirtualMemberCallInConstructor
 		Register(States);
 	}
 

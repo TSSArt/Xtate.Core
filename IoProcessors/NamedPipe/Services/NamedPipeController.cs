@@ -252,7 +252,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 			if (count > int.MaxValue)
 			{
-				throw new ProcessorException("Processing messages larger than 2GB is not supported.");
+				throw new ProcessorException(Resources.Exception_ProcessingMessagesLargerThan2GBIsNotSupported);
 			}
 
 			using var inMemoryStorage = new InMemoryStorage(buffer.AsSpan()[..(int) count]);

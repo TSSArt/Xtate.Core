@@ -25,7 +25,7 @@ public class LazyTask<T>
 
 	private readonly ITaskMonitor? _taskMonitor;
 
-	private readonly CancellationToken _token;
+	private CancellationToken _token;
 
 	private CancellationTokenRegistration _cancellationTokenRegistration;
 

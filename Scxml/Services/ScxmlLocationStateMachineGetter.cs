@@ -38,6 +38,7 @@ public class ScxmlLocationStateMachineGetter
 
 	private string Location => StateMachineLocation.Location?.ToString() ?? Infra.Fail<string>();
 
+	[CalledByIoC]
 	public virtual async ValueTask<IStateMachine> GetStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();
