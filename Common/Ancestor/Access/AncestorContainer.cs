@@ -17,6 +17,7 @@
 
 namespace Xtate.Ancestor;
 
+[InstantiatedByIoC]
 public sealed class AncestorContainer(object value, object? ancestor) : IAncestorProvider
 {
 	public object Value { get; } = value;

@@ -82,7 +82,7 @@ public class CustomActionContainer : ICustomAction, IAncestorProvider
 
 #endregion
 
-	[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
+	[SuppressMessage(category: "ReSharper", checkId: "MemberCanBeMadeStatic.Global")]
 	public void SetEvaluators(ImmutableArray<IValueExpression> values, ImmutableArray<ILocationExpression> locations)
 	{
 		foreach (var value in values)

@@ -21,7 +21,7 @@ using Xtate.DataTypes;
 
 namespace Xtate.DataModel.XPath.Internal;
 
-public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
+public class DataModelXPathNavigator : XPathNavigator
 {
 	private const int PathFieldCount = 6;
 
@@ -204,14 +204,14 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 			return false;
 		}
 
-		Current = new Node(value: DataModelValue.Undefined, AdapterFactory.XmlnsXmlNodeAdapter);
+		Current = new Node(DataModelValue.Undefined, AdapterFactory.XmlnsXmlNodeAdapter);
 
 		return true;
 	}
 
-	public override System.Xml.XPath.XPathNavigator Clone() => new DataModelXPathNavigator(this);
+	public override XPathNavigator Clone() => new DataModelXPathNavigator(this);
 
-	public override bool IsSamePosition(System.Xml.XPath.XPathNavigator other)
+	public override bool IsSamePosition(XPathNavigator other)
 	{
 		if (other is not DataModelXPathNavigator navigator)
 		{
@@ -234,7 +234,7 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 		return true;
 	}
 
-	public override bool MoveTo(System.Xml.XPath.XPathNavigator other)
+	public override bool MoveTo(XPathNavigator other)
 	{
 		if (other is not DataModelXPathNavigator navigator)
 		{
@@ -509,7 +509,7 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 										 string? namespaceUri,
 										 string? value)
 	{
-		if (string.IsNullOrEmpty(localName)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(localName));
+		Infra.RequiresNonEmptyString(localName);
 
 		Infra.Assert(NodeType == XPathNodeType.Element);
 
@@ -527,7 +527,7 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 		}
 		else
 		{
-			var metadata = new DataModelList();
+			var metadata = new DataModelList { string.Empty, string.Empty };
 
 			AddAttribute(metadata, localName, value, namespaceUri, prefix);
 
@@ -541,17 +541,10 @@ public class DataModelXPathNavigator : System.Xml.XPath.XPathNavigator
 									 string? namespaceUri,
 									 string? prefix)
 	{
-		metadata.Add(name, value, metadata: null);
-
-		if (string.IsNullOrEmpty(namespaceUri) || string.IsNullOrEmpty(prefix))
-		{
-			metadata.Add(name, namespaceUri, metadata: null);
-		}
-
-		if (string.IsNullOrEmpty(prefix))
-		{
-			metadata.Add(name, prefix, metadata: null);
-		}
+		metadata.Add(name);
+		metadata.Add(value ?? string.Empty);
+		metadata.Add(prefix ?? string.Empty);
+		metadata.Add(namespaceUri ?? string.Empty);
 	}
 
 	public override void SetValue(string value)

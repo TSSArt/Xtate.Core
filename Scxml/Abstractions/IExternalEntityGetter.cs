@@ -21,10 +21,9 @@ namespace Xtate.Scxml;
 
 public interface IExternalEntityGetter
 {
-	bool SupportsType(Uri absoluteUri, Type type);
+	bool SupportsType(Uri absoluteUri, Type? type);
 
-	object? GetEntity(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn);
+	object GetEntity(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn);
 
-	ValueTask<object?> GetEntityAsync(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn);
-
+	ValueTask<object> GetEntityAsync(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn);
 }

@@ -84,7 +84,7 @@ internal sealed class InvokeIdSetPersistingController : IDisposable
 			foreach (var invokeId in _invokeIdSet)
 			{
 				var recordBucket = bucket.Nested(_record ++);
-				recordBucket.Add(InvokeId, invokeId);
+				recordBucket.AddId(InvokeId, invokeId);
 				recordBucket.Add(Operation, Added);
 			}
 		}

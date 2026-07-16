@@ -63,5 +63,4 @@ public class OnExitNode : IOnExit, IAncestorProvider, IDocumentId, IDebugEntityI
 	public ImmutableArray<IExecutableEntity> Action => _onExit.Action;
 
 #endregion
-
 }

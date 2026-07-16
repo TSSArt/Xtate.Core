@@ -63,7 +63,7 @@ public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntit
 
 #region Interface IStateEntity
 
-	public override IIdentifier Id => final.Id;
+	public override IIdentifier Id => final.Id!;
 
 #endregion
 }

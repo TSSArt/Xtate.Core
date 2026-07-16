@@ -41,5 +41,4 @@ public class RaiseNode(DocumentIdNode documentIdNode, IRaise raise) : Executable
 	public IOutgoingEvent? OutgoingEvent => raise.OutgoingEvent;
 
 #endregion
-
 }

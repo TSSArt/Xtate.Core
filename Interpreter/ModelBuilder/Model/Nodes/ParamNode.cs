@@ -64,5 +64,4 @@ public class ParamNode : IParam, IAncestorProvider, IDocumentId, IDebugEntityId
 	public ILocationExpression? Location => _param.Location;
 
 #endregion
-
 }

@@ -32,10 +32,6 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	private static readonly object BooleanValue = new Marker(DataModelValueType.Boolean);
 
-	public static DataModelValue Null { get; } = new((string?) null);
-
-	public static DataModelValue Undefined => default;
-
 	private readonly long _int64;
 
 	private readonly object? _value;
@@ -53,35 +49,35 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	}
 
 	public DataModelValue(int value) => _value = NumberValue.GetNumberValue(value, out _int64);
-	
+
 	public DataModelValue(int? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(long value) => _value = NumberValue.GetNumberValue(value, out _int64);
-	
+
 	public DataModelValue(long? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(double value) => _value = NumberValue.GetNumberValue(value, out _int64);
-	
+
 	public DataModelValue(double? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(decimal value) => _value = NumberValue.GetNumberValue(value, out _int64);
-	
+
 	public DataModelValue(decimal? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DataModelNumber value) => _value = NumberValue.GetNumberValue(value, out _int64);
-	
+
 	public DataModelValue(DataModelNumber? value) => _value = value.HasValue ? NumberValue.GetNumberValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DateTimeOffset value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
-	
+
 	public DataModelValue(DateTimeOffset? value) => _value = value.HasValue ? DateTimeValue.GetDateTimeValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DateTime value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
-	
+
 	public DataModelValue(DateTime? value) => _value = value.HasValue ? DateTimeValue.GetDateTimeValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(DataModelDateTime value) => _value = DateTimeValue.GetDateTimeValue(value, out _int64);
-	
+
 	public DataModelValue(DataModelDateTime? value) => _value = value.HasValue ? DateTimeValue.GetDateTimeValue(value.Value, out _int64) : NullValue;
 
 	public DataModelValue(bool value)
@@ -101,6 +97,10 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		_value = lazyValue ?? NullValue;
 		_int64 = 0;
 	}
+
+	public static DataModelValue Null { get; } = new((string?) null);
+
+	public static DataModelValue Undefined => default;
 
 	internal bool IsLazyValue => _value is ILazyValue;
 
@@ -389,58 +389,57 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	public static implicit operator DataModelValue(string? value) => new(value);
 
 	public static implicit operator DataModelValue(int value) => new(value);
-	
+
 	public static implicit operator DataModelValue(int? value) => new(value);
 
 	public static implicit operator DataModelValue(long value) => new(value);
-	
+
 	public static implicit operator DataModelValue(long? value) => new(value);
 
 	public static implicit operator DataModelValue(double value) => new(value);
-	
+
 	public static implicit operator DataModelValue(double? value) => new(value);
 
 	public static implicit operator DataModelValue(decimal value) => new(value);
-	
+
 	public static implicit operator DataModelValue(decimal? value) => new(value);
 
 	public static implicit operator DataModelValue(DataModelNumber value) => new(value);
-	
+
 	public static implicit operator DataModelValue(DataModelNumber? value) => new(value);
 
 	public static implicit operator DataModelValue(DataModelDateTime value) => new(value);
-	
+
 	public static implicit operator DataModelValue(DataModelDateTime? value) => new(value);
 
 	public static implicit operator DataModelValue(DateTimeOffset value) => new(value);
-	
-	public static implicit operator DataModelValue(DateTimeOffset? value) => new(value);		
+
+	public static implicit operator DataModelValue(DateTimeOffset? value) => new(value);
 
 	public static implicit operator DataModelValue(DateTime value) => new(value);
-	
+
 	public static implicit operator DataModelValue(DateTime? value) => new(value);
 
 	public static implicit operator DataModelValue(bool value) => new(value);
-	
-	public static implicit operator DataModelValue(bool? value) => new(value);
 
+	public static implicit operator DataModelValue(bool? value) => new(value);
 
 	public static explicit operator DataModelList?(DataModelValue value) => value.AsNullableList();
 
 	public static explicit operator string?(DataModelValue value) => value.AsNullableString();
 
 	public static explicit operator int(DataModelValue value) => value.AsNumber().ToInt32();
-	
+
 	public static explicit operator int?(DataModelValue value) => value.AsNullableNumber()?.ToInt32();
-	
+
 	public static explicit operator long(DataModelValue value) => value.AsNumber().ToInt64();
 
 	public static explicit operator long?(DataModelValue value) => value.AsNullableNumber()?.ToInt64();
-	
+
 	public static explicit operator double(DataModelValue value) => value.AsNumber().ToDouble();
 
 	public static explicit operator double?(DataModelValue value) => value.AsNullableNumber()?.ToDouble();
-	
+
 	public static explicit operator DataModelNumber(DataModelValue value) => value.AsNumber();
 
 	public static explicit operator DataModelNumber?(DataModelValue value) => value.AsNullableNumber();
@@ -470,27 +469,27 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	public static DataModelValue FromInt32(int? value) => value;
 
 	public static DataModelValue FromInt64(long value) => value;
-	
+
 	public static DataModelValue FromInt64(long? value) => value;
 
 	public static DataModelValue FromDouble(double value) => value;
-	
+
 	public static DataModelValue FromDouble(double? value) => value;
 
 	public static DataModelValue FromDecimal(decimal value) => value;
-	
+
 	public static DataModelValue FromDecimal(decimal? value) => value;
 
 	public static DataModelValue FromDataModelNumber(DataModelNumber value) => value;
-	
+
 	public static DataModelValue FromDataModelNumber(DataModelNumber? value) => value;
 
 	public static DataModelValue FromDataModelDateTime(DataModelDateTime value) => value;
-	
+
 	public static DataModelValue FromDataModelDateTime(DataModelDateTime? value) => value;
 
 	public static DataModelValue FromDateTimeOffset(DateTimeOffset value) => value;
-	
+
 	public static DataModelValue FromDateTimeOffset(DateTimeOffset? value) => value;
 
 	public static DataModelValue FromDateTime(DateTime value) => value;

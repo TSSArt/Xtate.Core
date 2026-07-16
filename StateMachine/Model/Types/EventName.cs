@@ -136,13 +136,8 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 		return count;
 	}
 
-	private static void SetParts(Span<IIdentifier> span, string? id)
+	private static void SetParts(Span<IIdentifier> span, string id)
 	{
-		if (id is null)
-		{
-			return;
-		}
-
 		var pos = 0;
 		int pos2;
 		var index = 0;

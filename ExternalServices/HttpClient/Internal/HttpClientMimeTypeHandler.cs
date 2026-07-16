@@ -63,7 +63,7 @@ public abstract class HttpClientMimeTypeHandler
 
 	protected static void AppendAcceptHeader(ref string? acceptHeaderValue, string contentType)
 	{
-		if (string.IsNullOrEmpty(contentType)) throw new ArgumentException(Resources.Exception_ValueCannotBeNullOrEmpty, nameof(contentType));
+		Infra.RequiresNonEmptyString(contentType);
 
 		if (acceptHeaderValue is not { Length: > 0 } accept)
 		{
@@ -102,7 +102,7 @@ public abstract class HttpClientMimeTypeHandler
 					}
 
 					state = 2;
-					goto case 1;
+					goto case 2;
 
 				case 2:
 					if (accept[i] != ',')

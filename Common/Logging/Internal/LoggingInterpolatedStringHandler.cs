@@ -66,7 +66,7 @@ public readonly struct LoggingInterpolatedStringHandler
 	public void AppendFormatted(object? value, string? format = null, [CallerArgumentExpression(nameof(value))] string? expression = null)
 	{
 		Span<char> buf = stackalloc char[StackSpan<char>.MaxLengthInStack];
-		
+
 		if (value is ISpanFormattable spanFormattable && spanFormattable.TryFormat(buf, out var charsWritten, format.AsSpan(), _provider))
 		{
 			_stringBuilder!.Append(buf[..charsWritten]);

@@ -43,7 +43,7 @@ internal class ElementNodeAdapter : NodeAdapter
 
 	public override bool GetFirstChild(in DataModelXPathNavigator.Node node, out DataModelXPathNavigator.Node childNode)
 	{
-		childNode = new DataModelXPathNavigator.Node(value: DataModelValue.Undefined, null!);
+		childNode = new DataModelXPathNavigator.Node(DataModelValue.Undefined, null!);
 
 		return GetNextChild(node, ref childNode);
 	}

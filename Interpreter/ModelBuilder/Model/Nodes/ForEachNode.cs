@@ -47,5 +47,4 @@ public class ForEachNode(DocumentIdNode documentIdNode, IForEach forEach) : Exec
 	public ImmutableArray<IExecutableEntity> Action => forEach.Action;
 
 #endregion
-
 }

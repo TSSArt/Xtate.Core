@@ -53,7 +53,7 @@ public class HistoryNode : StateEntityNode, IHistory, IAncestorProvider, IDebugE
 
 #region Interface IHistory
 
-	public override IIdentifier Id => _history.Id;
+	public override IIdentifier Id => _history.Id!;
 
 	public HistoryType Type => _history.Type;
 

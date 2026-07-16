@@ -24,11 +24,6 @@ namespace Xtate.DataModel.Services;
 [InstantiatedByIoC]
 public class DefaultForEachEvaluator : ForEachEvaluator
 {
-	private class IndexObject(object index) : IObject
-	{
-		public object ToObject() => index;
-	}
-
 	private static readonly IndexObject[] Indexes = new IndexObject[256];
 
 	private readonly ImmutableArray<IExecEvaluator> _actionEvaluatorList;
@@ -83,5 +78,14 @@ public class DefaultForEachEvaluator : ForEachEvaluator
 		{
 			await execEvaluator.Execute().ConfigureAwait(false);
 		}
+	}
+
+	private class IndexObject(object index) : IObject
+	{
+	#region Interface IObject
+
+		public object ToObject() => index;
+
+	#endregion
 	}
 }

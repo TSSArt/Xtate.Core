@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #if !NETSTANDARD2_1 && !NETCOREAPP2_1_OR_GREATER
-
 using System.Runtime.InteropServices;
 
 namespace Xtate;
@@ -121,7 +120,6 @@ internal static class BitConverterPolyfills
 		/// <param name="destination">When this method returns, the bytes representing the converted 16-bit unsigned integer.</param>
 		/// <param name="value">The 16-bit unsigned integer to convert.</param>
 		/// <returns><see langword="true" /> if the conversion was successful; <see langword="false" /> otherwise.</returns>
-		[CLSCompliant(false)]
 		public static bool TryWriteBytes(Span<byte> destination, ushort value)
 		{
 			if (destination.Length < sizeof(ushort))
@@ -140,7 +138,6 @@ internal static class BitConverterPolyfills
 		/// <param name="destination">When this method returns, the bytes representing the converted 32-bit unsigned integer.</param>
 		/// <param name="value">The 32-bit unsigned integer to convert.</param>
 		/// <returns><see langword="true" /> if the conversion was successful; <see langword="false" /> otherwise.</returns>
-		[CLSCompliant(false)]
 		public static bool TryWriteBytes(Span<byte> destination, uint value)
 		{
 			if (destination.Length < sizeof(uint))
@@ -159,7 +156,6 @@ internal static class BitConverterPolyfills
 		/// <param name="destination">When this method returns, the bytes representing the converted 64-bit unsigned integer.</param>
 		/// <param name="value">The 64-bit unsigned integer to convert.</param>
 		/// <returns><see langword="true" /> if the conversion was successful; <see langword="false" /> otherwise.</returns>
-		[CLSCompliant(false)]
 		public static bool TryWriteBytes(Span<byte> destination, ulong value)
 		{
 			if (destination.Length < sizeof(ulong))

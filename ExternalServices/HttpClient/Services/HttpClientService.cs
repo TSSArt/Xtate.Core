@@ -144,10 +144,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 				continue;
 			}
 
-			foreach (var value in values)
-			{
-				(list ??= []).Add(new DataModelList { { "name", name }, { "value", value } });
-			}
+			(list ??= []).Add(new DataModelList { { "name", name }, { "value", string.Join(@", ", values) } });
 		}
 
 		return list ?? DataModelList.Empty;
@@ -155,22 +152,36 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 	private static Cookie CreateCookie(in DataModelValue value)
 	{
-		var cookie = value.AsListOrEmpty();
+		var cookieProps = value.AsListOrEmpty();
 
-		return new Cookie
-			   {
-				   Name = cookie["name"].AsStringOrDefault() ?? string.Empty,
-				   Value = cookie["value"].AsStringOrDefault(),
-				   Path = cookie["path"].AsStringOrDefault(),
-				   Domain = cookie["domain"].AsStringOrDefault(),
-				   Port = cookie["port"].AsStringOrDefault(),
-				   Expires = cookie["expires"].AsDateTimeOrDefault()?.ToDateTime() ?? default,
-				   HttpOnly = cookie["httpOnly"].AsBooleanOrDefault() ?? false,
-				   Secure = cookie["secure"].AsBooleanOrDefault() ?? false
-			   };
+		var cookie = new Cookie
+					 {
+						 Name = cookieProps["name"].AsStringOrDefault() ?? string.Empty,
+						 Value = cookieProps["value"].AsStringOrDefault() ?? string.Empty,
+						 Expires = cookieProps["expires"].AsDateTimeOrDefault()?.ToDateTime() ?? DateTime.MinValue,
+						 HttpOnly = cookieProps["httpOnly"].AsBooleanOrDefault() ?? false,
+						 Secure = cookieProps["secure"].AsBooleanOrDefault() ?? false
+					 };
+
+		if (cookieProps["path"].AsStringOrDefault() is { } path)
+		{
+			cookie.Path = path;
+		}
+
+		if (cookieProps["domain"].AsStringOrDefault() is { } domain)
+		{
+			cookie.Domain = domain;
+		}
+
+		if (cookieProps["port"].AsStringOrDefault() is { } port)
+		{
+			cookie.Port = port;
+		}
+
+		return cookie;
 	}
 
-	private static HttpContent CreateDefaultContent(in DataModelValue content) => new StringContent(content.ToObject()?.ToString() ?? string.Empty, Encoding.UTF8);
+	private static StringContent? CreateDefaultContent(in DataModelValue content) => content.ToObject()?.ToString() is { Length: > 0 } body ? new StringContent(body, Encoding.UTF8) : null;
 
 	private async ValueTask<Response> DoRequest(string method,
 												bool autoRedirect,
@@ -316,6 +327,11 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 		}
 
 		httpContent ??= CreateDefaultContent(Content);
+
+		if (httpContent is null)
+		{
+			return;
+		}
 
 		var stream = await request.GetRequestStreamAsync().ConfigureAwait(false);
 

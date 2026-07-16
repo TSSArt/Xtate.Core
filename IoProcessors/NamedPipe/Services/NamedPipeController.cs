@@ -42,13 +42,13 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 	private readonly NamedPipeIoProcessorOptions _options = options.Value;
 
+	public bool IsNamedPipeIoProcessorEnabled => _options.Name is not null;
+
 	private static string GetPipeName(string name) => PipePrefix + name.ToLowerInvariant();
 
 	public FullUri ToInvokeTarget(InvokeId invokeId) => new(@$"net.pipe://{_options.Host}/{_options.Name}/{InvokeIdPrefix}{invokeId}");
 
 	public FullUri ToSessionTarget(SessionId sessionId) => new(@$"net.pipe://{_options.Host}/{_options.Name}/{SessionIdPrefix}{sessionId}");
-
-	public bool IsNamedPipeIoProcessorEnabled => _options.Name is not null;
 
 	public bool TryParseTarget(FullUri target,
 							   out string? host,
@@ -106,7 +106,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 		return false;
 	}
 
-	private static bool NameEquals(string name1, string name2) => string.Equals(name1, name2, StringComparison.OrdinalIgnoreCase);
+	private static bool NameEquals(string name1, string? name2) => string.Equals(name1, name2, StringComparison.OrdinalIgnoreCase);
 
 	private static bool HostEquals(FullUri uri, string host) => uri.Host == host || string.Compare(uri.Host, host, StringComparison.OrdinalIgnoreCase) == 0 || uri.IdnHost == IdnMapping.GetAscii(host);
 
@@ -116,7 +116,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 									 IIncomingEvent incomingEvent,
 									 CancellationToken token)
 	{
-		var pipeStream = new NamedPipeClientStream(host ?? @".", GetPipeName(name ?? _options.Name), PipeDirection.InOut, DefaultPipeOptions);
+		var pipeStream = new NamedPipeClientStream(host ?? @".", GetPipeName(name ?? _options.Name!), PipeDirection.InOut, DefaultPipeOptions);
 
 		await using (pipeStream.ConfigureAwait(false))
 		{
@@ -127,7 +127,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 			await pipeStream.ConnectAsync(token).ConfigureAwait(false);
 
 			var eventMessage = new NamedPipeEventMessage(DateTime.UniqueUtcNow, targetServiceId, incomingEvent);
-			
+
 			await SendMessage(eventMessage, pipeStream, token).ConfigureAwait(false);
 
 			var responseMessage = await ReceiveMessage(pipeStream, bucket => new NamedPipeResponseMessage(bucket), token).ConfigureAwait(false);
@@ -153,13 +153,14 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 	public async ValueTask ReceiveAndProcessEvent(Func<NamedPipeEventMessage, ValueTask> processEvent, CancellationToken token)
 	{
-		var pipeStream = new NamedPipeServerStream(GetPipeName(_options.Name), PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
+		var pipeStream = new NamedPipeServerStream(GetPipeName(_options.Name!), PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, DefaultPipeOptions);
 
 		await using (pipeStream.ConfigureAwait(false))
 		{
 			await pipeStream.WaitForConnectionAsync(token).ConfigureAwait(false);
 
 			NamedPipeEventMessage? eventMessage = null;
+
 			try
 			{
 				eventMessage = await ReceiveMessage(pipeStream, bucket => new NamedPipeEventMessage(bucket), token).ConfigureAwait(false);
@@ -177,7 +178,10 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 		}
 	}
 
-	private static async ValueTask<long> ReadAtLeast(PipeStream pipeStream, byte[] buffer, long length, CancellationToken token)
+	private static async ValueTask<long> ReadAtLeast(PipeStream pipeStream,
+													 byte[] buffer,
+													 long length,
+													 CancellationToken token)
 	{
 		if (length < int.MaxValue)
 		{
@@ -185,7 +189,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 			while (length > 0)
 			{
-				var read = await pipeStream.ReadAsync(buffer, offset, (int)length - offset, token).ConfigureAwait(false);
+				var read = await pipeStream.ReadAsync(buffer, offset, (int) length - offset, token).ConfigureAwait(false);
 
 				if (read == 0)
 				{
@@ -206,8 +210,8 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 			while (length > 0)
 			{
-				var toRead = (int)Math.Min(length, interBuffer.Length);
-				var read = await pipeStream.ReadAsync(interBuffer, 0, toRead, token).ConfigureAwait(false);
+				var toRead = (int) Math.Min(length, interBuffer.Length);
+				var read = await pipeStream.ReadAsync(interBuffer, offset: 0, toRead, token).ConfigureAwait(false);
 
 				if (read == 0)
 				{
@@ -228,14 +232,14 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 		var sizeBufReadCount = await ReadAtLeast(pipeStream, buffer, sizeof(long), token).ConfigureAwait(false);
 		var messageSize = BitConverter.ToInt64(buffer, startIndex: 0);
 
-		var maxMessageSize = _options.MaxMessageSize > 0 ? _options.MaxMessageSize : (long?)null;
+		var maxMessageSize = _options.MaxMessageSize > 0 ? _options.MaxMessageSize : (long?) null;
 
 		if (sizeBufReadCount != sizeof(long) || messageSize < 0 || messageSize > maxMessageSize)
 		{
 			throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
 		}
 
-		buffer = messageSize <= int.MaxValue ? ArrayPool<byte>.Shared.Rent((int)messageSize) : new byte[messageSize];
+		buffer = messageSize <= int.MaxValue ? ArrayPool<byte>.Shared.Rent((int) messageSize) : new byte[messageSize];
 
 		try
 		{
@@ -246,18 +250,18 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 				throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageReadPartially, count, messageSize));
 			}
 
-			if(count > int.MaxValue)
+			if (count > int.MaxValue)
 			{
 				throw new ProcessorException("Processing messages larger than 2GB is not supported.");
 			}
 
-			using var inMemoryStorage = new InMemoryStorage(buffer.AsSpan()[..(int)count]);
+			using var inMemoryStorage = new InMemoryStorage(buffer.AsSpan()[..(int) count]);
 
 			return factory(new Bucket(inMemoryStorage));
 		}
 		finally
 		{
-			if(buffer.LongLength <= int.MaxValue)
+			if (buffer.LongLength <= int.MaxValue)
 			{
 				ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
 			}
@@ -266,13 +270,14 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 	private async ValueTask SendMessage<T>(T message, PipeStream pipeStream, CancellationToken token) where T : IStoreSupport
 	{
-		using var inMemoryStorage = new InMemoryStorage();
+		using var inMemoryStorage = new InMemoryStorage(writeOnly: false);
 		var bucket = new Bucket(inMemoryStorage);
 		message.Store(bucket);
 
 		var messageSize = inMemoryStorage.GetTransactionLogSize();
 
 		var maxMessageSize = _options.MaxMessageSize;
+
 		if (maxMessageSize > 0 && messageSize > maxMessageSize)
 		{
 			throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageSizeExceedsLimit, messageSize, maxMessageSize));
@@ -282,7 +287,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 		try
 		{
-			BitConverter.TryWriteBytes(buffer, (long)messageSize);
+			BitConverter.TryWriteBytes(buffer, (long) messageSize);
 			inMemoryStorage.WriteTransactionLogToSpan(buffer.AsSpan()[sizeof(long)..], truncateLog: false);
 
 			await pipeStream.WriteAsync(buffer, offset: 0, sizeof(long) + messageSize, token).ConfigureAwait(false);

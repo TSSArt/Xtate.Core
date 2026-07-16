@@ -338,7 +338,6 @@ public class InMemoryStorage : IStorage
 			_owner = null;
 
 			_buffers = null;
-			_buffer = Memory<byte>.Empty;
 		}
 		else
 		{
@@ -358,8 +357,9 @@ public class InMemoryStorage : IStorage
 			}
 
 			_owner = null;
-			_buffer = Memory<byte>.Empty;
 		}
+
+		_buffer = Memory<byte>.Empty;
 	}
 
 	private readonly struct Entry(ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> value = default) : IComparable<Entry>

@@ -20,7 +20,7 @@ using Xtate.StateMachine;
 
 namespace Xtate.StateMachineHost;
 
-public interface IDeadLetterQueue<TSource>
+public interface IDeadLetterQueue<[UsedImplicitly] TSource>
 {
 	ValueTask Enqueue(ServiceId recipientServiceId, IIncomingEvent incomingEvent);
 }

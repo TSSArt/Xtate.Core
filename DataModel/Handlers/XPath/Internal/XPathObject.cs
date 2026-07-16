@@ -98,9 +98,52 @@ public class XPathObject(object value) : IObject
 
 	public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
 
+	private static string? XmlString(DataModelValue val)
+	{
+		switch (val.Type)
+		{
+			case DataModelValueType.String:
+				return val.AsString();
+
+			case DataModelValueType.Boolean:
+				return XmlConvert.ToString(val.AsBoolean());
+
+			case DataModelValueType.Number:
+				var number = val.AsNumber();
+
+				return
+					number.Type switch
+					{
+						DataModelNumberType.Int32   => XmlConvert.ToString(number.ToInt32()),
+						DataModelNumberType.Int64   => XmlConvert.ToString(number.ToInt64()),
+						DataModelNumberType.Double  => XmlConvert.ToString(number.ToDouble()),
+						DataModelNumberType.Decimal => XmlConvert.ToString(number.ToDecimal()),
+						_                           => throw Infra.Unmatched(number.Type)
+					};
+
+			case DataModelValueType.DateTime:
+				var dateTime = val.AsDateTime();
+
+				return
+					dateTime.Type switch
+					{
+						DataModelDateTimeType.DateTime       => XmlConvert.ToString(dateTime.ToDateTime(), XmlDateTimeSerializationMode.RoundtripKind),
+						DataModelDateTimeType.DateTimeOffset => XmlConvert.ToString(dateTime.ToDateTimeOffset()),
+						_                                    => throw Infra.Unmatched(dateTime.Type)
+					};
+
+			case DataModelValueType.Undefined:
+			case DataModelValueType.Null:
+				return null;
+
+			case DataModelValueType.List:
+			default:
+				throw Infra.Unmatched(val.Type);
+		}
+	}
+
 	private static object? ToObject(XPathNodeIterator iterator)
 	{
-		var length = 0;
 		var count = 0;
 		string? result = null;
 
@@ -114,14 +157,21 @@ public class XPathObject(object value) : IObject
 				case XPathNodeType.Text:
 					count ++;
 
-					if (navigator.DataModelValue.AsStringOrDefault() is { } str)
+					if (navigator.DataModelValue.Type == DataModelValueType.String)
 					{
-						length += str.Length;
-						result = str;
+						result = navigator.DataModelValue.AsString();
 					}
 
 					break;
 
+				case XPathNodeType.Root:
+				case XPathNodeType.Attribute:
+				case XPathNodeType.Namespace:
+				case XPathNodeType.SignificantWhitespace:
+				case XPathNodeType.Whitespace:
+				case XPathNodeType.ProcessingInstruction:
+				case XPathNodeType.Comment:
+				case XPathNodeType.All:
 				default:
 					throw Infra.Unmatched(navigator.NodeType);
 			}
@@ -132,26 +182,16 @@ public class XPathObject(object value) : IObject
 			return null;
 		}
 
-		if (length == 0)
-		{
-			return string.Empty;
-		}
-
-		Infra.NotNull(result);
-
-		if (result.Length == length)
+		if (count == 1 && result is not null)
 		{
 			return result;
 		}
 
-		var sb = new StringBuilder(length);
+		var sb = new StringBuilder();
 
 		foreach (DataModelXPathNavigator navigator in iterator)
 		{
-			if (navigator.DataModelValue.AsStringOrDefault() is { } str)
-			{
-				sb.Append(str);
-			}
+			sb.Append(XmlString(navigator.DataModelValue));
 		}
 
 		return sb.ToString();

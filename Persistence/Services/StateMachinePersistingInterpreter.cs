@@ -34,6 +34,8 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 	private readonly object _owner = new();
 
+	private readonly PersistenceLevel _persistenceLevel;
+
 	private readonly Bucket _stateBucket;
 
 	private int _index;
@@ -71,20 +73,18 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		}
 	}
 
-	private readonly PersistenceLevel _persistenceLevel;
-
 	[SetByIoC]
 	public required IPersistenceOptions PersistenceOptions
 	{
 		init
 		{
 			_persistenceLevel = value.PersistenceLevel;
-			
+
 			Infra.RequiresValidEnum(_persistenceLevel);
 
-			if(_persistenceLevel == PersistenceLevel.None)
+			if (_persistenceLevel == PersistenceLevel.None)
 			{
-				throw new ArgumentException("PersistenceLevel should not be None", nameof(value));
+				throw new ArgumentException(message: "PersistenceLevel should not be None", nameof(value));
 			}
 		}
 	}
@@ -113,18 +113,18 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 	protected override ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 	{
-		const string ExecutionCountKey = "ec";
+		const string executionCountKey = "ec";
 
 		if (state == StateMachineInterpreterState.Started)
 		{
-			if (_stateBucket.TryGet(ExecutionCountKey, out int executionCount))
+			if (_stateBucket.TryGet(executionCountKey, out int executionCount))
 			{
-				_stateBucket.Add(ExecutionCountKey, executionCount + 1);
+				_stateBucket.Add(executionCountKey, executionCount + 1);
 
 				return base.NotifyInterpreterState(StateMachinePersistingInterpreterState.Resumed);
 			}
 
-			_stateBucket.Add(ExecutionCountKey, 1);
+			_stateBucket.Add(executionCountKey, value: 1);
 		}
 
 		return base.NotifyInterpreterState(state);

@@ -41,6 +41,7 @@ public class DataModelXDataModelProperty : IXDataModelProperty
 		var typeInfo = TypeInfoFactory(DataModelHandler.GetType());
 
 		var assemblyVersion = typeInfo.AssemblyVersion;
+
 		if (assemblyVersion.IndexOf('+') is var plusIndex and >= 0)
 		{
 			assemblyVersion = assemblyVersion[..plusIndex];

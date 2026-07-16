@@ -17,4 +17,5 @@
 
 namespace Xtate.StateMachineHost.Services;
 
-public class StateMachineRuntimeController : StateMachineControllerBase { }
+[InstantiatedByIoC]
+public class StateMachineRuntimeController : StateMachineControllerBase;

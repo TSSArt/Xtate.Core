@@ -27,7 +27,7 @@ namespace Xtate.Interpreter.Services;
 
 public class InterpreterModelBuilder : StateMachineVisitor
 {
-	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = new();
+	private readonly Dictionary<IIdentifier, StateEntityNode> _idMap = [];
 
 	private readonly List<TransitionNode> _targetMap = [];
 
@@ -48,7 +48,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	public required IDataModelHandler DataModelHandler { private get; [SetByIoC] init; }
 
 	public required IErrorProcessorService<InterpreterModelBuilder> ErrorProcessorService { private get; [SetByIoC] init; }
-	
+
 	public required IResourceLoader ResourceLoader { private get; [SetByIoC] init; }
 
 	public required Func<DocumentIdNode, IInitial, InitialNode> InitialNodeFactory { private get; [SetByIoC] init; }

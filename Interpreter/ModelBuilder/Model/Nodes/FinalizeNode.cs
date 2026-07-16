@@ -38,5 +38,4 @@ public class FinalizeNode(IFinalize finalize) : IFinalize, IAncestorProvider
 	public ImmutableArray<IExecutableEntity> Action => finalize.Action;
 
 #endregion
-
 }

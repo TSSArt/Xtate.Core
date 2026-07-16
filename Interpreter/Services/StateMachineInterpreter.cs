@@ -28,7 +28,6 @@ using Xtate.Logging;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
 
-
 namespace Xtate.Interpreter.Services;
 
 using DefaultHistoryContent = Dictionary<IIdentifier, ImmutableArray<IExecEvaluator>>;
@@ -1295,7 +1294,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 		return default;
 	}
-	
+
 	private struct LiveLockDetector : IDisposable
 	{
 		private const int IterationCount = 36;

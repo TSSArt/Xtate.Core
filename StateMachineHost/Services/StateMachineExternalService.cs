@@ -84,7 +84,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 			var stateMachineClass = new ScxmlStringChildStateMachine(scxml)
 									{
 										ParentEventDispatcher = this,
-										Location = StateMachineLocation.Location,
+										Location = StateMachineLocation.Location!,
 										Arguments = Parameters
 									};
 
@@ -100,7 +100,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 										ParentEventDispatcher = this,
 										Arguments = Parameters
 									};
-				
+
 			_sessionId = stateMachineClass.SessionId;
 
 			return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);

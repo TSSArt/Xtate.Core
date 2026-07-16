@@ -85,14 +85,14 @@ public sealed class SecurityContext : IIoBoundTask
 
 		return securityContext;
 	}
-	
+
 	private TaskFactory CreateTaskFactory()
 	{
 		var taskScheduler = HasPermissions(SecurityContextPermissions.RunIoBoundTask)
 			? new IoBoundTaskScheduler(IoBoundTaskSchedulerMaximumConcurrencyLevel)
 			: NoAccessTaskScheduler.Instance;
 
-		return new TaskFactory(cancellationToken: CancellationToken.None, CreationOptions, ContinuationOptions, taskScheduler);
+		return new TaskFactory(CancellationToken.None, CreationOptions, ContinuationOptions, taskScheduler);
 	}
 
 	public bool HasPermissions(SecurityContextPermissions permissions) => (Permissions & permissions) == permissions;

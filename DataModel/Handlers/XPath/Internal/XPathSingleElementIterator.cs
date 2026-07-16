@@ -19,11 +19,11 @@ using System.Xml.XPath;
 
 namespace Xtate.DataModel.XPath.Internal;
 
-internal class XPathSingleElementIterator(System.Xml.XPath.XPathNavigator navigator) : XPathNodeIterator
+internal class XPathSingleElementIterator(XPathNavigator navigator) : XPathNodeIterator
 {
 	private bool _completed;
 
-	public override System.Xml.XPath.XPathNavigator? Current => _completed ? navigator : null;
+	public override XPathNavigator? Current => _completed ? navigator : null;
 
 	public override int CurrentPosition => _completed ? 1 : 0;
 

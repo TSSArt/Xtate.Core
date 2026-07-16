@@ -39,6 +39,13 @@ public class NamedPipeIoProcessorOptions
 		get;
 		set
 		{
+			if (value is null)
+			{
+				field = null;
+
+				return;
+			}
+
 			if (value == string.Empty || value == @"." || value == @".." || Uri.EscapeDataString(value) != value)
 			{
 				throw new ArgumentException($"'{value}' is not a valid name. It should contain only alphanumeric characters.", nameof(value));

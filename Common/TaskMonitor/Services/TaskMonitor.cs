@@ -24,6 +24,8 @@ public class TaskMonitor : ITaskMonitor
 {
 	public required ILogger<TaskMonitor> Logger { protected get; [SetByIoC] init; }
 
+#region Interface ITaskMonitor
+
 	public Task WaitAsync(Task task, CancellationToken token) =>
 		task.IsCompleted || !token.CanBeCanceled
 			? task
@@ -53,36 +55,6 @@ public class TaskMonitor : ITaskMonitor
 				token.IsCancellationRequested
 					? Task.FromCanceled<TResult>(token)
 					: WaitAndMonitor(valueTask.AsTask(), token));
-
-	private async Task WaitAndMonitor(Task task, CancellationToken token)
-	{
-		try
-		{
-			await task.WaitAsync(token).ConfigureAwait(false);
-		}
-		finally
-		{
-			if (!task.IsCompleted)
-			{
-				_ = MonitorTaskCompletion(task);
-			}
-		}
-	}
-
-	private async Task<TResult> WaitAndMonitor<TResult>(Task<TResult> task, CancellationToken token)
-	{
-		try
-		{
-			return await task.WaitAsync(token).ConfigureAwait(false);
-		}
-		finally
-		{
-			if (!task.IsCompleted)
-			{
-				_ = MonitorTaskCompletion(task);
-			}
-		}
-	}
 
 	public void Forget(Task task)
 	{
@@ -133,6 +105,38 @@ public class TaskMonitor : ITaskMonitor
 		}
 
 		_ = MonitorTaskCompletion(valueTask);
+	}
+
+#endregion
+
+	private async Task WaitAndMonitor(Task task, CancellationToken token)
+	{
+		try
+		{
+			await task.WaitAsync(token).ConfigureAwait(false);
+		}
+		finally
+		{
+			if (!task.IsCompleted)
+			{
+				_ = MonitorTaskCompletion(task);
+			}
+		}
+	}
+
+	private async Task<TResult> WaitAndMonitor<TResult>(Task<TResult> task, CancellationToken token)
+	{
+		try
+		{
+			return await task.WaitAsync(token).ConfigureAwait(false);
+		}
+		finally
+		{
+			if (!task.IsCompleted)
+			{
+				_ = MonitorTaskCompletion(task);
+			}
+		}
 	}
 
 	private async Task MonitorTaskCompletion(Task task)

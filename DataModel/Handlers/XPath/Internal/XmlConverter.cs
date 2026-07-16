@@ -45,7 +45,7 @@ public static class XmlConverter
 
 	private const string UndefinedTypeValue = @"undefined";
 
-	private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto };
+	private static readonly XmlReaderSettings DefaultReaderSettings = new() { ConformanceLevel = ConformanceLevel.Auto, Async = true};
 
 	public static string ToXml(in DataModelValue value, bool indent)
 	{
@@ -467,22 +467,21 @@ public static class XmlConverter
 					metadata.Add(xmlReader.LocalName);
 					metadata.Add(xmlReader.Value);
 					metadata.Add(xmlReader.Prefix);
-					metadata.Add(xmlReader.NamespaceURI);
 				}
 				else if (xmlReader.LocalName != XPathMetadata.Xmlns)
 				{
 					metadata.Add(xmlReader.LocalName);
 					metadata.Add(xmlReader.Value);
 					metadata.Add(string.Empty);
-					metadata.Add(xmlReader.NamespaceURI);
 				}
 				else
 				{
 					metadata.Add(string.Empty);
 					metadata.Add(xmlReader.Value);
 					metadata.Add(string.Empty);
-					metadata.Add(xmlReader.NamespaceURI);
 				}
+
+				metadata.Add(xmlReader.NamespaceURI);
 			}
 
 			xmlReader.MoveToElement();

@@ -38,8 +38,8 @@ public abstract class ActionBase
 
 			return obj switch
 				   {
-					   IEnumerable<object> e1 => e1.ToArray(),
-					   IEnumerable e2         => e2.Cast<object>().ToArray(),
+					   IEnumerable<object> e1 => [.. e1],
+					   IEnumerable e2         => [.. e2.Cast<object>()],
 					   not null               => [obj],
 					   _                      => []
 				   };

@@ -973,8 +973,8 @@ Exception: {3}</value>
   <data name="Exception_ExternalServiceWithSameInvokeIdAlreadyRegistered" xml:space="preserve">
 	  <value>External Service with same InvokeId already registered.</value>
   </data>
-  <data name="Exception_ExternalServiceWithProvidedInvokeIdDoesNotExists" xml:space="preserve">
-	  <value>External Service with provided InvokeId does not exists.</value>
+  <data name="Exception_ExternalServiceWithProvidedInvokeIdDoesNotExist" xml:space="preserve">
+	  <value>External Service with provided InvokeId does not exist.</value>
   </data>
   <data name="Exception_NotSupportedEvent" xml:space="preserve">
 	  <value>Not supported event. Type: [{0}]. Target: [{1}].</value>

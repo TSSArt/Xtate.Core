@@ -18,15 +18,15 @@
 namespace Xtate;
 
 /// <summary>
-/// A thread-safe dictionary that supports asynchronous value retrieval via pending entries.
-/// Combines a <see cref="ConcurrentDictionary{TKey,TValue}"/> with task-based awaiting,
-/// allowing consumers to wait for a key to be added or removed.
+///     A thread-safe dictionary that supports asynchronous value retrieval via pending entries.
+///     Combines a <see cref="ConcurrentDictionary{TKey,TValue}" /> with task-based awaiting,
+///     allowing consumers to wait for a key to be added or removed.
 /// </summary>
 /// <typeparam name="TKey">The type of keys in the dictionary. Must be non-nullable.</typeparam>
 /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
 /// <param name="comparer">
-/// An optional equality comparer for keys. If <see langword="null"/>,
-/// <see cref="EqualityComparer{T}.Default"/> is used.
+///     An optional equality comparer for keys. If <see langword="null" />,
+///     <see cref="EqualityComparer{T}.Default" /> is used.
 /// </param>
 public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = null) : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
@@ -46,8 +46,8 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	public ICollection<TValue> Values => _dictionary?.Values ?? [];
 
 	/// <summary>
-	/// Gets or sets the value associated with the specified key.
-	/// Setting a value also completes any pending <see cref="TryGetValueAsync"/> waiters for that key.
+	///     Gets or sets the value associated with the specified key.
+	///     Setting a value also completes any pending <see cref="TryGetValueAsync" /> waiters for that key.
 	/// </summary>
 	/// <param name="key">The key of the value to get or set.</param>
 	/// <exception cref="KeyNotFoundException">The key does not exist when getting.</exception>
@@ -70,14 +70,14 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 
 #region Interface IEnumerable<KeyValuePair<TKey,TValue>>
 
-	/// <inheritdoc/>
+	/// <inheritdoc />
 	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>?) _dictionary ?? []).GetEnumerator();
 
 #endregion
 
 #region Interface IReadOnlyCollection<KeyValuePair<TKey,TValue>>
 
-	/// <inheritdoc/>
+	/// <inheritdoc />
 	public int Count => _dictionary?.Count ?? 0;
 
 #endregion
@@ -118,14 +118,14 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Attempts to get the value associated with the specified key.
+	///     Attempts to get the value associated with the specified key.
 	/// </summary>
 	/// <param name="key">The key to locate.</param>
 	/// <param name="value">
-	/// When this method returns, contains the value associated with <paramref name="key"/>,
-	/// or <see langword="default"/> if the key was not found.
+	///     When this method returns, contains the value associated with <paramref name="key" />,
+	///     or <see langword="default" /> if the key was not found.
 	/// </param>
-	/// <returns><see langword="true"/> if the key was found; otherwise, <see langword="false"/>.</returns>
+	/// <returns><see langword="true" /> if the key was found; otherwise, <see langword="false" />.</returns>
 	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		if (_dictionary is { } dictionary && dictionary.TryGetValue(key, out value))
@@ -139,12 +139,12 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Attempts to add the specified key and value to the dictionary.
-	/// If the key is added, any pending <see cref="TryGetValueAsync"/> waiters for that key are completed.
+	///     Attempts to add the specified key and value to the dictionary.
+	///     If the key is added, any pending <see cref="TryGetValueAsync" /> waiters for that key are completed.
 	/// </summary>
 	/// <param name="key">The key to add.</param>
 	/// <param name="value">The value to add.</param>
-	/// <returns><see langword="true"/> if the key/value pair was added; <see langword="false"/> if the key already exists.</returns>
+	/// <returns><see langword="true" /> if the key/value pair was added; <see langword="false" /> if the key already exists.</returns>
 	public bool TryAdd(TKey key, TValue value)
 	{
 		var tryAdd = GetDictionary().TryAdd(key, value);
@@ -158,14 +158,14 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Attempts to remove the value with the specified key from the dictionary.
-	/// Completes any pending <see cref="TryGetValueAsync"/> waiters for that key with <c>Found = false</c>.
+	///     Attempts to remove the value with the specified key from the dictionary.
+	///     Completes any pending <see cref="TryGetValueAsync" /> waiters for that key with <c>Found = false</c>.
 	/// </summary>
 	/// <param name="key">The key to remove.</param>
 	/// <param name="value">
-	/// When this method returns, contains the removed value, or <see langword="default"/> if not found.
+	///     When this method returns, contains the removed value, or <see langword="default" /> if not found.
 	/// </param>
-	/// <returns><see langword="true"/> if the key was found and removed; otherwise, <see langword="false"/>.</returns>
+	/// <returns><see langword="true" /> if the key was found and removed; otherwise, <see langword="false" />.</returns>
 	public bool TryRemove(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		value = default;
@@ -178,12 +178,12 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Attempts to remove a specific key/value pair from the dictionary.
-	/// Completes any pending <see cref="TryGetValueAsync"/> waiters for that key with <c>Found = false</c>.
+	///     Attempts to remove a specific key/value pair from the dictionary.
+	///     Completes any pending <see cref="TryGetValueAsync" /> waiters for that key with <c>Found = false</c>.
 	/// </summary>
 	/// <param name="key">The key to remove.</param>
 	/// <param name="value">The value that must match the current value for the key.</param>
-	/// <returns><see langword="true"/> if the exact key/value pair was removed; otherwise, <see langword="false"/>.</returns>
+	/// <returns><see langword="true" /> if the exact key/value pair was removed; otherwise, <see langword="false" />.</returns>
 	public bool TryRemovePair(TKey key, TValue value)
 	{
 		var tryRemove = _dictionary?.TryRemove(new KeyValuePair<TKey, TValue>(key, value)) ?? false;
@@ -197,12 +197,18 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Attempts to remove and return an arbitrary key/value pair from the dictionary.
-	/// Completes any pending <see cref="TryGetValueAsync"/> waiters for the removed key with <c>Found = false</c>.
+	///     Attempts to remove and return an arbitrary key/value pair from the dictionary.
+	///     Completes any pending <see cref="TryGetValueAsync" /> waiters for the removed key with <c>Found = false</c>.
 	/// </summary>
-	/// <param name="key">When this method returns, contains the removed key, or <see langword="default"/> if the dictionary was empty.</param>
-	/// <param name="value">When this method returns, contains the removed value, or <see langword="default"/> if the dictionary was empty.</param>
-	/// <returns><see langword="true"/> if a pair was removed; otherwise, <see langword="false"/>.</returns>
+	/// <param name="key">
+	///     When this method returns, contains the removed key, or <see langword="default" /> if the dictionary
+	///     was empty.
+	/// </param>
+	/// <param name="value">
+	///     When this method returns, contains the removed value, or <see langword="default" /> if the
+	///     dictionary was empty.
+	/// </param>
+	/// <returns><see langword="true" /> if a pair was removed; otherwise, <see langword="false" />.</returns>
 	public bool TryTake([MaybeNullWhen(false)] out TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		if (_dictionary is { } dictionary)
@@ -227,13 +233,13 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Updates the value of an existing key if the current value equals <paramref name="comparisonValue"/>.
-	/// Completes any pending <see cref="TryGetValueAsync"/> waiters for that key with the new value.
+	///     Updates the value of an existing key if the current value equals <paramref name="comparisonValue" />.
+	///     Completes any pending <see cref="TryGetValueAsync" /> waiters for that key with the new value.
 	/// </summary>
 	/// <param name="key">The key whose value to update.</param>
 	/// <param name="newValue">The replacement value.</param>
 	/// <param name="comparisonValue">The value that must match the current value for the update to succeed.</param>
-	/// <returns><see langword="true"/> if the value was updated; otherwise, <see langword="false"/>.</returns>
+	/// <returns><see langword="true" /> if the value was updated; otherwise, <see langword="false" />.</returns>
 	public bool TryUpdate(TKey key, TValue newValue, TValue comparisonValue)
 	{
 		var tryUpdate = _dictionary?.TryUpdate(key, newValue, comparisonValue) ?? false;
@@ -247,15 +253,15 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Asynchronously attempts to get the value associated with the specified key.
-	/// If a pending entry was registered via <see cref="TryAddPending"/>, this method
-	/// awaits until the key is added or removed.
-	/// Returns immediately if the key exists or no pending entry is registered.
+	///     Asynchronously attempts to get the value associated with the specified key.
+	///     If a pending entry was registered via <see cref="TryAddPending" />, this method
+	///     wait until the key is added or removed.
+	///     Returns immediately if the key exists or no pending entry is registered.
 	/// </summary>
 	/// <param name="key">The key to locate.</param>
 	/// <returns>
-	/// A <see cref="ValueTask{T}"/> that resolves to a tuple where
-	/// <c>Found</c> indicates whether the key was found, and <c>Value</c> is the associated value.
+	///     A <see cref="ValueTask{T}" /> that resolves to a tuple where
+	///     <c>Found</c> indicates whether the key was found, and <c>Value</c> is the associated value.
 	/// </returns>
 	public ValueTask<(bool Found, TValue Value)> TryGetValueAsync(TKey key)
 	{
@@ -288,24 +294,27 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Registers a pending entry for the specified key, enabling <see cref="TryGetValueAsync"/>
-	/// to await until a value is added or removed for that key.
+	///     Registers a pending entry for the specified key, enabling <see cref="TryGetValueAsync" />
+	///     to wait until a value is added or removed for that key.
 	/// </summary>
 	/// <param name="key">The key to register as pending.</param>
 	/// <returns>
-	/// <see langword="true"/> if the pending entry was added;
-	/// <see langword="false"/> if a pending entry for the key already exists.
+	///     <see langword="true" /> if the pending entry was added;
+	///     <see langword="false" /> if a pending entry for the key already exists.
 	/// </returns>
 	public bool TryAddPending(TKey key) => GetTcsDictionary().TryAdd(key, value: null);
 
 	/// <summary>
-	/// Gets the value for the specified key, or adds a new value produced by <paramref name="valueFactory"/>
-	/// if the key does not exist.
+	///     Gets the value for the specified key, or adds a new value produced by <paramref name="valueFactory" />
+	///     if the key does not exist.
 	/// </summary>
-	/// <typeparam name="TArg">The type of the argument passed to <paramref name="valueFactory"/>.</typeparam>
+	/// <typeparam name="TArg">The type of the argument passed to <paramref name="valueFactory" />.</typeparam>
 	/// <param name="key">The key to locate or add.</param>
-	/// <param name="valueFactory">A factory invoked with the key and <paramref name="factoryArgument"/> to produce the value to add.</param>
-	/// <param name="factoryArgument">An argument passed to <paramref name="valueFactory"/>.</param>
+	/// <param name="valueFactory">
+	///     A factory invoked with the key and <paramref name="factoryArgument" /> to produce the value
+	///     to add.
+	/// </param>
+	/// <param name="factoryArgument">An argument passed to <paramref name="valueFactory" />.</param>
 	/// <returns>The existing or newly added value.</returns>
 	public TValue GetOrAdd<TArg>(TKey key,
 								 Func<TKey, TArg, TValue> valueFactory,
@@ -328,8 +337,8 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Adds a new entry or updates an existing one using the provided factory delegates.
-	/// Completes any pending <see cref="TryGetValueAsync"/> waiters for that key.
+	///     Adds a new entry or updates an existing one using the provided factory delegates.
+	///     Completes any pending <see cref="TryGetValueAsync" /> waiters for that key.
 	/// </summary>
 	/// <typeparam name="TArg">The type of the argument passed to the factory delegates.</typeparam>
 	/// <param name="key">The key to add or update.</param>
@@ -350,22 +359,22 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 	}
 
 	/// <summary>
-	/// Updates an existing entry or removes it based on a predicate.
-	/// If <paramref name="isDeletePredicate"/> returns <see langword="true"/>, the entry is removed;
-	/// otherwise, the value is replaced with the result of <paramref name="updateValueFactory"/>.
+	///     Updates an existing entry or removes it based on a predicate.
+	///     If <paramref name="isDeletePredicate" /> returns <see langword="true" />, the entry is removed;
+	///     otherwise, the value is replaced with the result of <paramref name="updateValueFactory" />.
 	/// </summary>
 	/// <typeparam name="TArg">The type of the argument passed to the delegates.</typeparam>
 	/// <param name="key">The key to update or remove.</param>
 	/// <param name="isDeletePredicate">
-	/// A predicate that determines whether the entry should be removed.
-	/// Receives the key, current value, and <paramref name="factoryArgument"/>.
+	///     A predicate that determines whether the entry should be removed.
+	///     Receives the key, current value, and <paramref name="factoryArgument" />.
 	/// </param>
 	/// <param name="updateValueFactory">
-	/// A factory that produces the updated value when the entry is not removed.
-	/// Receives the key, current value, and <paramref name="factoryArgument"/>.
+	///     A factory that produces the updated value when the entry is not removed.
+	///     Receives the key, current value, and <paramref name="factoryArgument" />.
 	/// </param>
 	/// <param name="factoryArgument">An argument passed to both delegates.</param>
-	/// <returns>The updated value, or <see langword="default"/> if the entry was removed or not found.</returns>
+	/// <returns>The updated value, or <see langword="default" /> if the entry was removed or not found.</returns>
 	public TValue UpdateOrRemove<TArg>(TKey key,
 									   Func<TKey, TValue, TArg, bool> isDeletePredicate,
 									   Func<TKey, TValue, TArg, TValue> updateValueFactory,

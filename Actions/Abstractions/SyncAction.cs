@@ -23,9 +23,9 @@ namespace Xtate.Actions;
 
 public abstract class SyncAction : ActionBase, IAction
 {
-	private Value[] Values => field ??= GetValues().ToArray();
+	private Value[] Values => field ??= [.. GetValues()];
 
-	private Location[] Locations => field ??= GetLocations().ToArray();
+	private Location[] Locations => field ??= [.. GetLocations()];
 
 #region Interface IAction
 

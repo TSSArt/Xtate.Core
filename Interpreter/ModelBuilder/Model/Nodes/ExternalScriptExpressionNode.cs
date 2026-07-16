@@ -27,14 +27,14 @@ public class ExternalScriptExpressionNode : IExternalScriptExpression, IExternal
 {
 	private readonly IExternalScriptExpression _externalScriptExpression;
 
-	protected string? Content { get; private set; }
-
 	public ExternalScriptExpressionNode(IExternalScriptExpression externalScriptExpression)
 	{
 		Infra.NotNull(externalScriptExpression.Uri);
 
 		_externalScriptExpression = externalScriptExpression;
 	}
+
+	protected string? Content { get; private set; }
 
 #region Interface IAncestorProvider
 
@@ -61,5 +61,4 @@ public class ExternalScriptExpressionNode : IExternalScriptExpression, IExternal
 	public Uri Uri => _externalScriptExpression.Uri!;
 
 #endregion
-
 }
