@@ -23,13 +23,7 @@ namespace Xtate.StateMachineOptions;
 [InstantiatedByIoC]
 public class StateMachineOptions
 {
-	public string? Name { get; set; }
-
 	public PersistenceLevel PersistenceLevel { get; set; } = PersistenceLevel.None;
-
-	public bool? SynchronousEventProcessing { get; set; }
-
-	public int? ExternalQueueSize { get; set; }
 
 	public UnhandledErrorBehaviour UnhandledErrorBehaviour { get; set; } = UnhandledErrorBehaviour.DestroyStateMachine;
 

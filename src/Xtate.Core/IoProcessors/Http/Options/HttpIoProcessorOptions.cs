@@ -60,7 +60,7 @@ public class HttpIoProcessorOptions
 		{
 			if (value < System.Threading.Timeout.InfiniteTimeSpan)
 			{
-				throw new ArgumentException($"'{value}' is not a valid timeout value.", nameof(value));
+				throw new ArgumentException(Res.Format(Resources.Exception_IsNotValidTimeoutValue, value), nameof(value));
 			}
 
 			field = value;

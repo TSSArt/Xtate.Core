@@ -235,7 +235,7 @@
     <value>Send can't be used in Finalize element.</value>
   </data>
   <data name="ErrorMessage_ArrayPropertyRequiredForForEach" xml:space="preserve">
-    <value>Array property required for ForEach element</value>
+    <value>Array property required for ForEach element.</value>
   </data>
   <data name="ErrorMessage_ConditionRequiredForForEach" xml:space="preserve">
     <value>Condition property required for ForEach element.</value>
@@ -475,8 +475,7 @@
     <value>Missed SessionId.</value>
   </data>
   <data name="Exception_UnexpectedTypeInfoValue" xml:space="preserve">
-    <value>Unexpected TypeInfo value.
-</value>
+    <value>Unexpected TypeInfo value.</value>
   </data>
   <data name="Exception_UnknownConditionType" xml:space="preserve">
     <value>Unknown Condition type.</value>
@@ -488,7 +487,7 @@
     <value>Unknown State Entity type.</value>
   </data>
   <data name="Exception_StorageNotAvailableForReadOperations" xml:space="preserve">
-    <value>Storage not available for read operations</value>
+    <value>Storage not available for read operations.</value>
   </data>
   <data name="Exception_IncorrectEncoding" xml:space="preserve">
     <value>Incorrect encoding.</value>
@@ -618,7 +617,7 @@
     <value>[url] has invalid URI format.</value>
   </data>
   <data name="ErrorMessage_AtLeastOneUrlMustBeSpecified" xml:space="preserve">
-    <value>At least one attribute url or urlExpr must be specified</value>
+    <value>At least one attribute url or urlExpr must be specified.</value>
   </data>
   <data name="Exception_StartActionExecuteSourceNotSpecified" xml:space="preserve">
     <value>Source not specified.</value>
@@ -798,7 +797,7 @@
     <value>Data format not supported.</value>
   </data>
   <data name="Exception_TargetIsNotDefined" xml:space="preserve">
-    <value>Target is not defined</value>
+    <value>Target is not defined.</value>
   </data>
   <data name="Exception_FoundMoreThanOneInterfaceToListen" xml:space="preserve">
     <value>Found more than one interface to listen.</value>
@@ -807,7 +806,7 @@
     <value>Can't match network interface to listen.</value>
   </data>
   <data name="Exception_KeyShouldNotBeEmpty" xml:space="preserve">
-    <value>Key should not be empty</value>
+    <value>Key should not be empty.</value>
   </data>
   <data name="Exception_OriginTypeMustBeProvidedInRouterEvent" xml:space="preserve">
     <value>OriginType must be provided in RouterEvent.</value>
@@ -849,70 +848,70 @@
     <value>Can't find State Machine provider.</value>
   </data>
   <data name="Exception_ObjectDisposedDuringInitialization" xml:space="preserve">
-	  <value>Object disposed during initialization.</value>
+    <value>Object disposed during initialization.</value>
   </data>
   <data name="ErrorMessage_Not_initialized" xml:space="preserve">
-	  <value>Not initialized.</value>
+    <value>Not initialized.</value>
   </data>
   <data name="Exception_FactoryOfRaisedException" xml:space="preserve">
-	  <value>Factory of [{0}] raised exception.</value>
+    <value>Factory of [{0}] raised exception.</value>
   </data>
   <data name="Exception_CantFindFactoryForType" xml:space="preserve">
-	  <value>Can't find factory for type [{0}].</value>
+    <value>Can't find factory for type [{0}].</value>
   </data>
   <data name="Exception_StateMachineInterpreterHasBeenDisposed" xml:space="preserve">
-	  <value>StateMachine interpreter has been disposed.</value>
+    <value>StateMachine interpreter has been disposed.</value>
   </data>
   <data name="Exception_LivelockDetected" xml:space="preserve">
-	  <value>Live lock detected.</value>
+    <value>Live lock detected.</value>
   </data>
   <data name="Exception_TransitionNodeWithDocumentIdNotFound" xml:space="preserve">
-	  <value>TransitionNode with DocumentId: {0} not found.</value>
+    <value>TransitionNode with DocumentId: {0} not found.</value>
   </data>
   <data name="Exception_TypeCantBeCastedTo" xml:space="preserve">
-	  <value>Type {0} can't be cast to {1}.</value>
+    <value>Type {0} can't be cast to {1}.</value>
   </data>
   <data name="Exception_TypeShouldBeGenericTypeDefinition" xml:space="preserve">
-	  <value>Type should be GenericTypeDefinition.</value>
+    <value>Type should be GenericTypeDefinition.</value>
   </data>
   <data name="Exception_GenericTypeCantBeConstructedFromInterface" xml:space="preserve">
-	  <value>Generic type {0} can't be constructed from interface {1}.</value>
+    <value>Generic type {0} can't be constructed from interface {1}.</value>
   </data>
   <data name="Exception_TypeCantBeConstructedBasedOnServiceType" xml:space="preserve">
-	  <value>Type {0} can't be constructed based on service type {1}.</value>
+    <value>Type {0} can't be constructed based on service type {1}.</value>
   </data>
   <data name="Exception_AssertUnmatched" xml:space="preserve">
-	  <value>Unmatched value ({0}:{1}).</value>
+    <value>Unmatched value ({0}:{1}).</value>
   </data>
   <data name="Exception_AssertUnmatchedMessage" xml:space="preserve">
-	  <value>{0} ({1}:{2}).</value>
+    <value>{0} ({1}:{2}).</value>
   </data>
   <data name="Exception_TypeDoesNotContainMethodWithSignatureMethodCancellationToken" xml:space="preserve">
-	  <value>Type {0} does not contain method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter.</value>
+    <value>Type {0} does not contain method (or ambiguity) with return type: (ValueTask&lt;{1}&gt; or {1}) and empty or single CancellationToken input parameter.</value>
   </data>
   <data name="Exception_TypeUsedInSynchronousInstantiation" xml:space="preserve">
-	  <value>Type {0} used in synchronous instantiation and can't implement IAsyncInitialization interface.</value>
+    <value>Type {0} used in synchronous instantiation and can't implement IAsyncInitialization interface.</value>
   </data>
   <data name="Exception_SingletonScopedTypesDoesNotSupportedForSynchronousInstantiation" xml:space="preserve">
-	  <value>Singleton/scoped types does not supported for synchronous instantiation.</value>
+    <value>Singleton/scoped types does not supported for synchronous instantiation.</value>
   </data>
   <data name="Exception_CantCastForwardDelegate" xml:space="preserve">
-	  <value>Can't cast/forward delegate {0} to {1}.</value>
+    <value>Can't cast/forward delegate {0} to {1}.</value>
   </data>
   <data name="Exception_ServiceTypeNotInitialized" xml:space="preserve">
-	  <value>ServiceType not initialized.</value>
+    <value>ServiceType not initialized.</value>
   </data>
   <data name="Exception_PartiallyClosedTypeNotSupported" xml:space="preserve">
-	  <value>Partially closed type not supported.</value>
+    <value>Partially closed type not supported.</value>
   </data>
   <data name="Exception_ServiceNotAvailableInSynchronousContext" xml:space="preserve">
-	  <value>Service not available in synchronous context.</value>
+    <value>Service not available in synchronous context.</value>
   </data>
   <data name="Exception_ServiceCantBeInstantiatedSinceAtLeastOneParameterRequiredAsynchronousCall" xml:space="preserve">
-	  <value>Service can't be instantiated since at least one parameter required asynchronous call.</value>
+    <value>Service can't be instantiated since at least one parameter required asynchronous call.</value>
   </data>
   <data name="Message_UnknownDataModel" xml:space="preserve">
-	  <value>Unknown Data Model.</value>
+    <value>Unknown Data Model.</value>
   </data>
   <data name="Exception_ValidRangeIsMinMax" xml:space="preserve">
     <value>Valid range is [{0}..{1}].</value>
@@ -929,96 +928,153 @@ Exception: {3}</value>
     <value>More than one CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.</value>
   </data>
   <data name="Exception_ThereIsNoAnyCustomActionProviderRegisteredForProcessingCustomActionNode" xml:space="preserve">
-    <value>There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;</value>
+    <value>There is no any CustomActionProvider registered for processing custom action node: &lt;{0}:{1}&gt;.</value>
   </data>
   <data name="Exception_Unrecognized_MediaType" xml:space="preserve">
-	  <value>Unrecognized MediaType: {0}.</value>
+    <value>Unrecognized MediaType: {0}.</value>
   </data>
   <data name="Exception_CantFindEntityParser" xml:space="preserve">
-	  <value>Can't find entity parser for type {0}.</value>
+    <value>Can't find entity parser for type {0}.</value>
   </data>
   <data name="Exception_PropertyAvailableInEvaluateMethod" xml:space="preserve">
-	  <value>Property available in Evaluate() method.</value>
+    <value>Property available in Evaluate() method.</value>
   </data>
   <data name="Exception_IncorrectSecurityContext" xml:space="preserve">
-	  <value>Incorrect security context</value>
+    <value>Incorrect security context.</value>
   </data>
   <data name="Exception_InstanceIsNotShared" xml:space="preserve">
-	  <value>Instance of {0} is not shared.</value>
+    <value>Instance of {0} is not shared.</value>
   </data>
   <data name="Exception_InstanceIsNotCreated" xml:space="preserve">
-	  <value>Shared instance of {0} is not created.</value>
+    <value>Shared instance of {0} is not created.</value>
   </data>
   <data name="Exception_SharedInstanceAlreadyAssigned" xml:space="preserve">
-	  <value>Shared instance already assigned for type {0}.</value>
+    <value>Shared instance already assigned for type {0}.</value>
   </data>
   <data name="Exception_MoreThanOneServiceFactoryRegisteredForPprocessingInvokeType" xml:space="preserve">
-	  <value>More than one Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
+    <value>More than one Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
   </data>
   <data name="Exception_ThereIsNoAnyServiceFactoryRegisteredForPprocessingInvokeType" xml:space="preserve">
-	  <value>There is no any Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
+    <value>There is no any Service Factory registered for processing invoke type: &lt;{0}&gt;.</value>
   </data>
   <data name="Exception_FailedToParseContentBody" xml:space="preserve">
-	  <value>Failed to parse content body.</value>
+    <value>Failed to parse content body.</value>
   </data>
   <data name="Exception_FailedToParseInlineContent" xml:space="preserve">
-	  <value>Failed to parse inline content.</value>
+    <value>Failed to parse inline content.</value>
   </data>
   <data name="Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId" xml:space="preserve">
-	  <value>More than one external services executing with same InvokeId.</value>
+    <value>More than one external services executing with same InvokeId.</value>
   </data>
   <data name="Exception_MoreThanOneStateMachineWithSameSessionId" xml:space="preserve">
-	  <value>More than one state machine with same SessionId.</value>
+    <value>More than one state machine with same SessionId.</value>
   </data>
   <data name="Exception_ExternalServiceWithSameInvokeIdAlreadyRegistered" xml:space="preserve">
-	  <value>External Service with same InvokeId already registered.</value>
+    <value>External Service with same InvokeId already registered.</value>
   </data>
   <data name="Exception_ExternalServiceWithProvidedInvokeIdDoesNotExist" xml:space="preserve">
-	  <value>External Service with provided InvokeId does not exist.</value>
+    <value>External Service with provided InvokeId does not exist.</value>
   </data>
   <data name="Exception_NotSupportedEvent" xml:space="preserve">
-	  <value>Not supported event. Type: [{0}]. Target: [{1}].</value>
+    <value>Not supported event. Type: [{0}]. Target: [{1}].</value>
   </data>
   <data name="Exception_EventsForExternalServicesCantBeDelayed" xml:space="preserve">
-	  <value>Events for external services can't be delayed</value>
+    <value>Events for external services can't be delayed.</value>
   </data>
   <data name="Exception_EventsFromExternalServicesCantBeDelayed" xml:space="preserve">
-	  <value>Events from external services can't be delayed</value>
+    <value>Events from external services can't be delayed.</value>
   </data>
   <data name="Message_TaskWasCanceled" xml:space="preserve">
-	  <value>Task was canceled.</value>
+    <value>Task was canceled.</value>
   </data>
   <data name="Message_TaskFailed" xml:space="preserve">
-	  <value>Task failed.</value>
+    <value>Task failed.</value>
   </data>
   <data name="Exception_SendIdDoesNotSpecify" xml:space="preserve">
-	  <value>SendId does not specify.</value>
+    <value>SendId does not specify.</value>
   </data>
   <data name="Exception_TargetValueIsMissed" xml:space="preserve">
-	  <value>Target value is missed</value>
+    <value>Target value is missed.</value>
   </data>
   <data name="Exception_InvalidTargetFormat" xml:space="preserve">
-	  <value>Invalid Target format.</value>
+    <value>Invalid Target format.</value>
   </data>
   <data name="Exception_InvalidTimestampActualExpected" xml:space="preserve">
-	  <value>Invalid timestamp. Actual is {0}. Expected is {1}.</value>
+    <value>Invalid timestamp. Actual is {0}. Expected is {1}.</value>
   </data>
   <data name="Message_AnErrorOccurredInTheBackgroundProcess" xml:space="preserve">
-	  <value>An error occurred in the background process.</value>
+    <value>An error occurred in the background process.</value>
   </data>
   <data name="Exception_TheStreamIsCurrentlyBeingReadFromOrWrittenTo" xml:space="preserve">
-	  <value>The stream '{0}' is currently being read from or written to.</value>
+    <value>The stream '{0}' is currently being read from or written to.</value>
   </data>
   <data name="Exception_TheStreamIsCurrentlyBeingWrittenTo" xml:space="preserve">
-	  <value>The stream '{0}' is currently being written to.</value>
+    <value>The stream '{0}' is currently being written to.</value>
   </data>
   <data name="Exception_ThisCollectionIsReadOnlyAndCannotBeModified" xml:space="preserve">
-	  <value>This collection is read-only and cannot be modified.</value>
+    <value>This collection is read-only and cannot be modified.</value>
   </data>
   <data name="Exception_ValueMustBeBetween0and60Seconds" xml:space="preserve">
-	  <value>Value must be between 0 and 60 seconds.</value>
+    <value>Value must be between 0 and 60 seconds.</value>
   </data>
   <data name="Exception_NamedPipeIoProcessorMessageSizeExceedsLimit" xml:space="preserve">
-	  <value>Message size {0} exceeds the maximum allowed size of {1}</value>
+    <value>Message size {0} exceeds the maximum allowed size of {1}</value>
+  </data>
+  <data name="Exception_IsNotValidHostName" xml:space="preserve">
+    <value>'{0}' is not a valid host name.</value>
+  </data>
+  <data name="Exception_IsNotValidNameItShouldContainOnlyAlphanumericCharacters" xml:space="preserve">
+    <value>'{0}' is not a valid name. It should contain only alphanumeric characters.</value>
+  </data>
+  <data name="Exception_TheUriMustBeAbsolute" xml:space="preserve">
+    <value>The URI must be absolute.</value>
+  </data>
+  <data name="Exception_DataModelListSupportsExactlyOneIndexArgumentStringOrNumeric" xml:space="preserve">
+    <value>DataModelList supports exactly one index argument string or numeric.</value>
+  </data>
+  <data name="Exception_TheMethodDoesNotExist" xml:space="preserve">
+    <value>The method does not exist.</value>
+  </data>
+  <data name="Exception_ThereIsNoSuitableArgsTransformerAvailable" xml:space="preserve">
+    <value>There is no suitable args transformer available.</value>
+  </data>
+  <data name="Exception_AsyncArgsTransformerIsNotSupportedInSynchronousContext" xml:space="preserve">
+    <value>Async args transformer is not supported in synchronous context.</value>
+  </data>
+  <data name="Exception_PreReadModifiedTheCountFrom0ToANonZeroValue" xml:space="preserve">
+    <value>PreRead modified the count from 0 to a non-zero value.</value>
+  </data>
+  <data name="Exception_PreReadModifiedTheCountToAnInvalidValueValidRangeIs1ToCount" xml:space="preserve">
+    <value>PreRead modified the count to an invalid value: {0}. Valid range is 1 to {1}.</value>
+  </data>
+  <data name="Exception_ReadLimitExceeded" xml:space="preserve">
+    <value>Read limit exceeded: {0} &gt; {1} bytes.</value>
+  </data>
+  <data name="Exception_WriteLimitExceeded" xml:space="preserve">
+    <value>Write limit exceeded: {0} &gt; {1} bytes.</value>
+  </data>
+  <data name="Exception_IsNotValidTimeoutValue" xml:space="preserve">
+    <value>'{0}' is not a valid timeout value.</value>
+  </data>
+  <data name="Exception_ContentLengthExceedsTheMaximumAllowedLength" xml:space="preserve">
+    <value>Content length exceeds the maximum allowed length.</value>
+  </data>
+  <data name="Exception_UnsupportedMediaType" xml:space="preserve">
+    <value>Unsupported media type: {0}</value>
+  </data>
+  <data name="Exception_ProcessingMessagesLargerThan2GBIsNotSupported" xml:space="preserve">
+    <value>Processing messages larger than 2GB is not supported.</value>
+  </data>
+  <data name="Exception_PersistenceLevelShouldNotBeNone" xml:space="preserve">
+    <value>PersistenceLevel should not be None.</value>
+  </data>
+  <data name="Message_ServiceExecutionError" xml:space="preserve">
+    <value>Service Execution error.</value>
+  </data>
+  <data name="Message_ErrorOnSendingErrorToParent" xml:space="preserve">
+    <value>Error on sending error to Parent.</value>
+  </data>
+  <data name="Message_AnErrorOccurredWhileTriggeringTheDestroySignal" xml:space="preserve">
+    <value>An error occurred while triggering the destroy signal.</value>
   </data>
 </root>

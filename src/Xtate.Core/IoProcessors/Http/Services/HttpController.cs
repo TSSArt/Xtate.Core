@@ -20,7 +20,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Text;
-using System.Text.RegularExpressions;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.Http;
@@ -276,7 +275,7 @@ public class HttpController
 
 			Infra.NotNull(request.Url);
 
-			if(TryMatchTarget(request.Url, out var targetServiceId))
+			if (TryMatchTarget(request.Url, out var targetServiceId))
 			{
 				await ExternalEventDispatcher.Dispatch(targetServiceId, eventMessage, token).ConfigureAwait(false);
 
@@ -317,7 +316,7 @@ public class HttpController
 
 		if (contentLength > _options.MaxMessageSize)
 		{
-			throw new HttpRequestProcessException("Content length exceeds the maximum allowed length.") { StatusCode = HttpStatusCode.RequestEntityTooLarge };
+			throw new HttpRequestProcessException(Resources.Exception_ContentLengthExceedsTheMaximumAllowedLength) { StatusCode = HttpStatusCode.RequestEntityTooLarge };
 		}
 
 		var stream = _options.MaxMessageSize > 0 ? new ReadLimitStream(request.InputStream, _options.MaxMessageSize) : request.InputStream;
@@ -378,7 +377,7 @@ public class HttpController
 				}
 
 				default:
-					throw new HttpRequestProcessException($"Unsupported media type: {contentType.MediaType}") { StatusCode = HttpStatusCode.UnsupportedMediaType };
+					throw new HttpRequestProcessException(Res.Format(Resources.Exception_UnsupportedMediaType, contentType.MediaType)) { StatusCode = HttpStatusCode.UnsupportedMediaType };
 			}
 
 			return (eventName ?? request.HttpMethod, data);

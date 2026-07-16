@@ -38,6 +38,7 @@ public class ScxmlReaderStateMachineGetter
 
 	public required IStateMachineValidator StateMachineValidator { private get; [SetByIoC] init; }
 
+	[CalledByIoC]
 	public virtual async ValueTask<IStateMachine> GetStateMachine()
 	{
 		using var xmlReader = CreateXmlReader();

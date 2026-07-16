@@ -386,7 +386,6 @@ public class IoProcessorAndHostCoverageTest
 		var host = new TestHttpIoProcessorHost(Mock.Of<IOptions<HttpIoProcessorOptions>>(o => o.Value == options))
 				   {
 					   HttpController = CreateHttpController(new CapturingHttpMessageHandler()),
-					   ExternalEventDispatcher = Mock.Of<IExternalEventDispatcher<HttpIoProcessorHost>>(),
 					   DisposeTokenBase = new DisposeToken(CancellationToken.None),
 					   TaskMonitorBase = new CapturingTaskMonitor(),
 					   LoggerBase = Mock.Of<ILogger<ResilientIoProcessorHostBase>>()
