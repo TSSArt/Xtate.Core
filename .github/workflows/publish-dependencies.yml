@@ -4,20 +4,23 @@ on:
   registry_package:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   trigger:
     name: Build & Publish - ${{ matrix.repo }}
     strategy:
       matrix:
         repo:
-          - Xtate.DataModel.EcmaScript
-          - Xtate.Logger.Serilog
-          - Xtate.IoProcessor.Http
-          - Xtate.IoProcessor.Http.Kestrel
-          - Xtate.Web.Tools
-          - Xtate.Service.HttpClient
-          - Xtate.Service.SmtpClient
-          - Xtate
+#          - Xtate.DataModel.EcmaScript
+#          - Xtate.Logger.Serilog
+#          - Xtate.IoProcessor.Http
+#          - Xtate.IoProcessor.Http.Kestrel
+#          - Xtate.Web.Tools
+#          - Xtate.Service.HttpClient
+#          - Xtate.Service.SmtpClient
+#          - Xtate
     
     runs-on: ubuntu-latest
   

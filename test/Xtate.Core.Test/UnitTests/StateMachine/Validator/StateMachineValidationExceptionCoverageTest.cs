@@ -47,7 +47,7 @@ public class StateMachineValidationExceptionCoverageTest
 		StringAssert.Contains(exception.Message, substring: "Ln: 3");
 		StringAssert.Contains(exception.Message, substring: "Col: 7");
 		StringAssert.Contains(exception.Message, substring: "single error");
-		StringAssert.Contains(exception.Message, substring: "Exception ==>");
+		StringAssert.Contains(exception.Message, substring: "InvalidOperationException: boom");
 	}
 
 	[TestMethod]
