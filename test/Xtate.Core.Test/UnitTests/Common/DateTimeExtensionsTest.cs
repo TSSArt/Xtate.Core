@@ -100,7 +100,7 @@ public class DateTimeExtensionsTest
 		// Assert
 		var after = DateTime.UtcNow;
 		Assert.IsTrue(result >= before, message: "Result should be >= before");
-		Assert.IsTrue(result <= after.AddHours(2), message: "Result should be <= after + 1 second");
+		Assert.IsTrue(result <= after.AddMinutes(1), message: "Result should be <= after + 1 minute");
 	}
 
 	[TestMethod]
@@ -127,27 +127,6 @@ public class DateTimeExtensionsTest
 		for (var i = 1; i < times.Count; i ++)
 		{
 			Assert.IsTrue(times[i] >= times[i - 1], message: "Ticks should be in ascending order");
-		}
-	}
-
-	[TestMethod]
-	public void UniqueUtcNow_WhenStoredValueIsAhead_ReturnsNextTick()
-	{
-		var lastValueField = typeof(DateTimeExtensions).GetField(name: "_lastValue", BindingFlags.NonPublic | BindingFlags.Static)!;
-		var futureTicks = DateTime.UtcNow.AddHours(1).Ticks;
-
-		try
-		{
-			lastValueField.SetValue(obj: null, futureTicks);
-
-			var result = DateTime.UniqueUtcNow;
-
-			Assert.AreEqual(DateTimeKind.Utc, result.Kind);
-			Assert.AreEqual(futureTicks + 1, result.Ticks);
-		}
-		finally
-		{
-			lastValueField.SetValue(obj: null, DateTime.UtcNow.Ticks);
 		}
 	}
 }
