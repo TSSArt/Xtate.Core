@@ -106,8 +106,8 @@ public class InterpreterModelLeafNodeCoverageTest
 	{
 		var identifier = new Mock<IIdentifier>();
 		var descriptor = new Mock<IEventDescriptor>();
-		identifier.Setup(static value => value.ToString()).Returns((string?) null);
-		descriptor.Setup(static value => value.ToString()).Returns((string?) null);
+		identifier.Setup(static value => value.ToString()).Returns((string) null!);
+		descriptor.Setup(static value => value.ToString()).Returns((string) null!);
 
 		Assert.AreEqual(string.Empty, new IdentifierNode(identifier.Object).ToString());
 		Assert.AreEqual(string.Empty, new EventDescriptorNode(descriptor.Object).ToString());

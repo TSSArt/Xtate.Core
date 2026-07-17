@@ -147,7 +147,7 @@ public class HttpCounterStreamCoverageTest
 
 		Assert.AreEqual(expected: 2, await stream.ReadAsync(buffer, offset: 0, buffer.Length, CancellationToken.None));
 
-		await Assert.ThrowsExactlyAsync<HttpRequestProcessException>([ExcludeFromCodeCoverage] async () => await stream.ReadAsync(buffer, offset: 0, count: 1, CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<HttpRequestProcessException>([ExcludeFromCodeCoverage] async () => _ = await stream.ReadAsync(buffer, offset: 0, count: 1, CancellationToken.None));
 	}
 
 	[TestMethod]
