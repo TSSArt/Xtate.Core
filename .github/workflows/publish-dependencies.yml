@@ -13,14 +13,7 @@ jobs:
     strategy:
       matrix:
         repo:
-#          - Xtate.DataModel.EcmaScript
-#          - Xtate.Logger.Serilog
-#          - Xtate.IoProcessor.Http
-#          - Xtate.IoProcessor.Http.Kestrel
-#          - Xtate.Web.Tools
-#          - Xtate.Service.HttpClient
-#          - Xtate.Service.SmtpClient
-#          - Xtate
+          - Xtate
     
     runs-on: ubuntu-latest
   
