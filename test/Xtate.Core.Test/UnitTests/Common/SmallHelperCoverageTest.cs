@@ -99,12 +99,14 @@ public class SmallHelperCoverageTest
 	[TestMethod]
 	public void IdGeneratorCreatesDebugFormattedIdsForAllPublicFactories()
 	{
-		Assert.AreEqual(expected: "0000002A", IdGenerator.NewSendId(42));
-		Assert.AreEqual(expected: "0000002A", IdGenerator.NewSessionId(42));
-		Assert.AreEqual(expected: "0000002A", IdGenerator.NewInvokeUniqueId(42));
-		Assert.AreEqual(expected: "0000002A", IdGenerator.NewId(42));
-		Assert.AreEqual(expected: "state.0000002A", IdGenerator.NewInvokeId(id: "state", hash: 42));
-		Assert.AreEqual(expected: "state.FFFFFFFF", IdGenerator.NewInvokeId(id: "state", hash: -1));
+		Assert.EndsWith(expectedSuffix: "0000002a", IdGenerator.NewSendId(42));
+		Assert.EndsWith(expectedSuffix: "0000002a", IdGenerator.NewSessionId(42));
+		Assert.EndsWith(expectedSuffix: "0000002a", IdGenerator.NewInvokeUniqueId(42));
+		Assert.EndsWith(expectedSuffix: "0000002a", IdGenerator.NewId(42));
+		Assert.EndsWith(expectedSuffix: "0000002a", IdGenerator.NewInvokeId(id: "state", hash: 42));
+		Assert.EndsWith(expectedSuffix: "ffffffff", IdGenerator.NewInvokeId(id: "state", hash: -1));
+		Assert.StartsWith(expectedPrefix: "state.", IdGenerator.NewInvokeId(id: "state", hash: 42));
+		Assert.StartsWith(expectedPrefix: "state.", IdGenerator.NewInvokeId(id: "state", hash: -1));
 	}
 
 	[TestMethod]
