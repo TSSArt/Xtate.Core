@@ -15,10 +15,10 @@ env:
 concurrency:
   group: Publish
   cancel-in-progress: true
-  
+
 jobs:
-  publish:
-    name: Build & Publish
+  pack:
+    name: Build, Test, Pack on Ubuntu
     runs-on: ubuntu-latest
 
     steps:
@@ -33,10 +33,6 @@ jobs:
         source-url: https://nuget.pkg.github.com/TSSArt/index.json
       env:
         NUGET_AUTH_TOKEN: ${{ secrets.XTATE_GITHUB_TOKEN }}
-    - name: Install Mono
-      run: |
-        sudo apt update
-        sudo apt install -y mono-complete
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v4.5.0
       with:
@@ -47,10 +43,56 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration ${{ env.Configuration }} --no-restore -p:Version=${{ env.fullSemVer }}
-    - name: Test
-      run: dotnet test --configuration ${{ env.Configuration }} --no-restore --no-build
+    - name: Test .NET 8.0
+      run: dotnet test --framework net8.0 --configuration ${{ env.Configuration }} --no-restore --no-build
+    - name: Test .NET 9.0
+      run: dotnet test --framework net9.0 --configuration ${{ env.Configuration }} --no-restore --no-build
+    - name: Test .NET 10.0
+      run: dotnet test --framework net10.0 --configuration ${{ env.Configuration }} --no-restore --no-build
+    - name: Test .NET 11.0
+      run: dotnet test --framework net11.0 --configuration ${{ env.Configuration }} --no-restore --no-build
     - name: Pack
       run: dotnet pack --configuration ${{ env.Configuration }} --no-restore --no-build -p:PackageVersion=${{ env.fullSemVer }} --include-symbols -p:SymbolPackageFormat=snupkg -o bin/packages
+    - name: Upload Packages
+      uses: actions/upload-artifact@v7
+      with:
+        name: packages
+        path: |
+          bin/packages/*.nupkg
+          bin/packages/*.snupkg
+
+  test-windows:
+    name: Build, Test on Windows
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '11.0.x'
+        source-url: https://nuget.pkg.github.com/TSSArt/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.XTATE_GITHUB_TOKEN }}
+    - name: Test
+      run: dotnet test --configuration ${{ env.Configuration }}
+
+  publish:
+    name: Publish Packages
+    needs:
+      - pack
+      - test-windows
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v5
+    - name: Download Packages
+      uses: actions/download-artifact@v8
+      with:
+        name: packages
+        path: bin/packages
     - name: Publish to NuGet.org
       run: dotnet nuget push bin/packages/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_ORG_TOKEN }}
     - name: Publish to GitHub
