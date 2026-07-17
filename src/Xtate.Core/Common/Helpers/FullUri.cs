@@ -69,7 +69,7 @@ public class FullUri : Uri, IEquatable<FullUri>
 	/// <returns><c>true</c> if the specified object is equal to the current <see cref="FullUri" />; otherwise, <c>false</c>.</returns>
 	public override bool Equals(object? obj) => obj is FullUri fullUri && Equals(fullUri);
 
-#if NET8_0_OR_GREATER
+#if NET9_0_OR_GREATER
 
 	public new bool Equals(Uri? uri) => Equals((object?) uri);
 

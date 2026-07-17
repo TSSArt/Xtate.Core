@@ -109,7 +109,7 @@ public class ResourceCoverageTest
 
 		var externallyCanceledStream = new InjectedCancellationStream(new TokenObservingStream([1]), externalCancellation.Token);
 
-		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await externallyCanceledStream.ReadAsync(
+		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => _= await externallyCanceledStream.ReadAsync(
 																   new byte[1], offset: 0, count: 1, CancellationToken.None));
 
 		using var perCallCancellation = new CancellationTokenSource();
