@@ -33,9 +33,9 @@ internal static class IdGenerator
 	public static string NewId(int hash) => NewGuidWithHash(hash);
 
 #if DEBUG
-	public static string NewInvokeId([Localizable(false)] string id, int hash) => id + @"." + hash.ToString(@"X8");
+	public static string NewInvokeId([Localizable(false)] string id, int hash) => id + @"." + hash.ToString(@"x8");
 
-	private static string NewGuidWithHash(int hash) => hash.ToString(@"X8");
+	private static string NewGuidWithHash(int hash) => hash.ToString(@"x8");
 
 #elif NET6_0_OR_GREATER
 	public static string NewInvokeId([Localizable(false)] string id, int hash) =>
