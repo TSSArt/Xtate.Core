@@ -46,13 +46,13 @@ public partial class DataModelList : ISpanFormattable
 	{
 		if (_count == 0)
 		{
-			return @"()";
+			return @"{}";
 		}
 
 		var sb = new StringBuilder();
 		var addDelimiter = false;
 
-		sb.Append('(');
+		sb.Append('{');
 
 		foreach (var keyValue in KeyValues)
 		{
@@ -68,7 +68,7 @@ public partial class DataModelList : ISpanFormattable
 			sb.Append(keyValue.Key).Append('=').Append(keyValue.Value.ToString(format: null, formatProvider));
 		}
 
-		sb.Append(')');
+		sb.Append('}');
 
 		return sb.ToString();
 	}
