@@ -226,9 +226,10 @@ public class SmtpClientServiceCoverageTest
 			var message = new StringBuilder();
 			string? userName = null;
 			string? password = null;
+			var messageAccepted = false;
 			await writer.WriteLineAsync("220 localhost ESMTP coverage").ConfigureAwait(false);
 
-			while (await reader.ReadLineAsync().ConfigureAwait(false) is { } command)
+			while (await ReadCommandAsync().ConfigureAwait(false) is { } command)
 			{
 				commands.Add(command);
 
@@ -272,6 +273,7 @@ public class SmtpClientServiceCoverageTest
 					}
 
 					await writer.WriteLineAsync("250 2.0.0 queued").ConfigureAwait(false);
+					messageAccepted = true;
 				}
 				else if (command.Equals(value: "QUIT", StringComparison.OrdinalIgnoreCase))
 				{
@@ -286,6 +288,24 @@ public class SmtpClientServiceCoverageTest
 			}
 
 			return new SmtpSession(commands, message.ToString(), userName, password);
+
+			async Task<string?> ReadCommandAsync()
+			{
+				try
+				{
+					return await reader.ReadLineAsync().ConfigureAwait(false);
+				}
+				catch (IOException exception) when (messageAccepted &&
+													exception.InnerException is SocketException
+													{
+														SocketErrorCode: SocketError.ConnectionAborted or SocketError.ConnectionReset
+													})
+				{
+					// .NET Framework can abort the connection instead of sending QUIT after the message is accepted.
+
+					return null;
+				}
+			}
 		}
 
 		private static string DecodeBase64(string value) => Encoding.UTF8.GetString(Convert.FromBase64String(value));
