@@ -125,7 +125,7 @@ public class StateMachinePersistingInterpreterTest
 						   };
 
 		var destroyOnIdleTimeoutMock = new Mock<IDestroyOnIdleTimeout>();
-		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(10000));
+		destroyOnIdleTimeoutMock.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(20000));
 
 		var persistenceOptionsMock = new Mock<IPersistenceOptions>();
 		persistenceOptionsMock.Setup(x => x.PersistenceLevel).Returns(PersistenceLevel.StableState);

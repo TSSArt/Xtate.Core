@@ -26,7 +26,11 @@ public class ConsoleLogProvider<TSource>() : TraceLogProvider<TSource>([ConsoleT
 	{
 		public static readonly ConsoleTraceListener Instance = new();
 
-		private ConsoleTraceListener() => Writer = Console.Out;
+		private ConsoleTraceListener()
+		{
+			Writer = Console.Out;
+			TraceOutputOptions |= TraceOptions.DateTime;
+		}
 
 		protected override void Dispose(bool disposing)
 		{
