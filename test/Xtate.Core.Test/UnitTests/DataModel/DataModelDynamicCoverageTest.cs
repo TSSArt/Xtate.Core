@@ -79,9 +79,9 @@ public class DataModelDynamicCoverageTest
 		var metadata = new DataModelList { ["kind"] = "field" };
 		dyn.SetMetadata("name", metadata);
 
-		Assert.AreEqual(expected: "value", dyn.name);
-		Assert.AreEqual(expected: 42, dyn[1]);
-		Assert.AreEqual(expected: 4, dyn.GetLength());
+		Assert.AreEqual("value", dyn.name);
+		Assert.AreEqual(42, dyn[1]);
+		Assert.AreEqual(4, dyn.GetLength());
 		Assert.AreSame(metadata, dyn.GetMetadata("NAME"));
 		Assert.IsNull(dyn.GetMetadata("missing"));
 
