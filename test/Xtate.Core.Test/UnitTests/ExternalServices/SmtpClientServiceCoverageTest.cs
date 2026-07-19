@@ -297,9 +297,9 @@ public class SmtpClientServiceCoverageTest
 				}
 				catch (IOException exception) when (messageAccepted &&
 													exception.InnerException is SocketException
-													{
-														SocketErrorCode: SocketError.ConnectionAborted or SocketError.ConnectionReset
-													})
+																				{
+																					SocketErrorCode: SocketError.ConnectionAborted or SocketError.ConnectionReset
+																				})
 				{
 					// .NET Framework can abort the connection instead of sending QUIT after the message is accepted.
 

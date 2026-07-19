@@ -15,45 +15,51 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
-using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.Http;
 
-namespace Xtate.ExternalServices.HttpClient.Internal;
+namespace Xtate.ExternalServices.HttpClient.Services;
 
+[InstantiatedByIoC]
 public class HttpClientJsonHandler : HttpClientMimeTypeHandler
 {
 	private const string MediaTypeApplicationJson = "application/json";
 
-	private HttpClientJsonHandler() { }
+	private static readonly MediaTypeWithQualityHeaderValue AcceptMediaType = new(MediaTypeApplicationJson, quality: 1);
 
-	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientJsonHandler();
+	private static bool CanHandle(string? mediaType) => mediaType is not null && string.Equals(mediaType, MediaTypeApplicationJson, StringComparison.OrdinalIgnoreCase);
 
-	public override void PrepareRequest(WebRequest webRequest,
-										string? contentType,
+	public override void PrepareRequest(HttpRequestMessage request,
+										ContentType? contentType,
 										DataModelList parameters,
-										DataModelValue value) =>
-		AppendAcceptHeader(webRequest, MediaTypeApplicationJson);
+										DataModelValue value)
+	{
+		var headerValues = request.Headers.Accept;
 
-	public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
-													  string? contentType,
+		if (!headerValues.Contains(AcceptMediaType))
+		{
+			headerValues.Add(AcceptMediaType);
+		}
+	}
+
+	public override HttpContent? TryCreateHttpContent(HttpRequestMessage request,
+													  ContentType? contentType,
 													  DataModelList parameters,
 													  DataModelValue value) =>
-		ContentTypeEquals(contentType, MediaTypeApplicationJson) ? new JsonHttpContent(value) : null;
+		CanHandle(contentType?.MediaType) ? new JsonHttpContent(value) : null;
 
-	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+	public override async ValueTask<DataModelValue?> TryParseResponseAsync(HttpResponseMessage response, DataModelList parameters, CancellationToken token)
 	{
-		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationJson))
+		if (!CanHandle(response.Content.Headers.ContentType?.MediaType))
 		{
 			return null;
 		}
 
-		var stream = webResponse.GetResponseStream();
-
-		Infra.NotNull(stream);
+		var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
 
 		await using (stream.ConfigureAwait(false))
 		{

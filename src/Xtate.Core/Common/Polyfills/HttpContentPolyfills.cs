@@ -26,6 +26,8 @@ internal static class HttpContentPolyfills
 	extension(HttpContent httpContent)
 	{
 		public Task CopyToAsync(Stream stream, CancellationToken token) => httpContent.CopyToAsync(stream.InjectCancellationToken(token));
+
+		public Task<Stream> ReadAsStreamAsync(CancellationToken token) => httpContent.ReadAsStreamAsync();
 	}
 }
 

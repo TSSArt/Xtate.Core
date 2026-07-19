@@ -28,5 +28,9 @@ public class HttpClientModule : Module
 	{
 		Services.AddType<HttpClientService>();
 		Services.AddImplementation<HttpClientService.Provider>().For<IExternalServiceProvider>();
+
+		Services.AddImplementationSync<HttpClientFormUrlEncodedHandler>().For<HttpClientMimeTypeHandler>();
+		Services.AddImplementationSync<HttpClientJsonHandler>().For<HttpClientMimeTypeHandler>();
+		Services.AddImplementationSync<HttpClientXmlHandler>().For<HttpClientMimeTypeHandler>();
 	}
 }

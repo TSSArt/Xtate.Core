@@ -15,13 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
-using System.Net;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using Xtate.DataTypes;
-using Xtate.ExternalServices.HttpClient.Internal;
+using Xtate.ExternalServices.HttpClient.Services;
 using Xtate.Http;
 
 namespace Xtate.Test.UnitTests.ExternalServices;
@@ -35,104 +34,72 @@ public class HttpMimeTypeHandlerCoverageTest
 	public async Task MimeTypeBaseMatchesParametersAppendsAcceptAndReturnsDefaultResults()
 	{
 		var handler = new TestMimeTypeHandler();
-		string? accept = null;
 
-		Assert.IsFalse(handler.EqualsContentType(contentTypeA: null, contentTypeB: "application/json"));
-		Assert.IsFalse(handler.EqualsContentType(string.Empty, contentTypeB: "application/json"));
-		Assert.IsTrue(handler.EqualsContentType(contentTypeA: "Application/Json; charset=utf-8", contentTypeB: "application/json; q=1"));
-		Assert.IsFalse(handler.EqualsContentType(contentTypeA: "application/json", contentTypeB: "text/plain"));
-		Assert.IsFalse(handler.EqualsContentType(contentTypeA: "application/json", contentTypeB: "application/problem+json"));
+		using var request = CreateHttpRequest();
 
-		handler.Append(ref accept, contentType: "application/json");
-		Assert.AreEqual(expected: "application/json", accept);
-		handler.Append(ref accept, contentType: "APPLICATION/JSON");
-		Assert.AreEqual(expected: "application/json", accept);
-		accept = "text/plain";
-		handler.Append(ref accept, contentType: "application/xml");
-		Assert.AreEqual(expected: "text/plain, application/xml", accept);
-		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => handler.Append(ref accept, string.Empty));
-
-		var request = new TestWebRequest();
 		handler.PrepareRequest(request, contentType: null, EmptyParameters, DataModelValue.Undefined);
 		Assert.IsNull(handler.TryCreateHttpContent(request, contentType: null, EmptyParameters, DataModelValue.Undefined));
-		await using var response = new TestWebResponse(contentType: "text/plain", content: "ignored");
+		using var response = CreateHttpResponse(contentType: "text/plain", content: "ignored");
 		Assert.IsNull(await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None));
-	}
-
-	[TestMethod]
-	public void MimeTypeBaseAppendsAfterParameterizedNonMatchingAcceptEntry()
-	{
-		// Current product defect: enabling this exact case never returns. The state-1 delimiter branch must advance
-		// to the next character/state instead of jumping back into case 1 for the same character.
-		var handler = new TestMimeTypeHandler();
-		var accept = "text/plain; q=0.5, application/json";
-
-		handler.Append(ref accept, contentType: "application/xml");
-
-		Assert.AreEqual(expected: "text/plain; q=0.5, application/json, application/xml", accept);
 	}
 
 	[TestMethod]
 	public async Task JsonHandlerPreparesCreatesAndParsesJsonContent()
 	{
-		var handler = HttpClientJsonHandler.Instance;
-		var request = CreateHttpRequest();
+		var handler = new HttpClientJsonHandler();
+		using var request = CreateHttpRequest();
 		var value = new DataModelList { ["name"] = "value", ["number"] = 17 };
 
 		handler.PrepareRequest(request, contentType: null, EmptyParameters, value);
 		handler.PrepareRequest(request, contentType: null, EmptyParameters, value);
-		Assert.AreEqual(expected: "application/json", request.Accept);
-		Assert.IsNull(handler.TryCreateHttpContent(request, contentType: "text/plain", EmptyParameters, value));
+		Assert.AreEqual(expected: "application/json; q=1.0", string.Join(separator: ", ", request.Headers.Accept));
+		Assert.IsNull(handler.TryCreateHttpContent(request, new ContentType("text/plain"), EmptyParameters, value));
 
-		using var content = handler.TryCreateHttpContent(request, contentType: "Application/Json; charset=utf-8", EmptyParameters, value);
+		using var content = handler.TryCreateHttpContent(request, new ContentType("Application/Json; charset=utf-8"), EmptyParameters, value);
 		Assert.IsInstanceOfType<JsonHttpContent>(content);
 		Assert.AreEqual(expected: "application/json", content.Headers.ContentType!.MediaType);
 		StringAssert.Contains(await content.ReadAsStringAsync(), substring: "\"name\":\"value\"");
 
-		await using var wrongResponse = new TestWebResponse(contentType: "text/plain", content: "{}");
+		using var wrongResponse = CreateHttpResponse(contentType: "text/plain", content: "{}");
 		Assert.IsNull(await handler.TryParseResponseAsync(wrongResponse, EmptyParameters, CancellationToken.None));
-		await using var response = new TestWebResponse(contentType: "application/json; charset=utf-8", content: "{\"name\":\"parsed\",\"number\":19}");
+		using var response = CreateHttpResponse(contentType: "application/json; charset=utf-8", content: "{\"name\":\"parsed\",\"number\":19}");
 		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
 		Assert.IsTrue(parsed.HasValue);
 		Assert.AreEqual(expected: "parsed", parsed.Value.AsList()["name"].AsString());
 		Assert.AreEqual(expected: 19, parsed.Value.AsList()["number"].AsNumber());
-		request.Abort();
 	}
 
 	[TestMethod]
 	public async Task XmlHandlerRecognizesStandardAndStructuredXmlMediaTypes()
 	{
-		var handler = HttpClientXmlHandler.Instance;
-		var request = CreateHttpRequest();
+		var handler = new HttpClientXmlHandler();
+		using var request = CreateHttpRequest();
 		var value = new DataModelList { ["name"] = "value" };
 
 		handler.PrepareRequest(request, contentType: null, EmptyParameters, value);
-		Assert.AreEqual(expected: "application/xml", request.Accept);
+		Assert.AreEqual(expected: "text/xml; q=1.0, application/xml; q=1.0", string.Join(separator: ", ", request.Headers.Accept));
 		Assert.IsNull(handler.TryCreateHttpContent(request, contentType: null, EmptyParameters, value));
-		Assert.IsNull(handler.TryCreateHttpContent(request, contentType: "image/svg+xml", EmptyParameters, value));
+		Assert.IsNull(handler.TryCreateHttpContent(request, new ContentType("image/svg+xml"), EmptyParameters, value));
 
-		using var applicationContent = handler.TryCreateHttpContent(request, contentType: "application/xml", EmptyParameters, value);
-		using var textContent = handler.TryCreateHttpContent(request, contentType: "text/xml; charset=utf-8", EmptyParameters, value);
-		using var structuredContent = handler.TryCreateHttpContent(request, contentType: "application/problem+xml", EmptyParameters, value);
+		using var applicationContent = handler.TryCreateHttpContent(request, new ContentType("application/xml"), EmptyParameters, value);
+		using var textContent = handler.TryCreateHttpContent(request, new ContentType("text/xml; charset=utf-8"), EmptyParameters, value);
 		Assert.IsInstanceOfType<XmlHttpContent>(applicationContent);
 		Assert.IsInstanceOfType<XmlHttpContent>(textContent);
-		Assert.IsInstanceOfType<XmlHttpContent>(structuredContent);
 		StringAssert.Contains(await applicationContent.ReadAsStringAsync(), substring: "name");
 
-		await using var wrongResponse = new TestWebResponse(contentType: "text/plain", content: "{}");
+		using var wrongResponse = CreateHttpResponse(contentType: "text/plain", content: "{}");
 		Assert.IsNull(await handler.TryParseResponseAsync(wrongResponse, EmptyParameters, CancellationToken.None));
-		await using var response = new TestWebResponse(contentType: "application/problem+xml", content: "{\"name\":\"parsed\"}");
+		using var response = CreateHttpResponse(contentType: "application/xml", content: "{\"name\":\"parsed\"}");
 		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
 		Assert.IsTrue(parsed.HasValue);
 		Assert.AreEqual(expected: "parsed", parsed.Value.AsList()["name"].AsString());
-		request.Abort();
 	}
 
 	[TestMethod]
 	public async Task FormUrlEncodedHandlerCreatesObjectAndArrayFormsAndParsesRepeatedValues()
 	{
-		var handler = HttpClientFormUrlEncodedHandler.Instance;
-		var request = new TestWebRequest();
+		var handler = new HttpClientFormUrlEncodedHandler();
+		using var request = CreateHttpRequest();
 		var objectValue = new DataModelList { ["one"] = "1", ["empty"] = DataModelValue.Null };
 		var arrayValue = new DataModelList
 						 {
@@ -141,17 +108,17 @@ public class HttpMimeTypeHandlerCoverageTest
 							 new DataModelList { ["name"] = "missing", ["value"] = DataModelValue.Null }
 						 };
 
-		Assert.IsNull(handler.TryCreateHttpContent(request, contentType: "text/plain", EmptyParameters, objectValue));
-		using var objectContent = handler.TryCreateHttpContent(request, contentType: "application/x-www-form-urlencoded; charset=ascii", EmptyParameters, objectValue);
-		using var arrayContent = handler.TryCreateHttpContent(request, contentType: "application/x-www-form-urlencoded", EmptyParameters, arrayValue);
+		Assert.IsNull(handler.TryCreateHttpContent(request, new ContentType("text/plain"), EmptyParameters, objectValue));
+		using var objectContent = handler.TryCreateHttpContent(request, new ContentType("application/x-www-form-urlencoded; charset=ascii"), EmptyParameters, objectValue);
+		using var arrayContent = handler.TryCreateHttpContent(request, new ContentType("application/x-www-form-urlencoded"), EmptyParameters, arrayValue);
 		Assert.IsInstanceOfType<FormUrlEncodedContent>(objectContent);
 		Assert.IsNotNull(arrayContent);
 		Assert.AreEqual(expected: "one=1", await objectContent.ReadAsStringAsync());
 		Assert.AreEqual(expected: "two=2", await arrayContent.ReadAsStringAsync());
 
-		await using var wrongResponse = new TestWebResponse(contentType: "text/plain", content: "one=1");
+		using var wrongResponse = CreateHttpResponse(contentType: "text/plain", content: "one=1");
 		Assert.IsNull(await handler.TryParseResponseAsync(wrongResponse, EmptyParameters, CancellationToken.None));
-		await using var response = new TestWebResponse(contentType: "application/x-www-form-urlencoded", content: "one=1&one=2&encoded=hello+world&=ignored");
+		using var response = CreateHttpResponse(contentType: "application/x-www-form-urlencoded", content: "one=1&one=2&encoded=hello+world&=ignored");
 		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
 		Assert.IsTrue(parsed.HasValue);
 		var list = parsed.Value.AsList();
@@ -159,51 +126,30 @@ public class HttpMimeTypeHandlerCoverageTest
 		Assert.AreEqual(expected: "hello world", list["encoded"].AsString());
 	}
 
-	private static HttpWebRequest CreateHttpRequest()
+	private static HttpRequestMessage CreateHttpRequest() => new(HttpMethod.Get, requestUri: "https://example.test/");
+
+	private static HttpResponseMessage CreateHttpResponse(string contentType, string content)
 	{
-#pragma warning disable SYSLIB0014
-		return WebRequest.CreateHttp("https://example.test/");
-#pragma warning restore SYSLIB0014
+		var response = new HttpResponseMessage { Content = new StringContent(content, Encoding.UTF8) };
+		response.Content.Headers.Remove("Content-Type");
+		response.Content.Headers.TryAddWithoutValidation(name: "Content-Type", contentType);
+
+		return response;
 	}
 
 	private sealed class TestMimeTypeHandler : HttpClientMimeTypeHandler
 	{
-		public bool EqualsContentType(string? contentTypeA, string? contentTypeB) => ContentTypeEquals(contentTypeA, contentTypeB);
+		public override void PrepareRequest(HttpRequestMessage request,
+											ContentType? contentType,
+											DataModelList parameters,
+											DataModelValue value) { }
 
-		public void Append(ref string? accept, string contentType) => AppendAcceptHeader(ref accept, contentType);
-	}
+		public override HttpContent? TryCreateHttpContent(HttpRequestMessage request,
+														  ContentType? contentType,
+														  DataModelList parameters,
+														  DataModelValue value) =>
+			null;
 
-#pragma warning disable SYSLIB0014
-	private sealed class TestWebRequest : WebRequest;
-#pragma warning restore SYSLIB0014
-
-	private sealed class TestWebResponse(string contentType, string content) : WebResponse, IAsyncDisposable
-	{
-		private readonly MemoryStream _stream = new(Encoding.UTF8.GetBytes(content));
-
-		public override string ContentType { get; set; } = contentType;
-
-	#region Interface IAsyncDisposable
-
-		public ValueTask DisposeAsync()
-		{
-			Dispose();
-
-			return ValueTask.CompletedTask;
-		}
-
-	#endregion
-
-		public override Stream GetResponseStream() => _stream;
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_stream.Dispose();
-			}
-
-			base.Dispose(disposing);
-		}
+		public override ValueTask<DataModelValue?> TryParseResponseAsync(HttpResponseMessage response, DataModelList parameters, CancellationToken token) => default;
 	}
 }

@@ -15,18 +15,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.ExternalServices.HttpClient.Internal;
+using System.Net.Http;
+using System.Net.Mime;
+using Xtate.DataTypes;
 
-public class HttpClientServiceOptions
+namespace Xtate.ExternalServices.HttpClient.Services;
+
+public abstract class HttpClientMimeTypeHandler
 {
-	private HttpClientServiceOptions() { }
+	public abstract void PrepareRequest(HttpRequestMessage request,
+										ContentType? contentType,
+										DataModelList parameters,
+										DataModelValue value);
 
-	public List<HttpClientMimeTypeHandler> MimeTypeHandlers { get; } =
-	[
-		HttpClientFormUrlEncodedHandler.Instance,
-		HttpClientJsonHandler.Instance,
-		HttpClientXmlHandler.Instance
-	];
+	public abstract HttpContent? TryCreateHttpContent(HttpRequestMessage request,
+													  ContentType? contentType,
+													  DataModelList parameters,
+													  DataModelValue value);
 
-	public static HttpClientServiceOptions CreateDefault() => new();
+	public abstract ValueTask<DataModelValue?> TryParseResponseAsync(HttpResponseMessage response, DataModelList parameters, CancellationToken token);
 }

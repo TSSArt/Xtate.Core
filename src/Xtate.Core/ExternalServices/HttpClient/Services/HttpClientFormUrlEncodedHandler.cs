@@ -15,31 +15,45 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.IO;
-using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.IoProcessors.Http.Internal;
 using Xtate.ResourceLoaders.Extensions;
 
-namespace Xtate.ExternalServices.HttpClient.Internal;
+namespace Xtate.ExternalServices.HttpClient.Services;
 
+[InstantiatedByIoC]
 public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 {
 	private const string MediaTypeApplicationFormUrlEncoded = "application/x-www-form-urlencoded";
 
-	private HttpClientFormUrlEncodedHandler() { }
+	private static readonly MediaTypeWithQualityHeaderValue AcceptMediaType = new(MediaTypeApplicationFormUrlEncoded, quality: 0.5);
 
-	public static HttpClientMimeTypeHandler Instance { get; } = new HttpClientFormUrlEncodedHandler();
+	public override void PrepareRequest(HttpRequestMessage request,
+										ContentType? contentType,
+										DataModelList parameters,
+										DataModelValue value)
+	{
+		var headerValues = request.Headers.Accept;
 
-	public override HttpContent? TryCreateHttpContent(WebRequest webRequest,
-													  string? contentType,
+		if (!headerValues.Contains(AcceptMediaType))
+		{
+			headerValues.Add(AcceptMediaType);
+		}
+	}
+
+	private static bool CanHandle(string? mediaType) => mediaType is not null && string.Equals(mediaType, MediaTypeApplicationFormUrlEncoded, StringComparison.OrdinalIgnoreCase);
+
+	public override HttpContent? TryCreateHttpContent(HttpRequestMessage request,
+													  ContentType? contentType,
 													  DataModelList parameters,
 													  DataModelValue value)
 	{
-		if (!ContentTypeEquals(contentType, MediaTypeApplicationFormUrlEncoded))
+		if (!CanHandle(contentType?.MediaType))
 		{
 			return null;
 		}
@@ -48,7 +62,7 @@ public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 
 		var pairs = DataModelConverter.IsObject(list)
 			? from pair in list.KeyValues select (Name: pair.Key, Value: pair.Value.AsStringOrDefault())
-			: from item in list select (Name: item.AsListOrEmpty()["name"].AsStringOrDefault(), Value: item.AsListOrEmpty()["value"].AsStringOrDefault());
+			: from item in list let pair = item.AsListOrEmpty() select (Name: pair["name"].AsStringOrDefault(), Value: pair["value"].AsStringOrDefault());
 
 		var forms = from pair in pairs
 					where !string.IsNullOrEmpty(pair.Name) && pair.Value is not null
@@ -57,16 +71,14 @@ public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 		return new FormUrlEncodedContent(forms);
 	}
 
-	public override async ValueTask<DataModelValue?> TryParseResponseAsync(WebResponse webResponse, DataModelList parameters, CancellationToken token)
+	public override async ValueTask<DataModelValue?> TryParseResponseAsync(HttpResponseMessage response, DataModelList parameters, CancellationToken token)
 	{
-		if (!ContentTypeEquals(webResponse.ContentType, MediaTypeApplicationFormUrlEncoded))
+		if (!CanHandle(response.Content.Headers.ContentType?.MediaType))
 		{
 			return null;
 		}
 
-		var stream = webResponse.GetResponseStream();
-
-		Infra.NotNull(stream);
+		var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
 
 		await using (stream.ConfigureAwait(false))
 		{

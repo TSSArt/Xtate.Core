@@ -16,19 +16,18 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
-using Xtate.ExternalServices.HttpClient.Internal;
 
 namespace Xtate.ExternalServices.HttpClient.Services;
 
 [InstantiatedByIoC]
-public class HttpClientService(HttpClientServiceOptions options) : ExternalServiceBase
+public class HttpClientService : ExternalServiceBase
 {
 	[InstantiatedByIoC]
 	public class Provider() : ExternalServiceProviderBase<HttpClientService>(type: @"http://xtate.net/scxml/service/#HTTPClient", alias: @"http");
@@ -36,6 +35,10 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 	private static readonly FieldInfo DomainTableField = typeof(CookieContainer).GetField(name: @"m_domainTable", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
 	private static readonly FieldInfo ListField = typeof(CookieContainer).Assembly.GetType(@"System.Net.PathList")!.GetField(name: @"m_list", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+	public required IList<HttpClientMimeTypeHandler> MimeTypeHandlers { private get; [SetByIoC] init; }
+
+	public required System.Net.Http.HttpClient HttpClient { private get; [SetByIoC] init; }
 
 	private static NameValueCollection? CreateHeadersCollection(in DataModelValue value)
 	{
@@ -74,53 +77,20 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 	{
 		var parameters = Parameters.AsListOrEmpty();
 		var method = parameters["method"].AsStringOrDefault() ?? @"get";
-		var autoRedirect = parameters["autoRedirect"].AsBooleanOrDefault() ?? true;
 		var accept = parameters["accept"].AsStringOrDefault();
 		var contentType = parameters["contentType"].AsStringOrDefault();
 		var headers = CreateHeadersCollection(parameters["headers"]);
-		var cookies = CreateCookieList(parameters["cookies"]);
 
-		var response = await DoRequest(method, autoRedirect, contentType, accept, headers, cookies).ConfigureAwait(false);
+		var response = await DoRequest(method, contentType, accept, headers).ConfigureAwait(false);
 
 		return new DataModelList
 			   {
 				   { "statusCode", response.StatusCode },
 				   { "statusDescription", response.StatusDescription },
-				   { "webExceptionStatus", response.WebExceptionStatus },
+				   { "webExceptionStatus", response.ExceptionStatus },
 				   { "headers", GetResponseHeaderList(response) },
-				   { "cookies", GetResponseCookieList(response) },
 				   { "content", response.Content }
 			   };
-	}
-
-	private static DataModelList GetResponseCookieList(Response response)
-	{
-		if (response.Cookies is not { } responseCookies)
-		{
-			return DataModelList.Empty;
-		}
-
-		DataModelList? list = null;
-
-		foreach (var cookie in responseCookies)
-		{
-			Infra.NotNull(cookie);
-
-			(list ??= []).Add(
-				new DataModelList
-				{
-					{ "name", cookie.Name },
-					{ "value", cookie.Value },
-					{ "path", cookie.Path },
-					{ "domain", cookie.Domain },
-					{ "httpOnly", cookie.HttpOnly },
-					{ "port", cookie.Port },
-					{ "secure", cookie.Secure },
-					{ "expires", cookie.Expires != default ? cookie.Expires : default(DataModelValue) }
-				});
-		}
-
-		return list ?? DataModelList.Empty;
 	}
 
 	private static DataModelList GetResponseHeaderList(Response response)
@@ -184,100 +154,75 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 	private static StringContent? CreateDefaultContent(in DataModelValue content) => content.ToObject()?.ToString() is { Length: > 0 } body ? new StringContent(body, Encoding.UTF8) : null;
 
 	private async ValueTask<Response> DoRequest(string method,
-												bool autoRedirect,
 												string? contentType,
 												string? accept,
-												NameValueCollection? headers,
-												List<Cookie>? cookies)
+												NameValueCollection? headers)
 	{
 		Infra.NotNull(Source);
 
-		var request = WebRequest.CreateHttp(Source);
-
-		request.Method = method;
-		request.AllowAutoRedirect = autoRedirect;
+		using var request = new HttpRequestMessage(new HttpMethod(method), Source);
 
 		if (headers is not null)
 		{
-			request.Headers.Add(headers);
+			foreach (var key in headers.AllKeys)
+			{
+				foreach (var value in headers.GetValues(key)!)
+				{
+					request.Headers.Add(key!, value);
+				}
+			}
 		}
 
 		if (accept is not null)
 		{
-			request.Accept = accept;
+			request.Headers.Accept.ParseAdd(accept);
 		}
 
-		CookieContainer? cookieContainer = null;
+		var contentTypeObj = contentType is not null ? new ContentType(contentType) : null;
 
-		if (cookies is not null)
+		foreach (var handler in MimeTypeHandlers)
 		{
-			foreach (var cookie in cookies)
-			{
-				(cookieContainer ??= new CookieContainer()).Add(cookie);
-			}
-
-			request.CookieContainer = cookieContainer;
+			handler.PrepareRequest(request, contentTypeObj, Parameters.AsListOrEmpty(), Content);
 		}
 
-		foreach (var handler in options.MimeTypeHandlers)
-		{
-			handler.PrepareRequest(request, contentType, Parameters.AsListOrEmpty(), Content);
-		}
+		SetContent(request, contentTypeObj);
 
-		await WriteContent(request, contentType).ConfigureAwait(false);
-
-		string? webExceptionStatus = null;
-		HttpWebResponse response;
+		HttpResponseMessage response;
 
 		try
 		{
-			response = await GetResponse(request, DestroyToken).ConfigureAwait(false);
+			response = await HttpClient.SendAsync(request, DestroyToken).ConfigureAwait(false);
 		}
-		catch (WebException ex)
+		catch (HttpRequestException ex)
 		{
-			if (ex.Response is null)
-			{
-				return new Response();
-			}
-
-			response = (HttpWebResponse) ex.Response;
-
-			webExceptionStatus = ex.Status.ToString();
+			return new Response { ExceptionStatus = ex.Message };
 		}
 
 		using (response)
 		{
-			List<Cookie>? cookieCollection = null;
+			var responseHeaders = new NameValueCollection();
 
-			if (cookieContainer is not null)
+			foreach (var pair in response.Headers)
 			{
-				foreach (var pathList in ((Hashtable) DomainTableField.GetValue(cookieContainer)!).Values)
+				foreach (var value in pair.Value)
 				{
-					foreach (IEnumerable cookieList in ((SortedList) ListField.GetValue(pathList)!).Values)
-					{
-						foreach (Cookie cookie in cookieList)
-						{
-							(cookieCollection ??= []).Add(cookie);
-						}
-					}
+					responseHeaders.Add(pair.Key, value);
 				}
 			}
 
 			return new Response
 				   {
 					   StatusCode = (int) response.StatusCode,
-					   StatusDescription = response.StatusDescription,
-					   WebExceptionStatus = webExceptionStatus,
-					   Headers = response.Headers,
-					   Cookies = cookieCollection,
+					   StatusDescription = response.ReasonPhrase,
+					   Headers = responseHeaders,
 					   Content = await ReadContent(response, DestroyToken).ConfigureAwait(false)
 				   };
 		}
 	}
 
-	private async ValueTask<DataModelValue> ReadContent(WebResponse response, CancellationToken token)
+	private async ValueTask<DataModelValue> ReadContent(HttpResponseMessage response, CancellationToken token)
 	{
-		foreach (var handler in options.MimeTypeHandlers)
+		foreach (var handler in MimeTypeHandlers)
 		{
 			if (await handler.TryParseResponseAsync(response, Parameters.AsListOrEmpty(), token).ConfigureAwait(false) is { } data)
 			{
@@ -288,35 +233,11 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 		return default;
 	}
 
-	private static async Task<HttpWebResponse> GetResponse(HttpWebRequest request, CancellationToken token)
+	private void SetContent(HttpRequestMessage request, ContentType? contentType)
 	{
-		var registration = token.Register(request.Abort, useSynchronizationContext: false);
-
-		await using (registration.ConfigureAwait(false))
-		{
-			try
-			{
-				return (HttpWebResponse) await request.GetResponseAsync().ConfigureAwait(false);
-			}
-			catch (WebException ex)
-			{
-				if (token.IsCancellationRequested)
-				{
-					throw new OperationCanceledException(ex.Message, ex, token);
-				}
-
-				throw;
-			}
-		}
-	}
-
-	private async ValueTask WriteContent(WebRequest request, string? contentType)
-	{
-		request.ContentType = contentType;
-
 		HttpContent? httpContent = null;
 
-		foreach (var handler in options.MimeTypeHandlers)
+		foreach (var handler in MimeTypeHandlers)
 		{
 			httpContent = handler.TryCreateHttpContent(request, contentType, Parameters.AsListOrEmpty(), Content);
 
@@ -333,12 +254,7 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 			return;
 		}
 
-		var stream = await request.GetRequestStreamAsync().ConfigureAwait(false);
-
-		await using (stream.ConfigureAwait(false))
-		{
-			await httpContent.CopyToAsync(stream, DestroyToken).ConfigureAwait(false);
-		}
+		request.Content = httpContent;
 	}
 
 	private record Response
@@ -347,12 +263,10 @@ public class HttpClientService(HttpClientServiceOptions options) : ExternalServi
 
 		public string? StatusDescription { get; init; }
 
-		public string? WebExceptionStatus { get; init; }
+		public string? ExceptionStatus { get; init; }
 
 		public DataModelValue Content { get; init; }
 
 		public NameValueCollection? Headers { get; init; }
-
-		public List<Cookie>? Cookies { get; init; }
 	}
 }

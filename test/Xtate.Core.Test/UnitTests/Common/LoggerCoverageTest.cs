@@ -133,7 +133,7 @@ public class LoggerCoverageTest
 		var plain = new PlainValue("plain");
 
 		await logger.Write(Level.Info, eventId: 31, $"N={number,5:D3}; F={formattable,-15:U}; P={plain}");
-		await logger.Write(Level.Info, eventId: 32, "literal only");
+		await logger.Write(Level.Info, eventId: 32, message: "literal only");
 
 		Assert.HasCount(expected: 2, generic.Entries);
 		Assert.AreEqual(expected: "N=  042; F=FORMATTABLE    ; P=plain", generic.Entries[0].Message);

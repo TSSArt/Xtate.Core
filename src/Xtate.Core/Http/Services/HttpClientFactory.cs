@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Net;
 using System.Net.Http;
 
 namespace Xtate.Http.Services;
@@ -64,10 +65,10 @@ public class HttpClientFactory : IDisposable
 			throw new ObjectDisposedException(nameof(HttpClientFactory));
 		}
 
-		return new HttpClient(GetHandler(), disposeHandler: false);
+		return new HttpClient(GetHandlerEntry().Handler, disposeHandler: false);
 	}
 
-	private HttpMessageHandler GetHandler()
+	private HandlerEntry GetHandlerEntry()
 	{
 		TryDisposeNextEntry(_activeEntry);
 
@@ -79,7 +80,7 @@ public class HttpClientFactory : IDisposable
 
 			if (entry?.IsExpired == false)
 			{
-				return entry.Handler;
+				return entry;
 			}
 
 			newEntry ??= new HandlerEntry(HandlerLifetime, HandlerGracePeriod);
@@ -87,7 +88,7 @@ public class HttpClientFactory : IDisposable
 
 			if (Interlocked.CompareExchange(ref _activeEntry, newEntry, entry) == entry)
 			{
-				return newEntry.Handler;
+				return newEntry;
 			}
 		}
 	}
@@ -119,29 +120,54 @@ public class HttpClientFactory : IDisposable
 		}
 	}
 
-	private class HandlerEntry : IDisposable
+#if NETCOREAPP2_1_OR_GREATER
+	private class HandlerEntry(TimeSpan handlerLifetime, TimeSpan gracePeriod) : IDisposable
 	{
-		private readonly DateTime? _disposeAt;
-
-		private readonly DateTime? _expiresAt;
+		private readonly SocketsHttpHandler _handler = new() { PooledConnectionLifetime = handlerLifetime, PooledConnectionIdleTimeout = gracePeriod };
 
 		public HandlerEntry? NextEntry;
 
-		public HandlerEntry(TimeSpan handlerLifetime, TimeSpan gracePeriod)
-		{
-#if NETCOREAPP2_1_OR_GREATER
-			Handler = new SocketsHttpHandler { PooledConnectionLifetime = handlerLifetime, PooledConnectionIdleTimeout = gracePeriod };
-			_expiresAt = null;
-			_disposeAt = null;
+		public HttpMessageHandler Handler => _handler;
 
-#else
-			Handler = new HttpClientHandler();
-			_expiresAt = DateTime.UtcNow + handlerLifetime;
-			_disposeAt = _expiresAt + gracePeriod;
-#endif
+		public CookieContainer CookieContainer
+		{
+			get => _handler.CookieContainer;
+			set => _handler.CookieContainer = value;
 		}
 
-		public HttpMessageHandler Handler { get; }
+	#region Interface IDisposable
+
+		public void Dispose() => _handler.Dispose();
+
+	#endregion
+
+#pragma warning disable CA1822
+
+		public bool IsExpired => false;
+
+		public bool CanDispose => false;
+
+#pragma warning restore CA1822
+	}
+
+#else
+	private class HandlerEntry(TimeSpan handlerLifetime, TimeSpan gracePeriod) : IDisposable
+	{
+		private readonly DateTime? _disposeAt = DateTime.UtcNow + handlerLifetime + gracePeriod;
+
+		private readonly DateTime? _expiresAt = DateTime.UtcNow + handlerLifetime;
+
+		private readonly HttpClientHandler _handler = new();
+
+		public HandlerEntry? NextEntry;
+
+		public HttpMessageHandler Handler => _handler;
+
+		public CookieContainer CookieContainer
+		{
+			get => _handler.CookieContainer;
+			set => _handler.CookieContainer = value;
+		}
 
 		public bool IsExpired => DateTime.UtcNow >= _expiresAt;
 
@@ -153,4 +179,6 @@ public class HttpClientFactory : IDisposable
 
 	#endregion
 	}
+
+#endif
 }
