@@ -16,12 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.IoC;
+using Xtate.IoC.Options.DependencyInjection;
 using Xtate.Logging.Services;
 
 namespace Xtate.Logging.DependencyInjection;
 
 [InstantiatedByIoC]
-public class LoggingModule : Module
+public class LoggingModule : Module<OptionsModule>
 {
 	protected override void AddServices()
 	{
