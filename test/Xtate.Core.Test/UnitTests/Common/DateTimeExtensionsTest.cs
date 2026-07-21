@@ -111,11 +111,7 @@ public class DateTimeExtensionsTest
 
 		for (var i = 0; i < 5; i ++)
 		{
-			tasks.Add(
-				Task.Run(() =>
-						 {
-							 times.Add(DateTime.UniqueUtcNow.Ticks);
-						 }));
+			tasks.Add(Task.Run(() => { times.Add(DateTime.UniqueUtcNow.Ticks); }));
 		}
 
 		Task.WaitAll(tasks.ToArray());

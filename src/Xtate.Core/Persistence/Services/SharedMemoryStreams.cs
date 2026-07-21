@@ -103,7 +103,7 @@ public class SharedMemoryStreams<TKey> where TKey : notnull
 	}
 
 	private class ReadOnlyMemoryStream(TKey key, MemoryStream stream, SharedMemoryStreams<TKey> owner)
-		: MemoryStream(stream.GetBuffer(), index: 0, (int) stream.Length, writable: false, publiclyVisible: false)
+		: MemoryStream(stream.GetBuffer(), index: 0, (int)stream.Length, writable: false, publiclyVisible: false)
 	{
 		private bool _disposed;
 
@@ -276,7 +276,6 @@ public class SharedMemoryStreams<TKey> where TKey : notnull
 		}
 
 #if NETSTANDARD2_1 || NETCOREAPP2_0_OR_GREATER
-
 		public override void CopyTo(Stream destination, int bufferSize)
 		{
 			EnsureOpened();

@@ -98,7 +98,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		_int64 = 0;
 	}
 
-	public static DataModelValue Null { get; } = new((string?) null);
+	public static DataModelValue Null { get; } = new((string?)null);
 
 	public static DataModelValue Undefined => default;
 
@@ -751,20 +751,20 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		return System.Type.GetTypeCode(type) switch
 			   {
-				   TypeCode.SByte    => (sbyte) value,
-				   TypeCode.Int16    => (short) value,
-				   TypeCode.Int32    => (int) value,
-				   TypeCode.Int64    => (long) value,
-				   TypeCode.Byte     => (byte) value,
-				   TypeCode.UInt16   => (ushort) value,
-				   TypeCode.UInt32   => (uint) value,
-				   TypeCode.UInt64   => (decimal) (ulong) value,
-				   TypeCode.Single   => (float) value,
-				   TypeCode.Double   => (double) value,
-				   TypeCode.Decimal  => (decimal) value,
-				   TypeCode.Boolean  => (bool) value,
-				   TypeCode.DateTime => (DateTime) value,
-				   TypeCode.String   => (string) value,
+				   TypeCode.SByte    => (sbyte)value,
+				   TypeCode.Int16    => (short)value,
+				   TypeCode.Int32    => (int)value,
+				   TypeCode.Int64    => (long)value,
+				   TypeCode.Byte     => (byte)value,
+				   TypeCode.UInt16   => (ushort)value,
+				   TypeCode.UInt32   => (uint)value,
+				   TypeCode.UInt64   => (decimal)(ulong)value,
+				   TypeCode.Single   => (float)value,
+				   TypeCode.Double   => (double)value,
+				   TypeCode.Decimal  => (decimal)value,
+				   TypeCode.Boolean  => (bool)value,
+				   TypeCode.DateTime => (DateTime)value,
+				   TypeCode.String   => (string)value,
 				   TypeCode.Object   => FromUnknownObjectWithMap(value, ref map),
 				   _                 => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(value))
 			   };
@@ -968,7 +968,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 		public static NumberValue GetNumberValue(decimal value, out long int64)
 		{
-			var rawDecimal = (RawDecimal) value;
+			var rawDecimal = (RawDecimal)value;
 
 			int64 = rawDecimal.Lo64;
 
@@ -1002,10 +1002,10 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		public DataModelNumber GetDataModelNumber(long int64) =>
 			_type switch
 			{
-				DataModelNumberType.Int32   => (int) int64,
+				DataModelNumberType.Int32   => (int)int64,
 				DataModelNumberType.Int64   => int64,
 				DataModelNumberType.Double  => BitConverter.Int64BitsToDouble(int64),
-				DataModelNumberType.Decimal => (decimal) new RawDecimal(int64, _int64Ext),
+				DataModelNumberType.Decimal => (decimal)new RawDecimal(int64, _int64Ext),
 				_                           => throw Infra.Unmatched(_type)
 			};
 
@@ -1040,14 +1040,14 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		{
 			utcTicks = dateTime.Ticks;
 
-			return GetDateTimeValue(CacheGranularity * (int) dateTime.Kind);
+			return GetDateTimeValue(CacheGranularity * (int)dateTime.Kind);
 		}
 
 		public static DateTimeValue GetDateTimeValue(DateTimeOffset dateTimeOffset, out long utcTicks)
 		{
 			utcTicks = dateTimeOffset.UtcTicks;
 
-			return GetDateTimeValue((int) (dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute + Base));
+			return GetDateTimeValue((int)(dateTimeOffset.Offset.Ticks / TimeSpan.TicksPerMinute + Base));
 		}
 
 		private static DateTimeValue GetDateTimeValue(int data)
@@ -1073,7 +1073,7 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		{
 			if (_data <= Boundary)
 			{
-				return new DateTime(utcTicks, (DateTimeKind) (_data / CacheGranularity));
+				return new DateTime(utcTicks, (DateTimeKind)(_data / CacheGranularity));
 			}
 
 			var offsetTicks = (_data - Base) * TimeSpan.TicksPerMinute;

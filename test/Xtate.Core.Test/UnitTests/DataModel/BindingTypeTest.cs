@@ -115,8 +115,8 @@ public class BindingTypeTest
 	public void BindingType_CastToInt_ShouldWork()
 	{
 		// Act
-		var earlyInt = (int) BindingType.Early;
-		var lateInt = (int) BindingType.Late;
+		var earlyInt = (int)BindingType.Early;
+		var lateInt = (int)BindingType.Late;
 
 		// Assert
 		Assert.AreEqual(expected: 0, earlyInt);

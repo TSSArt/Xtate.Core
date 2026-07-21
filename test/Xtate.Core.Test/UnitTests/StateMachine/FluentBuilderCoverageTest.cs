@@ -318,27 +318,27 @@ public class FluentBuilderCoverageTest
 		switch (builder)
 		{
 			case Mock<IInitialBuilder> initial:
-				initial.Setup(static value => value.Build()).Returns((IInitial) entity);
+				initial.Setup(static value => value.Build()).Returns((IInitial)entity);
 
 				break;
 			case Mock<IStateBuilder> state:
-				state.Setup(static value => value.Build()).Returns((IState) entity);
+				state.Setup(static value => value.Build()).Returns((IState)entity);
 
 				break;
 			case Mock<IParallelBuilder> parallel:
-				parallel.Setup(static value => value.Build()).Returns((IParallel) entity);
+				parallel.Setup(static value => value.Build()).Returns((IParallel)entity);
 
 				break;
 			case Mock<IFinalBuilder> final:
-				final.Setup(static value => value.Build()).Returns((IFinal) entity);
+				final.Setup(static value => value.Build()).Returns((IFinal)entity);
 
 				break;
 			case Mock<IHistoryBuilder> history:
-				history.Setup(static value => value.Build()).Returns((IHistory) entity);
+				history.Setup(static value => value.Build()).Returns((IHistory)entity);
 
 				break;
 			case Mock<ITransitionBuilder> transition:
-				transition.Setup(static value => value.Build()).Returns((ITransition) entity);
+				transition.Setup(static value => value.Build()).Returns((ITransition)entity);
 
 				break;
 		}

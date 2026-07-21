@@ -43,7 +43,7 @@ public class InitialFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public TransitionFluentBuilder<InitialFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
 
-	public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
+	public InitialFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier)target);
 
 	public InitialFluentBuilder<TOuterBuilder> AddTransition(IIdentifier target) => BeginTransition().SetTarget(target).EndTransition();
 }

@@ -42,8 +42,8 @@ public class BucketConverterCoverageTest
 		var dataModelNumber = DataModelNumber.FromDecimal(123.45M);
 		var dataModelDateTime = DataModelDateTime.FromDateTimeOffset(dateTimeOffset);
 
-		bucket.Add(key: "byte", (byte) 250);
-		bucket.Add(key: "short", (short) -1234);
+		bucket.Add(key: "byte", (byte)250);
+		bucket.Add(key: "short", (short)-1234);
 		bucket.Add(key: "int", value: -123456789);
 		bucket.Add(key: "uint", uintValueToPersist);
 		bucket.Add(key: "bool", value: true);
@@ -59,9 +59,9 @@ public class BucketConverterCoverageTest
 		bucket.Add(key: "enum", SampleEnum.Large);
 
 		Assert.IsTrue(bucket.TryGet(key: "byte", out byte byteValue));
-		Assert.AreEqual((byte) 250, byteValue);
+		Assert.AreEqual((byte)250, byteValue);
 		Assert.IsTrue(bucket.TryGet(key: "short", out short shortValue));
-		Assert.AreEqual((short) -1234, shortValue);
+		Assert.AreEqual((short)-1234, shortValue);
 		Assert.IsTrue(bucket.TryGet(key: "int", out int intValue));
 		Assert.AreEqual(expected: -123456789, intValue);
 		Assert.IsTrue(bucket.TryGet(key: "uint", out uint uintValue));

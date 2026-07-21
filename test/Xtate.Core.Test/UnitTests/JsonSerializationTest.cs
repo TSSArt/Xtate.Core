@@ -46,7 +46,7 @@ public class JsonSerializationTest
 	public void StringSerializationTest()
 	{
 		// arrange
-		var val = (DataModelValue) "val";
+		var val = (DataModelValue)"val";
 
 		// act
 		var json = DataModelConverter.ToJson(val);

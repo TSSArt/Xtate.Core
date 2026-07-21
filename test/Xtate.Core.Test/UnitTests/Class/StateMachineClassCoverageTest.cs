@@ -69,7 +69,7 @@ public class StateMachineClassCoverageTest
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => _ = new LocationStateMachine(baseUri: null, new Uri(uriString: "relative.scxml", UriKind.Relative)));
 	}
 
-	private static Uri? GetLocation(LocationStateMachine stateMachine) => ((IStateMachineLocation) stateMachine).Location;
+	private static Uri? GetLocation(LocationStateMachine stateMachine) => ((IStateMachineLocation)stateMachine).Location;
 
 	private sealed class TestScxmlStreamStateMachine(Stream stream) : ScxmlStreamStateMachine(stream)
 	{

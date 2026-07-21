@@ -134,15 +134,15 @@ public class DataModelDynamicCoverageTest
 		var indexMetadata = new DataModelList { ["scope"] = "index" };
 		var keyMetadata = new DataModelList { ["scope"] = "key" };
 
-		dyn.SetLength((short) 3);
-		dyn[(short) 2] = "two";
-		dyn.SetMetadata((short) 1, indexMetadata);
+		dyn.SetLength((short)3);
+		dyn[(short)2] = "two";
+		dyn.SetMetadata((short)1, indexMetadata);
 		dyn.SetMetadata("named", keyMetadata);
 		list.SetMetadata(rootMetadata);
 
-		object convertedIndex = dyn[(short) 2];
+		object convertedIndex = dyn[(short)2];
 		object length = dyn.GetLength();
-		object metadataByConvertedIndex = dyn.GetMetadata((short) 1);
+		object metadataByConvertedIndex = dyn.GetMetadata((short)1);
 		object metadataByIntIndex = dyn.GetMetadata(1);
 		object metadataByKey = dyn.GetMetadata("named");
 		object allMetadata = dyn.GetMetadata();

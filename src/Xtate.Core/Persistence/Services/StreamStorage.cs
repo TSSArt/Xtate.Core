@@ -194,7 +194,7 @@ public class StreamStorage : ITransactionalStorage, IAsyncInitialization
 		var streamTotal = 0;
 		var streamEnd = 0;
 
-		var streamLength = (int) _stream.Length;
+		var streamLength = (int)_stream.Length;
 
 		if (streamLength == 0)
 		{

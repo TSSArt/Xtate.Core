@@ -29,7 +29,10 @@ public class OwnedXtateException : XtateException
 
 	public OwnedXtateException(Exception innerException) : base(message: null, innerException) { }
 
-	public required object Owner { init => _owner = value; }
+	public required object Owner
+	{
+		init => _owner = value;
+	}
 
 	public bool IsOwnedBy(object owner) => ReferenceEquals(_owner, owner);
 }

@@ -47,11 +47,11 @@ public class StateMachineDestroyOnIdleCoverageTest
 		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
 
 		Assert.AreEqual(expected: 1, interpreterFactoryCalls.Count);
-		await ((IAsyncDisposable) tracker).DisposeAsync();
+		await ((IAsyncDisposable)tracker).DisposeAsync();
 
 		var secondTracker = await service.Factory();
 		Assert.IsNotNull(secondTracker);
-		((IDisposable) secondTracker).Dispose();
+		((IDisposable)secondTracker).Dispose();
 	}
 
 	[TestMethod]
@@ -68,7 +68,7 @@ public class StateMachineDestroyOnIdleCoverageTest
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(5));
 		await destroyed.Task.WaitAsync(cts.Token);
-		await ((IAsyncDisposable) tracker).DisposeAsync();
+		await ((IAsyncDisposable)tracker).DisposeAsync();
 
 		interpreter.Verify(static item => item.TriggerDestroySignal(), Times.Once);
 	}
@@ -93,7 +93,7 @@ public class StateMachineDestroyOnIdleCoverageTest
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(5));
 		var loggedException = await logged.Task.WaitAsync(cts.Token);
-		await ((IAsyncDisposable) tracker).DisposeAsync();
+		await ((IAsyncDisposable)tracker).DisposeAsync();
 
 		Assert.AreSame(failure, loggedException);
 	}

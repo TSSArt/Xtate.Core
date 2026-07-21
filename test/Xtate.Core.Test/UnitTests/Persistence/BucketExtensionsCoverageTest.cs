@@ -69,10 +69,10 @@ public class BucketExtensionsCoverageTest
 		bucket.AddId(key: "send", sendId);
 		bucket.AddId(key: "unique-invoke", uniqueInvokeId);
 		bucket.AddId(key: "explicit-invoke", explicitInvokeId);
-		bucket.AddId(key: "null-session", (SessionId?) null);
-		bucket.AddId(key: "null-send", (SendId?) null);
-		bucket.AddId(key: "null-invoke", (InvokeId?) null);
-		bucket.AddEventName(key: "event", (EventName) "coverage.event");
+		bucket.AddId(key: "null-session", (SessionId?)null);
+		bucket.AddId(key: "null-send", (SendId?)null);
+		bucket.AddId(key: "null-invoke", (InvokeId?)null);
+		bucket.AddEventName(key: "event", (EventName)"coverage.event");
 		bucket.AddEventName(key: "default-event", eventName: default);
 		bucket.Add(key: "uri", relativeUri);
 		bucket.Add(key: "full-uri", fullUri);

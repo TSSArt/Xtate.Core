@@ -302,7 +302,7 @@ public class XIncludeReader : DelegatedXmlReader
 			return ResourceFactory(stream, arg2: null);
 		}
 
-		return (Resource) resource;
+		return (Resource)resource;
 	}
 
 	private async ValueTask<bool> ProcessInterDocXmlInclusion(Uri uri, bool useAsync)

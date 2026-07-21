@@ -70,6 +70,6 @@ public class InFunction() : XPathFunctionBase(XPathResultType.Boolean, XPathResu
 	{
 		Infra.NotNull(_inStateController);
 
-		return !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier) stateId);
+		return !string.IsNullOrEmpty(stateId) && _inStateController.InState((Identifier)stateId);
 	}
 }

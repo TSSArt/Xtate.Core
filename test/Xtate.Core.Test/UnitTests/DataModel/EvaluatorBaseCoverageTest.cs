@@ -84,7 +84,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestAssignEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(location, evaluator.Location);
 		Assert.AreSame(expression, evaluator.Expression);
 		Assert.AreSame(inlineContent, evaluator.InlineContent);
@@ -100,7 +100,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestCancelEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "send-id", evaluator.SendId);
 		Assert.AreSame(expression, evaluator.SendIdExpression);
 
@@ -115,7 +115,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestCustomActionEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "urn:test", evaluator.XmlNamespace);
 		Assert.AreEqual(expected: "custom", evaluator.XmlName);
 		Assert.AreEqual(expected: "<custom />", evaluator.Xml);
@@ -131,7 +131,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestIfEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(condition, evaluator.Condition);
 		Assert.AreSame(executable, evaluator.Action.Single());
 
@@ -144,7 +144,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestLogEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "label", evaluator.Label);
 		Assert.AreSame(expression, evaluator.Expression);
 
@@ -157,7 +157,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestRaiseEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(outgoingEvent, evaluator.OutgoingEvent);
 
 		await evaluator.Execute();
@@ -173,7 +173,7 @@ public class EvaluatorBaseCoverageTest
 	{
 		var evaluator = new TestSendEvaluator(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(content, evaluator.Content);
 		Assert.AreEqual(expected: "event-name", evaluator.EventName);
 		Assert.AreSame(valueExpression, evaluator.EventExpression);
@@ -360,7 +360,7 @@ public class EvaluatorBaseCoverageTest
 
 		public SendId? SendId => SendId.FromString("send-id");
 
-		public EventName Name => (EventName) "outgoing";
+		public EventName Name => (EventName)"outgoing";
 
 		public FullUri? Target => new("https://target.test/");
 

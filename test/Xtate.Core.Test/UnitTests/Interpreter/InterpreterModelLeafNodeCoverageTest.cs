@@ -36,10 +36,10 @@ public class InterpreterModelLeafNodeCoverageTest
 		var source = new ExternalScriptSource { Uri = new Uri("https://example.test/action.js") };
 		var node = new TestExternalScriptExpressionNode(source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(source.Uri, node.Uri);
 
-		((IExternalScriptConsumer) node).SetContent("script body");
+		((IExternalScriptConsumer)node).SetContent("script body");
 
 		Assert.AreEqual(expected: "script body", node.StoredContent);
 		Assert.AreEqual(expected: "script body", source.Content);
@@ -55,7 +55,7 @@ public class InterpreterModelLeafNodeCoverageTest
 		var node = new ScriptNode(new DocumentIdNode(documentIds), source);
 		documentIds.First!.Value = 73;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(content, node.Content);
 		Assert.AreSame(external, node.Source);
 		Assert.AreEqual(expected: 73, node.DocumentId);
@@ -70,17 +70,17 @@ public class InterpreterModelLeafNodeCoverageTest
 		var identifier = Identifier.FromString("state-id");
 		var node = new IdentifierNode(identifier);
 
-		Assert.AreSame(identifier, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(identifier, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "state-id", node.Value);
 		Assert.AreEqual(expected: "state-id", node.ToString());
 		Assert.AreEqual(expected: "state-id", typeof(IdentifierNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
 		Assert.AreEqual(identifier.GetHashCode(), node.GetHashCode());
 		Assert.IsTrue(node.Equals(identifier));
 		Assert.IsFalse(node.Equals(Identifier.FromString("other")));
-		Assert.IsFalse((bool) typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, ["state-id"])!);
-		Assert.IsTrue((bool) typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [Identifier.FromString("state-id")])!);
-		Assert.IsFalse((bool) typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [null])!);
-		Assert.AreEqual(expected: "state-id", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.IsFalse((bool)typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, ["state-id"])!);
+		Assert.IsTrue((bool)typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [Identifier.FromString("state-id")])!);
+		Assert.IsFalse((bool)typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [null])!);
+		Assert.AreEqual(expected: "state-id", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -89,14 +89,14 @@ public class InterpreterModelLeafNodeCoverageTest
 		var descriptor = EventDescriptor.FromString("order.*");
 		var node = new EventDescriptorNode(descriptor);
 
-		Assert.AreSame(descriptor, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(descriptor, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "order.*", node.Value);
 		Assert.AreEqual(expected: "order.*", node.ToString());
 		Assert.AreEqual(expected: "order.*", typeof(EventDescriptorNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
 		Assert.AreEqual(descriptor.GetHashCode(), node.GetHashCode());
 		Assert.IsTrue(node.Equals(descriptor));
 		Assert.IsFalse(node.Equals(EventDescriptor.FromString("payment.*")));
-		Assert.AreEqual(expected: "order.*", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "order.*", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(node.IsEventMatch(new IncomingEvent { Name = EventName.FromString("order.created") }));
 		Assert.IsFalse(node.IsEventMatch(new IncomingEvent { Name = EventName.FromString("payment.created") }));
 	}
@@ -106,8 +106,8 @@ public class InterpreterModelLeafNodeCoverageTest
 	{
 		var identifier = new Mock<IIdentifier>();
 		var descriptor = new Mock<IEventDescriptor>();
-		identifier.Setup(static value => value.ToString()).Returns((string) null!);
-		descriptor.Setup(static value => value.ToString()).Returns((string) null!);
+		identifier.Setup(static value => value.ToString()).Returns((string)null!);
+		descriptor.Setup(static value => value.ToString()).Returns((string)null!);
 
 		Assert.AreEqual(string.Empty, new IdentifierNode(identifier.Object).ToString());
 		Assert.AreEqual(string.Empty, new EventDescriptorNode(descriptor.Object).ToString());
@@ -116,7 +116,7 @@ public class InterpreterModelLeafNodeCoverageTest
 	[TestMethod]
 	public void EventDescriptorSupportsCastValueEqualityHashingAndNullComparisons()
 	{
-		var descriptor = (EventDescriptor) "event.name";
+		var descriptor = (EventDescriptor)"event.name";
 		var equal = EventDescriptor.FromString("event.name");
 		var different = EventDescriptor.FromString("other");
 
@@ -124,7 +124,7 @@ public class InterpreterModelLeafNodeCoverageTest
 		Assert.AreEqual(expected: "event.name", descriptor.ToString());
 		Assert.IsTrue(descriptor.Equals(descriptor));
 		Assert.IsTrue(descriptor.Equals(equal));
-		Assert.IsTrue(descriptor.Equals((object) equal));
+		Assert.IsTrue(descriptor.Equals((object)equal));
 		Assert.IsFalse(descriptor.Equals(different));
 		Assert.IsFalse(descriptor.Equals(null));
 		Assert.IsFalse(descriptor.Equals(new object()));

@@ -118,11 +118,11 @@ public class XPathEngineEvaluatorCoverageTest
 		var expression = Mock.Of<IValueExpression>(e => e.Expression == "number");
 		var scalar = new XPathValueExpressionEvaluator(expression, Compile(expression: "number", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
-		Assert.AreSame(expression, ((IAncestorProvider) scalar).Ancestor);
+		Assert.AreSame(expression, ((IAncestorProvider)scalar).Ancestor);
 		Assert.AreEqual(expected: "number", scalar.Expression);
-		Assert.AreEqual(expected: "7", await ((IStringEvaluator) scalar).EvaluateString());
-		Assert.AreEqual(expected: 7, await ((IIntegerEvaluator) scalar).EvaluateInteger());
-		Assert.AreEqual(expected: "7", (await ((IObjectEvaluator) scalar).EvaluateObject()).ToObject());
+		Assert.AreEqual(expected: "7", await ((IStringEvaluator)scalar).EvaluateString());
+		Assert.AreEqual(expected: 7, await ((IIntegerEvaluator)scalar).EvaluateInteger());
+		Assert.AreEqual(expected: "7", (await ((IObjectEvaluator)scalar).EvaluateObject()).ToObject());
 
 		var array = new XPathValueExpressionEvaluator(Mock.Of<IValueExpression>(), Compile(expression: "items/item", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 		var values = await array.EvaluateArray();
@@ -140,17 +140,17 @@ public class XPathEngineEvaluatorCoverageTest
 		var expression = Mock.Of<IValueExpression>(e => e.Expression == "number");
 		var scalar = new XPathValueExpressionEvaluator(expression, Compile(expression: "number", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
-		Assert.AreSame(expression, ((IAncestorProvider) scalar).Ancestor);
+		Assert.AreSame(expression, ((IAncestorProvider)scalar).Ancestor);
 		Assert.AreEqual(expected: "number", scalar.Expression);
-		Assert.AreEqual(expected: "7", await ((IStringEvaluator) scalar).EvaluateString());
-		Assert.AreEqual(expected: 7, await ((IIntegerEvaluator) scalar).EvaluateInteger());
-		Assert.AreEqual(XPathObjectType.NodeSet, ((XPathObject) await ((IObjectEvaluator) scalar).EvaluateObject()).Type);
+		Assert.AreEqual(expected: "7", await ((IStringEvaluator)scalar).EvaluateString());
+		Assert.AreEqual(expected: 7, await ((IIntegerEvaluator)scalar).EvaluateInteger());
+		Assert.AreEqual(XPathObjectType.NodeSet, ((XPathObject)await ((IObjectEvaluator)scalar).EvaluateObject()).Type);
 
 		var array = new XPathValueExpressionEvaluator(Mock.Of<IValueExpression>(), Compile(expression: "items/item", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 		var values = await array.EvaluateArray();
 		Assert.HasCount(expected: 2, values);
-		Assert.AreEqual(expected: "one", ((XPathObject) values[0]).AsString());
-		Assert.AreEqual(expected: "two", ((XPathObject) values[1]).AsString());
+		Assert.AreEqual(expected: "one", ((XPathObject)values[0]).AsString());
+		Assert.AreEqual(expected: "two", ((XPathObject)values[1]).AsString());
 	}
 
 	[TestMethod]
@@ -161,7 +161,7 @@ public class XPathEngineEvaluatorCoverageTest
 		var source = Mock.Of<ILocationExpression>(e => e.Expression == "target");
 		var evaluator = new XPathLocationExpressionEvaluator(source, Compile(expression: "target", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "target", evaluator.Expression);
 		Assert.AreEqual(expected: "target", await evaluator.GetName());
 		Assert.AreEqual(expected: "old", (await evaluator.GetValue()).ToObject());
@@ -184,7 +184,7 @@ public class XPathEngineEvaluatorCoverageTest
 		var source = Mock.Of<ILocationExpression>(e => e.Expression == "target");
 		var evaluator = new XPathLocationExpressionEvaluator(source, Compile(expression: "target", engine)) { EngineFactory = () => new ValueTask<XPathEngine>(engine) };
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "target", evaluator.Expression);
 		Assert.AreEqual(expected: "target", await evaluator.GetName());
 		Assert.AreEqual(expected: "old", (await evaluator.GetValue()).ToObject());
@@ -334,7 +334,7 @@ public class XPathEngineEvaluatorCoverageTest
 
 	private static string FirstValue(object variable)
 	{
-		var iterator = (XPathNodeIterator) variable;
+		var iterator = (XPathNodeIterator)variable;
 		Assert.IsTrue(iterator.MoveNext());
 
 		return iterator.Current!.Value;

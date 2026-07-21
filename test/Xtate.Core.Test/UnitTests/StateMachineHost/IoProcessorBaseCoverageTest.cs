@@ -57,7 +57,7 @@ public class IoProcessorBaseCoverageTest
 		Assert.IsFalse(router.CanHandle(type: null));
 		Assert.IsFalse(router.IsInternalTarget(new FullUri("urn:target")));
 
-		var outgoingEvent = Mock.Of<IOutgoingEvent>(source => source.Name == (EventName) "event");
+		var outgoingEvent = Mock.Of<IOutgoingEvent>(source => source.Name == (EventName)"event");
 		var routerEvent = await router.GetRouterEvent(outgoingEvent, CancellationToken.None);
 		Assert.AreEqual(sessionId, routerEvent.SenderServiceId);
 		Assert.AreEqual(id, routerEvent.OriginType);

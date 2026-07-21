@@ -104,8 +104,8 @@ public class StateMachineReaderCoverageTest
 
 		Assert.IsInstanceOfType<IExternalScriptExpression>(restored);
 		Assert.IsInstanceOfType<IExternalScriptProvider>(restored);
-		Assert.AreEqual(new Uri("https://example.test/script.js"), ((IExternalScriptExpression) restored).Uri);
-		Assert.AreEqual(expected: "embedded script", ((IExternalScriptProvider) restored).Content);
+		Assert.AreEqual(new Uri("https://example.test/script.js"), ((IExternalScriptExpression)restored).Uri);
+		Assert.AreEqual(expected: "embedded script", ((IExternalScriptProvider)restored).Content);
 	}
 
 	[TestMethod]

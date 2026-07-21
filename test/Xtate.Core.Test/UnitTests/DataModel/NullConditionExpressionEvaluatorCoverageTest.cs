@@ -31,12 +31,12 @@ public class NullConditionExpressionEvaluatorCoverageTest
 		var conditionExpression = new ConditionExpressionSource { Expression = "In(target)" };
 		var evaluator = new NullConditionExpressionEvaluator(conditionExpression, Identifier.FromString("target"))
 						{
-							InStateControllerFactory = () => new ValueTask<IInStateController?>((IInStateController?) null)
+							InStateControllerFactory = () => new ValueTask<IInStateController?>((IInStateController?)null)
 						};
 
-		Assert.AreSame(conditionExpression, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(conditionExpression, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "In(target)", evaluator.Expression);
-		Assert.IsFalse(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
+		Assert.IsFalse(await ((IBooleanEvaluator)evaluator).EvaluateBoolean());
 	}
 
 	[TestMethod]
@@ -49,7 +49,7 @@ public class NullConditionExpressionEvaluatorCoverageTest
 							InStateControllerFactory = () => new ValueTask<IInStateController?>(controller)
 						};
 
-		Assert.IsTrue(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
+		Assert.IsTrue(await ((IBooleanEvaluator)evaluator).EvaluateBoolean());
 		Assert.AreSame(target, controller.LastId);
 	}
 

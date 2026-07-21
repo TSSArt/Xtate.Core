@@ -43,17 +43,17 @@ public class StateMachineExternalServiceCoverageTest
 					.ReturnsAsync(new DataModelValue("result"));
 		var service = CreateService(scopeManager.Object, collection.Object, source: null, scxml, DataModelValue.Undefined);
 
-		await ((IEventDispatcher) service).Dispatch(Mock.Of<IIncomingEvent>(), CancellationToken.None);
+		await ((IEventDispatcher)service).Dispatch(Mock.Of<IIncomingEvent>(), CancellationToken.None);
 		collection.VerifyNoOtherCalls();
 
-		Assert.AreEqual(expected: "result", (await ((IExternalService) service).GetResult()).AsString());
+		Assert.AreEqual(expected: "result", (await ((IExternalService)service).GetResult()).AsString());
 		var scxmlChild = child as ScxmlStringChildStateMachine;
 		Assert.IsNotNull(scxmlChild);
-		Assert.AreEqual(new Uri("https://example.test/parent.scxml"), ((IStateMachineLocation) scxmlChild).Location);
-		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments) scxmlChild).Arguments.AsString());
+		Assert.AreEqual(new Uri("https://example.test/parent.scxml"), ((IStateMachineLocation)scxmlChild).Location);
+		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments)scxmlChild).Arguments.AsString());
 
 		var incomingEvent = Mock.Of<IIncomingEvent>();
-		await ((IEventDispatcher) service).Dispatch(incomingEvent, CancellationToken.None);
+		await ((IEventDispatcher)service).Dispatch(incomingEvent, CancellationToken.None);
 		collection.Verify(c => c.Dispatch(scxmlChild.SessionId, incomingEvent, It.IsAny<CancellationToken>()), Times.Once);
 
 		service.Dispose();
@@ -77,11 +77,11 @@ public class StateMachineExternalServiceCoverageTest
 			rawContent: null,
 			DataModelValue.Undefined);
 
-		await ((IExternalService) service).GetResult();
+		await ((IExternalService)service).GetResult();
 		var locationChild = child as LocationChildStateMachine;
 		Assert.IsNotNull(locationChild);
-		Assert.AreEqual(new Uri("https://example.test/child.scxml"), ((IStateMachineLocation) locationChild).Location);
-		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments) locationChild).Arguments.AsString());
+		Assert.AreEqual(new Uri("https://example.test/child.scxml"), ((IStateMachineLocation)locationChild).Location);
+		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments)locationChild).Arguments.AsString());
 
 		await service.DisposeAsync();
 		await service.DisposeAsync();
@@ -98,9 +98,9 @@ public class StateMachineExternalServiceCoverageTest
 		var fromContent = CreateService(scopeManager.Object, collection, source: null, rawContent: null, new DataModelValue("<scxml/>"));
 		var missing = CreateService(scopeManager.Object, collection, source: null, rawContent: null, DataModelValue.Undefined);
 
-		await ((IExternalService) fromContent).GetResult();
+		await ((IExternalService)fromContent).GetResult();
 		scopeManager.Verify(s => s.Execute(It.IsAny<ScxmlStringChildStateMachine>(), SecurityContextType.InvokedService), Times.Once);
-		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await ((IExternalService) missing).GetResult());
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await ((IExternalService)missing).GetResult());
 	}
 
 	[TestMethod]
@@ -108,7 +108,7 @@ public class StateMachineExternalServiceCoverageTest
 	{
 		IExternalServiceProvider provider = new StateMachineExternalService.Provider
 											{
-												ServiceFactoryFunc = static () => new ValueTask<StateMachineExternalService>((StateMachineExternalService) null!)
+												ServiceFactoryFunc = static () => new ValueTask<StateMachineExternalService>((StateMachineExternalService)null!)
 											};
 
 		Assert.IsNotNull(provider.TryGetActivator(Const.ScxmlServiceTypeId));

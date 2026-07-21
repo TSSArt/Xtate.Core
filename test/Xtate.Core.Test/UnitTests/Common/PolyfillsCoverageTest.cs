@@ -31,10 +31,10 @@ public class PolyfillsCoverageTest
 
 		AssertWrites(value: true, sizeof(byte), BitConverter.GetBytes(true));
 		AssertWrites(value: 'Ж', sizeof(char), BitConverter.GetBytes('Ж'));
-		AssertWrites((short) -1234, sizeof(short), BitConverter.GetBytes((short) -1234));
+		AssertWrites((short)-1234, sizeof(short), BitConverter.GetBytes((short)-1234));
 		AssertWrites(value: 123456789, sizeof(int), BitConverter.GetBytes(123456789));
 		AssertWrites(value: -1234567890123456789L, sizeof(long), BitConverter.GetBytes(-1234567890123456789L));
-		AssertWrites((ushort) 65000, sizeof(ushort), BitConverter.GetBytes((ushort) 65000));
+		AssertWrites((ushort)65000, sizeof(ushort), BitConverter.GetBytes((ushort)65000));
 		AssertWrites(value: 4000000000U, sizeof(uint), BitConverter.GetBytes(4000000000U));
 		AssertWrites(value: 18000000000000000000UL, sizeof(ulong), BitConverter.GetBytes(18000000000000000000UL));
 		AssertWrites(value: 123.5F, sizeof(float), BitConverter.GetBytes(123.5F));

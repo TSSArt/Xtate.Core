@@ -69,7 +69,7 @@ public class EventDescriptorTest
 		const string eventName = "test.event";
 
 		// Act
-		var descriptor = (EventDescriptor) eventName;
+		var descriptor = (EventDescriptor)eventName;
 
 		// Assert
 		Assert.IsNotNull(descriptor);
@@ -183,7 +183,7 @@ public class EventDescriptorTest
 		var descriptors = new[]
 						  {
 							  EventDescriptor.FromString(eventName),
-							  (EventDescriptor) eventName,
+							  (EventDescriptor)eventName,
 							  EventDescriptor.FromString(eventName)
 						  };
 

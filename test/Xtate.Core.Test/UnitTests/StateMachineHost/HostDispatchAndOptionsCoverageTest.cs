@@ -48,11 +48,11 @@ public class HostDispatchAndOptionsCoverageTest
 		var source = Mock.Of<IOptions<StateMachineOptions.StateMachineOptions>>(value => value.Value == options);
 		var provider = new StateMachineOptionsProvider(source);
 
-		Assert.AreEqual(PersistenceLevel.Transition, ((IPersistenceOptions) provider).PersistenceLevel);
-		Assert.AreEqual(UnhandledErrorBehaviour.IgnoreError, ((IUnhandledErrorBehaviour) provider).Behaviour);
-		Assert.AreEqual(TimeSpan.FromMinutes(3), ((IDestroyOnIdleTimeout) provider).IdleTimeout);
-		Assert.IsTrue(((IXIncludeOptions) provider).XIncludeAllowed);
-		Assert.AreEqual(expected: 23, ((IXIncludeOptions) provider).MaxNestingLevel);
+		Assert.AreEqual(PersistenceLevel.Transition, ((IPersistenceOptions)provider).PersistenceLevel);
+		Assert.AreEqual(UnhandledErrorBehaviour.IgnoreError, ((IUnhandledErrorBehaviour)provider).Behaviour);
+		Assert.AreEqual(TimeSpan.FromMinutes(3), ((IDestroyOnIdleTimeout)provider).IdleTimeout);
+		Assert.IsTrue(((IXIncludeOptions)provider).XIncludeAllowed);
+		Assert.AreEqual(expected: 23, ((IXIncludeOptions)provider).MaxNestingLevel);
 	}
 
 	[TestMethod]
@@ -62,12 +62,12 @@ public class HostDispatchAndOptionsCoverageTest
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		using var cancellation = new CancellationTokenSource();
 		var withoutParent = new ScxmlStringChildStateMachine(scxml) { ParentEventDispatcher = null };
-		await ((IParentEventDispatcher) withoutParent).Dispatch(incomingEvent, cancellation.Token);
+		await ((IParentEventDispatcher)withoutParent).Dispatch(incomingEvent, cancellation.Token);
 
 		var parent = new Mock<IEventDispatcher>();
 		parent.Setup(p => p.Dispatch(incomingEvent, cancellation.Token)).Returns(ValueTask.CompletedTask);
 		var child = new ScxmlStringChildStateMachine(scxml) { ParentEventDispatcher = parent.Object };
-		await ((IParentEventDispatcher) child).Dispatch(incomingEvent, cancellation.Token);
+		await ((IParentEventDispatcher)child).Dispatch(incomingEvent, cancellation.Token);
 		parent.Verify(p => p.Dispatch(incomingEvent, cancellation.Token), Times.Once);
 
 		var services = new ServiceCollection();
@@ -144,8 +144,8 @@ public class HostDispatchAndOptionsCoverageTest
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		using var cancellation = new CancellationTokenSource();
 		var sessionId = SessionId.FromString("session");
-		var handledInvoke = (UniqueInvokeId) InvokeId.FromString("handled");
-		var unhandledInvoke = (UniqueInvokeId) InvokeId.FromString("unhandled");
+		var handledInvoke = (UniqueInvokeId)InvokeId.FromString("handled");
+		var unhandledInvoke = (UniqueInvokeId)InvokeId.FromString("unhandled");
 		var unknown = new OtherServiceId("other");
 		globalServices.Setup(g => g.TryDispatch(handledInvoke, incomingEvent, cancellation.Token)).ReturnsAsync(true);
 		globalServices.Setup(g => g.TryDispatch(unhandledInvoke, incomingEvent, cancellation.Token)).ReturnsAsync(false);
@@ -169,14 +169,14 @@ public class HostDispatchAndOptionsCoverageTest
 		var baseUri = new Uri("https://example.test/machines/");
 		var fromString = new LocationChildStateMachine(baseUri, relativeUri: "child.scxml") { ParentEventDispatcher = null };
 		var fromUri = new LocationChildStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative)) { ParentEventDispatcher = null };
-		Assert.AreEqual(new Uri("https://example.test/machines/child.scxml"), ((IStateMachineLocation) fromString).Location);
-		Assert.AreEqual(new Uri("https://example.test/machines/second.scxml"), ((IStateMachineLocation) fromUri).Location);
+		Assert.AreEqual(new Uri("https://example.test/machines/child.scxml"), ((IStateMachineLocation)fromString).Location);
+		Assert.AreEqual(new Uri("https://example.test/machines/second.scxml"), ((IStateMachineLocation)fromUri).Location);
 
 		var incomingEvent = Mock.Of<IIncomingEvent>();
-		await ((IParentEventDispatcher) fromString).Dispatch(incomingEvent, CancellationToken.None);
+		await ((IParentEventDispatcher)fromString).Dispatch(incomingEvent, CancellationToken.None);
 		var parent = new Mock<IEventDispatcher>();
 		fromUri = new LocationChildStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative)) { ParentEventDispatcher = parent.Object };
-		await ((IParentEventDispatcher) fromUri).Dispatch(incomingEvent, CancellationToken.None);
+		await ((IParentEventDispatcher)fromUri).Dispatch(incomingEvent, CancellationToken.None);
 		parent.Verify(p => p.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
 
 		var services = new ServiceCollection();

@@ -36,8 +36,8 @@ public class LazyIdCoverageTest
 		Assert.AreSame(value, lazyId.Value);
 		Assert.AreEqual(value, lazyId.ToString());
 		Assert.AreEqual(hash, lazyId.GetHashCode());
-		Assert.AreEqual(value, ((IObject) lazyId).ToObject());
-		Assert.AreEqual(value, ((ILazyValue) lazyId).Value.AsString());
+		Assert.AreEqual(value, ((IObject)lazyId).ToObject());
+		Assert.AreEqual(value, ((ILazyValue)lazyId).Value.AsString());
 		Assert.AreEqual(value, lazyId.ToDataModelValue().AsString());
 
 		DataModelValue implicitValue = lazyId;

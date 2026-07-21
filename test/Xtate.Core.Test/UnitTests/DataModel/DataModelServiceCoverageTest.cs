@@ -38,7 +38,7 @@ public class DataModelServiceCoverageTest
 		var expression = new ExternalDataExpressionSource(new Uri("https://resource.test/data"));
 		var evaluator = new TestExternalDataExpressionEvaluator(expression, new DataModelValue("base value"));
 
-		Assert.AreSame(expression, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(expression, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(expression.Uri, evaluator.Uri);
 		Assert.AreEqual(expected: "base value", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 
@@ -65,7 +65,7 @@ public class DataModelServiceCoverageTest
 		var hitProvider = new Mock<IDataModelHandlerProvider>();
 		var errorProcessor = new Mock<IErrorProcessorService<DataModelHandlerService>>();
 
-		missProvider.Setup(provider => provider.TryGetDataModelHandler(requestedType)).ReturnsAsync((IDataModelHandler?) null);
+		missProvider.Setup(provider => provider.TryGetDataModelHandler(requestedType)).ReturnsAsync((IDataModelHandler?)null);
 		hitProvider.Setup(provider => provider.TryGetDataModelHandler(requestedType)).ReturnsAsync(matchingHandler);
 
 		var service = new DataModelHandlerService
@@ -97,7 +97,7 @@ public class DataModelServiceCoverageTest
 		var handler = CreateUnknownHandler(errorProcessor.Object);
 		IExecutableEntity executable = new ExecutableEntitySource();
 
-		((IDataModelHandler) handler).Process(ref executable);
+		((IDataModelHandler)handler).Process(ref executable);
 
 		errorProcessor.Verify(
 			processor => processor.AddError(

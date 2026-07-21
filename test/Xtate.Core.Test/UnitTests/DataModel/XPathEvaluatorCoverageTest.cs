@@ -38,7 +38,7 @@ public class XPathEvaluatorCoverageTest
 		var source = new LocationExpressionSource { Expression = "/root/value" };
 		var expression = new XPathLocationExpression(source, XPathAssignType.AddAttribute, attribute: "status");
 
-		Assert.AreSame(source, ((IAncestorProvider) expression).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)expression).Ancestor);
 		Assert.AreEqual(expected: "/root/value", expression.Expression);
 		Assert.AreEqual(XPathAssignType.AddAttribute, expression.AssignType);
 		Assert.AreEqual(expected: "status", expression.Attribute);
@@ -103,13 +103,13 @@ public class XPathEvaluatorCoverageTest
 		var inlineContent = new InlineContentSource { Value = "inline text" };
 		var evaluator = new TestInlineContentEvaluator(inlineContent, new DataModelValue("object text"));
 
-		Assert.AreSame(inlineContent, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(inlineContent, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "inline text", evaluator.Value);
 		Assert.AreEqual(expected: "inline text", await evaluator.EvaluateString());
-		var reflected = (ValueTask<string>) typeof(InlineContentEvaluator).GetMethod(nameof(InlineContentEvaluator.EvaluateString))!.Invoke(evaluator, parameters: null)!;
+		var reflected = (ValueTask<string>)typeof(InlineContentEvaluator).GetMethod(nameof(InlineContentEvaluator.EvaluateString))!.Invoke(evaluator, parameters: null)!;
 		Assert.AreEqual(expected: "inline text", await reflected);
 		var empty = new TestInlineContentEvaluator(new InlineContentSource { Value = null }, DataModelValue.Null);
-		var reflectedEmpty = (ValueTask<string>) typeof(InlineContentEvaluator).GetMethod(nameof(InlineContentEvaluator.EvaluateString))!.Invoke(empty, parameters: null)!;
+		var reflectedEmpty = (ValueTask<string>)typeof(InlineContentEvaluator).GetMethod(nameof(InlineContentEvaluator.EvaluateString))!.Invoke(empty, parameters: null)!;
 		Assert.AreEqual(string.Empty, await reflectedEmpty);
 		Assert.AreEqual(expected: "object text", DataModelValue.FromObject(await evaluator.EvaluateObject()).AsString());
 	}

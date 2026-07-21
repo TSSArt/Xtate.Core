@@ -162,8 +162,8 @@ public class ScxmlToDomTest
 	public void RootElementInitialTest()
 	{
 		var sm = GetStateMachine("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0' initial='trg2 trg1'><state/></scxml>");
-		Assert.AreEqual((Identifier) "trg2", sm.Initial!.Transition!.Target[0]);
-		Assert.AreEqual((Identifier) "trg1", sm.Initial.Transition.Target[1]);
+		Assert.AreEqual((Identifier)"trg2", sm.Initial!.Transition!.Target[0]);
+		Assert.AreEqual((Identifier)"trg1", sm.Initial.Transition.Target[1]);
 		Assert.AreEqual(expected: 2, sm.Initial.Transition.Target.Count);
 	}
 
@@ -253,7 +253,7 @@ public class ScxmlToDomTest
 	{
 		var sm = GetStateMachineXyzDataModel("<script/>");
 		Assert.IsInstanceOfType(sm.Script, typeof(IScript));
-		var script = (IScript) sm.Script!;
+		var script = (IScript)sm.Script!;
 		Assert.IsNull(script.Content);
 		Assert.IsNull(script.Source);
 	}
@@ -263,7 +263,7 @@ public class ScxmlToDomTest
 	{
 		var sm = GetStateMachineXyzDataModel("<script><any_script xmlns='aaa'>345</any_script></script>");
 		Assert.IsInstanceOfType(sm.Script, typeof(IScript));
-		var script = (IScript) sm.Script!;
+		var script = (IScript)sm.Script!;
 		Assert.IsInstanceOfType(script.Content, typeof(IScriptExpression));
 		var scriptExpression = script.Content;
 		Assert.AreEqual(expected: "<any_script xmlns=\"aaa\">345</any_script>", scriptExpression!.Expression);
@@ -275,7 +275,7 @@ public class ScxmlToDomTest
 	{
 		var sm = GetStateMachineXyzDataModel("<script src='s-src'/>");
 		Assert.IsInstanceOfType(sm.Script, typeof(IScript));
-		var script = (IScript) sm.Script!;
+		var script = (IScript)sm.Script!;
 		Assert.IsInstanceOfType(script.Source, typeof(IExternalScriptExpression));
 		var externalScriptExpression = script.Source;
 		Assert.AreEqual(expected: "s-src", externalScriptExpression!.Uri!.ToString());
@@ -310,15 +310,15 @@ public class ScxmlToDomTest
 	public void StateNoAttrTest()
 	{
 		var sm = GetStateMachineWithRoot("<state/>");
-		Assert.IsNull(((IState) sm.States[0]).Id);
-		Assert.IsNull(((IState) sm.States[0]).Initial);
+		Assert.IsNull(((IState)sm.States[0]).Id);
+		Assert.IsNull(((IState)sm.States[0]).Initial);
 	}
 
 	[TestMethod]
 	public void StateIdTest()
 	{
 		var sm = GetStateMachineWithRoot("<state id='a'/>");
-		Assert.AreEqual((Identifier) "a", ((IState) sm.States[0]).Id);
+		Assert.AreEqual((Identifier)"a", ((IState)sm.States[0]).Id);
 	}
 
 	[TestMethod]
@@ -339,37 +339,37 @@ public class ScxmlToDomTest
 	public void StateInitialTest()
 	{
 		var sm = GetStateMachineWithRoot("<state initial='id id2'><parallel/></state>");
-		Assert.IsNull(((IState) sm.States[0]).Id);
-		Assert.AreEqual((Identifier) "id", ((IState) sm.States[0]).Initial!.Transition!.Target[0]);
-		Assert.AreEqual((Identifier) "id2", ((IState) sm.States[0]).Initial!.Transition!.Target[1]);
+		Assert.IsNull(((IState)sm.States[0]).Id);
+		Assert.AreEqual((Identifier)"id", ((IState)sm.States[0]).Initial!.Transition!.Target[0]);
+		Assert.AreEqual((Identifier)"id2", ((IState)sm.States[0]).Initial!.Transition!.Target[1]);
 	}
 
 	[TestMethod]
 	public void ParallelNoIdTest()
 	{
 		var sm = GetStateMachineWithRoot("<parallel/>");
-		Assert.IsNull(((IParallel) sm.States[0]).Id);
+		Assert.IsNull(((IParallel)sm.States[0]).Id);
 	}
 
 	[TestMethod]
 	public void ParallelIdTest()
 	{
 		var sm = GetStateMachineWithRoot("<parallel id='a'/>");
-		Assert.AreEqual((Identifier) "a", ((IParallel) sm.States[0]).Id);
+		Assert.AreEqual((Identifier)"a", ((IParallel)sm.States[0]).Id);
 	}
 
 	[TestMethod]
 	public void FinalNoIdTest()
 	{
 		var sm = GetStateMachineWithRoot("<final/>");
-		Assert.IsNull(((IFinal) sm.States[0]).Id);
+		Assert.IsNull(((IFinal)sm.States[0]).Id);
 	}
 
 	[TestMethod]
 	public void FinalIdTest()
 	{
 		var sm = GetStateMachineWithRoot("<final id='a'/>");
-		Assert.AreEqual((Identifier) "a", ((IFinal) sm.States[0]).Id);
+		Assert.AreEqual((Identifier)"a", ((IFinal)sm.States[0]).Id);
 	}
 
 	[TestMethod]
@@ -390,7 +390,7 @@ public class ScxmlToDomTest
 	{
 		var sm = GetStateMachineWithRoot("<state><onentry/><onexit/><transition event='e'/><invoke type='tmp'/></state>");
 
-		var state = (IState) sm.States[0];
+		var state = (IState)sm.States[0];
 		Assert.IsNull(state.Id);
 		Assert.AreEqual(expected: 1, state.OnEntry.Length);
 		Assert.AreEqual(expected: 1, state.OnExit.Length);

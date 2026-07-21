@@ -43,11 +43,11 @@ public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEqua
 
 	private DataModelDateTime(long utcTicks, TimeSpan offset, DateTimeKind kind)
 	{
-		_data = (ulong) utcTicks | ((ulong) kind << KindShift);
-		_offset = (short) (offset.Ticks / TimeSpan.TicksPerMinute);
+		_data = (ulong)utcTicks | ((ulong)kind << KindShift);
+		_offset = (short)(offset.Ticks / TimeSpan.TicksPerMinute);
 	}
 
-	private long Ticks => (long) (_data & TicksMask);
+	private long Ticks => (long)(_data & TicksMask);
 
 	public DataModelDateTimeType Type => (_data & KindLocal) != 0 ? DataModelDateTimeType.DateTimeOffset : DataModelDateTimeType.DateTime;
 
@@ -233,7 +233,7 @@ public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEqua
 	public object ToObject() =>
 		Type switch
 		{
-			DataModelDateTimeType.DateTime       => (object) ToDateTime(),
+			DataModelDateTimeType.DateTime       => (object)ToDateTime(),
 			DataModelDateTimeType.DateTimeOffset => ToDateTimeOffset(),
 			_                                    => throw Infra.Unmatched(Type)
 		};
@@ -351,12 +351,12 @@ public readonly struct DataModelDateTime : IConvertible, ISpanFormattable, IEqua
 
 		if (data.DateTimeParsed && data.DateTimeOffsetParsed)
 		{
-			dataModelDateTime = data.DateTime.Kind == DateTimeKind.Local || data.DateTimeOffset.Offset != TimeSpan.Zero ? (DataModelDateTime) data.DateTimeOffset : data.DateTime;
+			dataModelDateTime = data.DateTime.Kind == DateTimeKind.Local || data.DateTimeOffset.Offset != TimeSpan.Zero ? (DataModelDateTime)data.DateTimeOffset : data.DateTime;
 
 			return true;
 		}
 
-		dataModelDateTime = data.DateTimeOffsetParsed ? (DataModelDateTime) data.DateTimeOffset : data.DateTime;
+		dataModelDateTime = data.DateTimeOffsetParsed ? (DataModelDateTime)data.DateTimeOffset : data.DateTime;
 
 		return true;
 	}

@@ -30,7 +30,7 @@ public class InterpreterModelBuilderEntityMapCoverageTest
 	{
 		var stored = new EntitySource();
 		var type = typeof(InterpreterModelBuilder).GetNestedType(name: "EntityMap", BindingFlags.NonPublic)!;
-		var map = (IEntityMap) Activator.CreateInstance(type, [new IEntity?[] { null, stored }])!;
+		var map = (IEntityMap)Activator.CreateInstance(type, [new IEntity?[] { null, stored }])!;
 
 		Assert.IsFalse(map.TryGetEntityByDocumentId(id: 0, out var missing));
 		Assert.IsNull(missing);

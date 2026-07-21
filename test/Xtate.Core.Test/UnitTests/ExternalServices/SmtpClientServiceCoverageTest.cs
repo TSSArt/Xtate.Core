@@ -52,7 +52,7 @@ public class SmtpClientServiceCoverageTest
 						 };
 		var service = CreateService(parameters);
 
-		var result = await ((IExternalService) service).GetResult();
+		var result = await ((IExternalService)service).GetResult();
 		var session = await server.Session;
 
 		Assert.IsTrue(result.IsUndefined());
@@ -81,7 +81,7 @@ public class SmtpClientServiceCoverageTest
 						 };
 		var service = CreateService(parameters);
 
-		var result = await ((IExternalService) service).GetResult();
+		var result = await ((IExternalService)service).GetResult();
 		var session = await server.Session;
 
 		Assert.IsTrue(result.IsUndefined());
@@ -104,7 +104,7 @@ public class SmtpClientServiceCoverageTest
 						 };
 		var service = CreateService(parameters);
 
-		await Assert.ThrowsExactlyAsync<ArgumentException>([ExcludeFromCodeCoverage] async () => await ((IExternalService) service).GetResult());
+		await Assert.ThrowsExactlyAsync<ArgumentException>([ExcludeFromCodeCoverage] async () => await ((IExternalService)service).GetResult());
 	}
 
 	[TestMethod]
@@ -120,7 +120,7 @@ public class SmtpClientServiceCoverageTest
 						 };
 		var service = CreateService(parameters);
 
-		await Assert.ThrowsExactlyAsync<FormatException>([ExcludeFromCodeCoverage] async () => await ((IExternalService) service).GetResult());
+		await Assert.ThrowsExactlyAsync<FormatException>([ExcludeFromCodeCoverage] async () => await ((IExternalService)service).GetResult());
 	}
 
 	private static SmtpClientService CreateService(DataModelValue parameters)
@@ -186,7 +186,7 @@ public class SmtpClientServiceCoverageTest
 		public SmtpLoopbackServer()
 		{
 			_listener.Start();
-			Port = ((IPEndPoint) _listener.LocalEndpoint).Port;
+			Port = ((IPEndPoint)_listener.LocalEndpoint).Port;
 			Session = Serve();
 		}
 

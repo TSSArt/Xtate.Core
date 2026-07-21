@@ -33,7 +33,7 @@ public class ScxmlDirectorBehaviorCoverageTest
 	{
 		using var reader = XmlReader.Create(new StringReader("<scxml/>"));
 		Assert.IsTrue(reader.Read());
-		var director = (ScxmlDirector) Activator.CreateInstance(typeof(ScxmlDirector), reader)!;
+		var director = (ScxmlDirector)Activator.CreateInstance(typeof(ScxmlDirector), reader)!;
 		var errorProcessor = new Mock<IErrorProcessorService<ScxmlDirector>>();
 		var ancestor = new object();
 		var lineInfoRequired = new Mock<ILineInfoRequired>();
@@ -45,8 +45,8 @@ public class ScxmlDirectorBehaviorCoverageTest
 		var lineInfo = createLineInfo.Invoke(director, [ancestor]);
 
 		Assert.IsInstanceOfType<IXmlLineInfo>(lineInfo);
-		Assert.AreSame(ancestor, ((IAncestorProvider) lineInfo).Ancestor);
-		Assert.IsGreaterThan(lowerBound: 0, ((IXmlLineInfo) lineInfo).LineNumber);
+		Assert.AreSame(ancestor, ((IAncestorProvider)lineInfo).Ancestor);
+		Assert.IsGreaterThan(lowerBound: 0, ((IXmlLineInfo)lineInfo).LineNumber);
 
 		var exception = new InvalidOperationException("invalid SCXML");
 		var onError = typeof(ScxmlDirector).GetMethod(name: "OnError", BindingFlags.Instance | BindingFlags.NonPublic)!;

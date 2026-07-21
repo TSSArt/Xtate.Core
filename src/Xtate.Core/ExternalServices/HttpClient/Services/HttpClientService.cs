@@ -212,7 +212,7 @@ public class HttpClientService : ExternalServiceBase
 
 			return new Response
 				   {
-					   StatusCode = (int) response.StatusCode,
+					   StatusCode = (int)response.StatusCode,
 					   StatusDescription = response.ReasonPhrase,
 					   Headers = responseHeaders,
 					   Content = await ReadContent(response, DestroyToken).ConfigureAwait(false)

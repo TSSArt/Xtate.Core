@@ -32,7 +32,7 @@ public class SmtpClientService : ExternalServiceBase
 		var parameters = Parameters.AsListOrEmpty();
 		var host = parameters["server"].AsString();
 		var port = parameters["port"].AsNumberOrDefault();
-		using var client = new System.Net.Mail.SmtpClient(host, port is { } portValue ? (int) portValue : 25);
+		using var client = new System.Net.Mail.SmtpClient(host, port is { } portValue ? (int)portValue : 25);
 
 		if (parameters["userName"].AsStringOrDefault() is { Length: > 0 } userName)
 		{
@@ -42,7 +42,7 @@ public class SmtpClientService : ExternalServiceBase
 
 		if (parameters["deliveryFormat"].AsStringOrDefault() is { Length: > 0 } deliveryFormatString)
 		{
-			client.DeliveryFormat = (SmtpDeliveryFormat) Enum.Parse(typeof(SmtpDeliveryFormat), deliveryFormatString, parameters.CaseInsensitive);
+			client.DeliveryFormat = (SmtpDeliveryFormat)Enum.Parse(typeof(SmtpDeliveryFormat), deliveryFormatString, parameters.CaseInsensitive);
 		}
 
 		client.EnableSsl = parameters["enableSsl"].AsBooleanOrDefault() ?? false;

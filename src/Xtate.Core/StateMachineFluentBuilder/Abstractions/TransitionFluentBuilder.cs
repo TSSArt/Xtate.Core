@@ -89,7 +89,7 @@ public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnul
 
 		foreach (var s in target)
 		{
-			builder.Add((Identifier) s);
+			builder.Add((Identifier)s);
 		}
 
 		Builder.SetTarget(builder.MoveToImmutable());
@@ -110,7 +110,7 @@ public class TransitionFluentBuilder<TOuterBuilder> where TOuterBuilder : notnul
 	{
 		Infra.RequiresNonEmptyCollection(target);
 
-		Builder.SetTarget(ImmutableArray.CreateRange<string, IIdentifier>(target, id => (Identifier) id));
+		Builder.SetTarget(ImmutableArray.CreateRange<string, IIdentifier>(target, id => (Identifier)id));
 
 		return this;
 	}

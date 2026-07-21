@@ -29,7 +29,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	public void BaseHandlerExposesDefaultsAndProcessesEveryPublicEntityCategory()
 	{
 		var handler = CreateHandler();
-		var contract = (IDataModelHandler) handler;
+		var contract = (IDataModelHandler)handler;
 		IExecutableEntity executable = new LogSource();
 		IValueExpression value = new ValueSource();
 		ILocationExpression location = new LocationSource();
@@ -68,7 +68,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 		var handler = CreateBaseExternalHandler();
 		IExternalDataExpression externalData = new ExternalDataSource();
 
-		((IDataModelHandler) handler).Process(ref externalData);
+		((IDataModelHandler)handler).Process(ref externalData);
 
 		Assert.IsInstanceOfType<DefaultExternalDataExpressionEvaluator>(externalData);
 	}

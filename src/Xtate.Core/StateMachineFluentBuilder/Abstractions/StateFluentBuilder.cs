@@ -33,19 +33,11 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IState>, StateFluentBuilder<StateFluentBuilder<TOuterBuilder>>> StateFluentBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>> ParallelFluentBuilderFactory
-	{
-		private get;
-		[SetByIoC] init;
-	}
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IParallel>, ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>>> ParallelFluentBuilderFactory { private get; [SetByIoC] init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IFinal>, FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>>> FinalFluentBuilderFactory { private get; [SetByIoC] init; }
 
-	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>> HistoryFluentBuilderFactory
-	{
-		private get;
-		[SetByIoC] init;
-	}
+	public required Func<StateFluentBuilder<TOuterBuilder>, Action<IHistory>, HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>>> HistoryFluentBuilderFactory { private get; [SetByIoC] init; }
 
 	public required Func<StateFluentBuilder<TOuterBuilder>, Action<ITransition>, TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>>> TransitionFluentBuilderFactory
 	{
@@ -60,7 +52,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 		return OuterBuilder;
 	}
 
-	public StateFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
+	public StateFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier)id);
 
 	public StateFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 	{
@@ -79,7 +71,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 		foreach (var s in initial)
 		{
-			builder.Add((Identifier) s);
+			builder.Add((Identifier)s);
 		}
 
 		Builder.SetInitial(builder.MoveToImmutable());
@@ -100,7 +92,7 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 	{
 		Infra.RequiresNonEmptyCollection(initial);
 
-		Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
+		Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier)id));
 
 		return this;
 	}
@@ -146,29 +138,29 @@ public class StateFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory() => HistoryFluentBuilderFactory(this, Builder.AddHistory);
 
-	public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(string id) => BeginState((Identifier) id);
+	public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(string id) => BeginState((Identifier)id);
 
 	public StateFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
 
-	public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel(string id) => BeginParallel((Identifier) id);
+	public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel(string id) => BeginParallel((Identifier)id);
 
 	public ParallelFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
 
-	public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal(string id) => BeginFinal((Identifier) id);
+	public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal(string id) => BeginFinal((Identifier)id);
 
 	public FinalFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginFinal(IIdentifier id) => FinalFluentBuilderFactory(this, Builder.AddFinal).SetId(id);
 
-	public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(string id) => BeginHistory((Identifier) id);
+	public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(string id) => BeginHistory((Identifier)id);
 
 	public HistoryFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginHistory(IIdentifier id) => HistoryFluentBuilderFactory(this, Builder.AddHistory).SetId(id);
 
 	public TransitionFluentBuilder<StateFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.AddTransition);
 
-	public StateFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, string target) => AddTransition(eventDescriptor, (Identifier) target);
+	public StateFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, string target) => AddTransition(eventDescriptor, (Identifier)target);
 
 	public StateFluentBuilder<TOuterBuilder> AddTransition(EventDescriptor eventDescriptor, IIdentifier target) => BeginTransition().SetEvent(eventDescriptor).SetTarget(target).EndTransition();
 
-	public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, string target) => AddTransition(condition, (Identifier) target);
+	public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, string target) => AddTransition(condition, (Identifier)target);
 
 	public StateFluentBuilder<TOuterBuilder> AddTransition(Func<bool> condition, IIdentifier target) => BeginTransition().SetCondition(condition).SetTarget(target).EndTransition();
 }

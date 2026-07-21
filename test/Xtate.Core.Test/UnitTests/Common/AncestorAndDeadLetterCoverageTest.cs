@@ -35,8 +35,8 @@ public class AncestorAndDeadLetterCoverageTest
 		var container = new AncestorContainer(value, ancestor);
 
 		Assert.AreSame(value, container.Value);
-		Assert.AreSame(ancestor, ((IAncestorProvider) container).Ancestor);
-		Assert.IsNull(((IAncestorProvider) new AncestorContainer(value, ancestor: null)).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)container).Ancestor);
+		Assert.IsNull(((IAncestorProvider)new AncestorContainer(value, ancestor: null)).Ancestor);
 	}
 
 	[TestMethod]

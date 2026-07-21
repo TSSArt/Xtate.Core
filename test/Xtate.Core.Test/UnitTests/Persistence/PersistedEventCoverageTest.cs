@@ -81,7 +81,7 @@ public class PersistedEventCoverageTest
 		var message = new NamedPipeEventMessage(timestamp, SessionId.FromString("target-session"), source);
 		var bucket = CreateBucket();
 
-		((IStoreSupport) message).Store(bucket);
+		((IStoreSupport)message).Store(bucket);
 		var restored = new NamedPipeEventMessage(bucket);
 
 		Assert.AreEqual(timestamp, restored.Timestamp);
@@ -103,7 +103,7 @@ public class PersistedEventCoverageTest
 		var source = CreateIncomingEvent();
 		var bucket = CreateBucket();
 
-		((IStoreSupport) CreatePersistedIncomingEvent(source)).Store(bucket);
+		((IStoreSupport)CreatePersistedIncomingEvent(source)).Store(bucket);
 		var restored = new PersistedIncomingEvent(bucket);
 
 		AssertIncomingEvent(source, restored);
@@ -134,7 +134,7 @@ public class PersistedEventCoverageTest
 					 };
 		var bucket = CreateBucket();
 
-		((IStoreSupport) CreatePersistedRouterEvent(source)).Store(bucket);
+		((IStoreSupport)CreatePersistedRouterEvent(source)).Store(bucket);
 		var restored = new PersistedRouterEvent(bucket);
 
 		Assert.AreEqual(expected: "sender-session", restored.SenderServiceId.ToString());
@@ -159,11 +159,11 @@ public class PersistedEventCoverageTest
 		// Regression coverage is intentionally retained: all three persisted event readers currently lose InvokeId during a store/read round-trip.
 		var source = CreateIncomingEvent(InvokeId.FromString("invoke-id"));
 		var incomingBucket = CreateBucket();
-		((IStoreSupport) CreatePersistedIncomingEvent(source)).Store(incomingBucket);
+		((IStoreSupport)CreatePersistedIncomingEvent(source)).Store(incomingBucket);
 		Assert.AreEqual(source.InvokeId, new PersistedIncomingEvent(incomingBucket).InvokeId);
 
 		var messageBucket = CreateBucket();
-		((IStoreSupport) new NamedPipeEventMessage(DateTime.UtcNow, SessionId.FromString("target"), source)).Store(messageBucket);
+		((IStoreSupport)new NamedPipeEventMessage(DateTime.UtcNow, SessionId.FromString("target"), source)).Store(messageBucket);
 		Assert.AreEqual(source.InvokeId, new NamedPipeEventMessage(messageBucket).InvokeId);
 	}
 
@@ -178,7 +178,7 @@ public class PersistedEventCoverageTest
 						 Target = new FullUri("https://example.test/target")
 					 };
 		var bucket = CreateBucket();
-		((IStoreSupport) CreatePersistedRouterEvent(source)).Store(bucket);
+		((IStoreSupport)CreatePersistedRouterEvent(source)).Store(bucket);
 		var restored = new PersistedRouterEvent(bucket);
 
 		Assert.AreEqual(source.TargetType, restored.TargetType);

@@ -86,13 +86,13 @@ public class IoBoundTaskSchedulerCoverageTest
 	{
 		var method = typeof(IoBoundTaskScheduler).GetMethod(name: "GetScheduledTasks", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-		return ((IEnumerable<Task>) method.Invoke(scheduler, parameters: null)!).ToArray();
+		return ((IEnumerable<Task>)method.Invoke(scheduler, parameters: null)!).ToArray();
 	}
 
 	private static bool TryExecuteInline(IoBoundTaskScheduler scheduler, Task task)
 	{
 		var method = typeof(IoBoundTaskScheduler).GetMethod(name: "TryExecuteTaskInline", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-		return (bool) method.Invoke(scheduler, [task, true])!;
+		return (bool)method.Invoke(scheduler, [task, true])!;
 	}
 }

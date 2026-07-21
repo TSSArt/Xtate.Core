@@ -40,8 +40,8 @@ public class StateMachineControllerBaseCoverageTest
 		var monitor = new CapturingTaskMonitor();
 		var controller = CreateController(interpreter.Object, status.Object, dispatcher.Object, monitor);
 
-		await ((IAsyncInitialization) controller).InitializeAsync();
-		await ((IAsyncInitialization) controller).InitializeAsync();
+		await ((IAsyncInitialization)controller).InitializeAsync();
+		await ((IAsyncInitialization)controller).InitializeAsync();
 		await monitor.Tasks.Single();
 		Assert.AreEqual(expected: "result", (await controller.GetResult()).AsString());
 		interpreter.Verify(static i => i.Run(), Times.Once);
@@ -63,7 +63,7 @@ public class StateMachineControllerBaseCoverageTest
 		var controller = CreateController(interpreter.Object, status.Object, Mock.Of<IEventDispatcher>(), monitor);
 
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => controller.GetResult());
-		await ((IAsyncInitialization) controller).InitializeAsync();
+		await ((IAsyncInitialization)controller).InitializeAsync();
 		var backgroundFailure = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await monitor.Tasks.Single());
 		var resultFailure = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await controller.GetResult());
 
@@ -83,7 +83,7 @@ public class StateMachineControllerBaseCoverageTest
 		var monitor = new CapturingTaskMonitor();
 		var controller = CreateController(interpreter.Object, status.Object, Mock.Of<IEventDispatcher>(), monitor);
 
-		await ((IAsyncInitialization) controller).InitializeAsync();
+		await ((IAsyncInitialization)controller).InitializeAsync();
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await monitor.Tasks.Single());
 		var cancelledResult = await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await controller.GetResult());
 
@@ -102,7 +102,7 @@ public class StateMachineControllerBaseCoverageTest
 		var monitor = new CapturingTaskMonitor();
 		var controller = CreateController(interpreter.Object, CreateAcceptedStatus().Object, Mock.Of<IEventDispatcher>(), monitor);
 
-		await ((IAsyncInitialization) controller).InitializeAsync();
+		await ((IAsyncInitialization)controller).InitializeAsync();
 		await controller.Destroy();
 		await Assert.ThrowsExactlyAsync<StateMachineDestroyedException>([ExcludeFromCodeCoverage] async () => await monitor.Tasks.Single());
 

@@ -89,7 +89,7 @@ public class DataConverterAndForEachCoverageTest
 		var eventValue = converter.FromEvent(
 			new IncomingEvent
 			{
-				Name = (EventName) "event.name",
+				Name = (EventName)"event.name",
 				Type = EventType.External,
 				SendId = SendId.FromString("send-1"),
 				Origin = new FullUri("https://origin.test/"),
@@ -106,8 +106,8 @@ public class DataConverterAndForEachCoverageTest
 		Assert.AreEqual(expected: "https://type.test/", eventList["origintype"].AsString());
 		Assert.AreEqual(expected: "invoke-1", eventList["invokeid"].AsString());
 		Assert.AreEqual(expected: "value", eventList["data"].AsList()["payload"].AsString());
-		Assert.AreEqual(expected: "platform", converter.FromEvent(new IncomingEvent { Name = (EventName) "platform", Type = EventType.Platform }).AsList()["type"].AsString());
-		Assert.AreEqual(expected: "internal", converter.FromEvent(new IncomingEvent { Name = (EventName) "internal", Type = EventType.Internal }).AsList()["type"].AsString());
+		Assert.AreEqual(expected: "platform", converter.FromEvent(new IncomingEvent { Name = (EventName)"platform", Type = EventType.Platform }).AsList()["type"].AsString());
+		Assert.AreEqual(expected: "internal", converter.FromEvent(new IncomingEvent { Name = (EventName)"internal", Type = EventType.Internal }).AsList()["type"].AsString());
 
 		var exceptionList = converter.FromException(new InvalidOperationException("boom")).AsList();
 
@@ -123,7 +123,7 @@ public class DataConverterAndForEachCoverageTest
 		var arrayExpression = new ValueExpressionSource
 							  {
 								  ArrayValue = Enumerable.Range(start: 0, count: 257)
-														 .Select(static index => (IObject) new DataModelValue($"item-{index}"))
+														 .Select(static index => (IObject)new DataModelValue($"item-{index}"))
 														 .ToArray()
 							  };
 		var itemLocation = new LocationExpressionSource(name: "item", DataModelValue.Undefined);
@@ -132,7 +132,7 @@ public class DataConverterAndForEachCoverageTest
 		var forEach = new ForEachSource(arrayExpression, itemLocation, indexLocation, ImmutableArray.Create<IExecutableEntity>(action));
 		var evaluator = new DefaultForEachEvaluator(forEach);
 
-		Assert.AreSame(forEach, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(forEach, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(arrayExpression, evaluator.Array);
 		Assert.AreSame(itemLocation, evaluator.Item);
 		Assert.AreSame(indexLocation, evaluator.Index);

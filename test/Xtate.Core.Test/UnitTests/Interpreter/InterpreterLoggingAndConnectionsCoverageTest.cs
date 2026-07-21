@@ -35,8 +35,8 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 	public async Task NoExternalConnectionsRejectsEveryCommunicationAndServiceOperation()
 	{
 		var noConnections = new NoExternalConnections { StateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject()) };
-		var communication = (IExternalCommunication) noConnections;
-		var services = (IExternalServiceManager) noConnections;
+		var communication = (IExternalCommunication)noConnections;
+		var services = (IExternalServiceManager)noConnections;
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		var sendId = SendId.FromString("send");
@@ -56,7 +56,7 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 		var handler = new Mock<IDataModelHandler>();
 		handler.Setup(static h => h.ConvertToText(It.IsAny<DataModelValue>())).Returns("converted");
 		var parser = new EventVerboseEntityParser { DataModelHandler = () => handler.Object };
-		var parserHandler = (IEntityParserHandler) parser;
+		var parserHandler = (IEntityParserHandler)parser;
 
 		Assert.AreEqual(Level.Verbose, parserHandler.Level);
 		Assert.IsEmpty(parserHandler.EnumerateProperties(new IncomingEvent { Data = DataModelValue.Undefined })!);
@@ -68,7 +68,7 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 		Assert.AreEqual(expected: "converted", parameters[1].Value);
 
 		var fallbackParser = new EventVerboseEntityParser { DataModelHandler = static () => null };
-		var fallback = ((IEntityParserHandler) fallbackParser).EnumerateProperties(new IncomingEvent { Data = new DataModelValue(true) })!.ToArray();
+		var fallback = ((IEntityParserHandler)fallbackParser).EnumerateProperties(new IncomingEvent { Data = new DataModelValue(true) })!.ToArray();
 		Assert.AreEqual(expected: "True", fallback[1].Value);
 	}
 

@@ -45,7 +45,7 @@ public class StateMachineFluentBuilder
 
 		foreach (var s in initial)
 		{
-			builder.Add((Identifier) s);
+			builder.Add((Identifier)s);
 		}
 
 		Builder.SetInitial(builder.MoveToImmutable());
@@ -66,7 +66,7 @@ public class StateMachineFluentBuilder
 	{
 		Infra.RequiresNonEmptyCollection(initial);
 
-		Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier) id));
+		Builder.SetInitial(ImmutableArray.CreateRange<string, IIdentifier>(initial, id => (Identifier)id));
 
 		return this;
 	}
@@ -86,15 +86,15 @@ public class StateMachineFluentBuilder
 
 	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal() => FinalFluentBuilderFactory(this, Builder.AddFinal);
 
-	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier) id);
+	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(string id) => BeginState((Identifier)id);
 
 	public StateFluentBuilder<StateMachineFluentBuilder> BeginState(IIdentifier id) => StateFluentBuilderFactory(this, Builder.AddState).SetId(id);
 
-	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(string id) => BeginParallel((Identifier) id);
+	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(string id) => BeginParallel((Identifier)id);
 
 	public ParallelFluentBuilder<StateMachineFluentBuilder> BeginParallel(IIdentifier id) => ParallelFluentBuilderFactory(this, Builder.AddParallel).SetId(id);
 
-	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(string id) => BeginFinal((Identifier) id);
+	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(string id) => BeginFinal((Identifier)id);
 
 	public FinalFluentBuilder<StateMachineFluentBuilder> BeginFinal(IIdentifier id) => FinalFluentBuilderFactory(this, Builder.AddFinal).SetId(id);
 }

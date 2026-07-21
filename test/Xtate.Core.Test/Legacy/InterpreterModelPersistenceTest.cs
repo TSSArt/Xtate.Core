@@ -92,7 +92,7 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 
 	ValueTask ILocationEvaluator.SetValue(IObject value) => default;
 
-	ValueTask<IObject> ILocationEvaluator.GetValue() => new((IObject) null!);
+	ValueTask<IObject> ILocationEvaluator.GetValue() => new((IObject)null!);
 
 	ValueTask<string> ILocationEvaluator.GetName() => new("?");
 
@@ -250,8 +250,8 @@ public class InterpreterModelPersistenceTest
 		var fluentBuilder = buildProvider.GetRequiredServiceSync<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
 		var stateMachine = fluentBuilder
-						   .BeginState((Identifier) "a")
-						   .AddTransition([ExcludeFromCodeCoverage]() => true, (Identifier) "a")
+						   .BeginState((Identifier)"a")
+						   .AddTransition([ExcludeFromCodeCoverage]() => true, (Identifier)"a")
 						   .AddOnEntry([ExcludeFromCodeCoverage]() => Console.WriteLine(@"OnEntry"))
 						   .EndState()
 						   .Build();

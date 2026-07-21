@@ -136,7 +136,7 @@ public class EventAndInvokeControllerCoverageTest
 		var controller = CreateInvokeController(manager.Object, logger.Object);
 		var invokeId = InvokeId.FromString("invoke");
 		var invokeData = CreateInvokeData(invokeId);
-		var incomingEvent = new IncomingEvent { Name = (EventName) "event", SendId = SendId.FromString("send-00000001") };
+		var incomingEvent = new IncomingEvent { Name = (EventName)"event", SendId = SendId.FromString("send-00000001") };
 
 		await controller.Start(invokeData);
 		await controller.Cancel(invokeId);
@@ -214,7 +214,7 @@ public class EventAndInvokeControllerCoverageTest
 		new OutgoingEvent
 		{
 			SendId = SendId.FromString("send-00000001"),
-			Name = (EventName) "event",
+			Name = (EventName)"event",
 			Target = target,
 			Type = type,
 			DelayMs = delayMs,

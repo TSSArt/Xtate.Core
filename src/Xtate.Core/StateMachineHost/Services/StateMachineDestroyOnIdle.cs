@@ -83,7 +83,7 @@ public class StateMachineDestroyOnIdle
 
 		private static void DestroyOnIdle(object? state)
 		{
-			var owner = (StateMachineDestroyOnIdle?) state;
+			var owner = (StateMachineDestroyOnIdle?)state;
 
 			Infra.NotNull(owner);
 

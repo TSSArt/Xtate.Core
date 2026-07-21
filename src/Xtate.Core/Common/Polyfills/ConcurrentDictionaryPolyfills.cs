@@ -24,7 +24,7 @@ internal static class ConcurrentDictionaryPolyfills
 {
 	extension<TKey, TValue>(ConcurrentDictionary<TKey, TValue> concurrentDictionary) where TKey : notnull
 	{
-		public bool TryRemove(KeyValuePair<TKey, TValue> pair) => ((ICollection<KeyValuePair<TKey, TValue>>) concurrentDictionary).Remove(pair);
+		public bool TryRemove(KeyValuePair<TKey, TValue> pair) => ((ICollection<KeyValuePair<TKey, TValue>>)concurrentDictionary).Remove(pair);
 
 #if !NETCOREAPP2_0 && !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1 && !NET472 && !NET48
 

@@ -32,7 +32,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 			return entry.obj.GetType().Name;
 		}
 
-		return @$"{((Type) entry.obj).Name}[..]";
+		return @$"{((Type)entry.obj).Name}[..]";
 	}
 
 	private void Enter<T>(T entity) where T : notnull => _path?.Push((entity, default));
@@ -163,7 +163,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 		public readonly bool Contains(T item) => ModifiedItems?.Contains(item) ?? items.Contains(item);
 
 		[MustDisposeResource]
-		public readonly IEnumerator<T> GetEnumerator() => ModifiedItems is not null ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>) items).GetEnumerator();
+		public readonly IEnumerator<T> GetEnumerator() => ModifiedItems is not null ? ModifiedItems.GetEnumerator() : ((IEnumerable<T>)items).GetEnumerator();
 
 		public void Add(T? item) => (ModifiedItems ??= items.ToBuilder()).Add(item!);
 

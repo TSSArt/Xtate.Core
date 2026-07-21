@@ -55,7 +55,7 @@ public class InterpreterUtilityCoverageTest
 		Assert.AreSame(second.UniqueId, set.Single());
 		Assert.AreEqual(expected: 1, set.Cast<object>().Count());
 		var interfaceMap = typeof(InvokeIdSet).GetInterfaceMap(typeof(IEnumerable));
-		var enumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(set, parameters: null)!;
+		var enumerator = (IEnumerator)interfaceMap.TargetMethods.Single().Invoke(set, parameters: null)!;
 		Assert.IsTrue(enumerator.MoveNext());
 		Assert.AreSame(second.UniqueId, enumerator.Current);
 	}
@@ -66,7 +66,7 @@ public class InterpreterUtilityCoverageTest
 		var handler = new Mock<IDataModelHandler>();
 		handler.Setup(static h => h.ConvertToText(It.IsAny<DataModelValue>())).Returns("converted-outgoing");
 		var parser = new OutgoingEventVerboseEntityParser { DataModelHandler = () => handler.Object };
-		var contract = (IEntityParserHandler) parser;
+		var contract = (IEntityParserHandler)parser;
 
 		Assert.AreEqual(Level.Verbose, contract.Level);
 		Assert.IsEmpty(contract.EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == DataModelValue.Undefined))!);
@@ -77,7 +77,7 @@ public class InterpreterUtilityCoverageTest
 		Assert.AreEqual(expected: "converted-outgoing", populated[1].Value);
 
 		var fallback = new OutgoingEventVerboseEntityParser { DataModelHandler = static () => null };
-		var fallbackValues = ((IEntityParserHandler) fallback)
+		var fallbackValues = ((IEntityParserHandler)fallback)
 							 .EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == new DataModelValue(false)))!.ToArray();
 		Assert.AreEqual(expected: "False", fallbackValues[1].Value);
 	}
@@ -88,7 +88,7 @@ public class InterpreterUtilityCoverageTest
 		var handler = new Mock<IDataModelHandler>();
 		handler.Setup(static h => h.ConvertToText(It.IsAny<DataModelValue>())).Returns<DataModelValue>(static value => $"converted:{value}");
 		var parser = new InvokeDataVerboseEntityParser { DataModelHandler = () => handler.Object };
-		var contract = (IEntityParserHandler) parser;
+		var contract = (IEntityParserHandler)parser;
 		var invokeData = new InvokeData(
 			InvokeId.FromString("invoke"),
 			new FullUri("service"),
@@ -106,7 +106,7 @@ public class InterpreterUtilityCoverageTest
 		Assert.AreEqual(expected: "converted:17", properties[4].Value);
 
 		var fallback = new InvokeDataVerboseEntityParser { DataModelHandler = static () => null };
-		var fallbackProperties = ((IEntityParserHandler) fallback).EnumerateProperties(invokeData with { RawContent = null, Parameters = DataModelValue.Undefined })!.ToArray();
+		var fallbackProperties = ((IEntityParserHandler)fallback).EnumerateProperties(invokeData with { RawContent = null, Parameters = DataModelValue.Undefined })!.ToArray();
 		Assert.HasCount(expected: 2, fallbackProperties);
 		Assert.AreEqual(expected: "content", fallbackProperties[1].Value);
 		Assert.IsEmpty(contract.EnumerateProperties(invokeData with { RawContent = null, Content = DataModelValue.Undefined, Parameters = DataModelValue.Undefined })!);

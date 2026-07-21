@@ -38,8 +38,8 @@ public class ActionValueCoverageTest
 	public async Task AsyncActionExposesValuesLocationsAndUsesTypedEvaluators()
 	{
 		var action = new TestAsyncAction();
-		var values = ((IAction) action).GetValues().ToArray();
-		var locations = ((IAction) action).GetLocations().ToArray();
+		var values = ((IAction)action).GetValues().ToArray();
+		var locations = ((IAction)action).GetLocations().ToArray();
 		var locationEvaluator = new TestLocationEvaluator(new DataModelValue("initial"));
 
 		values[0].SetEvaluator(new TestArrayEvaluator([new DataModelValue("left"), new DataModelValue(7)]));
@@ -51,7 +51,7 @@ public class ActionValueCoverageTest
 		locations[0].SetEvaluator(new TestLocationEvaluator(new DataModelValue("ignored")));
 
 		var result = await action.ReadAll();
-		await ((IAction) action).Execute();
+		await ((IAction)action).Execute();
 
 		CollectionAssert.AreEqual(new object?[] { "left", 7 }, result.Array);
 		Assert.AreEqual(expected: "text", result.String);
@@ -61,8 +61,8 @@ public class ActionValueCoverageTest
 		Assert.AreEqual(expected: "initial", result.LocationBefore.AsString());
 		Assert.AreEqual(expected: "updated", result.LocationAfter.AsString());
 		Assert.IsTrue(action.Executed);
-		CollectionAssert.AreEqual(values, ((IAction) action).GetValues().ToArray());
-		CollectionAssert.AreEqual(locations, ((IAction) action).GetLocations().ToArray());
+		CollectionAssert.AreEqual(values, ((IAction)action).GetValues().ToArray());
+		CollectionAssert.AreEqual(locations, ((IAction)action).GetLocations().ToArray());
 		Assert.AreEqual(expected: "array", values[0].Expression);
 		Assert.AreEqual(expected: "target", locations[0].Expression);
 	}
@@ -71,7 +71,7 @@ public class ActionValueCoverageTest
 	public async Task AsyncActionValuesUseObjectAndDefaultFallbacks()
 	{
 		var action = new TestAsyncAction();
-		var values = ((IAction) action).GetValues().ToArray();
+		var values = ((IAction)action).GetValues().ToArray();
 
 		values[0].SetEvaluator(new TestObjectEvaluator(DataModelValue.FromObject(new[] { "a", "b" })));
 		values[1].SetEvaluator(new TestObjectEvaluator(new DataModelValue("from object")));
@@ -95,8 +95,8 @@ public class ActionValueCoverageTest
 	public async Task SyncActionEvaluatesValuesSetsFirstLocationAndResetsTypedValues()
 	{
 		var action = new TestSyncAction();
-		var values = ((IAction) action).GetValues().ToArray();
-		var locations = ((IAction) action).GetLocations().ToArray();
+		var values = ((IAction)action).GetValues().ToArray();
+		var locations = ((IAction)action).GetLocations().ToArray();
 		var target = new TestLocationEvaluator(DataModelValue.Null);
 		Assert.AreEqual(DataModelValueType.Null, (await action.ReadLocation()).Type);
 		await action.WriteLocation(new DataModelValue("ignored"));
@@ -107,14 +107,14 @@ public class ActionValueCoverageTest
 		values[3].SetEvaluator(new TestStringEvaluator("hello"));
 		locations[0].SetEvaluator(target);
 
-		await ((IAction) action).Execute();
+		await ((IAction)action).Execute();
 
 		Assert.AreEqual(expected: "hello:5:True:2", target.Value.AsString());
 		Assert.AreEqual(expected: "hello:5:True:2", (await action.ReadLocation()).AsString());
 		Assert.AreEqual(expected: "hello:5:True:2", action.EvaluatedValue.AsString());
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => action.ReadStringAfterReset());
-		CollectionAssert.AreEqual(values, ((IAction) action).GetValues().ToArray());
-		CollectionAssert.AreEqual(locations, ((IAction) action).GetLocations().ToArray());
+		CollectionAssert.AreEqual(values, ((IAction)action).GetValues().ToArray());
+		CollectionAssert.AreEqual(locations, ((IAction)action).GetLocations().ToArray());
 		Assert.AreEqual(expected: "array", values[0].Expression);
 		Assert.AreEqual(expected: "target", locations[0].Expression);
 	}
@@ -124,9 +124,9 @@ public class ActionValueCoverageTest
 	{
 		var action = new EmptySyncAction();
 
-		Assert.AreEqual(expected: 0, ((IAction) action).GetValues().Count());
-		Assert.AreEqual(expected: 0, ((IAction) action).GetLocations().Count());
-		await ((IAction) action).Execute();
+		Assert.AreEqual(expected: 0, ((IAction)action).GetValues().Count());
+		Assert.AreEqual(expected: 0, ((IAction)action).GetLocations().Count());
+		await ((IAction)action).Execute();
 
 		Assert.IsTrue(action.Evaluated);
 	}

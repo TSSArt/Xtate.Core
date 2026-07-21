@@ -33,7 +33,7 @@ public class XPathVariableCoverageTest
 		Assert.IsFalse(descriptor.IsParam);
 		Assert.AreEqual(XPathResultType.NodeSet, descriptor.VariableType);
 
-		var iterator = (XPathNodeIterator) descriptor.Evaluate(null!);
+		var iterator = (XPathNodeIterator)descriptor.Evaluate(null!);
 
 		Assert.AreEqual(expected: 0, iterator.CurrentPosition);
 		Assert.IsNull(iterator.Current);
@@ -49,7 +49,7 @@ public class XPathVariableCoverageTest
 		var engine = new XPathEngine(dataModelController: null);
 
 		await descriptor.Initialize(engine);
-		var iterator = (XPathNodeIterator) descriptor.Evaluate(null!);
+		var iterator = (XPathNodeIterator)descriptor.Evaluate(null!);
 
 		Assert.IsTrue(iterator.MoveNext());
 		var current = iterator.Current;

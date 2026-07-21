@@ -78,17 +78,17 @@ public class DataModelValueTest
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Null,
-							 Value = new DataModelValue((DataModelList?) null)
+							 Value = new DataModelValue((DataModelList?)null)
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Null,
-							 Value = new DataModelValue((string?) null)
+							 Value = new DataModelValue((string?)null)
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Null,
-							 Value = new DataModelValue((ILazyValue?) null)
+							 Value = new DataModelValue((ILazyValue?)null)
 						 };
 			yield return new Record
 						 {
@@ -165,14 +165,14 @@ public class DataModelValueTest
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue((double) int.MinValue),
-							 ConstructorArg = (double) int.MinValue
+							 Value = new DataModelValue((double)int.MinValue),
+							 ConstructorArg = (double)int.MinValue
 						 };
 			yield return new Record
 						 {
 							 Type = DataModelValueType.Number,
-							 Value = new DataModelValue((double) int.MaxValue),
-							 ConstructorArg = (double) int.MaxValue
+							 Value = new DataModelValue((double)int.MaxValue),
+							 ConstructorArg = (double)int.MaxValue
 						 };
 			yield return new Record
 						 {
@@ -378,7 +378,7 @@ public class DataModelValueTest
 				break;
 
 			case DataModelValueType.DateTime:
-				Assert.AreEqual(DataModelDateTime.FromDateTime((DateTime) ctrArg).ToDateTimeOffset(), obj, M(line));
+				Assert.AreEqual(DataModelDateTime.FromDateTime((DateTime)ctrArg).ToDateTimeOffset(), obj, M(line));
 
 				break;
 
@@ -426,7 +426,7 @@ public class DataModelValueTest
 	public void Equals_ValueShouldBeEqualToOriginalValue(string line, DataModelValue value, DataModelValue originalValue)
 	{
 		// assert
-		Assert.IsTrue(value.Equals((object) originalValue), M(line));
+		Assert.IsTrue(value.Equals((object)originalValue), M(line));
 	}
 
 	[TestMethod]

@@ -212,7 +212,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		Infra.Requires(value);
 
-		return (Identifier) value;
+		return (Identifier)value;
 	}
 
 	private static IOutgoingEvent AsEvent(string value)
@@ -242,7 +242,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 
 		foreach (var identifier in identifiers)
 		{
-			builder.Add((Identifier) identifier);
+			builder.Add((Identifier)identifier);
 		}
 
 		return builder.MoveToImmutable();

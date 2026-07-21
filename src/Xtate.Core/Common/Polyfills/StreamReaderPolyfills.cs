@@ -30,7 +30,7 @@ internal static class StreamReaderPolyfills
 			token.ThrowIfCancellationRequested();
 
 			var stream = reader.BaseStream;
-			var sb = new StringBuilder(stream.CanSeek ? (int) (stream.Length - stream.Position) : 0);
+			var sb = new StringBuilder(stream.CanSeek ? (int)(stream.Length - stream.Position) : 0);
 
 			var buffer = ArrayPool<char>.Shared.Rent(1024);
 

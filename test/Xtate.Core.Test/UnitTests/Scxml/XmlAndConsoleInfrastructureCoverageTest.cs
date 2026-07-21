@@ -73,12 +73,12 @@ public class XmlAndConsoleInfrastructureCoverageTest
 		Assert.IsTrue(resolver.SupportsType(uri, typeof(Resource)));
 		Assert.IsFalse(resolver.SupportsType(uri, typeof(string)));
 
-		using var stream = (Stream) await resolver.GetEntityAsync(uri, role: null, typeof(Stream));
+		using var stream = (Stream)await resolver.GetEntityAsync(uri, role: null, typeof(Stream));
 		var bytes = new byte[2];
 		Assert.AreEqual(expected: 2, await stream.ReadAsync(bytes, offset: 0, bytes.Length));
 		CollectionAssert.AreEqual(new byte[] { 1, 2 }, bytes);
 
-		await using var resource = (Resource) await resolver.GetEntityAsync(uri, headers, typeof(Resource));
+		await using var resource = (Resource)await resolver.GetEntityAsync(uri, headers, typeof(Resource));
 		CollectionAssert.AreEqual(new byte[] { 3, 4 }, await resource.GetBytes());
 		Assert.AreEqual(expected: "application/xml", resource.ContentType!.MediaType);
 		loader.Verify(l => l.Request(uri, headers), Times.Once);
@@ -100,7 +100,7 @@ public class XmlAndConsoleInfrastructureCoverageTest
 			nestedType = nestedType.MakeGenericType(typeof(ConsoleSource));
 		}
 
-		var listener = (TextWriterTraceListener?) Activator.CreateInstance(nestedType, nonPublic: true);
+		var listener = (TextWriterTraceListener?)Activator.CreateInstance(nestedType, nonPublic: true);
 		Assert.IsNotNull(listener);
 		Assert.AreSame(Console.Out, listener.Writer);
 

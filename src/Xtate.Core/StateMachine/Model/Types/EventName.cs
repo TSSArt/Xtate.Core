@@ -59,13 +59,13 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _parts).GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_parts).GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<IIdentifier>
 
-	IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>) _parts).GetEnumerator();
+	IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>)_parts).GetEnumerator();
 
 #endregion
 
@@ -144,12 +144,12 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 		while ((pos2 = id.IndexOf(Dot, pos)) >= 0)
 		{
-			span[index ++] = (Identifier) id[pos..pos2];
+			span[index ++] = (Identifier)id[pos..pos2];
 
 			pos = pos2 + 1;
 		}
 
-		span[index] = (Identifier) id[pos..];
+		span[index] = (Identifier)id[pos..];
 	}
 
 	public static EventName FromString(string? name)

@@ -41,7 +41,7 @@ public class HistoryFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 		return OuterBuilder;
 	}
 
-	public HistoryFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
+	public HistoryFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier)id);
 
 	public HistoryFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 	{
@@ -63,7 +63,7 @@ public class HistoryFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 
 	public TransitionFluentBuilder<HistoryFluentBuilder<TOuterBuilder>> BeginTransition() => TransitionFluentBuilderFactory(this, Builder.SetTransition);
 
-	public HistoryFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier) target);
+	public HistoryFluentBuilder<TOuterBuilder> AddTransition(string target) => AddTransition((Identifier)target);
 
 	public HistoryFluentBuilder<TOuterBuilder> AddTransition(IIdentifier target) => BeginTransition().SetTarget(target).EndTransition();
 }

@@ -41,8 +41,8 @@ public class HttpClientFactoryCoverageTest
 		Assert.AreSame(firstEntry, secondEntry);
 		Assert.IsNotNull(firstEntry);
 		var entryType = firstEntry.GetType();
-		Assert.IsFalse((bool) entryType.GetProperty("IsExpired")!.GetValue(firstEntry)!);
-		Assert.IsFalse((bool) entryType.GetProperty("CanDispose")!.GetValue(firstEntry)!);
+		Assert.IsFalse((bool)entryType.GetProperty("IsExpired")!.GetValue(firstEntry)!);
+		Assert.IsFalse((bool)entryType.GetProperty("CanDispose")!.GetValue(firstEntry)!);
 		Assert.IsNotNull(entryType.GetProperty("Handler")!.GetValue(firstEntry));
 
 		factory.Dispose();

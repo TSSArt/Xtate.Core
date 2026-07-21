@@ -30,7 +30,7 @@ internal static class StreamExtensions
 		public async ValueTask<byte[]> ReadToEndAsync(CancellationToken token)
 		{
 			var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
-			var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+			var capacity = longLength is >= 0 and <= int.MaxValue ? (int)longLength : 0;
 
 			var memoryStream = new MemoryStream(capacity);
 			var buffer = ArrayPool<byte>.Shared.Rent(65536);
@@ -58,7 +58,7 @@ internal static class StreamExtensions
 		public byte[] ReadToEnd(CancellationToken token)
 		{
 			var longLength = stream.CanSeek ? stream.Length - stream.Position : 0;
-			var capacity = longLength is >= 0 and <= int.MaxValue ? (int) longLength : 0;
+			var capacity = longLength is >= 0 and <= int.MaxValue ? (int)longLength : 0;
 
 			var memoryStream = new MemoryStream(capacity);
 			var buffer = ArrayPool<byte>.Shared.Rent(65536);

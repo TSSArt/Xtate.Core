@@ -44,12 +44,12 @@ public class CollectionTypesCoverageTest
 			directValues.Add(directEnumerator.Current.Value);
 		}
 
-		var nonGenericEnumerator = ((IEnumerable) descriptors).GetEnumerator();
+		var nonGenericEnumerator = ((IEnumerable)descriptors).GetEnumerator();
 		var nonGenericValues = new List<string>();
 
 		while (nonGenericEnumerator.MoveNext())
 		{
-			nonGenericValues.Add(((IEventDescriptor) nonGenericEnumerator.Current!).Value);
+			nonGenericValues.Add(((IEventDescriptor)nonGenericEnumerator.Current!).Value);
 		}
 
 		CollectionAssert.AreEqual(new[] { "error.*", "done.invoke" }, directValues);
@@ -58,7 +58,7 @@ public class CollectionTypesCoverageTest
 		Assert.AreEqual(expected: "error.* done.invoke", descriptors.ToString(format: null, formatProvider: null));
 		Assert.AreEqual(expected: "error.* done.invoke", typeof(EventDescriptors).GetMethod(nameof(ToString), [typeof(string), typeof(IFormatProvider)])!.Invoke(descriptors, [null, null]));
 		Assert.IsTrue(descriptors.Equals(same));
-		Assert.IsTrue(descriptors.Equals((object) same));
+		Assert.IsTrue(descriptors.Equals((object)same));
 		Assert.AreEqual(same.GetHashCode(), descriptors.GetHashCode());
 		Assert.IsFalse(descriptors.Equals(different));
 		Assert.IsFalse(descriptors.Equals("not descriptors"));
@@ -95,12 +95,12 @@ public class CollectionTypesCoverageTest
 			concreteValues.Add(concreteEnumerator.Current.Value);
 		}
 
-		var nonGenericEnumerator = ((IEnumerable) target).GetEnumerator();
+		var nonGenericEnumerator = ((IEnumerable)target).GetEnumerator();
 		var nonGenericValues = new List<string>();
 
 		while (nonGenericEnumerator.MoveNext())
 		{
-			nonGenericValues.Add(((IIdentifier) nonGenericEnumerator.Current).Value);
+			nonGenericValues.Add(((IIdentifier)nonGenericEnumerator.Current).Value);
 		}
 
 		CollectionAssert.AreEqual(new[] { "state1", "state2" }, concreteValues);
@@ -131,6 +131,6 @@ public class CollectionTypesCoverageTest
 		var target = Target.Create([first, second]);
 		var same = Target.Create([first, second]);
 
-		Assert.IsTrue(target.Equals((object) same));
+		Assert.IsTrue(target.Equals((object)same));
 	}
 }

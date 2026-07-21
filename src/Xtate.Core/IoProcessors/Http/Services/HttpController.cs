@@ -279,7 +279,7 @@ public class HttpController
 			{
 				await ExternalEventDispatcher.Dispatch(targetServiceId, eventMessage, token).ConfigureAwait(false);
 
-				context.Response.StatusCode = (int) HttpStatusCode.OK;
+				context.Response.StatusCode = (int)HttpStatusCode.OK;
 			}
 			else
 			{
@@ -288,11 +288,11 @@ public class HttpController
 		}
 		catch (HttpRequestProcessException ex)
 		{
-			context.Response.StatusCode = (int) ex.StatusCode;
+			context.Response.StatusCode = (int)ex.StatusCode;
 		}
 		catch (Exception)
 		{
-			context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+			context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 		}
 		finally
 		{
@@ -312,7 +312,7 @@ public class HttpController
 		}
 
 		var contentType = new ContentType(request.ContentType ?? DefaultContentType);
-		var contentLength = request.QueryString[ContentLength] is { } contentLengthValue ? long.Parse(contentLengthValue) : (long?) null;
+		var contentLength = request.QueryString[ContentLength] is { } contentLengthValue ? long.Parse(contentLengthValue) : (long?)null;
 
 		if (contentLength > _options.MaxMessageSize)
 		{

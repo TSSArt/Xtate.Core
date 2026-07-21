@@ -29,7 +29,7 @@ public struct EventEntity(string? value) : IOutgoingEvent
 
 	public int DelayMs { get; set; }
 
-	public EventName Name { get; set; } = (EventName) value;
+	public EventName Name { get; set; } = (EventName)value;
 
 	public SendId? SendId { get; set; }
 

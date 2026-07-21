@@ -123,7 +123,7 @@ public abstract class LazyId : ILazyValue, IObject
 			return false;
 		}
 
-		return _id == ((LazyId) obj)._id;
+		return _id == ((LazyId)obj)._id;
 	}
 
 	protected bool FastEqualsNoTypeCheck(LazyId? lazyId)

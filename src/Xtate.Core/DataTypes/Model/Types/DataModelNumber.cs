@@ -237,11 +237,11 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 	private static long ConvertToInt64(double value) => BitConverter.DoubleToInt64Bits(value);
 
-	private static decimal ConvertToDecimal(long int64, long int64Ext) => (decimal) new RawDecimal(int64, int64Ext);
+	private static decimal ConvertToDecimal(long int64, long int64Ext) => (decimal)new RawDecimal(int64, int64Ext);
 
 	private static long ConvertToInt64Ext(decimal value, out long int64Ext)
 	{
-		var rawDecimal = (RawDecimal) value;
+		var rawDecimal = (RawDecimal)value;
 
 		int64Ext = rawDecimal.Hi64;
 
@@ -272,7 +272,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 	public void WriteTo(Span<byte> span)
 	{
-		span[0] = (byte) Type;
+		span[0] = (byte)Type;
 		span = span[1..];
 
 		switch (Type)
@@ -302,14 +302,14 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 	{
 		for (var i = 0; i < bytes.Length; i ++)
 		{
-			bytes[i] = unchecked((byte) value);
+			bytes[i] = unchecked((byte)value);
 			value >>= 8;
 		}
 	}
 
 	public static DataModelNumber ReadFrom(ReadOnlySpan<byte> span)
 	{
-		var type = (DataModelNumberType) span[0];
+		var type = (DataModelNumberType)span[0];
 		span = span[1..];
 
 		return type switch
@@ -324,7 +324,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 	private static long GetInt64(ReadOnlySpan<byte> bytes)
 	{
-		var value = (long) (sbyte) bytes[^1];
+		var value = (long)(sbyte)bytes[^1];
 
 		for (var i = bytes.Length - 2; i >= 0; i --)
 		{
@@ -383,7 +383,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 			var truncated = Math.Truncate(doubleVal);
 			var fraction = truncated.CompareTo(doubleVal);
-			var result = longVal.CompareTo((long) truncated);
+			var result = longVal.CompareTo((long)truncated);
 
 			return fraction == 0 ? result : result == 0 ? fraction : result;
 		}
@@ -401,7 +401,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 			var truncated = Math.Truncate(doubleVal);
 			var fraction = truncated.CompareTo(doubleVal);
-			var result = decimalVal.CompareTo((decimal) truncated);
+			var result = decimalVal.CompareTo((decimal)truncated);
 
 			return fraction == 0 ? result : result == 0 ? fraction : result;
 		}
@@ -423,14 +423,14 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 	{
 		return Type switch
 			   {
-				   DataModelNumberType.Int32   => HashCode.Combine((decimal) _int64),
-				   DataModelNumberType.Int64   => HashCode.Combine((decimal) _int64),
+				   DataModelNumberType.Int32   => HashCode.Combine((decimal)_int64),
+				   DataModelNumberType.Int64   => HashCode.Combine((decimal)_int64),
 				   DataModelNumberType.Double  => DoubleHashCode(ConvertToDouble(_int64)),
 				   DataModelNumberType.Decimal => HashCode.Combine(ConvertToDecimal(_int64, _int64Ext)),
 				   _                           => throw Infra.Unmatched(Type)
 			   };
 
-		static int DoubleHashCode(double val) => val is double.NaN or > 9223372036854775807d or < -9223372036854775808d ? HashCode.Combine(val) : HashCode.Combine((decimal) val);
+		static int DoubleHashCode(double val) => val is double.NaN or > 9223372036854775807d or < -9223372036854775808d ? HashCode.Combine(val) : HashCode.Combine((decimal)val);
 	}
 
 	public static bool operator ==(DataModelNumber left, DataModelNumber right) => left.Equals(right);

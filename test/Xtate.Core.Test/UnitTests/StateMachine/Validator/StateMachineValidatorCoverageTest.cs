@@ -67,7 +67,7 @@ public class StateMachineValidatorCoverageTest
 		var firstElse = Mock.Of<IElse>();
 		var secondElse = Mock.Of<IElse>();
 
-		validator.ValidateHistory(Mock.Of<IHistory>(history => history.Type == (HistoryType) 99));
+		validator.ValidateHistory(Mock.Of<IHistory>(history => history.Type == (HistoryType)99));
 		validator.ValidateForEach(Mock.Of<IForEach>());
 		validator.ValidateIf(
 			Mock.Of<IIf>(item =>
@@ -139,7 +139,7 @@ public class StateMachineValidatorCoverageTest
 		var initial = Mock.Of<IInitial>(item => item.Transition == transition);
 		var machine = Mock.Of<IStateMachine>(item =>
 												 item.Initial == initial &&
-												 item.Binding == (BindingType) 99);
+												 item.Binding == (BindingType)99);
 		var state = Mock.Of<IState>(item => item.Initial == initial);
 
 		validator.ValidateFinalize(Mock.Of<IFinalize>(item => item.Action == ImmutableArray.Create<IExecutableEntity>(raise, send)));

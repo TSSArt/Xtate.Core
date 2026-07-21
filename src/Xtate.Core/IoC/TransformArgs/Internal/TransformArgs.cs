@@ -52,14 +52,14 @@ public readonly struct TransformArgs<T, TArg, TNewArg>
 		{
 			case Func<TNewArg, TArg> transformSync:
 				_services.AddForwarding(sp => sp.GetRequiredServiceSync<IAncestorTracker>().IsAncestorTypeEquals(level: 2, typeof(TAncestor))
-											? (IArgsTransformer<T, TArg, TNewArg>) new ArgsTransformerSync<T, TArg, TNewArg>(transformSync)
+											? (IArgsTransformer<T, TArg, TNewArg>)new ArgsTransformerSync<T, TArg, TNewArg>(transformSync)
 											: null!);
 
 				break;
 
 			case Func<TNewArg, ValueTask<TArg>> transformAsync:
 				_services.AddForwarding(sp => sp.GetRequiredServiceSync<IAncestorTracker>().IsAncestorTypeEquals(level: 2, typeof(TAncestor))
-											? (IArgsTransformer<T, TArg, TNewArg>) new ArgsTransformerAsync<T, TArg, TNewArg>(transformAsync)
+											? (IArgsTransformer<T, TArg, TNewArg>)new ArgsTransformerAsync<T, TArg, TNewArg>(transformAsync)
 											: null!);
 
 				break;

@@ -40,7 +40,7 @@ public class StateMachineBuilder : BuilderBase, IStateMachineBuilder
 
 	public IStateMachine Build()
 	{
-		var initial = !_initialId.IsDefaultOrEmpty ? (IInitial) new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
+		var initial = !_initialId.IsDefaultOrEmpty ? (IInitial)new InitialEntity { Transition = new TransitionEntity { Target = _initialId } } : null;
 
 		return new StateMachineEntity
 			   {

@@ -50,7 +50,6 @@ public class JsonHttpContent : HttpContent
 	}
 
 #if NET5_0_OR_GREATER
-
 	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToJson(stream, _value, DefaultJsonOptions);
 
 	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToJsonAsync(stream, _value, DefaultJsonOptions, token);

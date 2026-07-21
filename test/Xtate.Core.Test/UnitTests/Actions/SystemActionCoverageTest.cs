@@ -51,7 +51,7 @@ public class SystemActionCoverageTest
 
 		var validErrors = new ErrorCollector<StartAction>();
 		var action = CreateStart(xml: "<start url='child.scxml' sessionId='child-session' sessionIdLocation='result' trusted='true' />", validErrors);
-		var contract = (IAction) action;
+		var contract = (IAction)action;
 		var values = contract.GetValues().ToArray();
 		var locations = contract.GetLocations().ToArray();
 
@@ -77,18 +77,18 @@ public class SystemActionCoverageTest
 		var trusted = CreateStart(
 			xml: "<start url='child.scxml' sessionId='child-session' sessionIdLocation='result' trusted='true' />",
 			new ErrorCollector<StartAction>(), baseLocation, scopeManager.Object, taskMonitor);
-		((IAction) trusted).GetLocations().Single().SetEvaluator(assignedLocation);
+		((IAction)trusted).GetLocations().Single().SetEvaluator(assignedLocation);
 
-		await ((IAction) trusted).Execute();
+		await ((IAction)trusted).Execute();
 
 		var untrusted = CreateStart(xml: "<start url='other.scxml' />", new ErrorCollector<StartAction>(), baseLocation, scopeManager.Object, taskMonitor);
-		await ((IAction) untrusted).Execute();
+		await ((IAction)untrusted).Execute();
 
 		Assert.HasCount(expected: 2, starts);
 		Assert.AreEqual(SecurityContextType.NewTrustedStateMachine, starts[0].SecurityContext);
 		Assert.AreEqual(SecurityContextType.NewStateMachine, starts[1].SecurityContext);
-		Assert.AreEqual(new Uri("https://example.test/machines/child.scxml"), ((IStateMachineLocation) starts[0].StateMachine).Location);
-		Assert.AreEqual(new Uri("https://example.test/machines/other.scxml"), ((IStateMachineLocation) starts[1].StateMachine).Location);
+		Assert.AreEqual(new Uri("https://example.test/machines/child.scxml"), ((IStateMachineLocation)starts[0].StateMachine).Location);
+		Assert.AreEqual(new Uri("https://example.test/machines/other.scxml"), ((IStateMachineLocation)starts[1].StateMachine).Location);
 		Assert.AreEqual(expected: "child-session", starts[0].StateMachine.SessionId.ToString());
 		Assert.IsFalse(string.IsNullOrEmpty(starts[1].StateMachine.SessionId.ToString()));
 		Assert.AreEqual(expected: "child-session", DataModelValue.FromObject(assignedLocation.Value!.ToObject()).AsString());
@@ -100,8 +100,8 @@ public class SystemActionCoverageTest
 		var invalidLocation = CreateStart(xml: "<start url='http://[invalid' />", new ErrorCollector<StartAction>());
 		var emptySession = CreateStart(xml: "<start url='child.scxml' sessionId='' />", new ErrorCollector<StartAction>());
 
-		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () => await ((IAction) invalidLocation).Execute());
-		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () => await ((IAction) emptySession).Execute());
+		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () => await ((IAction)invalidLocation).Execute());
+		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () => await ((IAction)emptySession).Execute());
 	}
 
 	[TestMethod]
@@ -124,13 +124,13 @@ public class SystemActionCoverageTest
 			xml: "<destroy sessionId='child-session' />", new ErrorCollector<DestroyAction>(), collection.Object,
 			new MonitoredTask { Logger = null! });
 
-		Assert.HasCount(expected: 1, ((IAction) action).GetValues().ToArray());
-		Assert.IsEmpty(((IAction) action).GetLocations());
-		await ((IAction) action).Execute();
+		Assert.HasCount(expected: 1, ((IAction)action).GetValues().ToArray());
+		Assert.IsEmpty(((IAction)action).GetLocations());
+		await ((IAction)action).Execute();
 		Assert.AreEqual(expected: "child-session", destroyed!.ToString());
 
 		var empty = CreateDestroy(xml: "<destroy sessionId='' />", new ErrorCollector<DestroyAction>());
-		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () => await ((IAction) empty).Execute());
+		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () => await ((IAction)empty).Execute());
 	}
 
 	[TestMethod]
@@ -139,7 +139,7 @@ public class SystemActionCoverageTest
 		// Current product defect: StartAction should pass sessionIdLocation to its Location constructor.
 		var action = CreateStart(xml: "<start url='child.scxml' sessionIdLocation='result.location' />", new ErrorCollector<StartAction>());
 
-		Assert.AreEqual(expected: "result.location", ((IAction) action).GetLocations().Single().Expression);
+		Assert.AreEqual(expected: "result.location", ((IAction)action).GetLocations().Single().Expression);
 	}
 
 	private static StartAction CreateStart(string xml,

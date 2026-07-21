@@ -161,7 +161,7 @@ public class ResourceLoaderHandlersCoverageTest
 		var loader = new Mock<IResourceLoader>();
 		loader.Setup(l => l.Request(expectedUri, It.IsAny<NameValueCollection?>())).ReturnsAsync(expectedResource);
 		var skippedProvider = new Mock<IResourceLoaderProvider>();
-		skippedProvider.Setup(p => p.TryGetResourceLoader(expectedUri)).ReturnsAsync((IResourceLoader?) null);
+		skippedProvider.Setup(p => p.TryGetResourceLoader(expectedUri)).ReturnsAsync((IResourceLoader?)null);
 		var matchingProvider = new Mock<IResourceLoaderProvider>();
 		matchingProvider.Setup(p => p.TryGetResourceLoader(expectedUri)).ReturnsAsync(loader.Object);
 		var service = new ResourceLoaderService

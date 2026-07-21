@@ -46,7 +46,7 @@ public class PersistedCustomActionNodeCoverageTest
 		var node = new PersistedCustomActionNode(new DocumentIdNode(documentIds), source);
 		documentIds.First!.Value = 42;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "urn:test-actions", node.XmlNamespace);
 		Assert.AreEqual(expected: "action", node.XmlName);
 		Assert.AreEqual(expected: "<action xmlns='urn:test-actions'/>", node.Xml);
@@ -59,7 +59,7 @@ public class PersistedCustomActionNodeCoverageTest
 		Assert.AreEqual(expected: 1, source.ExecuteCount);
 
 		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
-		((IStoreSupport) node).Store(bucket);
+		((IStoreSupport)node).Store(bucket);
 
 		Assert.IsTrue(bucket.TryGet(Key.TypeInfo, out TypeInfo typeInfo));
 		Assert.AreEqual(TypeInfo.CustomActionNode, typeInfo);
@@ -86,10 +86,10 @@ public class PersistedCustomActionNodeCoverageTest
 		var node = new PersistedCustomActionNode(new DocumentIdNode(documentIds), source);
 		documentIds.First!.Value = 43;
 		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
-		((IStoreSupport) node).Store(bucket);
+		((IStoreSupport)node).Store(bucket);
 		var restore = typeof(StateMachineReader).GetMethod(name: "RestoreCustomAction", BindingFlags.Static | BindingFlags.NonPublic)!;
 
-		var restored = (ICustomAction?) restore.Invoke(obj: null, [bucket]);
+		var restored = (ICustomAction?)restore.Invoke(obj: null, [bucket]);
 
 		Assert.IsNotNull(restored);
 		var restoredNotNull = restored!;
@@ -98,7 +98,7 @@ public class PersistedCustomActionNodeCoverageTest
 		Assert.AreEqual(expected: "<action xmlns='urn:test-actions'/>", restoredNotNull.Xml);
 		Assert.AreEqual(expected: "target", restoredNotNull.Locations.Single().Expression);
 		Assert.AreEqual(expected: "value", restoredNotNull.Values.Single().Expression);
-		var persistedDocument = ((IAncestorProvider) restoredNotNull).Ancestor as IPersistedDocumentId;
+		var persistedDocument = ((IAncestorProvider)restoredNotNull).Ancestor as IPersistedDocumentId;
 		Assert.IsNotNull(persistedDocument);
 		Assert.AreEqual(expected: 43, persistedDocument.DocumentId);
 

@@ -36,14 +36,14 @@ public class NullDataModelHandlerCoverageTest
 
 		inStateController.Setup(static controller => controller.InState(It.Is<IIdentifier>(id => id.ToString() == "active"))).Returns(true);
 
-		((IDataModelHandler) handler).Process(ref conditionExpression);
+		((IDataModelHandler)handler).Process(ref conditionExpression);
 
-		var evaluator = (NullConditionExpressionEvaluator) conditionExpression;
+		var evaluator = (NullConditionExpressionEvaluator)conditionExpression;
 
 		Assert.AreEqual(expected: "In(active)", evaluator.Expression);
 		Assert.IsInstanceOfType<IBooleanEvaluator>(evaluator);
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.IsTrue(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
+		Assert.IsTrue(await ((IBooleanEvaluator)evaluator).EvaluateBoolean());
 		inStateController.Verify(static controller => controller.InState(It.Is<IIdentifier>(id => id.ToString() == "active")), Times.Once);
 	}
 
@@ -53,11 +53,11 @@ public class NullDataModelHandlerCoverageTest
 		var source = new ConditionExpressionSource("In(active)");
 		var evaluator = new NullConditionExpressionEvaluator(source, Identifier.FromString("active"))
 						{
-							InStateControllerFactory = static () => new ValueTask<IInStateController?>((IInStateController?) null)
+							InStateControllerFactory = static () => new ValueTask<IInStateController?>((IInStateController?)null)
 						};
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
-		Assert.IsFalse(await ((IBooleanEvaluator) evaluator).EvaluateBoolean());
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
+		Assert.IsFalse(await ((IBooleanEvaluator)evaluator).EvaluateBoolean());
 	}
 
 	[TestMethod]
@@ -74,11 +74,11 @@ public class NullDataModelHandlerCoverageTest
 		IDataModel dataModel = new DataModelSource();
 		IDoneData doneData = new DoneDataSource();
 
-		((IDataModelHandler) handler).Process(ref invalidCondition);
-		((IDataModelHandler) handler).Process(ref invalidInState);
-		((IDataModelHandler) handler).Process(ref valueExpression);
-		((IDataModelHandler) handler).Process(ref locationExpression);
-		((IDataModelHandler) handler).Process(ref forEachExecutable);
+		((IDataModelHandler)handler).Process(ref invalidCondition);
+		((IDataModelHandler)handler).Process(ref invalidInState);
+		((IDataModelHandler)handler).Process(ref valueExpression);
+		((IDataModelHandler)handler).Process(ref locationExpression);
+		((IDataModelHandler)handler).Process(ref forEachExecutable);
 		handler.Process(ref script);
 		handler.Process(ref dataModel);
 		handler.Process(ref doneData);

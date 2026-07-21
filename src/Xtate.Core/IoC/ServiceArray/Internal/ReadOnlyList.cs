@@ -59,7 +59,7 @@ public abstract class ReadOnlyList<T>(ImmutableArray<T> list) : IList<T>, IList,
 
 #region Interface IEnumerable<T>
 
-	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>) _array).GetEnumerator();
+	IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_array).GetEnumerator();
 
 #endregion
 

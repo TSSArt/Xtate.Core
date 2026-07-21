@@ -190,7 +190,7 @@ public class PersistenceCollectionControllerCoverageTest
 
 	private sealed class DictionaryEntityMap(params DocumentEntity[] entities) : IEntityMap
 	{
-		private readonly Dictionary<int, IEntity> _entities = entities.ToDictionary(static entity => entity.DocumentId, static entity => (IEntity) entity);
+		private readonly Dictionary<int, IEntity> _entities = entities.ToDictionary(static entity => entity.DocumentId, static entity => (IEntity)entity);
 
 	#region Interface IEntityMap
 

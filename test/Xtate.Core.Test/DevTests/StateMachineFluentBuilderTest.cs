@@ -58,8 +58,8 @@ public class StateMachineFluentBuilderTest
 		var builder = await GetStateMachineFluentBuilder();
 
 		builder
-			.SetInitial((Identifier) "S1")
-			.BeginState((Identifier) "S1")
+			.SetInitial((Identifier)"S1")
+			.BeginState((Identifier)"S1")
 			.EndState();
 
 		var stateMachine = builder.Build();
@@ -68,7 +68,7 @@ public class StateMachineFluentBuilderTest
 		Assert.AreEqual(expected: 1, stateMachine.States.Length);
 		Assert.IsInstanceOfType(stateMachine.Initial, typeof(IInitial));
 		Assert.IsInstanceOfType(stateMachine.States[0], typeof(IState));
-		Assert.AreEqual((Identifier) "S1", ((IState) stateMachine.States[0]).Id);
+		Assert.AreEqual((Identifier)"S1", ((IState)stateMachine.States[0]).Id);
 	}
 
 	[TestMethod]
@@ -77,11 +77,11 @@ public class StateMachineFluentBuilderTest
 		var builder = await GetStateMachineFluentBuilder();
 
 		builder
-			.BeginState((Identifier) "S1")
+			.BeginState((Identifier)"S1")
 			.EndState()
-			.BeginParallel((Identifier) "P1")
+			.BeginParallel((Identifier)"P1")
 			.EndParallel()
-			.BeginFinal((Identifier) "F1")
+			.BeginFinal((Identifier)"F1")
 			.EndFinal();
 
 		var stateMachine = builder.Build();
@@ -91,9 +91,9 @@ public class StateMachineFluentBuilderTest
 		Assert.IsInstanceOfType(stateMachine.States[0], typeof(IState));
 		Assert.IsInstanceOfType(stateMachine.States[1], typeof(IParallel));
 		Assert.IsInstanceOfType(stateMachine.States[2], typeof(IFinal));
-		Assert.AreEqual((Identifier) "S1", ((IState) stateMachine.States[0]).Id);
-		Assert.AreEqual((Identifier) "P1", ((IParallel) stateMachine.States[1]).Id);
-		Assert.AreEqual((Identifier) "F1", ((IFinal) stateMachine.States[2]).Id);
+		Assert.AreEqual((Identifier)"S1", ((IState)stateMachine.States[0]).Id);
+		Assert.AreEqual((Identifier)"P1", ((IParallel)stateMachine.States[1]).Id);
+		Assert.AreEqual((Identifier)"F1", ((IFinal)stateMachine.States[2]).Id);
 	}
 
 	[TestMethod]
@@ -110,7 +110,7 @@ public class StateMachineFluentBuilderTest
 		var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
 		stateMachine = fluentBuilder
-					   .BeginState((Identifier) "S1")
+					   .BeginState((Identifier)"S1")
 					   .AddOnEntry(() => Runtime.DataModel["Hello"] = new DataModelValue("World"))
 					   .EndState()
 					   .Build();
@@ -141,7 +141,7 @@ public class StateMachineFluentBuilderTest
 		//var builder = FluentBuilderFactory.Create();
 
 		stateMachine = fluentBuilder
-					   .BeginState((Identifier) "S1")
+					   .BeginState((Identifier)"S1")
 					   .BeginTransition()
 					   .SetCondition(new Func<bool>(() => throw new InvalidOperationException("some exception")))
 					   .EndTransition()
@@ -172,14 +172,14 @@ public class StateMachineFluentBuilderTest
 		var fluentBuilder = await serviceProvider.GetRequiredService<StateMachineFluentBuilder.StateMachineFluentBuilder>();
 
 		stateMachine = fluentBuilder
-					   .BeginState((Identifier) "S1")
+					   .BeginState((Identifier)"S1")
 					   .BeginTransition()
-					   .SetTarget((Identifier) "S2")
+					   .SetTarget((Identifier)"S2")
 					   .EndTransition()
 					   .EndState()
-					   .BeginState((Identifier) "S2")
+					   .BeginState((Identifier)"S2")
 					   .BeginTransition()
-					   .SetTarget((Identifier) "S1")
+					   .SetTarget((Identifier)"S1")
 					   .EndTransition()
 					   .EndState()
 					   .Build();

@@ -46,7 +46,7 @@ public class DefaultEvaluatorCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(initialCondition, evaluator.Condition);
 		Assert.HasCount(expected: 5, evaluator.Action);
 		Assert.AreEqual(expected: 1, initialCondition.EvaluateCount);
@@ -83,7 +83,7 @@ public class DefaultEvaluatorCoverageTest
 
 		await expressionEvaluator.Execute();
 
-		Assert.AreSame(expressionSource, ((IAncestorProvider) expressionEvaluator).Ancestor);
+		Assert.AreSame(expressionSource, ((IAncestorProvider)expressionEvaluator).Ancestor);
 		Assert.AreSame(expressionLocation, expressionEvaluator.Location);
 		Assert.AreSame(expression, expressionEvaluator.Expression);
 		Assert.AreSame(ignoredInline, expressionEvaluator.InlineContent);
@@ -108,7 +108,7 @@ public class DefaultEvaluatorCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreEqual(expected: "urn:test", evaluator.XmlNamespace);
 		Assert.AreEqual(expected: "custom", evaluator.XmlName);
 		Assert.AreEqual(expected: "<custom />", evaluator.Xml);
@@ -139,7 +139,7 @@ public class DefaultEvaluatorCoverageTest
 
 		await evaluator.Execute();
 
-		Assert.AreSame(source, ((IAncestorProvider) evaluator).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.IsNotNull(controller.Sent);
 		Assert.AreEqual(expected: "dynamic.event", controller.Sent.Name.ToString());
 		Assert.AreEqual(new FullUri("urn:dynamic-target"), controller.Sent.Target);

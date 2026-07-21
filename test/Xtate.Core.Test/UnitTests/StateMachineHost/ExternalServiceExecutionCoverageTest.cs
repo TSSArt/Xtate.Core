@@ -53,19 +53,19 @@ public class ExternalServiceExecutionCoverageTest
 			Mock.Of<IStateMachineLocation>(l => l.Location == location),
 			Mock.Of<ICaseSensitivity>(c => c.CaseInsensitive));
 
-		Assert.AreSame(invokeId, ((IExternalServiceInvokeId) serviceClass).InvokeId);
-		Assert.AreEqual(invokeData.Type, ((IExternalServiceType) serviceClass).Type);
-		Assert.AreEqual(invokeData.Source, ((IExternalServiceSource) serviceClass).Source);
-		Assert.AreEqual(invokeData.RawContent, ((IExternalServiceSource) serviceClass).RawContent);
-		Assert.AreEqual(expected: "content", ((IExternalServiceSource) serviceClass).Content.AsString());
-		Assert.AreEqual(expected: "parameters", ((IExternalServiceParameters) serviceClass).Parameters.AsString());
-		Assert.AreSame(sessionId, ((IStateMachineSessionId) serviceClass).SessionId);
-		Assert.AreEqual(location, ((IStateMachineLocation) serviceClass).Location);
-		Assert.IsTrue(((ICaseSensitivity) serviceClass).CaseInsensitive);
+		Assert.AreSame(invokeId, ((IExternalServiceInvokeId)serviceClass).InvokeId);
+		Assert.AreEqual(invokeData.Type, ((IExternalServiceType)serviceClass).Type);
+		Assert.AreEqual(invokeData.Source, ((IExternalServiceSource)serviceClass).Source);
+		Assert.AreEqual(invokeData.RawContent, ((IExternalServiceSource)serviceClass).RawContent);
+		Assert.AreEqual(expected: "content", ((IExternalServiceSource)serviceClass).Content.AsString());
+		Assert.AreEqual(expected: "parameters", ((IExternalServiceParameters)serviceClass).Parameters.AsString());
+		Assert.AreSame(sessionId, ((IStateMachineSessionId)serviceClass).SessionId);
+		Assert.AreEqual(location, ((IStateMachineLocation)serviceClass).Location);
+		Assert.IsTrue(((ICaseSensitivity)serviceClass).CaseInsensitive);
 
 		var sourceEvent = Mock.Of<IIncomingEvent>();
-		await ((IParentEventDispatcher) serviceClass).Dispatch(sourceEvent, CancellationToken.None);
-		await ((IParentEventDispatcher) serviceClass).Dispatch(sourceEvent, CancellationToken.None);
+		await ((IParentEventDispatcher)serviceClass).Dispatch(sourceEvent, CancellationToken.None);
+		await ((IParentEventDispatcher)serviceClass).Dispatch(sourceEvent, CancellationToken.None);
 		targetDispatcher.Verify(
 			d => d.Dispatch(
 				It.Is<IncomingEvent>(e => e.Type == EventType.External &&

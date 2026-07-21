@@ -39,7 +39,7 @@ public class DetailedErrorProcessorCoverageTest
 		var first = new ErrorItem(typeof(DetailedErrorProcessorCoverageTest), message: "first", exception: null);
 		var second = new ErrorItem(typeof(string), message: "second", exception: null);
 		var processor = new DetailedErrorProcessor(sessionId);
-		var errorProcessor = (IErrorProcessor) processor;
+		var errorProcessor = (IErrorProcessor)processor;
 
 		errorProcessor.AddError(first);
 		errorProcessor.AddError(second);

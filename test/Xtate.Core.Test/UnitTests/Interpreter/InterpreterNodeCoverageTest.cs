@@ -62,7 +62,7 @@ public class InterpreterNodeCoverageTest
 		var dataSource = new DataSource(id: "data-id", source, expression, inlineContent);
 		var dataNode = new DataNode(new DocumentIdNode(documentIds), dataSource);
 
-		Assert.AreSame(dataSource, ((IAncestorProvider) dataNode).Ancestor);
+		Assert.AreSame(dataSource, ((IAncestorProvider)dataNode).Ancestor);
 		Assert.AreEqual(expected: "data-id", dataNode.Id);
 		Assert.AreSame(source, dataNode.Source);
 		Assert.AreSame(expression, dataNode.Expression);
@@ -75,15 +75,15 @@ public class InterpreterNodeCoverageTest
 		var dataModelSource = new DataModelSource(ImmutableArray.Create<IData>(dataNode));
 		var dataModelNode = new DataModelNode(new DocumentIdNode(documentIds), dataModelSource);
 
-		Assert.AreSame(dataModelSource, ((IAncestorProvider) dataModelNode).Ancestor);
+		Assert.AreSame(dataModelSource, ((IAncestorProvider)dataModelNode).Ancestor);
 		Assert.AreSame(dataNode, dataModelNode.Data.Single());
-		Assert.AreSame(dataNode, ((IDataModel) dataModelNode).Data.Single());
+		Assert.AreSame(dataNode, ((IDataModel)dataModelNode).Data.Single());
 		Assert.AreEqual(expected: -1, dataModelNode.DocumentId);
 
 		var param = new ParamSource(name: "param", expression, new LocationExpressionSource("location"));
 		var paramNode = new ParamNode(new DocumentIdNode(documentIds), param);
 
-		Assert.AreSame(param, ((IAncestorProvider) paramNode).Ancestor);
+		Assert.AreSame(param, ((IAncestorProvider)paramNode).Ancestor);
 		Assert.AreEqual(expected: "param", paramNode.Name);
 		Assert.AreSame(expression, paramNode.Expression);
 		Assert.AreSame(param.Location, paramNode.Location);
@@ -95,7 +95,7 @@ public class InterpreterNodeCoverageTest
 							   DataConverterFactory = () => new ValueTask<DataConverter>(new DataConverter(caseSensitivity: null))
 						   };
 
-		Assert.AreSame(doneDataSource, ((IAncestorProvider) doneDataNode).Ancestor);
+		Assert.AreSame(doneDataSource, ((IAncestorProvider)doneDataNode).Ancestor);
 		Assert.AreSame(doneDataSource.Content, doneDataNode.Content);
 		Assert.AreSame(param, doneDataNode.Parameters.Single());
 		Assert.AreEqual(expected: "expression value", (await doneDataNode.Evaluate()).AsList()["param"].AsString());
@@ -107,12 +107,12 @@ public class InterpreterNodeCoverageTest
 		var onEntryNode = new OnEntryNode(new DocumentIdNode(documentIds), onEntrySource);
 		var onExitNode = new OnExitNode(new DocumentIdNode(documentIds), onExitSource);
 
-		Assert.AreSame(onEntrySource, ((IAncestorProvider) onEntryNode).Ancestor);
+		Assert.AreSame(onEntrySource, ((IAncestorProvider)onEntryNode).Ancestor);
 		Assert.AreSame(action, onEntryNode.Action.Single());
 		Assert.AreSame(action, onEntryNode.ActionEvaluators.Single());
 		AssertDebugIdContainsDocumentId(onEntryNode);
 
-		Assert.AreSame(onExitSource, ((IAncestorProvider) onExitNode).Ancestor);
+		Assert.AreSame(onExitSource, ((IAncestorProvider)onExitNode).Ancestor);
 		Assert.AreSame(action, onExitNode.Action.Single());
 		Assert.AreSame(action, onExitNode.ActionEvaluators.Single());
 		AssertDebugIdContainsDocumentId(onExitNode);
@@ -144,9 +144,9 @@ public class InterpreterNodeCoverageTest
 
 		var data = await node.CreateInvokeData(invokeId);
 
-		Assert.AreSame(invokeSource, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(invokeSource, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: 29, node.DocumentId);
-		Assert.AreEqual(expected: "invoke(#29)", ((IDebugEntityId) node).EntityId.ToString());
+		Assert.AreEqual(expected: "invoke(#29)", ((IDebugEntityId)node).EntityId.ToString());
 		Assert.AreEqual(expected: "invoke", node.Id);
 		Assert.AreEqual(new FullUri("urn:static-type"), node.Type);
 		Assert.AreSame(typeExpression, node.TypeExpression);
@@ -179,7 +179,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new AssignNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(location, node.Location);
 		Assert.AreSame(expression, node.Expression);
 		Assert.AreSame(inlineContent, node.InlineContent);
@@ -196,7 +196,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new CancelNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "send-id", node.SendId);
 		Assert.AreSame(expression, node.SendIdExpression);
 		AssertDebugIdContainsDocumentId(node);
@@ -214,7 +214,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new ForEachNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(expression, node.Array);
 		Assert.AreSame(location, node.Item);
 		Assert.AreSame(location, node.Index);
@@ -233,7 +233,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new IfNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(condition, node.Condition);
 		Assert.AreSame(executable, node.Action.Single());
 		AssertDebugIdContainsDocumentId(node);
@@ -247,7 +247,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new LogNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "label", node.Label);
 		Assert.AreSame(expression, node.Expression);
 		AssertDebugIdContainsDocumentId(node);
@@ -261,7 +261,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new RaiseNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(outgoingEvent, node.OutgoingEvent);
 		AssertDebugIdContainsDocumentId(node);
 
@@ -279,7 +279,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new SendNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "event-name", node.EventName);
 		Assert.AreSame(expression, node.EventExpression);
 		Assert.AreEqual(new FullUri("https://target.test/"), node.Target);
@@ -304,7 +304,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new ElseNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		AssertDebugIdContainsDocumentId(node);
 
 		await source.Execute();
@@ -316,7 +316,7 @@ public class InterpreterNodeCoverageTest
 	{
 		var node = new ElseIfNode(new DocumentIdNode(documentIds), source);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(condition, node.Condition);
 		AssertDebugIdContainsDocumentId(node);
 	}
@@ -460,7 +460,7 @@ public class InterpreterNodeCoverageTest
 
 		public SendId? SendId => SendId.FromString("send-id");
 
-		public EventName Name => (EventName) "outgoing";
+		public EventName Name => (EventName)"outgoing";
 
 		public FullUri? Target => new("https://target.test/");
 

@@ -72,7 +72,7 @@ public class SpecificExceptionCoverageTest
 	[TestMethod]
 	public void StateMachineDestroyedExceptionConstructorsPreserveMessageInnerExceptionOwnerAndReason()
 	{
-		var defaultException = (StateMachineDestroyedException) Activator.CreateInstance(typeof(StateMachineDestroyedException), nonPublic: true)!;
+		var defaultException = (StateMachineDestroyedException)Activator.CreateInstance(typeof(StateMachineDestroyedException), nonPublic: true)!;
 		var owner = new object();
 		var messageException = new StateMachineDestroyedException("destroyed")
 							   {

@@ -55,9 +55,9 @@ public class IConvertibleExtensionsCoverageTest
 
 		bool IConvertible.ToBoolean(IFormatProvider? provider) => value != 0;
 
-		byte IConvertible.ToByte(IFormatProvider? provider) => (byte) value;
+		byte IConvertible.ToByte(IFormatProvider? provider) => (byte)value;
 
-		char IConvertible.ToChar(IFormatProvider? provider) => (char) value;
+		char IConvertible.ToChar(IFormatProvider? provider) => (char)value;
 
 		DateTime IConvertible.ToDateTime(IFormatProvider? provider) => new(ticks: value);
 
@@ -65,13 +65,13 @@ public class IConvertibleExtensionsCoverageTest
 
 		double IConvertible.ToDouble(IFormatProvider? provider) => value;
 
-		short IConvertible.ToInt16(IFormatProvider? provider) => (short) value;
+		short IConvertible.ToInt16(IFormatProvider? provider) => (short)value;
 
 		int IConvertible.ToInt32(IFormatProvider? provider) => value;
 
 		long IConvertible.ToInt64(IFormatProvider? provider) => value;
 
-		sbyte IConvertible.ToSByte(IFormatProvider? provider) => (sbyte) value;
+		sbyte IConvertible.ToSByte(IFormatProvider? provider) => (sbyte)value;
 
 		float IConvertible.ToSingle(IFormatProvider? provider) => value;
 
@@ -79,11 +79,11 @@ public class IConvertibleExtensionsCoverageTest
 
 		object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => Convert.ChangeType(value, conversionType, provider);
 
-		ushort IConvertible.ToUInt16(IFormatProvider? provider) => (ushort) value;
+		ushort IConvertible.ToUInt16(IFormatProvider? provider) => (ushort)value;
 
-		uint IConvertible.ToUInt32(IFormatProvider? provider) => (uint) value;
+		uint IConvertible.ToUInt32(IFormatProvider? provider) => (uint)value;
 
-		ulong IConvertible.ToUInt64(IFormatProvider? provider) => (ulong) value;
+		ulong IConvertible.ToUInt64(IFormatProvider? provider) => (ulong)value;
 
 	#endregion
 	}

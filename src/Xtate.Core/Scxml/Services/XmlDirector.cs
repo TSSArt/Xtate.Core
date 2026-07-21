@@ -103,7 +103,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 			try
 			{
-				policyRawContentAction((TDirector) this, entity);
+				policyRawContentAction((TDirector)this, entity);
 			}
 			catch (Exception ex)
 			{
@@ -182,7 +182,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				{
 					try
 					{
-						located((TDirector) this, entity);
+						located((TDirector)this, entity);
 					}
 					catch (Exception ex)
 					{
@@ -220,7 +220,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 				{
 					try
 					{
-						await located((TDirector) this, entity).ConfigureAwait(false);
+						await located((TDirector)this, entity).ConfigureAwait(false);
 					}
 					catch (Exception ex)
 					{
@@ -436,7 +436,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 						OnError(CreateMessage(Resources.ErrorMessage_FoundDuplicateAttribute, ns, name));
 					}
 
-					_attributes[new QualifiedName(ns, name)] = type + (int) AttributeType.SysIncrement;
+					_attributes[new QualifiedName(ns, name)] = type + (int)AttributeType.SysIncrement;
 				}
 			}
 
@@ -458,7 +458,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 						OnError(CreateMessage(Resources.ErrorMessage_OnlyOneElementAllowed, ns, name));
 					}
 
-					_elements[new QualifiedName(ns, name)] = type + (int) ElementType.SysIncrement;
+					_elements[new QualifiedName(ns, name)] = type + (int)ElementType.SysIncrement;
 				}
 				else if (!_ignoreUnknownElements)
 				{

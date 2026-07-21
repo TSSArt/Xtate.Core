@@ -41,7 +41,7 @@ public class FinalFluentBuilder<TOuterBuilder> where TOuterBuilder : notnull
 		return OuterBuilder;
 	}
 
-	public FinalFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier) id);
+	public FinalFluentBuilder<TOuterBuilder> SetId(string id) => SetId((Identifier)id);
 
 	public FinalFluentBuilder<TOuterBuilder> SetId(IIdentifier id)
 	{

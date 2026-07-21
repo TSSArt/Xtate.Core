@@ -115,8 +115,8 @@ public class DataModelDateTimeTypeTest
 	public void DataModelDateTimeType_CastToInt_ShouldWork()
 	{
 		// Act
-		var dateTimeInt = (int) DataModelDateTimeType.DateTime;
-		var dateTimeOffsetInt = (int) DataModelDateTimeType.DateTimeOffset;
+		var dateTimeInt = (int)DataModelDateTimeType.DateTime;
+		var dateTimeOffsetInt = (int)DataModelDateTimeType.DateTimeOffset;
 
 		// Assert
 		Assert.AreEqual(expected: 0, dateTimeInt);

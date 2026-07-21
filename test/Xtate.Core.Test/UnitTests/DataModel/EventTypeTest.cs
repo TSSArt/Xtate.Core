@@ -141,10 +141,10 @@ public class EventTypeTest
 	public void EventType_CastToInt_ShouldWork()
 	{
 		// Act
-		var noneInt = (int) EventType.None;
-		var platformInt = (int) EventType.Platform;
-		var internalInt = (int) EventType.Internal;
-		var externalInt = (int) EventType.External;
+		var noneInt = (int)EventType.None;
+		var platformInt = (int)EventType.Platform;
+		var internalInt = (int)EventType.Internal;
+		var externalInt = (int)EventType.External;
 
 		// Assert
 		Assert.AreEqual(expected: 0, noneInt);
@@ -157,7 +157,7 @@ public class EventTypeTest
 	public void EventType_CastFromInt_ShouldWork()
 	{
 		// Act
-		var eventType = (EventType) 2;
+		var eventType = (EventType)2;
 
 		// Assert
 		Assert.AreEqual(EventType.Internal, eventType);

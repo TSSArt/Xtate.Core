@@ -46,9 +46,9 @@ public sealed partial class DataModelList
 
 	private const int AccessMask = 0xF;
 
-	private const int AccessConstant = (int) DataModelAccess.Constant;
+	private const int AccessConstant = (int)DataModelAccess.Constant;
 
-	private const int AccessReadOnly = (int) DataModelAccess.ReadOnly;
+	private const int AccessReadOnly = (int)DataModelAccess.ReadOnly;
 
 	public static readonly DataModelList Empty = [with(DataModelAccess.Constant)];
 
@@ -74,7 +74,7 @@ public sealed partial class DataModelList
 
 	internal DataModelList(DataModelAccess access, bool caseInsensitive = false)
 	{
-		_flags = caseInsensitive ? (int) access | CaseInsensitiveBit : (int) access;
+		_flags = caseInsensitive ? (int)access | CaseInsensitiveBit : (int)access;
 		_array = Array.Empty<DataModelValue>();
 	}
 
@@ -120,7 +120,7 @@ public sealed partial class DataModelList
 
 	public DataModelAccess Access
 	{
-		get => (DataModelAccess) (_flags & AccessMask);
+		get => (DataModelAccess)(_flags & AccessMask);
 
 		internal set
 		{

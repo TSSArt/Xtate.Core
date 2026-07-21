@@ -25,11 +25,11 @@ public class LazyTask<T>
 
 	private readonly ITaskMonitor? _taskMonitor;
 
-	private CancellationToken _token;
-
 	private CancellationTokenRegistration _cancellationTokenRegistration;
 
 	private TaskCompletionSource<T>? _taskCompletionSource;
+
+	private CancellationToken _token;
 
 	public LazyTask(Func<ValueTask<T>> factory)
 	{
@@ -61,7 +61,7 @@ public class LazyTask<T>
 				return existedTcs.Task;
 			}
 
-			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>) s!).TokenCancelled(), this, useSynchronizationContext: false);
+			_cancellationTokenRegistration = _token.Register(static s => ((LazyTask<T>)s!).TokenCancelled(), this, useSynchronizationContext: false);
 
 			var valueTask = Execute();
 

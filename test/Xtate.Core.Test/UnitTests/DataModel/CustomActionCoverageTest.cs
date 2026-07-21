@@ -45,7 +45,7 @@ public class CustomActionCoverageTest
 					 };
 		var container = new CustomActionContainer(source, _ => action);
 
-		Assert.AreSame(source, ((IAncestorProvider) container).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)container).Ancestor);
 		Assert.AreEqual(expected: "urn:actions", container.XmlNamespace);
 		Assert.AreEqual(expected: "run", container.XmlName);
 		Assert.AreEqual(expected: "<run/>", container.Xml);
@@ -75,7 +75,7 @@ public class CustomActionCoverageTest
 					 };
 		var expectedAction = new TestAction([], []);
 		var first = new Mock<IActionProvider>();
-		first.Setup(static p => p.TryGetActivator("urn:actions", "run")).Returns((IActionActivator?) null);
+		first.Setup(static p => p.TryGetActivator("urn:actions", "run")).Returns((IActionActivator?)null);
 		var activator = new Mock<IActionActivator>();
 		activator.Setup(static a => a.Activate("<run id='1'/>")).Returns(expectedAction);
 		var matching = new Mock<IActionProvider>();

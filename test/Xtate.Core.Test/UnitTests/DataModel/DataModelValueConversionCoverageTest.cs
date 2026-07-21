@@ -49,15 +49,15 @@ public class DataModelValueConversionCoverageTest
 		Assert.AreEqual(offset, new DataModelValue(modelDateValue).AsDateTime().ToDateTimeOffset());
 		Assert.IsTrue(new DataModelValue(boolValue).AsBoolean());
 
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((int?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((long?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((double?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((decimal?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DataModelNumber?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DateTimeOffset?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DateTime?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DataModelDateTime?) null).Type);
-		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((bool?) null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((int?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((long?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((double?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((decimal?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DataModelNumber?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DateTimeOffset?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DateTime?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((DataModelDateTime?)null).Type);
+		Assert.AreEqual(DataModelValueType.Null, new DataModelValue((bool?)null).Type);
 
 		DataModelValue[] implicitValues =
 		[
@@ -82,40 +82,40 @@ public class DataModelValueConversionCoverageTest
 	public void ExplicitOperatorsAndNullableAccessorsReturnExpectedRepresentations()
 	{
 		DataModelValue number = 12;
-		Assert.AreEqual(expected: 12, (int) number);
-		Assert.AreEqual(expected: 12, (int?) number);
-		Assert.AreEqual(expected: 12L, (long) number);
-		Assert.AreEqual(expected: 12L, (long?) number);
-		Assert.AreEqual(expected: 12D, (double) number);
-		Assert.AreEqual(expected: 12D, (double?) number);
-		Assert.AreEqual(DataModelNumber.FromInt32(12), (DataModelNumber) number);
-		Assert.AreEqual(DataModelNumber.FromInt32(12), (DataModelNumber?) number);
+		Assert.AreEqual(expected: 12, (int)number);
+		Assert.AreEqual(expected: 12, (int?)number);
+		Assert.AreEqual(expected: 12L, (long)number);
+		Assert.AreEqual(expected: 12L, (long?)number);
+		Assert.AreEqual(expected: 12D, (double)number);
+		Assert.AreEqual(expected: 12D, (double?)number);
+		Assert.AreEqual(DataModelNumber.FromInt32(12), (DataModelNumber)number);
+		Assert.AreEqual(DataModelNumber.FromInt32(12), (DataModelNumber?)number);
 		Assert.AreEqual(DataModelNumber.FromInt32(12), number.AsNullableNumber());
 
 		var offset = new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, TimeSpan.FromHours(2));
 		DataModelValue date = offset;
-		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), (DataModelDateTime) date);
-		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), (DataModelDateTime?) date);
-		Assert.AreEqual(offset, (DateTimeOffset) date);
-		Assert.AreEqual(offset, (DateTimeOffset?) date);
-		Assert.AreEqual(offset.DateTime, (DateTime) date);
-		Assert.AreEqual(offset.DateTime, (DateTime?) date);
+		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), (DataModelDateTime)date);
+		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), (DataModelDateTime?)date);
+		Assert.AreEqual(offset, (DateTimeOffset)date);
+		Assert.AreEqual(offset, (DateTimeOffset?)date);
+		Assert.AreEqual(offset.DateTime, (DateTime)date);
+		Assert.AreEqual(offset.DateTime, (DateTime?)date);
 		Assert.AreEqual(DataModelDateTime.FromDateTimeOffset(offset), date.AsNullableDateTime());
 
 		DataModelValue boolean = true;
-		Assert.IsTrue((bool) boolean);
-		Assert.IsTrue((bool?) boolean);
+		Assert.IsTrue((bool)boolean);
+		Assert.IsTrue((bool?)boolean);
 		Assert.IsTrue(boolean.AsBoolean());
 		Assert.IsTrue(boolean.AsNullableBoolean());
 		Assert.IsTrue(boolean.AsBooleanOrDefault());
 
-		Assert.IsFalse(((int?) DataModelValue.Null).HasValue);
-		Assert.IsFalse(((long?) DataModelValue.Null).HasValue);
-		Assert.IsFalse(((double?) DataModelValue.Null).HasValue);
-		Assert.IsFalse(((DataModelDateTime?) DataModelValue.Null).HasValue);
-		Assert.IsFalse(((DateTimeOffset?) DataModelValue.Null).HasValue);
-		Assert.IsFalse(((DateTime?) DataModelValue.Null).HasValue);
-		Assert.IsFalse(((bool?) DataModelValue.Null).HasValue);
+		Assert.IsFalse(((int?)DataModelValue.Null).HasValue);
+		Assert.IsFalse(((long?)DataModelValue.Null).HasValue);
+		Assert.IsFalse(((double?)DataModelValue.Null).HasValue);
+		Assert.IsFalse(((DataModelDateTime?)DataModelValue.Null).HasValue);
+		Assert.IsFalse(((DateTimeOffset?)DataModelValue.Null).HasValue);
+		Assert.IsFalse(((DateTime?)DataModelValue.Null).HasValue);
+		Assert.IsFalse(((bool?)DataModelValue.Null).HasValue);
 		Assert.IsNull(DataModelValue.Null.AsNullableNumber());
 		Assert.IsNull(DataModelValue.Null.AsNullableDateTime());
 		Assert.IsNull(DataModelValue.Null.AsNullableBoolean());
@@ -128,8 +128,8 @@ public class DataModelValueConversionCoverageTest
 		Assert.IsNull(number.AsBooleanOrDefault());
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => number.AsBoolean());
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => number.AsNullableBoolean());
-		Assert.IsFalse(number.Equals((object) "12"));
-		Assert.IsTrue(number.Equals((object) new DataModelValue(12)));
+		Assert.IsFalse(number.Equals((object)"12"));
+		Assert.IsTrue(number.Equals((object)new DataModelValue(12)));
 	}
 
 	[TestMethod]
@@ -148,14 +148,14 @@ public class DataModelValueConversionCoverageTest
 			ExerciseConvertible(value);
 		}
 
-		Assert.AreEqual(TypeCode.Int32, ((IConvertible) values[0]).GetTypeCode());
-		Assert.AreEqual(TypeCode.Boolean, ((IConvertible) values[1]).GetTypeCode());
-		Assert.AreEqual(TypeCode.DateTime, ((IConvertible) values[2]).GetTypeCode());
-		Assert.AreEqual(TypeCode.String, ((IConvertible) values[3]).GetTypeCode());
-		Assert.AreEqual(expected: 5, ((IConvertible) values[0]).ToInt32(CultureInfo.InvariantCulture));
-		Assert.IsTrue(((IConvertible) values[1]).ToBoolean(CultureInfo.InvariantCulture));
-		Assert.AreEqual(new DateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, DateTimeKind.Utc), ((IConvertible) values[2]).ToDateTime(CultureInfo.InvariantCulture));
-		Assert.AreEqual(expected: 1, ((IConvertible) values[3]).ToInt32(CultureInfo.InvariantCulture));
+		Assert.AreEqual(TypeCode.Int32, ((IConvertible)values[0]).GetTypeCode());
+		Assert.AreEqual(TypeCode.Boolean, ((IConvertible)values[1]).GetTypeCode());
+		Assert.AreEqual(TypeCode.DateTime, ((IConvertible)values[2]).GetTypeCode());
+		Assert.AreEqual(TypeCode.String, ((IConvertible)values[3]).GetTypeCode());
+		Assert.AreEqual(expected: 5, ((IConvertible)values[0]).ToInt32(CultureInfo.InvariantCulture));
+		Assert.IsTrue(((IConvertible)values[1]).ToBoolean(CultureInfo.InvariantCulture));
+		Assert.AreEqual(new DateTime(year: 2026, month: 7, day: 15, hour: 12, minute: 0, second: 0, DateTimeKind.Utc), ((IConvertible)values[2]).ToDateTime(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 1, ((IConvertible)values[3]).ToInt32(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -167,7 +167,7 @@ public class DataModelValueConversionCoverageTest
 
 #pragma warning disable SYSLIB0050
 		var info = new SerializationInfo(typeof(DataModelValue), new FormatterConverter());
-		((ISerializable) value).GetObjectData(info, context: default);
+		((ISerializable)value).GetObjectData(info, context: default);
 #pragma warning restore SYSLIB0050
 
 		Assert.IsNotNull(info.GetValue(name: "V", typeof(object)));

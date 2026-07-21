@@ -34,13 +34,13 @@ public readonly struct EventDescriptors : IReadOnlyList<IEventDescriptor>, IEqua
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _eventDescriptors).GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_eventDescriptors).GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<IEventDescriptor>
 
-	IEnumerator<IEventDescriptor> IEnumerable<IEventDescriptor>.GetEnumerator() => ((IEnumerable<IEventDescriptor>) _eventDescriptors).GetEnumerator();
+	IEnumerator<IEventDescriptor> IEnumerable<IEventDescriptor>.GetEnumerator() => ((IEnumerable<IEventDescriptor>)_eventDescriptors).GetEnumerator();
 
 #endregion
 

@@ -54,7 +54,7 @@ public class FactoryUtilitiesCoverageTest
 	{
 		var tracker = new AncestorTracker();
 		var factory = new AncestorFactory<object>(tracker);
-		var consumer = (IAncestorConsumer<object>) factory;
+		var consumer = (IAncestorConsumer<object>)factory;
 		var value = new object();
 
 		Assert.IsNull(factory.GetValueFunc()());

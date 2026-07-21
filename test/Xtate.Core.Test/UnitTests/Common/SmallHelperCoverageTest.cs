@@ -90,7 +90,7 @@ public class SmallHelperCoverageTest
 	public async Task ForwardFactoryPropagatesMissingServiceException()
 	{
 		var serviceProvider = new Mock<IServiceProvider>();
-		serviceProvider.Setup(sp => sp.GetImplementationEntry(It.IsAny<TypeKey>())).Returns((ImplementationEntry?) null);
+		serviceProvider.Setup(sp => sp.GetImplementationEntry(It.IsAny<TypeKey>())).Returns((ImplementationEntry?)null);
 		var forward = Forward<object, string>.To<string>();
 
 		await Assert.ThrowsExactlyAsync<MissedServiceException>(async () => await forward(serviceProvider.Object, arg2: "arg"));

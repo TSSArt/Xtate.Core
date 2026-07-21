@@ -71,7 +71,7 @@ public class XPathObject(object value) : IObject
 		{
 			XPathNodeIterator iterator => XmlConvert.ToInt32(GetFirstStringValue(iterator)),
 			string value               => XmlConvert.ToInt32(value),
-			double value               => (int) value,
+			double value               => (int)value,
 			bool value                 => value ? 1 : 0,
 			_                          => throw Infra.Unmatched(_value?.GetType())
 		};
@@ -96,7 +96,7 @@ public class XPathObject(object value) : IObject
 			_                          => throw Infra.Unmatched(_value?.GetType())
 		};
 
-	public XPathNodeIterator AsIterator() => ((XPathNodeIterator) _value).Clone();
+	public XPathNodeIterator AsIterator() => ((XPathNodeIterator)_value).Clone();
 
 	private static string? XmlString(DataModelValue val)
 	{

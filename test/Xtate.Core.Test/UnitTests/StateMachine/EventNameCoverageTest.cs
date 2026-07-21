@@ -26,7 +26,7 @@ public class EventNameCoverageTest
 	[TestMethod]
 	public void EventNameSupportsFormattingIndexingEnumerationAndExplicitConversion()
 	{
-		var eventName = (EventName) "error.platform.io";
+		var eventName = (EventName)"error.platform.io";
 
 		Assert.AreEqual(expected: 3, eventName.Count);
 		Assert.AreEqual(expected: "error", eventName[0].Value);
@@ -81,7 +81,7 @@ public class EventNameCoverageTest
 		var concreteValues = new List<string>();
 		var enumerator = eventName.GetEnumerator();
 		var nonGenericValues = new List<string>();
-		var nonGenericEnumerator = ((IEnumerable) eventName).GetEnumerator();
+		var nonGenericEnumerator = ((IEnumerable)eventName).GetEnumerator();
 
 		while (enumerator.MoveNext())
 		{
@@ -92,13 +92,13 @@ public class EventNameCoverageTest
 
 		while (nonGenericEnumerator.MoveNext())
 		{
-			nonGenericValues.Add(((IIdentifier) nonGenericEnumerator.Current).Value);
+			nonGenericValues.Add(((IIdentifier)nonGenericEnumerator.Current).Value);
 		}
 
 		CollectionAssert.AreEqual(new[] { "error", "platform" }, nonGenericValues);
 		CollectionAssert.AreEqual(new[] { "error", "platform" }, eventName.Select(item => item.Value).ToArray());
-		Assert.IsTrue(eventName.Equals((object) same));
-		Assert.IsFalse(eventName.Equals((object) different));
+		Assert.IsTrue(eventName.Equals((object)same));
+		Assert.IsFalse(eventName.Equals((object)different));
 		Assert.IsFalse(eventName.Equals("error.platform"));
 		Assert.IsFalse(eventName.Equals(obj: null));
 		Assert.IsTrue(eventName.IsError());

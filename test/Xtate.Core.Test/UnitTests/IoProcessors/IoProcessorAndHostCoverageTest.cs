@@ -81,14 +81,14 @@ public class IoProcessorAndHostCoverageTest
 					   LoggerBase = logger.Object
 				   };
 
-		await ((IIoProcessorHost) host).Start();
+		await ((IIoProcessorHost)host).Start();
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(5));
 		await monitor.LastTask!.WaitAsync(cts.Token);
 
 		Assert.AreEqual(expected: 2, host.AttemptCount);
 		logger.Verify(static l => l.Write(Level.Error, eventId: 1, It.IsAny<string>(), It.IsAny<Exception>()), Times.Once);
-		await ((IIoProcessorHost) host).Stop();
+		await ((IIoProcessorHost)host).Stop();
 	}
 
 	[TestMethod]
@@ -107,9 +107,9 @@ public class IoProcessorAndHostCoverageTest
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(5));
 
-		await ((IIoProcessorHost) host).Start();
+		await ((IIoProcessorHost)host).Start();
 		await host.Entered.Task.WaitAsync(cts.Token);
-		await ((IIoProcessorHost) host).Stop();
+		await ((IIoProcessorHost)host).Stop();
 		await monitor.LastTask!.WaitAsync(cts.Token);
 
 		logger.Verify(static l => l.Write(Level.Error, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Exception>()), Times.Never);
@@ -123,8 +123,8 @@ public class IoProcessorAndHostCoverageTest
 		var internalDispatcher = new Mock<IInternalEventDispatcher<HttpIoProcessor>>();
 		var sessionId = SessionId.FromString("session");
 		var processor = CreateHttpIoProcessor(controller, internalDispatcher.Object, invokeId: null, sessionId);
-		var ioProcessor = (IIoProcessor) processor;
-		var router = (IEventRouter) processor;
+		var ioProcessor = (IIoProcessor)processor;
+		var router = (IEventRouter)processor;
 
 		Assert.AreEqual(new FullUri("https://localhost:8443/root/session/session"), ioProcessor.Target);
 		Assert.IsTrue(router.CanHandle(new FullUri("http")));
@@ -141,7 +141,7 @@ public class IoProcessorAndHostCoverageTest
 		Assert.AreEqual(expected: "https://localhost:8443/root/session/session", handler.Origin);
 
 		var invokeProcessor = CreateHttpIoProcessor(controller, internalDispatcher.Object, InvokeId.FromString("invoke"), sessionId);
-		Assert.AreEqual(new FullUri("https://localhost:8443/root/invoke/invoke"), ((IIoProcessor) invokeProcessor).Target);
+		Assert.AreEqual(new FullUri("https://localhost:8443/root/invoke/invoke"), ((IIoProcessor)invokeProcessor).Target);
 	}
 
 	[TestMethod]
@@ -152,8 +152,8 @@ public class IoProcessorAndHostCoverageTest
 		var internalDispatcher = new Mock<IInternalEventDispatcher<HttpIoProcessor>>();
 		var sessionId = SessionId.FromString("session");
 		var processor = CreateHttpIoProcessor(controller, internalDispatcher.Object, invokeId: null, sessionId);
-		var ioProcessor = (IIoProcessor) processor;
-		var router = (IEventRouter) processor;
+		var ioProcessor = (IIoProcessor)processor;
+		var router = (IEventRouter)processor;
 
 		Assert.AreEqual(new FullUri("https://localhost:8443/root/session/session"), ioProcessor.Target);
 		Assert.IsTrue(router.CanHandle(new FullUri("http")));
@@ -170,7 +170,7 @@ public class IoProcessorAndHostCoverageTest
 		Assert.AreEqual(expected: "https://localhost:8443/root/session/session", handler.Origin);
 
 		var invokeProcessor = CreateHttpIoProcessor(controller, internalDispatcher.Object, InvokeId.FromString("invoke"), sessionId);
-		Assert.AreEqual(new FullUri("https://localhost:8443/root/invoke/invoke"), ((IIoProcessor) invokeProcessor).Target);
+		Assert.AreEqual(new FullUri("https://localhost:8443/root/invoke/invoke"), ((IIoProcessor)invokeProcessor).Target);
 	}
 
 	[TestMethod]
@@ -178,7 +178,7 @@ public class IoProcessorAndHostCoverageTest
 	{
 		var processor = CreateHttpIoProcessor(
 			CreateHttpController(new CapturingHttpMessageHandler()), Mock.Of<IInternalEventDispatcher<HttpIoProcessor>>(), invokeId: null, SessionId.FromString("session"));
-		var router = (IEventRouter) processor;
+		var router = (IEventRouter)processor;
 
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
 																	   await router.Dispatch(
@@ -318,7 +318,7 @@ public class IoProcessorAndHostCoverageTest
 	{
 		var controller = CreateNamedPipeController(name: "machine" + Guid.NewGuid().ToString("N"));
 		var targetId = SessionId.FromString("target");
-		var incomingEvent = new IncomingEvent { Name = (EventName) "event", Data = new DataModelValue("payload") };
+		var incomingEvent = new IncomingEvent { Name = (EventName)"event", Data = new DataModelValue("payload") };
 		NamedPipeEventMessage? received = null;
 		var server = controller.ReceiveAndProcessEvent(
 								   message =>
@@ -354,8 +354,8 @@ public class IoProcessorAndHostCoverageTest
 							InvokeIdBase = null,
 							SessionIdBase = Mock.Of<IStateMachineSessionId>(s => s.SessionId == sessionId)
 						};
-		var router = (IEventRouter) processor;
-		Assert.AreEqual(controller.ToSessionTarget(sessionId), ((IIoProcessor) processor).Target);
+		var router = (IEventRouter)processor;
+		Assert.AreEqual(controller.ToSessionTarget(sessionId), ((IIoProcessor)processor).Target);
 		Assert.IsTrue(router.CanHandle(new FullUri("net.pipe")));
 		var invokeId = InvokeId.FromString("source-invoke");
 		var invokedProcessor = new NamedPipeIoProcessor
@@ -365,7 +365,7 @@ public class IoProcessorAndHostCoverageTest
 								   InvokeIdBase = Mock.Of<IExternalServiceInvokeId>(source => source.InvokeId == invokeId),
 								   SessionIdBase = Mock.Of<IStateMachineSessionId>(source => source.SessionId == sessionId)
 							   };
-		Assert.AreEqual(controller.ToInvokeTarget(invokeId), ((IIoProcessor) invokedProcessor).Target);
+		Assert.AreEqual(controller.ToInvokeTarget(invokeId), ((IIoProcessor)invokedProcessor).Target);
 
 		var localEvent = CreateRouterEvent(controller.ToInvokeTarget(InvokeId.FromString("target")), sessionId);
 		await router.Dispatch(localEvent, CancellationToken.None);
@@ -478,7 +478,7 @@ public class IoProcessorAndHostCoverageTest
 		routerEvent.SetupGet(static e => e.Target).Returns(target);
 		routerEvent.SetupGet(static e => e.DelayMs).Returns(delayMs);
 		routerEvent.SetupGet(static e => e.SenderServiceId).Returns(sender);
-		routerEvent.SetupGet(static e => e.Name).Returns(name is null ? default : (EventName) name);
+		routerEvent.SetupGet(static e => e.Name).Returns(name is null ? default : (EventName)name);
 		routerEvent.SetupGet(static e => e.Data).Returns(data);
 		routerEvent.SetupGet(static e => e.SendId).Returns(sendId);
 		routerEvent.SetupGet(static e => e.InvokeId).Returns(invokeId);

@@ -41,12 +41,12 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.Id = "data2";
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(source.Id, entity.Id);
 		Assert.AreSame(source.Source, entity.Source);
 		Assert.AreSame(source.Expression, entity.Expression);
 		Assert.AreSame(source.InlineContent, entity.InlineContent);
-		Assert.AreEqual(expected: "data1", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "data1", ((IDebugEntityId)entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<DataEntity, IData>(entity, same));
 		Assert.IsFalse(RefEquals<DataEntity, IData>(entity, different));
 	}
@@ -66,11 +66,11 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.Type = HistoryType.Shallow;
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(source.Id, entity.Id);
 		Assert.AreEqual(HistoryType.Deep, entity.Type);
 		Assert.AreSame(source.Transition, entity.Transition);
-		Assert.AreEqual(expected: "hist", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "hist", ((IDebugEntityId)entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<HistoryEntity, IHistory>(entity, same));
 		Assert.IsFalse(RefEquals<HistoryEntity, IHistory>(entity, different));
 	}
@@ -94,12 +94,12 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.DoneData = new DoneDataSource();
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(source.Id, entity.Id);
 		Assert.AreSame(onEntry, entity.OnEntry[0]);
 		Assert.AreSame(onExit, entity.OnExit[0]);
 		Assert.AreSame(doneData, entity.DoneData);
-		Assert.AreEqual(expected: "final", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "final", ((IDebugEntityId)entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<FinalEntity, IFinal>(entity, same));
 		Assert.IsFalse(RefEquals<FinalEntity, IFinal>(entity, different));
 	}
@@ -125,7 +125,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.Type = TransitionType.Internal;
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(eventDescriptor, entity.EventDescriptors[0]);
 		Assert.AreSame(condition, entity.Condition);
 		Assert.AreSame(target, entity.Target[0]);
@@ -146,7 +146,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentContent = sameContent;
 		differentContent.Body = new ContentBodySource();
 
-		Assert.AreSame(contentSource, ((IAncestorProvider) content).Ancestor);
+		Assert.AreSame(contentSource, ((IAncestorProvider)content).Ancestor);
 		Assert.AreSame(valueExpression, content.Expression);
 		Assert.AreSame(contentBody, content.Body);
 		Assert.IsTrue(RefEquals<ContentEntity, IContent>(content, sameContent));
@@ -159,7 +159,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentDoneData = sameDoneData;
 		differentDoneData.Content = new ContentSource();
 
-		Assert.AreSame(doneDataSource, ((IAncestorProvider) doneData).Ancestor);
+		Assert.AreSame(doneDataSource, ((IAncestorProvider)doneData).Ancestor);
 		Assert.AreSame(contentSource, doneData.Content);
 		Assert.AreSame(param, doneData.Parameters[0]);
 		Assert.IsTrue(RefEquals<DoneDataEntity, IDoneData>(doneData, sameDoneData));
@@ -172,7 +172,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentDataModel = sameDataModel;
 		differentDataModel.Data = [];
 
-		Assert.AreSame(dataModelSource, ((IAncestorProvider) dataModel).Ancestor);
+		Assert.AreSame(dataModelSource, ((IAncestorProvider)dataModel).Ancestor);
 		Assert.AreSame(dataSource, dataModel.Data[0]);
 		Assert.IsTrue(RefEquals<DataModelEntity, IDataModel>(dataModel, sameDataModel));
 		Assert.IsFalse(RefEquals<DataModelEntity, IDataModel>(dataModel, differentDataModel));
@@ -188,7 +188,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentElseIf = sameElseIf;
 		differentElseIf.Condition = new ConditionExpressionSource();
 
-		Assert.AreSame(elseIfSource, ((IAncestorProvider) elseIf).Ancestor);
+		Assert.AreSame(elseIfSource, ((IAncestorProvider)elseIf).Ancestor);
 		Assert.AreSame(condition, elseIf.Condition);
 		Assert.IsTrue(RefEquals<ElseIfEntity, IElseIf>(elseIf, sameElseIf));
 		Assert.IsFalse(RefEquals<ElseIfEntity, IElseIf>(elseIf, differentElseIf));
@@ -200,7 +200,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentInitial = sameInitial;
 		differentInitial.Transition = new TransitionSource();
 
-		Assert.AreSame(initialSource, ((IAncestorProvider) initial).Ancestor);
+		Assert.AreSame(initialSource, ((IAncestorProvider)initial).Ancestor);
 		Assert.AreSame(transition, initial.Transition);
 		Assert.IsTrue(RefEquals<InitialEntity, IInitial>(initial, sameInitial));
 		Assert.IsFalse(RefEquals<InitialEntity, IInitial>(initial, differentInitial));
@@ -212,7 +212,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentOnEntry = sameOnEntry;
 		differentOnEntry.Action = [];
 
-		Assert.AreSame(onEntrySource, ((IAncestorProvider) onEntry).Ancestor);
+		Assert.AreSame(onEntrySource, ((IAncestorProvider)onEntry).Ancestor);
 		Assert.AreSame(action, onEntry.Action[0]);
 		Assert.IsTrue(RefEquals<OnEntryEntity, IOnEntry>(onEntry, sameOnEntry));
 		Assert.IsFalse(RefEquals<OnEntryEntity, IOnEntry>(onEntry, differentOnEntry));
@@ -223,7 +223,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentOnExit = sameOnExit;
 		differentOnExit.Action = [];
 
-		Assert.AreSame(onExitSource, ((IAncestorProvider) onExit).Ancestor);
+		Assert.AreSame(onExitSource, ((IAncestorProvider)onExit).Ancestor);
 		Assert.AreSame(action, onExit.Action[0]);
 		Assert.IsTrue(RefEquals<OnExitEntity, IOnExit>(onExit, sameOnExit));
 		Assert.IsFalse(RefEquals<OnExitEntity, IOnExit>(onExit, differentOnExit));
@@ -246,7 +246,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.Name = new StringBuilder("param").ToString();
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(source.Name, entity.Name);
 		Assert.AreSame(expression, entity.Expression);
 		Assert.AreSame(location, entity.Location);
@@ -264,7 +264,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentExternalData = sameExternalData;
 		differentExternalData.Uri = new Uri(dataUri.ToString());
 
-		Assert.AreSame(externalDataSource, ((IAncestorProvider) externalData).Ancestor);
+		Assert.AreSame(externalDataSource, ((IAncestorProvider)externalData).Ancestor);
 		Assert.AreSame(dataUri, externalData.Uri);
 		Assert.IsTrue(RefEquals<ExternalDataExpression, IExternalDataExpression>(externalData, sameExternalData));
 		Assert.IsFalse(RefEquals<ExternalDataExpression, IExternalDataExpression>(externalData, differentExternalData));
@@ -276,7 +276,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentExternalScript = sameExternalScript;
 		differentExternalScript.Uri = new Uri(scriptUri.ToString());
 
-		Assert.AreSame(externalScriptSource, ((IAncestorProvider) externalScript).Ancestor);
+		Assert.AreSame(externalScriptSource, ((IAncestorProvider)externalScript).Ancestor);
 		Assert.AreSame(scriptUri, externalScript.Uri);
 		Assert.IsTrue(RefEquals<ExternalScriptExpression, IExternalScriptExpression>(externalScript, sameExternalScript));
 		Assert.IsFalse(RefEquals<ExternalScriptExpression, IExternalScriptExpression>(externalScript, differentExternalScript));
@@ -287,7 +287,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentScript = sameScript;
 		differentScript.Expression = new StringBuilder("script()").ToString();
 
-		Assert.AreSame(scriptSource, ((IAncestorProvider) script).Ancestor);
+		Assert.AreSame(scriptSource, ((IAncestorProvider)script).Ancestor);
 		Assert.AreSame(scriptSource.Expression, script.Expression);
 		Assert.IsTrue(RefEquals<ScriptExpression, IScriptExpression>(script, sameScript));
 		Assert.IsFalse(RefEquals<ScriptExpression, IScriptExpression>(script, differentScript));
@@ -303,7 +303,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var same = Init<ElseEntity, IElse>(source);
 		var differentSourceEntity = Init<ElseEntity, IElse>(otherSource);
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.IsTrue(RefEquals<ElseEntity, IElse>(entity, same));
 		Assert.IsTrue(RefEquals<ElseEntity, IElse>(entity, differentSourceEntity));
 	}
@@ -343,7 +343,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentSend = sameSend;
 		differentSend.Id = new StringBuilder("send").ToString();
 
-		Assert.AreSame(sendSource, ((IAncestorProvider) send).Ancestor);
+		Assert.AreSame(sendSource, ((IAncestorProvider)send).Ancestor);
 		Assert.AreSame(sendSource.Id, send.Id);
 		Assert.AreSame(idLocation, send.IdLocation);
 		Assert.AreSame(sendSource.EventName, send.EventName);
@@ -357,7 +357,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreEqual(expected: 123, send.DelayMs);
 		Assert.AreSame(delayExpression, send.DelayExpression);
 		Assert.AreSame(nameListItem, send.NameList[0]);
-		Assert.AreEqual(expected: "send", ((IDebugEntityId) send).EntityId.ToString());
+		Assert.AreEqual(expected: "send", ((IDebugEntityId)send).EntityId.ToString());
 		Assert.IsTrue(RefEquals<SendEntity, ISend>(send, sameSend));
 		Assert.IsFalse(RefEquals<SendEntity, ISend>(send, differentSend));
 
@@ -368,7 +368,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentCancel = sameCancel;
 		differentCancel.SendId = new StringBuilder("send").ToString();
 
-		Assert.AreSame(cancelSource, ((IAncestorProvider) cancel).Ancestor);
+		Assert.AreSame(cancelSource, ((IAncestorProvider)cancel).Ancestor);
 		Assert.AreSame(cancelSource.SendId, cancel.SendId);
 		Assert.AreSame(sendIdExpression, cancel.SendIdExpression);
 		Assert.IsTrue(RefEquals<CancelEntity, ICancel>(cancel, sameCancel));
@@ -404,7 +404,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentState = sameState;
 		differentState.Initial = new InitialSource();
 
-		Assert.AreSame(stateSource, ((IAncestorProvider) state).Ancestor);
+		Assert.AreSame(stateSource, ((IAncestorProvider)state).Ancestor);
 		Assert.AreSame(id, state.Id);
 		Assert.AreSame(initial, state.Initial);
 		Assert.AreSame(child, state.States[0]);
@@ -414,7 +414,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(onEntry, state.OnEntry[0]);
 		Assert.AreSame(onExit, state.OnExit[0]);
 		Assert.AreSame(invoke, state.Invoke[0]);
-		Assert.AreEqual(expected: "state", ((IDebugEntityId) state).EntityId.ToString());
+		Assert.AreEqual(expected: "state", ((IDebugEntityId)state).EntityId.ToString());
 		Assert.IsTrue(RefEquals<StateEntity, IState>(state, sameState));
 		Assert.IsFalse(RefEquals<StateEntity, IState>(state, differentState));
 
@@ -434,7 +434,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var differentParallel = sameParallel;
 		differentParallel.States = [];
 
-		Assert.AreSame(parallelSource, ((IAncestorProvider) parallel).Ancestor);
+		Assert.AreSame(parallelSource, ((IAncestorProvider)parallel).Ancestor);
 		Assert.AreSame(id, parallel.Id);
 		Assert.AreSame(child, parallel.States[0]);
 		Assert.AreSame(history, parallel.HistoryStates[0]);
@@ -443,7 +443,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(onEntry, parallel.OnEntry[0]);
 		Assert.AreSame(onExit, parallel.OnExit[0]);
 		Assert.AreSame(invoke, parallel.Invoke[0]);
-		Assert.AreEqual(expected: "state", ((IDebugEntityId) parallel).EntityId.ToString());
+		Assert.AreEqual(expected: "state", ((IDebugEntityId)parallel).EntityId.ToString());
 		Assert.IsTrue(RefEquals<ParallelEntity, IParallel>(parallel, sameParallel));
 		Assert.IsFalse(RefEquals<ParallelEntity, IParallel>(parallel, differentParallel));
 	}
@@ -480,7 +480,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.AutoForward = false;
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(source.Id, entity.Id);
 		Assert.AreSame(idLocation, entity.IdLocation);
 		Assert.AreSame(content, entity.Content);
@@ -492,7 +492,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(parameter, entity.Parameters[0]);
 		Assert.AreSame(finalize, entity.Finalize);
 		Assert.IsTrue(entity.AutoForward);
-		Assert.AreEqual(expected: "invoke-id", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "invoke-id", ((IDebugEntityId)entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<InvokeEntity, IInvoke>(entity, same));
 		Assert.IsFalse(RefEquals<InvokeEntity, IInvoke>(entity, different));
 	}
@@ -520,7 +520,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.Binding = BindingType.Early;
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(source.Name, entity.Name);
 		Assert.AreSame(source.DataModelType, entity.DataModelType);
 		Assert.AreEqual(BindingType.Late, entity.Binding);
@@ -528,7 +528,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(child, entity.States[0]);
 		Assert.AreSame(dataModel, entity.DataModel);
 		Assert.AreSame(script, entity.Script);
-		Assert.AreEqual(expected: "machine", ((IDebugEntityId) entity).EntityId.ToString());
+		Assert.AreEqual(expected: "machine", ((IDebugEntityId)entity).EntityId.ToString());
 		Assert.IsTrue(RefEquals<StateMachineEntity, IStateMachine>(entity, same));
 		Assert.IsFalse(RefEquals<StateMachineEntity, IStateMachine>(entity, different));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => default(StateMachineEntity).Init(null!));
@@ -544,7 +544,7 @@ public class StateMachineEntityStructuresCoverageTest
 		var different = same;
 		different.Action = [];
 
-		Assert.AreSame(source, ((IAncestorProvider) entity).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)entity).Ancestor);
 		Assert.AreSame(action, entity.Action[0]);
 		Assert.IsTrue(RefEquals<FinalizeEntity, IFinalize>(entity, same));
 		Assert.IsFalse(RefEquals<FinalizeEntity, IFinalize>(entity, different));

@@ -50,7 +50,7 @@ public class StateMachineInterpreterCoverageTest
 
 		var invoke = new InvokeNode(new DocumentIdNode(list: null), new InvokeSource()) { DataConverter = null! };
 		var applyFinalize = typeof(StateMachineInterpreter).GetMethod(name: "ApplyFinalize", BindingFlags.Instance | BindingFlags.NonPublic)!;
-		var result = (ValueTask) applyFinalize.Invoke(interpreter, [invoke])!;
+		var result = (ValueTask)applyFinalize.Invoke(interpreter, [invoke])!;
 		await result;
 	}
 

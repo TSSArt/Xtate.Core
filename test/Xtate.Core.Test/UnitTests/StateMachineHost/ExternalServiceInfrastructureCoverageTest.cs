@@ -50,7 +50,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		Assert.IsTrue(await pendingDispatch);
 		dispatcher.Verify(d => d.Dispatch(It.Is<IncomingEvent>(e => !ReferenceEquals(e, sourceEvent)), CancellationToken.None), Times.Once);
 
-		var incomingEvent = new IncomingEvent { Name = (EventName) "event" };
+		var incomingEvent = new IncomingEvent { Name = (EventName)"event" };
 		Assert.IsTrue(await collection.TryDispatch(uniqueInvokeId, incomingEvent, CancellationToken.None));
 		dispatcher.Verify(d => d.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
 
@@ -100,7 +100,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		global.Verify(g => g.SetExternalService(invokeId.UniqueId, service), Times.Once);
 		dispatcher.Verify(d => d.Dispatch(It.Is<IncomingEvent>(e => !ReferenceEquals(e, sourceEvent)), CancellationToken.None), Times.Once);
 
-		var incomingEvent = new IncomingEvent { Name = (EventName) "event" };
+		var incomingEvent = new IncomingEvent { Name = (EventName)"event" };
 		await collection.Dispatch(invokeId, incomingEvent, CancellationToken.None);
 		dispatcher.Verify(d => d.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
 
@@ -159,7 +159,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		Assert.IsTrue(router.CanHandle(new FullUri("urn:service")));
 		Assert.IsFalse(router.IsInternalTarget(new FullUri("#_invoke")));
 
-		var outgoingEvent = Mock.Of<IOutgoingEvent>(e => e.Name == (EventName) "event" && e.Target == new FullUri("target"));
+		var outgoingEvent = Mock.Of<IOutgoingEvent>(e => e.Name == (EventName)"event" && e.Target == new FullUri("target"));
 		var routerEvent = await router.GetRouterEvent(outgoingEvent, CancellationToken.None);
 		Assert.AreSame(sessionId, routerEvent.SenderServiceId);
 		Assert.AreEqual(Const.ScxmlIoProcessorId, routerEvent.OriginType);
@@ -231,8 +231,8 @@ public class ExternalServiceInfrastructureCoverageTest
 	{
 		var sessionId = SessionId.FromString("session");
 		var processor = CreateScxmlIoProcessor(invokeId: null, sessionId);
-		var ioProcessor = (IIoProcessor) processor;
-		var router = (IEventRouter) processor;
+		var ioProcessor = (IIoProcessor)processor;
+		var router = (IEventRouter)processor;
 
 		Assert.AreEqual(Const.ScxmlIoProcessorId, ioProcessor.Id);
 		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, relativeUri: "#_scxml_session"), ioProcessor.Target);
@@ -244,7 +244,7 @@ public class ExternalServiceInfrastructureCoverageTest
 		Assert.IsTrue(router.IsInternalTarget(Const.ScxmlIoProcessorInternalTarget));
 		Assert.IsFalse(router.IsInternalTarget(new FullUri("other")));
 
-		var outgoingEvent = Mock.Of<IOutgoingEvent>(e => e.Name == (EventName) "event");
+		var outgoingEvent = Mock.Of<IOutgoingEvent>(e => e.Name == (EventName)"event");
 		var routerEvent = await router.GetRouterEvent(outgoingEvent, CancellationToken.None);
 		Assert.AreSame(sessionId, routerEvent.SenderServiceId);
 		Assert.AreEqual(Const.ScxmlIoProcessorId, routerEvent.OriginType);
@@ -259,8 +259,8 @@ public class ExternalServiceInfrastructureCoverageTest
 		var parent = new Mock<IParentEventDispatcher>();
 		var internalDispatcher = new Mock<IInternalEventDispatcher<ScxmlIoProcessor>>();
 		var processor = CreateScxmlIoProcessor(invokeId, SessionId.FromString("session"), self.Object, parent.Object, internalDispatcher.Object);
-		var ioProcessor = (IIoProcessor) processor;
-		var router = (IEventRouter) processor;
+		var ioProcessor = (IIoProcessor)processor;
+		var router = (IEventRouter)processor;
 
 		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, relativeUri: "#_source"), ioProcessor.Target);
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
@@ -288,7 +288,7 @@ public class ExternalServiceInfrastructureCoverageTest
 	[TestMethod]
 	public async Task ScxmlIoProcessorRejectsInvalidTargetsIncludingParentWithoutDispatcher()
 	{
-		var router = (IEventRouter) CreateScxmlIoProcessor(invokeId: null, SessionId.FromString("session"));
+		var router = (IEventRouter)CreateScxmlIoProcessor(invokeId: null, SessionId.FromString("session"));
 
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
 																await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("invalid")), CancellationToken.None));

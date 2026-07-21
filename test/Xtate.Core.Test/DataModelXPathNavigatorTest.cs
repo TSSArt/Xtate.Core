@@ -206,7 +206,7 @@ public class DataModelXPathNavigatorTest
 		var nav = new DataModelXPathNavigator(root);
 
 		// act
-		var xml = (XPathNodeIterator?) nav.Evaluate("/root/node()");
+		var xml = (XPathNodeIterator?)nav.Evaluate("/root/node()");
 
 		// assert
 		Assert.AreEqual(expected: "val1val2empty.symbol.true1.52026-01-01T00:00:00", xml!.Current!.Value);

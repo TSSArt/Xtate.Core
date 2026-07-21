@@ -189,7 +189,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 			while (length > 0)
 			{
-				var read = await pipeStream.ReadAsync(buffer, offset, (int) length - offset, token).ConfigureAwait(false);
+				var read = await pipeStream.ReadAsync(buffer, offset, (int)length - offset, token).ConfigureAwait(false);
 
 				if (read == 0)
 				{
@@ -210,7 +210,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 			while (length > 0)
 			{
-				var toRead = (int) Math.Min(length, interBuffer.Length);
+				var toRead = (int)Math.Min(length, interBuffer.Length);
 				var read = await pipeStream.ReadAsync(interBuffer, offset: 0, toRead, token).ConfigureAwait(false);
 
 				if (read == 0)
@@ -232,14 +232,14 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 		var sizeBufReadCount = await ReadAtLeast(pipeStream, buffer, sizeof(long), token).ConfigureAwait(false);
 		var messageSize = BitConverter.ToInt64(buffer, startIndex: 0);
 
-		var maxMessageSize = _options.MaxMessageSize > 0 ? _options.MaxMessageSize : (long?) null;
+		var maxMessageSize = _options.MaxMessageSize > 0 ? _options.MaxMessageSize : (long?)null;
 
 		if (sizeBufReadCount != sizeof(long) || messageSize < 0 || messageSize > maxMessageSize)
 		{
 			throw new ProcessorException(Res.Format(Resources.Exception_NamedPipeIoProcessorMessageSizeHasWrongValueOrMissed, messageSize));
 		}
 
-		buffer = messageSize <= int.MaxValue ? ArrayPool<byte>.Shared.Rent((int) messageSize) : new byte[messageSize];
+		buffer = messageSize <= int.MaxValue ? ArrayPool<byte>.Shared.Rent((int)messageSize) : new byte[messageSize];
 
 		try
 		{
@@ -255,7 +255,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 				throw new ProcessorException(Resources.Exception_ProcessingMessagesLargerThan2GBIsNotSupported);
 			}
 
-			using var inMemoryStorage = new InMemoryStorage(buffer.AsSpan()[..(int) count]);
+			using var inMemoryStorage = new InMemoryStorage(buffer.AsSpan()[..(int)count]);
 
 			return factory(new Bucket(inMemoryStorage));
 		}
@@ -287,7 +287,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 		try
 		{
-			BitConverter.TryWriteBytes(buffer, (long) messageSize);
+			BitConverter.TryWriteBytes(buffer, (long)messageSize);
 			inMemoryStorage.WriteTransactionLogToSpan(buffer.AsSpan()[sizeof(long)..], truncateLog: false);
 
 			await pipeStream.WriteAsync(buffer, offset: 0, sizeof(long) + messageSize, token).ConfigureAwait(false);

@@ -126,7 +126,7 @@ public class DataModelNumberCoverageTest
 
 		Assert.IsTrue(nan.IsNaN());
 		Assert.IsFalse(doubleValue.IsNaN());
-		Assert.IsTrue(intValue.Equals((object) DataModelNumber.FromInt64(10)));
+		Assert.IsTrue(intValue.Equals((object)DataModelNumber.FromInt64(10)));
 		Assert.IsFalse(intValue.Equals("10"));
 	}
 
@@ -165,16 +165,16 @@ public class DataModelNumberCoverageTest
 			Assert.AreEqual(Convert.ToSingle(value.ToObject(), CultureInfo.InvariantCulture), InvokeConvertible(value, nameof(IConvertible.ToSingle)));
 			Assert.AreEqual(Convert.ToInt64(value.ToObject(), CultureInfo.InvariantCulture), InvokeConvertible(value, nameof(IConvertible.ToType), typeof(long)));
 			Assert.AreEqual(value.ToString(format: "F1", CultureInfo.InvariantCulture), value.ToString("F1"));
-			Assert.IsTrue(value.Equals((object) value));
+			Assert.IsTrue(value.Equals((object)value));
 		}
 
-		Assert.AreEqual(TypeCode.Int64, ((IConvertible) int64).GetTypeCode());
+		Assert.AreEqual(TypeCode.Int64, ((IConvertible)int64).GetTypeCode());
 		Assert.AreEqual(expected: 'A', InvokeConvertible(int32, nameof(IConvertible.ToChar)));
-		Assert.AreEqual((sbyte) 65, InvokeConvertible(int32, nameof(IConvertible.ToSByte)));
-		Assert.AreEqual((byte) 65, InvokeConvertible(int32, nameof(IConvertible.ToByte)));
-		Assert.AreEqual((short) 65, InvokeConvertible(int32, nameof(IConvertible.ToInt16)));
-		Assert.AreEqual((ushort) 65, InvokeConvertible(int32, nameof(IConvertible.ToUInt16)));
-		Assert.AreEqual((uint) 65, InvokeConvertible(int32, nameof(IConvertible.ToUInt32)));
+		Assert.AreEqual((sbyte)65, InvokeConvertible(int32, nameof(IConvertible.ToSByte)));
+		Assert.AreEqual((byte)65, InvokeConvertible(int32, nameof(IConvertible.ToByte)));
+		Assert.AreEqual((short)65, InvokeConvertible(int32, nameof(IConvertible.ToInt16)));
+		Assert.AreEqual((ushort)65, InvokeConvertible(int32, nameof(IConvertible.ToUInt16)));
+		Assert.AreEqual((uint)65, InvokeConvertible(int32, nameof(IConvertible.ToUInt32)));
 
 		var explicitOperators = typeof(DataModelNumber).GetMethods(BindingFlags.Public | BindingFlags.Static)
 													   .Where(method => method.Name == "op_Explicit" && method.GetParameters()[0].ParameterType == typeof(DataModelNumber))
@@ -200,5 +200,5 @@ public class DataModelNumberCoverageTest
 	}
 
 	private static bool InvokeOperator(string methodName, DataModelNumber left, DataModelNumber right) =>
-		(bool) typeof(DataModelNumber).GetMethod(methodName, BindingFlags.Public | BindingFlags.Static)!.Invoke(obj: null, [left, right])!;
+		(bool)typeof(DataModelNumber).GetMethod(methodName, BindingFlags.Public | BindingFlags.Static)!.Invoke(obj: null, [left, right])!;
 }

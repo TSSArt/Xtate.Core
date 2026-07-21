@@ -166,7 +166,7 @@ public static class BucketExtensions
 
 			serviceId = serviceBucket.GetSessionId(Key.SessionId)
 						?? serviceBucket.GetInvokeId(Key.InvokeId)
-						?? (ServiceId?) null;
+						?? (ServiceId?)null;
 
 			return serviceId is not null;
 		}

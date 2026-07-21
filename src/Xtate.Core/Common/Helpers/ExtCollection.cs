@@ -54,7 +54,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 			}
 			else
 			{
-				yield return (key, (TValue2) value);
+				yield return (key, (TValue2)value);
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 					return true;
 				}
 
-				values = Enumerable.Repeat((TValue2) obj, count: 1);
+				values = Enumerable.Repeat((TValue2)obj, count: 1);
 
 				Interlocked.Decrement(ref _count);
 
@@ -135,7 +135,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 						return dictionary.TryUpdate(key, newList.Count > 1 ? newList : newList[0], list);
 					}
 
-					value2 = (TValue2) value;
+					value2 = (TValue2)value;
 
 					return dictionary.TryRemove(new KeyValuePair<TValue1, object>(key, value2));
 				}
@@ -154,7 +154,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 			.AddOrUpdate(
 				value1,
 				static (_, value) => value,
-				static (_, obj, value) => obj is ImmutableList<TValue2> list ? list.Add(value) : [(TValue2) obj, value],
+				static (_, obj, value) => obj is ImmutableList<TValue2> list ? list.Add(value) : [(TValue2)obj, value],
 				value2);
 
 		Interlocked.Increment(ref _count);
@@ -182,7 +182,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 			}
 			else
 			{
-				if (_comparer2.Equals((TValue2) obj, value2))
+				if (_comparer2.Equals((TValue2)obj, value2))
 				{
 					if (dictionary.TryRemove(new KeyValuePair<TValue1, object>(value1, obj)))
 					{

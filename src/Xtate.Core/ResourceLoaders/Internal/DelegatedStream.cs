@@ -171,7 +171,7 @@ internal abstract class DelegatedStream(Stream innerStream) : Stream, IAsyncDisp
 
 	public virtual ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token = default)
 	{
-		if (MemoryMarshal.TryGetArray((ReadOnlyMemory<byte>) buffer, out var array))
+		if (MemoryMarshal.TryGetArray((ReadOnlyMemory<byte>)buffer, out var array))
 		{
 			return new ValueTask<int>(innerStream.ReadAsync(array.Array!, array.Offset, array.Count, token));
 		}

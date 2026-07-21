@@ -124,7 +124,7 @@ public class PersistedInterpreterModelGetter
 
 	private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
 	{
-		SaveToStorage((IStoreSupport) interpreterModel.Root, new Bucket(TransactionalStorage));
+		SaveToStorage((IStoreSupport)interpreterModel.Root, new Bucket(TransactionalStorage));
 
 		await TransactionalStorage.CheckPoint(0).ConfigureAwait(false);
 	}

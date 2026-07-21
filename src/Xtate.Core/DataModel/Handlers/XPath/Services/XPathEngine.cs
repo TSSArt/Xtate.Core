@@ -103,7 +103,7 @@ public class XPathEngine(IDataModelController? dataModelController)
 			{
 				firstNavigator = navigator;
 			}
-			else if(otherNavigators is null)
+			else if (otherNavigators is null)
 			{
 				otherNavigators = [navigator];
 			}

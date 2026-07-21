@@ -96,9 +96,9 @@ public class ExtCollectionCoverageTest
 		var emptyType = emptyDictionary.GetType();
 
 		Assert.AreEqual(expected: 0, emptyType.GetProperty(nameof(emptyDictionary.Count))!.GetValue(emptyDictionary));
-		Assert.AreEqual(expected: 0, ((ICollection<string>) emptyType.GetProperty(nameof(emptyDictionary.Keys))!.GetValue(emptyDictionary)!).Count);
-		Assert.AreEqual(expected: 0, ((ICollection<int>) emptyType.GetProperty(nameof(emptyDictionary.Values))!.GetValue(emptyDictionary)!).Count);
-		Assert.IsFalse(((IEnumerator<KeyValuePair<string, int>>) emptyType.GetMethod(nameof(emptyDictionary.GetEnumerator))!.Invoke(emptyDictionary, parameters: null)!).MoveNext());
+		Assert.AreEqual(expected: 0, ((ICollection<string>)emptyType.GetProperty(nameof(emptyDictionary.Keys))!.GetValue(emptyDictionary)!).Count);
+		Assert.AreEqual(expected: 0, ((ICollection<int>)emptyType.GetProperty(nameof(emptyDictionary.Values))!.GetValue(emptyDictionary)!).Count);
+		Assert.IsFalse(((IEnumerator<KeyValuePair<string, int>>)emptyType.GetMethod(nameof(emptyDictionary.GetEnumerator))!.Invoke(emptyDictionary, parameters: null)!).MoveNext());
 
 		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, key: "missing");
 		AssertIndexerThrows<KeyNotFoundException>(emptyType, emptyDictionary, key: null);
@@ -107,18 +107,18 @@ public class ExtCollectionCoverageTest
 		var type = dictionary.GetType();
 
 		Assert.AreEqual(expected: 1, type.GetProperty(nameof(dictionary.Count))!.GetValue(dictionary));
-		Assert.AreEqual(expected: 1, ((ICollection<string>) type.GetProperty(nameof(dictionary.Keys))!.GetValue(dictionary)!).Count);
-		Assert.AreEqual(expected: 1, ((ICollection<int>) type.GetProperty(nameof(dictionary.Values))!.GetValue(dictionary)!).Count);
+		Assert.AreEqual(expected: 1, ((ICollection<string>)type.GetProperty(nameof(dictionary.Keys))!.GetValue(dictionary)!).Count);
+		Assert.AreEqual(expected: 1, ((ICollection<int>)type.GetProperty(nameof(dictionary.Values))!.GetValue(dictionary)!).Count);
 		Assert.AreEqual(expected: 1, type.GetProperty("Item")!.GetValue(dictionary, ["one"]));
 
-		var genericEnumerator = (IEnumerator<KeyValuePair<string, int>>) type.GetMethod(nameof(dictionary.GetEnumerator))!.Invoke(dictionary, parameters: null)!;
+		var genericEnumerator = (IEnumerator<KeyValuePair<string, int>>)type.GetMethod(nameof(dictionary.GetEnumerator))!.Invoke(dictionary, parameters: null)!;
 		Assert.IsTrue(genericEnumerator.MoveNext());
 		Assert.AreEqual(expected: "one", genericEnumerator.Current.Key);
 
 		var interfaceMap = type.GetInterfaceMap(typeof(IEnumerable));
-		var nonGenericEnumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(dictionary, parameters: null)!;
+		var nonGenericEnumerator = (IEnumerator)interfaceMap.TargetMethods.Single().Invoke(dictionary, parameters: null)!;
 		Assert.IsTrue(nonGenericEnumerator.MoveNext());
-		Assert.AreEqual(expected: "one", ((KeyValuePair<string, int>) nonGenericEnumerator.Current).Key);
+		Assert.AreEqual(expected: "one", ((KeyValuePair<string, int>)nonGenericEnumerator.Current).Key);
 
 		AssertIndexerThrows<KeyNotFoundException>(type, dictionary, key: "missing");
 	}
@@ -148,7 +148,7 @@ public class ExtCollectionCoverageTest
 		Assert.AreEqual(expected: 3, collection.Count);
 		CollectionAssert.AreEquivalent(new[] { "group=one", "group=two", "other=three" }, collection.Select(pair => $"{pair.Item1}={pair.Item2}").ToArray());
 		var interfaceMap = collection.GetType().GetInterfaceMap(typeof(IEnumerable));
-		var nonGenericEnumerator = (IEnumerator) interfaceMap.TargetMethods.Single().Invoke(collection, parameters: null)!;
+		var nonGenericEnumerator = (IEnumerator)interfaceMap.TargetMethods.Single().Invoke(collection, parameters: null)!;
 		Assert.IsTrue(nonGenericEnumerator.MoveNext());
 		Assert.IsInstanceOfType<ValueTuple<string, string>>(nonGenericEnumerator.Current);
 

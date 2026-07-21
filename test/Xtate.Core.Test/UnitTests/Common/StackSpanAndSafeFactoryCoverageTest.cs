@@ -63,7 +63,7 @@ public class StackSpanAndSafeFactoryCoverageTest
 	{
 		var value = new object();
 		var valueFactory = await SafeFactory<object>.Constructor(() => new ValueTask<object?>(value));
-		var nullFactory = await SafeFactory<object>.Constructor(static () => new ValueTask<object?>((object?) null));
+		var nullFactory = await SafeFactory<object>.Constructor(static () => new ValueTask<object?>((object?)null));
 
 		Assert.AreSame(value, valueFactory.GetValueFunc()());
 		Assert.IsNull(nullFactory.GetValueFunc()());

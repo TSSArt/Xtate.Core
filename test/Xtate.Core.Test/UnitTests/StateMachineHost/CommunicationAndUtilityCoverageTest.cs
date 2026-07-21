@@ -105,7 +105,7 @@ public class CommunicationAndUtilityCoverageTest
 		var contentDefaultEvaluator = new DefaultScriptEvaluator(contentScript);
 		var sourceDefaultEvaluator = new DefaultScriptEvaluator(sourceOnlyScript);
 
-		Assert.AreSame(contentScript, ((IAncestorProvider) contentDefaultEvaluator).Ancestor);
+		Assert.AreSame(contentScript, ((IAncestorProvider)contentDefaultEvaluator).Ancestor);
 		Assert.AreSame(contentEvaluator, contentDefaultEvaluator.Content);
 		Assert.AreSame(sourceEvaluator, contentDefaultEvaluator.Source);
 
@@ -128,9 +128,9 @@ public class CommunicationAndUtilityCoverageTest
 						  DisposeTokenBase = new DisposeToken(disposingToken.Token)
 					  };
 
-		var first = await ((IExternalService) service).GetResult();
-		var second = await ((IExternalService) service).GetResult();
-		await ((IEventDispatcher) service).Dispatch(new IncomingEvent { Name = (EventName) "event" }, CancellationToken.None);
+		var first = await ((IExternalService)service).GetResult();
+		var second = await ((IExternalService)service).GetResult();
+		await ((IEventDispatcher)service).Dispatch(new IncomingEvent { Name = (EventName)"event" }, CancellationToken.None);
 
 		Assert.AreEqual(expected: "urn:test:raw:content:parameters", first.AsString());
 		Assert.AreEqual(first, second);
@@ -144,8 +144,8 @@ public class CommunicationAndUtilityCoverageTest
 										 DisposeTokenBase = new DisposeToken(disposingToken.Token),
 										 TaskMonitorBase = new PassThroughTaskMonitor()
 									 };
-		await ((IEventDispatcher) defaultDispatchService).Dispatch(new IncomingEvent(), CancellationToken.None);
-		Assert.AreEqual(DataModelValueType.Null, (await ((IExternalService) defaultDispatchService).GetResult()).Type);
+		await ((IEventDispatcher)defaultDispatchService).Dispatch(new IncomingEvent(), CancellationToken.None);
+		Assert.AreEqual(DataModelValueType.Null, (await ((IExternalService)defaultDispatchService).GetResult()).Type);
 	}
 
 	[TestMethod]
@@ -216,7 +216,7 @@ public class CommunicationAndUtilityCoverageTest
 		var directEnumerator = list.GetEnumerator();
 		Assert.IsTrue(directEnumerator.MoveNext());
 		Assert.AreEqual(expected: "one", directEnumerator.Current);
-		var nonGenericEnumerator = ((IEnumerable) list).GetEnumerator();
+		var nonGenericEnumerator = ((IEnumerable)list).GetEnumerator();
 		Assert.IsTrue(nonGenericEnumerator.MoveNext());
 		Assert.AreEqual(expected: "one", nonGenericEnumerator.Current);
 		Assert.AreEqual(expected: 0, new TestReadOnlyList<string>(default).Count);
@@ -250,7 +250,7 @@ public class CommunicationAndUtilityCoverageTest
 		new OutgoingEventSource
 		{
 			SendId = SendId.FromString("send-0000002a"),
-			Name = (EventName) "event",
+			Name = (EventName)"event",
 			Type = new FullUri(type),
 			Target = new FullUri(target),
 			DelayMs = delayMs,

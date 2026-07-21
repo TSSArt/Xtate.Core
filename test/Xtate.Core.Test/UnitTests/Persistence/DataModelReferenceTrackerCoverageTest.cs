@@ -47,7 +47,7 @@ public class DataModelReferenceTrackerCoverageTest
 
 		using (var restoredTracker = new DataModelReferenceTracker(bucket))
 		{
-			var restored = (DataModelList) restoredTracker.GetValue(refId, DataModelValueType.List, baseList: null);
+			var restored = (DataModelList)restoredTracker.GetValue(refId, DataModelValueType.List, baseList: null);
 			Assert.IsTrue(restored.CaseInsensitive);
 			Assert.AreEqual(expected: "original", restored["name"].AsString());
 			Assert.AreSame(restored, restoredTracker.GetValue(refId, DataModelValueType.List, baseList: null));

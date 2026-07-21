@@ -71,7 +71,7 @@ public class ExtDictionary<TKey, TValue>(IEqualityComparer<TKey>? comparer = nul
 #region Interface IEnumerable<KeyValuePair<TKey,TValue>>
 
 	/// <inheritdoc />
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>?) _dictionary ?? []).GetEnumerator();
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => ((IEnumerable<KeyValuePair<TKey, TValue>>?)_dictionary ?? []).GetEnumerator();
 
 #endregion
 

@@ -115,8 +115,8 @@ public class TransitionTypeTest
 	public void TransitionType_CastToInt_ShouldWork()
 	{
 		// Act
-		var externalInt = (int) TransitionType.External;
-		var internalInt = (int) TransitionType.Internal;
+		var externalInt = (int)TransitionType.External;
+		var internalInt = (int)TransitionType.Internal;
 
 		// Assert
 		Assert.AreEqual(expected: 0, externalInt);

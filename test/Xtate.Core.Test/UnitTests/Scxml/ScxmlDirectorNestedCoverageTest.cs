@@ -31,12 +31,12 @@ public class ScxmlDirectorNestedCoverageTest
 		var ancestor = new object();
 		var type = typeof(ScxmlDirector).GetNestedType(name: "XmlLineInfo", BindingFlags.NonPublic)!;
 		var instance = Activator.CreateInstance(type, 17, 23, ancestor)!;
-		var lineInfo = (IXmlLineInfo) instance;
+		var lineInfo = (IXmlLineInfo)instance;
 
 		Assert.IsTrue(lineInfo.HasLineInfo());
 		Assert.AreEqual(expected: 17, lineInfo.LineNumber);
 		Assert.AreEqual(expected: 23, lineInfo.LinePosition);
-		Assert.AreSame(ancestor, ((IAncestorProvider) instance).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)instance).Ancestor);
 	}
 
 	[TestMethod]
@@ -59,8 +59,8 @@ public class ScxmlDirectorNestedCoverageTest
 
 		foreach (var (propertyName, value) in expected)
 		{
-			var first = (string) type.GetProperty(propertyName)!.GetValue(strings)!;
-			var second = (string) type.GetProperty(propertyName)!.GetValue(strings)!;
+			var first = (string)type.GetProperty(propertyName)!.GetValue(strings)!;
+			var second = (string)type.GetProperty(propertyName)!.GetValue(strings)!;
 			Assert.AreEqual(value, first);
 			Assert.AreSame(nameTable.Get(value), first);
 			Assert.AreSame(first, second);

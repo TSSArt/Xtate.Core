@@ -49,7 +49,6 @@ public class XmlHttpContent : HttpContent
 	}
 
 #if NET5_0_OR_GREATER
-
 	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToXml(stream, _value);
 
 	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToXmlAsync(stream, _value, DefaultXmlOptions, token);

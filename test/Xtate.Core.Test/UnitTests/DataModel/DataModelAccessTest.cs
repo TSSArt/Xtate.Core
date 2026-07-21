@@ -128,9 +128,9 @@ public class DataModelAccessTest
 	public void DataModelAccess_CastToInt_ShouldWork()
 	{
 		// Act
-		var writableInt = (int) DataModelAccess.Writable;
-		var readOnlyInt = (int) DataModelAccess.ReadOnly;
-		var constantInt = (int) DataModelAccess.Constant;
+		var writableInt = (int)DataModelAccess.Writable;
+		var readOnlyInt = (int)DataModelAccess.ReadOnly;
+		var constantInt = (int)DataModelAccess.Constant;
 
 		// Assert
 		Assert.AreEqual(expected: 0, writableInt);

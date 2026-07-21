@@ -62,7 +62,7 @@ public readonly struct Bucket
 
 			for (int i = 0, shift = size; i < bytes.Length; i ++, shift ++)
 			{
-				block |= (ulong) bytes[i] << (shift * 8);
+				block |= (ulong)bytes[i] << (shift * 8);
 			}
 
 			bucket = new Bucket(block, _node);
@@ -344,7 +344,7 @@ public readonly struct Bucket
 
 			for (var i = 0; i < size; i ++, index ++)
 			{
-				buf[index] = unchecked((byte) block);
+				buf[index] = unchecked((byte)block);
 				block >>= 8;
 			}
 		}
@@ -394,7 +394,7 @@ public readonly struct Bucket
 
 			for (var i = 0; i < bytes.Length; i ++)
 			{
-				bytes[i] = (byte) value;
+				bytes[i] = (byte)value;
 
 				value >>= 8;
 			}
@@ -477,12 +477,12 @@ public readonly struct Bucket
 
 	private class EnumKeyConverter<TEnum> : EnumIndexKeyConverter<TEnum> where TEnum : notnull
 	{
-		protected override ulong GetValue(int key) => ((ulong) unchecked((uint) key) << 2) + 1;
+		protected override ulong GetValue(int key) => ((ulong)unchecked((uint)key) << 2) + 1;
 	}
 
 	private class IndexKeyConverter<TIndex> : EnumIndexKeyConverter<TIndex> where TIndex : notnull
 	{
-		protected override ulong GetValue(int index) => ((ulong) unchecked((uint) index) << 2) + 2;
+		protected override ulong GetValue(int index) => ((ulong)unchecked((uint)index) << 2) + 2;
 	}
 
 	private class StringKeyConverter<TString> : KeyConverterBase<TString, string> where TString : notnull
@@ -565,14 +565,14 @@ public readonly struct Bucket
 		{
 			for (var i = 0; i < bytes.Length; i ++)
 			{
-				bytes[i] = unchecked((byte) value);
+				bytes[i] = unchecked((byte)value);
 				value >>= 8;
 			}
 		}
 
 		protected override int Get(ReadOnlySpan<byte> bytes)
 		{
-			var value = (int) (sbyte) bytes[^1];
+			var value = (int)(sbyte)bytes[^1];
 
 			for (var i = bytes.Length - 2; i >= 0; i --)
 			{
@@ -587,7 +587,7 @@ public readonly struct Bucket
 	{
 		protected override int GetLength(bool value) => 1;
 
-		protected override void Write(bool value, Span<byte> bytes) => bytes[0] = value ? (byte) 1 : (byte) 0;
+		protected override void Write(bool value, Span<byte> bytes) => bytes[0] = value ? (byte)1 : (byte)0;
 
 		protected override bool Get(ReadOnlySpan<byte> bytes) => bytes[0] != 0;
 	}
@@ -635,7 +635,7 @@ public readonly struct Bucket
 		protected override void Write(DateTimeOffset value, Span<byte> bytes)
 		{
 			BinaryPrimitives.WriteInt64LittleEndian(bytes, value.Ticks);
-			BinaryPrimitives.WriteInt16LittleEndian(bytes[8..], (short) (value.Offset.Ticks / TimeSpan.TicksPerMinute));
+			BinaryPrimitives.WriteInt16LittleEndian(bytes[8..], (short)(value.Offset.Ticks / TimeSpan.TicksPerMinute));
 		}
 
 		protected override DateTimeOffset Get(ReadOnlySpan<byte> bytes)

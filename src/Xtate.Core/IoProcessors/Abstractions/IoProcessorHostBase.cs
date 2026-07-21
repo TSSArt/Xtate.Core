@@ -70,7 +70,7 @@ public abstract class IoProcessorHostBase : IIoProcessorHost
 
 	protected virtual Task StartNewBackgroundProcess()
 	{
-		var task = Task.Factory.StartNew(static state => ((IoProcessorHostBase) state!).BackgroundProcess(), this, Token, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
+		var task = Task.Factory.StartNew(static state => ((IoProcessorHostBase)state!).BackgroundProcess(), this, Token, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
 
 		return task.Unwrap();
 	}

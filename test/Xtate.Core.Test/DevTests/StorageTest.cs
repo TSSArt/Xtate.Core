@@ -30,7 +30,7 @@ public class StorageTest
 {
 	public static string Dump(IStorage storage, string delimiter = "", bool hex = false)
 	{
-		var inMemoryStorage = (InMemoryStorage) storage;
+		var inMemoryStorage = (InMemoryStorage)storage;
 
 		var logBytes = new byte[inMemoryStorage.GetTransactionLogSize()];
 		inMemoryStorage.WriteTransactionLogToSpan(logBytes, truncateLog: false);
@@ -62,7 +62,7 @@ public class StorageTest
 
 	public static int GetEntriesCount(IStorage storage)
 	{
-		var inMemoryStorage = (InMemoryStorage) storage;
+		var inMemoryStorage = (InMemoryStorage)storage;
 
 		var logBytes = new byte[inMemoryStorage.GetTransactionLogSize()];
 		inMemoryStorage.WriteTransactionLogToSpan(logBytes, truncateLog: false);
@@ -205,12 +205,12 @@ public class StorageTest
 		switch (key & 3)
 		{
 			case 1:
-				sb.Append('/').Append(Enum.ToObject(typeof(Key), unchecked((int) (key >> 2))));
+				sb.Append('/').Append(Enum.ToObject(typeof(Key), unchecked((int)(key >> 2))));
 
 				break;
 
 			case 2:
-				var index = unchecked((int) (key >> 2));
+				var index = unchecked((int)(key >> 2));
 				sb.Append("/[").Append(index).Append(']');
 
 				break;
@@ -228,7 +228,7 @@ public class StorageTest
 			{
 				if (b is < 32 or > 127)
 				{
-					sb.Append('%').Append(((int) b).ToString("X2"));
+					sb.Append('%').Append(((int)b).ToString("X2"));
 				}
 				else if (b == '%')
 				{
@@ -236,7 +236,7 @@ public class StorageTest
 				}
 				else
 				{
-					sb.Append((char) b);
+					sb.Append((char)b);
 				}
 			}
 		}
@@ -244,7 +244,7 @@ public class StorageTest
 		{
 			foreach (var b in value)
 			{
-				sb.Append((char) b);
+				sb.Append((char)b);
 			}
 		}
 	}
@@ -291,11 +291,11 @@ public class StorageTest
 
 		while (value is < -128 or > 127)
 		{
-			str += (char) unchecked((byte) value);
+			str += (char)unchecked((byte)value);
 			value >>= 8;
 		}
 
-		str += (char) unchecked((byte) value);
+		str += (char)unchecked((byte)value);
 
 		return str;
 	}
@@ -508,7 +508,7 @@ public class StorageTest
 	{
 		var storage = new InMemoryStorage(false);
 		var bucket = new Bucket(storage);
-		bucket.Add(key: "a", (string) null!);
+		bucket.Add(key: "a", (string)null!);
 		var flag = bucket.TryGet(key: "a", out string? value);
 
 		Assert.IsFalse(flag);
@@ -521,7 +521,7 @@ public class StorageTest
 	{
 		var storage = new InMemoryStorage();
 		var bucket = new Bucket(storage);
-		Assert.ThrowsExactly<ArgumentNullException>(() => bucket.Add((string) null!, value: "d"));
+		Assert.ThrowsExactly<ArgumentNullException>(() => bucket.Add((string)null!, value: "d"));
 	}
 
 	[TestMethod]

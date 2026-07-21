@@ -56,11 +56,11 @@ public class ExternalServiceProviderBaseCoverageTest
 	{
 		IExternalServiceProvider httpProvider = new HttpClientService.Provider
 												{
-													ServiceFactoryFunc = () => new ValueTask<HttpClientService>((HttpClientService) null!)
+													ServiceFactoryFunc = () => new ValueTask<HttpClientService>((HttpClientService)null!)
 												};
 		IExternalServiceProvider smtpProvider = new SmtpClientService.Provider
 												{
-													ServiceFactoryFunc = () => new ValueTask<SmtpClientService>((SmtpClientService) null!)
+													ServiceFactoryFunc = () => new ValueTask<SmtpClientService>((SmtpClientService)null!)
 												};
 
 		Assert.IsNotNull(httpProvider.TryGetActivator(new FullUri("http://xtate.net/scxml/service/#HTTPClient")));

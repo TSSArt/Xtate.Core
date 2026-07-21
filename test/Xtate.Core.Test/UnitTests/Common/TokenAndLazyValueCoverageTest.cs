@@ -29,12 +29,12 @@ public class TokenAndLazyValueCoverageTest
 	public void IdentifierRejectsWhitespaceAndSupportsTryCreateEqualityAndGeneratedIds()
 	{
 		var identifier = Identifier.FromString("state");
-		var same = (Identifier) "state";
+		var same = (Identifier)"state";
 		var different = Identifier.FromString("other");
 
 		Assert.AreEqual(expected: "state", identifier.Value);
 		Assert.IsTrue(identifier.Equals(same));
-		Assert.IsTrue(identifier.Equals((object) same));
+		Assert.IsTrue(identifier.Equals((object)same));
 		Assert.IsFalse(identifier.Equals(different));
 		Assert.IsFalse(identifier.Equals("state"));
 		Assert.AreEqual(identifier.GetHashCode(), same.GetHashCode());
@@ -61,7 +61,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsNull(SendId.FromString(null));
 		Assert.IsTrue(sendId.Equals(sendId));
 		Assert.IsTrue(sendId.Equals(same));
-		Assert.IsTrue(sendId.Equals((object) same!));
+		Assert.IsTrue(sendId.Equals((object)same!));
 		Assert.IsFalse(sendId.Equals(different));
 		Assert.IsFalse(sendId.Equals("send-0000002a"));
 		Assert.AreEqual(expected: 42, sendId.GetHashCode());
@@ -77,14 +77,14 @@ public class TokenAndLazyValueCoverageTest
 		var same = InvokeId.FromString(invokeId: "invoke", explicitInvokeId.UniqueId.Value);
 		var unique = InvokeId.FromString("unique");
 		var generated = InvokeId.New(stateId, invokeId: null);
-		var collapsed = (InvokeId) typeof(InvokeId).GetMethod(nameof(InvokeId.FromString), [typeof(string), typeof(string)])!.Invoke(obj: null, ["same", "same"])!;
+		var collapsed = (InvokeId)typeof(InvokeId).GetMethod(nameof(InvokeId.FromString), [typeof(string), typeof(string)])!.Invoke(obj: null, ["same", "same"])!;
 
 		Assert.AreEqual(nameof(InvokeId), explicitInvokeId.ServiceType);
 		Assert.AreEqual(expected: "invoke", explicitInvokeId.Value);
 		Assert.AreNotSame(explicitInvokeId, explicitInvokeId.UniqueId);
 		Assert.AreSame(explicitInvokeId, explicitInvokeId.UniqueId.InvokeId);
 		Assert.IsTrue(explicitInvokeId.Equals(same));
-		Assert.IsTrue(explicitInvokeId.Equals((object) same));
+		Assert.IsTrue(explicitInvokeId.Equals((object)same));
 		Assert.IsFalse(explicitInvokeId.Equals(unique));
 		Assert.IsFalse(explicitInvokeId.Equals("invoke"));
 		Assert.AreSame(unique, unique.UniqueId);
@@ -99,7 +99,7 @@ public class TokenAndLazyValueCoverageTest
 	public void SessionIdSupportsGeneratedExplicitNullAndEqualityPaths()
 	{
 		var sessionId = SessionId.FromString("session-0000002a");
-		var same = (SessionId) "session-0000002a";
+		var same = (SessionId)"session-0000002a";
 		var different = SessionId.FromString("session-0000002b");
 
 		Assert.AreEqual(nameof(SessionId), sessionId.ServiceType);
@@ -108,17 +108,17 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsTrue(SessionId.IsNullOrEmpty(string.Empty));
 		Assert.IsTrue(sessionId.Equals(sessionId));
 		Assert.IsTrue(sessionId.Equals(same));
-		Assert.IsTrue(sessionId.Equals((object) same!));
+		Assert.IsTrue(sessionId.Equals((object)same!));
 		Assert.IsFalse(sessionId.Equals(different));
-		Assert.IsFalse(sessionId.Equals((object) "session-0000002a"));
-		Assert.IsFalse((bool) typeof(SessionId).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(sessionId, ["session-0000002a"])!);
+		Assert.IsFalse(sessionId.Equals((object)"session-0000002a"));
+		Assert.IsFalse((bool)typeof(SessionId).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(sessionId, ["session-0000002a"])!);
 		Assert.AreEqual(expected: 42, sessionId.GetHashCode());
-		Assert.AreEqual(expected: "session-0000002a", (string) sessionId);
+		Assert.AreEqual(expected: "session-0000002a", (string)sessionId);
 		Assert.AreEqual(expected: "session-0000002a", typeof(SessionId).GetMethod(name: "op_Implicit", [typeof(SessionId)])!.Invoke(obj: null, [sessionId]));
-		string? missingSessionValue = (SessionId?) null;
+		string? missingSessionValue = (SessionId?)null;
 		Assert.IsNull(missingSessionValue);
 		string? nullValue = null;
-		Assert.IsNull((SessionId?) nullValue);
+		Assert.IsNull((SessionId?)nullValue);
 		Assert.IsFalse(string.IsNullOrWhiteSpace(SessionId.New().Value));
 	}
 
@@ -133,9 +133,9 @@ public class TokenAndLazyValueCoverageTest
 		Assert.AreEqual(cancellationTokenSource.Token, token.Token);
 		Assert.IsFalse(token.IsCancellationRequested);
 		Assert.IsTrue(token.Equals(same));
-		Assert.IsTrue(token.Equals((object) same));
+		Assert.IsTrue(token.Equals((object)same));
 		Assert.IsFalse(token.Equals("not a token"));
-		Assert.IsFalse((bool) typeof(DisposeToken).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(token, ["not a token"])!);
+		Assert.IsFalse((bool)typeof(DisposeToken).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(token, ["not a token"])!);
 		Assert.IsTrue(token == same);
 		Assert.IsFalse(token != same);
 		Assert.IsFalse(token.Equals(different));

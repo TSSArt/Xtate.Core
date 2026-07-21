@@ -350,8 +350,8 @@ public class DataModelDateTimeTest
 		// assert
 		Assert.IsTrue(d1.Equals(d2));
 		Assert.IsTrue(d2.Equals(d1));
-		Assert.IsTrue(d1.Equals((object) d2));
-		Assert.IsTrue(d2.Equals((object) d1));
+		Assert.IsTrue(d1.Equals((object)d2));
+		Assert.IsTrue(d2.Equals((object)d1));
 		Assert.IsTrue(Equals(d1, d2));
 		Assert.IsTrue(Equals(d2, d1));
 		Assert.IsTrue(d1 == d2);
@@ -370,8 +370,8 @@ public class DataModelDateTimeTest
 		// assert
 		Assert.IsFalse(d1.Equals(d2));
 		Assert.IsFalse(d2.Equals(d1));
-		Assert.IsFalse(d1.Equals((object) d2));
-		Assert.IsFalse(d2.Equals((object) d1));
+		Assert.IsFalse(d1.Equals((object)d2));
+		Assert.IsFalse(d2.Equals((object)d1));
 		Assert.IsFalse(Equals(d1, d2));
 		Assert.IsFalse(Equals(d2, d1));
 		Assert.IsFalse(d1 == d2);
@@ -399,62 +399,62 @@ public class DataModelDateTimeTest
 		var d2 = DateTimePoint1WithOffset;
 
 		// assert
-		Assert.AreEqual(d1.ToDateTime(), (DateTime) d1);
-		Assert.AreEqual(d2.ToDateTime(), (DateTime) d2);
-		Assert.AreEqual(d1.ToDateTimeOffset(), (DateTimeOffset) d1);
-		Assert.AreEqual(d2.ToDateTimeOffset(), (DateTimeOffset) d2);
+		Assert.AreEqual(d1.ToDateTime(), (DateTime)d1);
+		Assert.AreEqual(d2.ToDateTime(), (DateTime)d2);
+		Assert.AreEqual(d1.ToDateTimeOffset(), (DateTimeOffset)d1);
+		Assert.AreEqual(d2.ToDateTimeOffset(), (DateTimeOffset)d2);
 	}
 
 	[TestMethod]
 	public void IConvert_ShouldThrowInvalidCastException_ForAllExceptToDateTime()
 	{
 		// assert
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToBoolean(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToByte(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToChar(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToDecimal(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToDouble(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToInt16(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToInt32(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToInt64(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToSByte(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToSingle(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToUInt16(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToUInt32(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible) default(DataModelDateTime)).ToUInt64(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToBoolean(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToByte(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToChar(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToDecimal(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToDouble(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToInt16(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToInt32(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToInt64(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToSByte(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToSingle(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToUInt16(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToUInt32(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToUInt64(null));
 	}
 
 	[TestMethod]
 	public void IConvertToDateTime_ShouldReturnSameValue_ForToDateTime()
 	{
-		Assert.AreEqual(expected: default, ((IConvertible) default(DataModelDateTime)).ToDateTime(null));
+		Assert.AreEqual(expected: default, ((IConvertible)default(DataModelDateTime)).ToDateTime(null));
 	}
 
 	[TestMethod]
 	public void IConvertToType_ShouldReturnSameValue_ForToDateTimeOffset()
 	{
-		Assert.AreEqual(expected: default, (DateTimeOffset) ((IConvertible) default(DataModelDateTime)).ToType(typeof(DateTimeOffset), provider: null));
+		Assert.AreEqual(expected: default, (DateTimeOffset)((IConvertible)default(DataModelDateTime)).ToType(typeof(DateTimeOffset), provider: null));
 	}
 
 	[TestMethod]
 	public void IConvertToString_ShouldReturnSameValueAsToString()
 	{
 		var dataModelDateTime = default(DataModelDateTime);
-		Assert.AreEqual(dataModelDateTime.ToString(), ((IConvertible) dataModelDateTime).ToString(null));
+		Assert.AreEqual(dataModelDateTime.ToString(), ((IConvertible)dataModelDateTime).ToString(null));
 	}
 
 	[TestMethod]
 	public void IConvertGetTypeCode_ShouldReturnCorrectValue()
 	{
 		// arrange
-		var dataModelDateTimeLocal = (DataModelDateTime) new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Local);
-		var dataModelDateTimeUtc = (DataModelDateTime) new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Utc);
-		var dataModelDateTimeUnspecified = (DataModelDateTime) new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Unspecified);
+		var dataModelDateTimeLocal = (DataModelDateTime)new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Local);
+		var dataModelDateTimeUtc = (DataModelDateTime)new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Utc);
+		var dataModelDateTimeUnspecified = (DataModelDateTime)new DateTime(TimeSpan.TicksPerDay, DateTimeKind.Unspecified);
 
 		// assert
-		Assert.AreEqual(TypeCode.Object, ((IConvertible) dataModelDateTimeLocal).GetTypeCode());
-		Assert.AreEqual(TypeCode.DateTime, ((IConvertible) dataModelDateTimeUtc).GetTypeCode());
-		Assert.AreEqual(TypeCode.DateTime, ((IConvertible) dataModelDateTimeUnspecified).GetTypeCode());
+		Assert.AreEqual(TypeCode.Object, ((IConvertible)dataModelDateTimeLocal).GetTypeCode());
+		Assert.AreEqual(TypeCode.DateTime, ((IConvertible)dataModelDateTimeUtc).GetTypeCode());
+		Assert.AreEqual(TypeCode.DateTime, ((IConvertible)dataModelDateTimeUnspecified).GetTypeCode());
 	}
 
 	[ExcludeFromCodeCoverage]
@@ -502,8 +502,8 @@ public class DataModelDateTimeTest
 		Assert.IsTrue(d1.CompareTo(d1A) == 0);
 		Assert.IsTrue(d1A.CompareTo(d1) == 0);
 
-		var d1Cmp = (IComparable) d1;
-		var d2Cmp = (IComparable) d2;
+		var d1Cmp = (IComparable)d1;
+		var d2Cmp = (IComparable)d2;
 		Assert.IsTrue(d1Cmp.CompareTo(d2Cmp) > 0);
 		Assert.IsTrue(d2Cmp.CompareTo(d1Cmp) < 0);
 		Assert.IsTrue(d1Cmp.CompareTo(d1Cmp) == 0);

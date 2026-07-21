@@ -37,7 +37,7 @@ internal static class BitConverterPolyfills
 				return false;
 			}
 
-			Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(destination), value ? (byte) 1 : (byte) 0);
+			Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(destination), value ? (byte)1 : (byte)0);
 
 			return true;
 		}

@@ -191,7 +191,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 		return true;
 	}
-	
+
 	private void Exit(StateBagKey key, List<TransitionNode> result)
 	{
 		Exit(key, out var bucket, iteration: false);
@@ -291,7 +291,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 	{
 		if (level <= _persistenceLevel)
 		{
-			await StateMachinePersistenceContext.CheckPoint((int) level).ConfigureAwait(false);
+			await StateMachinePersistenceContext.CheckPoint((int)level).ConfigureAwait(false);
 
 			if (level == PersistenceLevel.StableState)
 			{

@@ -70,8 +70,7 @@ public class FullUri : Uri, IEquatable<FullUri>
 	public override bool Equals(object? obj) => obj is FullUri fullUri && Equals(fullUri);
 
 #if NET9_0_OR_GREATER
-
-	public new bool Equals(Uri? uri) => Equals((object?) uri);
+	public new bool Equals(Uri? uri) => Equals((object?)uri);
 
 #endif
 
@@ -110,7 +109,7 @@ public class FullUri : Uri, IEquatable<FullUri>
 	{
 		if (TryCreate(uriString, UriKind.RelativeOrAbsolute, out var uri))
 		{
-			result = uri.IsAbsoluteUri ? new FullUri(uri, (string) null!) : new FullUri(uri.OriginalString);
+			result = uri.IsAbsoluteUri ? new FullUri(uri, (string)null!) : new FullUri(uri.OriginalString);
 
 			return true;
 		}

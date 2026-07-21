@@ -27,7 +27,7 @@ public class SuspendEventDispatcherCoverageTest
 	public void SuspendRaisesSubscribedHandlersSupportsRemovalAndOptionallySetsFlag()
 	{
 		var dispatcher = new SuspendEventDispatcher();
-		var contract = (ISuspendEventDispatcher) dispatcher;
+		var contract = (ISuspendEventDispatcher)dispatcher;
 		var calls = 0;
 
 		void Handler() => calls ++;

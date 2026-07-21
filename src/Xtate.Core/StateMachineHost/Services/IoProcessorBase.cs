@@ -60,7 +60,7 @@ public abstract class IoProcessorBase(FullUri ioProcessorId, FullUri? ioProcesso
 
 	protected virtual ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
 	{
-		var serviceId = (ServiceId?) InvokeIdBase?.InvokeId ?? SessionIdBase.SessionId;
+		var serviceId = (ServiceId?)InvokeIdBase?.InvokeId ?? SessionIdBase.SessionId;
 
 		var routerEvent = new RouterEvent(serviceId, ioProcessorId, Target, outgoingEvent);
 

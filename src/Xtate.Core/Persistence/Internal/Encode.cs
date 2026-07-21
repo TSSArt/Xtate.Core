@@ -64,7 +64,7 @@ internal static class Encode
 	{
 		Infra.RequiresNonNegative(value);
 
-		var uValue = (ulong) value;
+		var uValue = (ulong)value;
 
 		if (uValue <= 0x7F)
 		{
@@ -115,7 +115,7 @@ internal static class Encode
 
 		for (var i = 0; i < span.Length; i ++)
 		{
-			span[i] = (byte) encodedValue;
+			span[i] = (byte)encodedValue;
 
 			encodedValue >>= 8;
 		}

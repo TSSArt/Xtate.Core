@@ -49,7 +49,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		var state = new TestStateNode(targetId);
 		var missingState = new TestStateNode(missingId);
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: 21, node.DocumentId);
 		Assert.AreEqual(expected: "(#21)", node.EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.AreEqual(TransitionType.External, node.Type);
@@ -87,10 +87,10 @@ public class InterpreterModelStateWrapperCoverageTest
 		var node = new InitialNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 22;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(transition, node.Transition);
 		Assert.AreSame(node, transition.Source);
-		Assert.AreSame(transitionSource, ((IInitial) node).Transition);
+		Assert.AreSame(transitionSource, ((IInitial)node).Transition);
 		Assert.AreSame(transitionSource, typeof(IInitial).GetProperty(nameof(IInitial.Transition))!.GetValue(node));
 		Assert.AreEqual(expected: "(#22)", node.EntityId.ToString(CultureInfo.InvariantCulture));
 	}
@@ -118,13 +118,13 @@ public class InterpreterModelStateWrapperCoverageTest
 		var node = new HistoryNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 23;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
 		Assert.AreEqual(HistoryType.Deep, node.Type);
 		Assert.AreSame(transition, node.Transition);
 		Assert.AreSame(node, transition.Source);
-		Assert.AreSame(transitionSource, ((IHistory) node).Transition);
-		Assert.AreEqual(expected: "history(#23)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreSame(transitionSource, ((IHistory)node).Transition);
+		Assert.AreEqual(expected: "history(#23)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -141,9 +141,9 @@ public class InterpreterModelStateWrapperCoverageTest
 		var ids = new LinkedList<int>();
 		var node = new FinalNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 24;
-		var final = (IFinal) node;
+		var final = (IFinal)node;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
 		Assert.IsTrue(node.IsAtomicState);
 		Assert.IsEmpty(node.Transitions);
@@ -155,7 +155,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsEmpty(final.OnEntry);
 		Assert.IsEmpty(final.OnExit);
 		Assert.IsNull(final.DoneData);
-		Assert.AreEqual(expected: "final($24)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "final($24)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -166,9 +166,9 @@ public class InterpreterModelStateWrapperCoverageTest
 		var ids = new LinkedList<int>();
 		var node = new StateNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 25;
-		var state = (IState) node;
+		var state = (IState)node;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
 		Assert.IsTrue(node.IsAtomicState);
 		Assert.IsNull(node.DataModel);
@@ -180,7 +180,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsEmpty(state.Invoke);
 		Assert.IsEmpty(state.OnEntry);
 		Assert.IsEmpty(state.OnExit);
-		Assert.AreEqual(expected: "atomic(#25)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "atomic(#25)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -210,8 +210,8 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(node, initial.Parent);
 		Assert.AreSame(node, child.Parent);
 		Assert.AreSame(child, node.States[0]);
-		Assert.AreSame(initial, ((IState) node).Initial);
-		Assert.AreEqual(expected: "compound(#26)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreSame(initial, ((IState)node).Initial);
+		Assert.AreEqual(expected: "compound(#26)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -229,9 +229,9 @@ public class InterpreterModelStateWrapperCoverageTest
 		var ids = new LinkedList<int>();
 		var node = new ParallelNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 27;
-		var parallel = (IParallel) node;
+		var parallel = (IParallel)node;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
 		Assert.IsFalse(node.IsAtomicState);
 		Assert.AreSame(node, child.Parent);
@@ -243,7 +243,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.IsEmpty(parallel.Invoke);
 		Assert.IsEmpty(parallel.OnEntry);
 		Assert.IsEmpty(parallel.OnExit);
-		Assert.AreEqual(expected: "parallel(#27)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "parallel(#27)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -269,9 +269,9 @@ public class InterpreterModelStateWrapperCoverageTest
 		var ids = new LinkedList<int>();
 		var node = new StateMachineNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 28;
-		var machine = (IStateMachine) node;
+		var machine = (IStateMachine)node;
 
-		Assert.AreSame(source, ((IAncestorProvider) node).Ancestor);
+		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "machine", node.Name);
 		Assert.AreEqual(expected: "null", node.DataModelType);
 		Assert.AreEqual(BindingType.Late, node.Binding);
@@ -285,7 +285,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		Assert.AreSame(child, node.States[0]);
 		Assert.AreSame(initial, machine.Initial);
 		Assert.AreSame(child, machine.States[0]);
-		Assert.AreEqual(expected: "machine(#28)", ((IDebugEntityId) node).EntityId.ToString(CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: "machine(#28)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 	}
 
 	private static TransitionSource CreateEmptyTransitionSource() =>

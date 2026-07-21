@@ -43,10 +43,10 @@ internal readonly struct RawDecimal(long lo64, long hi64)
 
 	public static void ResetScale(ref decimal value, out byte scale)
 	{
-		var raw = (RawDecimal) value;
+		var raw = (RawDecimal)value;
 
-		scale = (byte) (raw.Hi64 >> 16);
+		scale = (byte)(raw.Hi64 >> 16);
 
-		value = (decimal) new RawDecimal(raw.Lo64, raw.Hi64 & -16711681);
+		value = (decimal)new RawDecimal(raw.Lo64, raw.Hi64 & -16711681);
 	}
 }

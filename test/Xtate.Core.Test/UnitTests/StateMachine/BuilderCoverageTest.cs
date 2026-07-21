@@ -40,7 +40,7 @@ public class BuilderCoverageTest
 		builder.SetAttribute("attribute");
 		var assign = builder.Build();
 
-		Assert.AreSame(ancestor, ((IAncestorProvider) assign).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)assign).Ancestor);
 		Assert.AreSame(location, assign.Location);
 		Assert.AreSame(expression, assign.Expression);
 		Assert.AreSame(inlineContent, assign.InlineContent);
@@ -77,7 +77,7 @@ public class BuilderCoverageTest
 		builder.AddAction(action);
 		var finalize = builder.Build();
 
-		Assert.AreSame(ancestor, ((IAncestorProvider) finalize).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)finalize).Ancestor);
 		Assert.AreSame(action, finalize.Action.Single());
 		Assert.IsTrue(new FinalizeBuilder().Build().Action.IsDefault);
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => builder.AddAction(null!));
@@ -99,7 +99,7 @@ public class BuilderCoverageTest
 		builder.AddAction(action);
 		var forEach = builder.Build();
 
-		Assert.AreSame(ancestor, ((IAncestorProvider) forEach).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)forEach).Ancestor);
 		Assert.AreSame(array, forEach.Array);
 		Assert.AreSame(item, forEach.Item);
 		Assert.AreSame(index, forEach.Index);
@@ -130,7 +130,7 @@ public class BuilderCoverageTest
 		builder.AddAction(action);
 		var @if = builder.Build();
 
-		Assert.AreSame(ancestor, ((IAncestorProvider) @if).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)@if).Ancestor);
 		Assert.AreSame(condition, @if.Condition);
 		Assert.AreSame(action, @if.Action.Single());
 		Assert.IsTrue(new IfBuilder().Build().Action.IsDefault);
@@ -164,7 +164,7 @@ public class BuilderCoverageTest
 		builder.SetDataModel(dataModel);
 		var parallel = builder.Build();
 
-		Assert.AreSame(ancestor, ((IAncestorProvider) parallel).Ancestor);
+		Assert.AreSame(ancestor, ((IAncestorProvider)parallel).Ancestor);
 		Assert.AreSame(id, parallel.Id);
 		Assert.AreSequenceEqual([state, parallelChild], parallel.States);
 		Assert.AreSame(history, parallel.HistoryStates.Single());

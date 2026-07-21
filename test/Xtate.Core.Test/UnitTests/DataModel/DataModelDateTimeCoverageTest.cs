@@ -27,7 +27,7 @@ public class DataModelDateTimeCoverageTest
 	[TestMethod]
 	public void ExplicitConvertibleNumericMembersThrowInvalidCastException()
 	{
-		var value = (object) DataModelDateTime.FromDateTime(default);
+		var value = (object)DataModelDateTime.FromDateTime(default);
 		var methods = new[]
 					  {
 						  nameof(IConvertible.ToBoolean),
@@ -64,7 +64,7 @@ public class DataModelDateTimeCoverageTest
 	[TestMethod]
 	public void ExplicitConvertibleToTypeCoversBothResultBranches()
 	{
-		var value = (object) DataModelDateTime.FromDateTimeOffset(new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 30, second: 0, TimeSpan.FromHours(2)));
+		var value = (object)DataModelDateTime.FromDateTimeOffset(new DateTimeOffset(year: 2026, month: 7, day: 15, hour: 12, minute: 30, second: 0, TimeSpan.FromHours(2)));
 		var method = GetConvertibleTarget(nameof(IConvertible.ToType));
 
 		Assert.IsInstanceOfType<DateTimeOffset>(method.Invoke(value, [typeof(DateTimeOffset), CultureInfo.InvariantCulture]));

@@ -52,7 +52,7 @@ public class InvokeTest
 							[
 								new StateEntity
 								{
-									Id = (Identifier) "S1",
+									Id = (Identifier)"S1",
 									Invoke =
 									[
 										new InvokeEntity
@@ -64,9 +64,9 @@ public class InvokeTest
 											Finalize = new FinalizeEntity { Action = [new LogEntity { Label = "FinalizeExecuted" }] }
 										}
 									],
-									Transitions = [new TransitionEntity { EventDescriptors = [(EventDescriptor) "ToF"], Target = [(Identifier) "F"] }]
+									Transitions = [new TransitionEntity { EventDescriptors = [(EventDescriptor)"ToF"], Target = [(Identifier)"F"] }]
 								},
-								new FinalEntity { Id = (Identifier) "F" }
+								new FinalEntity { Id = (Identifier)"F" }
 							]
 						};
 
@@ -91,7 +91,7 @@ public class InvokeTest
 		new()
 		{
 			Type = EventType.External,
-			Name = (EventName) name,
+			Name = (EventName)name,
 			InvokeId = invokeId
 		};
 

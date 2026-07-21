@@ -29,7 +29,7 @@ public class SecurityContextCoverageTest
 	public async Task FactoryCreatesNestedContextsAndRestoresParentsOnDisposal()
 	{
 		var factory = new SecurityContextFactory();
-		var fullAccess = (SecurityContext) factory.GetIIoBoundTask();
+		var fullAccess = (SecurityContext)factory.GetIIoBoundTask();
 
 		Assert.AreEqual(SecurityContextType.NewTrustedStateMachine, fullAccess.Type);
 		Assert.AreEqual(SecurityContextPermissions.Full, fullAccess.Permissions);
@@ -40,14 +40,14 @@ public class SecurityContextCoverageTest
 
 		await using (factory.GetRegistration(SecurityContextType.NewStateMachine))
 		{
-			var stateMachine = (SecurityContext) factory.GetIIoBoundTask();
+			var stateMachine = (SecurityContext)factory.GetIIoBoundTask();
 			Assert.AreEqual(SecurityContextType.NewStateMachine, stateMachine.Type);
 			Assert.AreEqual(SecurityContextPermissions.RunIoBoundTask, stateMachine.Permissions);
 			stateMachine.CheckPermissions(SecurityContextPermissions.RunIoBoundTask);
 
 			await using (factory.GetRegistration(SecurityContextType.InvokedService))
 			{
-				var invokedService = (SecurityContext) factory.GetIIoBoundTask();
+				var invokedService = (SecurityContext)factory.GetIIoBoundTask();
 				Assert.AreEqual(SecurityContextType.InvokedService, invokedService.Type);
 				Assert.AreEqual(stateMachine.Permissions, invokedService.Permissions);
 			}

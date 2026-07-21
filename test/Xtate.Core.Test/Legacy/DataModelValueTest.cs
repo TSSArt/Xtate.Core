@@ -29,7 +29,7 @@ public class DataModelValueTest
 		DataModelList nullVal = null!;
 
 		// act
-		var v = (DataModelValue) nullVal;
+		var v = (DataModelValue)nullVal;
 
 		// assert
 		Assert.AreEqual(DataModelValue.Null, v);
@@ -43,7 +43,7 @@ public class DataModelValueTest
 		const string nullVal = null!;
 
 		// act
-		var v = (DataModelValue) nullVal;
+		var v = (DataModelValue)nullVal;
 
 		// assert
 		Assert.AreEqual(DataModelValue.Null, v);
@@ -91,7 +91,7 @@ public class DataModelValueTest
 		// arrange
 		var list = new DataModelList();
 		list["self"] = list;
-		var src = (DataModelValue) list;
+		var src = (DataModelValue)list;
 
 		// act
 		var dst = src.CloneAsWritable();
@@ -106,7 +106,7 @@ public class DataModelValueTest
 		// arrange
 		var list = new DataModelList();
 		list["self"] = list;
-		var src = (DataModelValue) list;
+		var src = (DataModelValue)list;
 
 		// act
 		src.MakeDeepConstant();

@@ -115,8 +115,8 @@ public class NamedPipeErrorTypeTest
 	public void NamedPipeErrorType_CastToInt_ShouldWork()
 	{
 		// Act
-		var noneInt = (int) NamedPipeErrorType.None;
-		var exceptionInt = (int) NamedPipeErrorType.Exception;
+		var noneInt = (int)NamedPipeErrorType.None;
+		var exceptionInt = (int)NamedPipeErrorType.Exception;
 
 		// Assert
 		Assert.AreEqual(expected: 0, noneInt);

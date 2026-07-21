@@ -86,7 +86,7 @@ public class AncestorTracker : IAncestorTracker, IServiceProviderActions, IServi
 
 	private Node RestoreNode(object? userDataObject)
 	{
-		var node = (Node) userDataObject!;
+		var node = (Node)userDataObject!;
 		_node.Value = node.PrevNode;
 
 		return node;
@@ -100,7 +100,7 @@ public class AncestorTracker : IAncestorTracker, IServiceProviderActions, IServi
 			{
 				while (true)
 				{
-					var preVal = (IAncestorConsumer<T>?) node.AncestorConsumer;
+					var preVal = (IAncestorConsumer<T>?)node.AncestorConsumer;
 					var newVal = preVal is null ? ancestorConsumer : new CombinedAncestorConsumer<T>(preVal, ancestorConsumer);
 
 					if (Interlocked.CompareExchange(ref node.AncestorConsumer, newVal, preVal) == preVal)

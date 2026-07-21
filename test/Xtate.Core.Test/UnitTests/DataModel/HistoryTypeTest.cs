@@ -115,8 +115,8 @@ public class HistoryTypeTest
 	public void HistoryType_CastToInt_ShouldWork()
 	{
 		// Act
-		var shallowInt = (int) HistoryType.Shallow;
-		var deepInt = (int) HistoryType.Deep;
+		var shallowInt = (int)HistoryType.Shallow;
+		var deepInt = (int)HistoryType.Deep;
 
 		// Assert
 		Assert.AreEqual(expected: 0, shallowInt);

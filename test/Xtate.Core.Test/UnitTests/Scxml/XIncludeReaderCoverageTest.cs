@@ -106,7 +106,10 @@ public class XIncludeReaderCoverageTest
 
 		public string? AcceptLanguage { get; private set; }
 
-		public override ICredentials? Credentials { set { } }
+		public override ICredentials? Credentials
+		{
+			set { }
+		}
 
 	#region Interface IExternalEntityGetter
 

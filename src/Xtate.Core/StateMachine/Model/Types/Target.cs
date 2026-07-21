@@ -41,13 +41,13 @@ public readonly struct Target : IReadOnlyList<IIdentifier>, IEquatable<Target>, 
 
 #region Interface IEnumerable
 
-	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _targets).GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_targets).GetEnumerator();
 
 #endregion
 
 #region Interface IEnumerable<IIdentifier>
 
-	IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>) _targets).GetEnumerator();
+	IEnumerator<IIdentifier> IEnumerable<IIdentifier>.GetEnumerator() => ((IEnumerable<IIdentifier>)_targets).GetEnumerator();
 
 #endregion
 

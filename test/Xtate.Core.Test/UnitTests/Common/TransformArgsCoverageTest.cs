@@ -193,17 +193,17 @@ public class TransformArgsCoverageTest
 				("four", true, 2, 2)));
 	}
 
-	private static TArg Invoke<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull => (TArg) GetTransform(transformArgs).DynamicInvoke(newArg)!;
+	private static TArg Invoke<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull => (TArg)GetTransform(transformArgs).DynamicInvoke(newArg)!;
 
 	private static async ValueTask<TArg> InvokeAsync<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs, object? newArg) where T : notnull
 	{
 		var value = GetTransform(transformArgs).DynamicInvoke(newArg);
 
-		return value is ValueTask<TArg> valueTask ? await valueTask : (TArg) value!;
+		return value is ValueTask<TArg> valueTask ? await valueTask : (TArg)value!;
 	}
 
 	private static Delegate GetTransform<T, TArg, TNewArg>(TransformArgs<T, TArg, TNewArg> transformArgs) where T : notnull =>
-		(Delegate) typeof(TransformArgs<T, TArg, TNewArg>).GetField(name: "_transform", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(transformArgs)!;
+		(Delegate)typeof(TransformArgs<T, TArg, TNewArg>).GetField(name: "_transform", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(transformArgs)!;
 
 	private sealed record Result(int Value);
 

@@ -90,7 +90,7 @@ public class XPathObjectCoverageTest
 		var iterator = navigator.Select(expression);
 		var xpathObject = new XPathObject(iterator);
 
-		var result = (DataModelList) xpathObject.ToObject()!;
+		var result = (DataModelList)xpathObject.ToObject()!;
 		Assert.AreEqual(expected: "one", result["first"].AsString());
 		Assert.AreEqual(expected: "two", result["second"].AsString());
 		Assert.IsNotNull(result.GetMetadata("first"));

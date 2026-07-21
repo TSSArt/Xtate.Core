@@ -169,9 +169,10 @@ public class StateMachineReader
 		return typeInfo switch
 			   {
 				   TypeInfo.ConditionExpressionNode => RestoreConditionExpression(bucket) ?? throw new PersistenceException(Resources.Exception_CantRestoreElement),
+
 				   // ReSharper disable once SuspiciousTypeConversion.Global
-				   TypeInfo.RuntimeExecNode         => (IConditionExpression) ForwardExecEntity(bucket),
-				   _                                => throw new PersistenceException(Resources.Exception_UnknownConditionType)
+				   TypeInfo.RuntimeExecNode => (IConditionExpression)ForwardExecEntity(bucket),
+				   _                        => throw new PersistenceException(Resources.Exception_UnknownConditionType)
 			   };
 	}
 
@@ -237,7 +238,7 @@ public class StateMachineReader
 	{
 		var value = bucket.GetString(Key.Id);
 
-		return value is not null ? (EventDescriptor) value : null;
+		return value is not null ? (EventDescriptor)value : null;
 	}
 
 	private static IOutgoingEvent RestoreEvent(Bucket bucket) => new EventEntity(bucket.GetString(Key.Id)) { Target = Const.InternalTarget };
@@ -403,7 +404,7 @@ public class StateMachineReader
 	{
 		var id = bucket.GetString(Key.Id);
 
-		return id is not null ? (Identifier) id : null;
+		return id is not null ? (Identifier)id : null;
 	}
 
 	private IIf? RestoreIf(Bucket bucket) =>

@@ -44,10 +44,10 @@ public class InvokeId : ServiceId, IEquatable<InvokeId>
 	private protected InvokeId(IIdentifier stateId)
 	{
 		_stateId = stateId;
-		UniqueId = (UniqueInvokeId) this;
+		UniqueId = (UniqueInvokeId)this;
 	}
 
-	private protected InvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => UniqueId = (UniqueInvokeId) this;
+	private protected InvokeId(string uniqueInvokeId) : base(uniqueInvokeId) => UniqueId = (UniqueInvokeId)this;
 
 	public override string ServiceType => nameof(InvokeId);
 
