@@ -1,105 +1,93 @@
 # Xtate.Core repository guide
 
-Use this file as the first source of project context. Inspect only the subsystem relevant to the requested change; do not rescan the entire repository unless this guide is demonstrably stale.
+Use this guide as the first source of repository context. Inspect the subsystem relevant to the requested change and expand the search only when dependencies cross that boundary.
 
-## Purpose and shape
+## Project purpose
 
-Xtate.Core is a C# state-machine framework centered on W3C SCXML. The repository contains one production library and one MSTest project:
+Xtate.Core is the core C# implementation of the Xtate SCXML state-machine framework. It contains one production library and one MSTest project:
 
-- `src/Xtate.Core/Xtate.Core.csproj` — package/library; root namespace `Xtate`.
-- `test/Xtate.Core.Test/Xtate.Core.Test.csproj` — unit, integration, hosted, persistence, and SCXML conformance-style tests.
-- `Xtate.Core.sln` — the solution to build and test.
+| Path | Purpose |
+| --- | --- |
+| `src/Xtate.Core/Xtate.Core.csproj` | Multi-targeted library and NuGet package; root namespace `Xtate` |
+| `test/Xtate.Core.Test/Xtate.Core.Test.csproj` | Unit, integration, hosted, persistence, and SCXML behavior tests |
+| `Xtate.Core.sln` | Repository solution |
 
-The library targets `net11.0`, `net10.0`, `net9.0`, `net8.0`, `netstandard2.0`, and `net462`. Tests target all of those except `netstandard2.0`. Compatibility code for older targets is under `Common/Polyfills`; do not remove it merely because a modern target supplies the API.
+The library targets `net11.0`, `net10.0`, `net9.0`, `net8.0`, `netstandard2.0`, and `net462`. The test project targets `net10.0`, `net9.0`, `net8.0`, and, unless `SkipNetFrameworkTests=true`, `net462`.
 
-## Runtime flow
+## Architecture
 
-The main processing path is:
+The normal runtime flow is:
 
-1. A state-machine source is supplied by a class in `Class/DependencyInjection` (`ScxmlStringStateMachine`, `ScxmlStreamStateMachine`, `LocationStateMachine`, or `RuntimeStateMachine`).
-2. SCXML input is loaded/deserialized by `Scxml` and built into the public state-machine object model in `StateMachine`.
-3. `Interpreter/ModelBuilder` validates and compiles that object model into interpreter nodes.
-4. `Interpreter/Services/StateMachineInterpreter.cs` executes the model and communicates through queues/controllers.
-5. `StateMachineHost` manages scopes, lifecycle, event routing, scheduled events, invoked services, and security context.
-6. `Persistence` optionally wraps interpreter state and collections with transactional storage.
+1. A class in `Class/DependencyInjection` supplies an SCXML document, URI, stream, or runtime model.
+2. `Scxml` loads and deserializes XML into the public object model under `StateMachine`.
+3. `Interpreter/ModelBuilder` validates and compiles the public model into executable nodes.
+4. `Interpreter/Services/StateMachineInterpreter.cs` executes the model.
+5. `StateMachineHost` manages scopes, lifecycle, event routing, scheduling, invoked services, and security context.
+6. `Persistence` optionally persists interpreter state and data-model values.
 
-Composition uses **Xtate.IoC**, not Microsoft.Extensions.DependencyInjection. Features are registered through `Module` subclasses and `IServiceCollection.AddModule<T>()`. Service resolution is commonly asynchronous (`GetRequiredService<T>()` returns/participates in async construction); preserve the existing lifetime choices (`SharedWithin.Scope`, `SharedWithin.Container`, etc.). Start dependency tracing at the subsystem's `DependencyInjection/*Module.cs` file.
+Composition uses Xtate.IoC, not Microsoft.Extensions.DependencyInjection. Trace composition from the nearest `DependencyInjection/*Module.cs` file. Registration order, `Option.IfNotRegistered`, forwarding, and `SharedWithin` choices are behavioral.
+
+The public graph in `StateMachine` and the compiled graph in `Interpreter/ModelBuilder/Model` have different responsibilities. A parsing or public-model change may require corresponding validator, compiled-model, interpreter, and persistence updates.
 
 ## Subsystem map
 
-| Area | Responsibility | Start here | Tests |
-|---|---|---|---|
-| `Actions` | Built-in system actions such as start/destroy | `Actions/Abstractions`, `Actions/System` | `HostedTests`, `DevTests` |
-| `Class` | User-facing state-machine source wrappers and service registration | `Class/DependencyInjection/StateMachineClass.cs` | `RegisterClassTest.cs`, `StateMachineFactory` |
-| `Common` | Shared helpers, logging, task monitoring, name tables, compatibility polyfills | the relevant child folder | `UnitTests/Common` |
-| `DataTypes` | Dynamic SCXML values, numbers, dates, list/object adapters | `DataTypes/Model/Types/DataModelValue.cs` | root `DataModel*Test.cs`, `UnitTests/DataModel` |
-| `DataModel` | Data-model contracts, action evaluators, runtime/null/XPath handlers | `DataModel/DependencyInjection/DataModelHandlersModule.cs` | `RegisterClassTest.cs`, XPath tests, `StateMachines/DataModel` |
-| `ExternalServices` | HTTP/SMTP client abstractions and implementations | each handler's `DependencyInjection` module | targeted tests where present |
-| `Http` | HTTP request/response helpers | `Http/DependencyInjection/HttpModule.cs` | IO processor tests |
-| `Interpreter` | Executable model, queues, execution algorithm, controllers | `Interpreter/Services/StateMachineInterpreter.cs`; `Interpreter/DependencyInjection/StateMachineInterpreterModule.cs` | `Interpreter`, `StateMachines`, `DevTests/InvokeTest.cs` |
-| `IoC` | Xtate-specific composition helpers, options, arrays, transforms, ancestor tracking | `IoC/DependencyInjection/IoCModule.cs` | `DI`, `RegisterClassTest.cs` |
-| `IoProcessors` | Named-pipe and HTTP event transports | handler `DependencyInjection` modules | `UnitTests/IoProcessors` |
-| `Persistence` | Storage abstractions, serialization, persisted interpreter/collections | `Persistence/DependencyInjection/PersistenceModule.cs` | `DevTests/*Storage*`, `*Persistence*`, `Legacy` |
-| `ResourceLoaders` | File, embedded-resource, and web URI loading | `ResourceLoaders/DependencyInjection/ResourceLoadersModule.cs` | `XIncludeTest.cs`, `RegisterClassTest.cs` |
-| `Scxml` | XML reader/director, serialization/deserialization, XInclude | `Scxml/DependencyInjection/ScxmlModule.cs` | `XIncludeTest.cs`, `RegisterClassTest.cs` |
-| `StateMachine` | Public SCXML object model, builders, validation, visitors | `StateMachine/Abstractions`, `StateMachine/Builder`, `StateMachine/Validator` | `StateMachines`, `RegisterClassTest.cs` |
-| `StateMachineFluentBuilder` | Fluent construction API over builders | `StateMachineFluentBuilder/Abstractions` | `Interpreter/FluentBuilderTest.cs`, `DevTests/StateMachineFluentBuilderTest.cs` |
-| `StateMachineHost` | Lifecycle, scopes, routing, scheduling, external services, security | `StateMachineHost/DependencyInjection/StateMachineProcessorModule.cs` | `HostedTests`, `UnitTests/FinalStateTest.cs`, persistence tests |
-| `StateMachineOptions` | Options model/provider/registration | all three files in the folder | `RegisterClassTest.cs` |
+| Area | Responsibility | Typical tests |
+| --- | --- | --- |
+| `Actions` | Built-in system actions | `HostedTests`, `DevTests` |
+| `Class` | User-facing state-machine source wrappers | `RegisterClassTest`, factory tests |
+| `Common` | Helpers, logging, task monitoring, and polyfills | `UnitTests/Common` |
+| `DataModel` | Data-model contracts and built-in handlers | XPath and state-machine tests |
+| `DataTypes` | Dynamic SCXML values and conversions | `DataModel*Test`, `UnitTests/DataModel` |
+| `Interpreter` | Executable model and SCXML algorithm | `Interpreter`, `StateMachines` |
+| `IoC` | Xtate-specific composition helpers | `DI` |
+| `IoProcessors` | HTTP and named-pipe event transports | `UnitTests/IoProcessors` |
+| `Persistence` | Storage and persisted runtime state | persistence and legacy tests |
+| `ResourceLoaders` | File, resource, and web URI loading | XInclude and registration tests |
+| `Scxml` | SCXML parsing, serialization, and XInclude | SCXML and XInclude tests |
+| `StateMachine` | Public model, builders, visitors, and validation | state-machine tests |
+| `StateMachineFluentBuilder` | Fluent C# construction API | fluent-builder tests |
+| `StateMachineHost` | Runtime orchestration and event routing | hosted and persistence tests |
 
-Important model distinction: `StateMachine` contains the source/public entity graph; `Interpreter/ModelBuilder/Model` contains the compiled executable node graph. A parsing or public-model change often needs corresponding builder, validator, interpreter-model, and persistence consideration.
+For a detailed repository catalog, see [`.github/instructions/repo-catalog.instructions.md`](../.github/instructions/repo-catalog.instructions.md).
 
-## Efficient investigation routes
+## Code conventions and hazards
 
-- Public API or source creation: inspect `Class`, then the module it registers.
-- SCXML element/attribute behavior: inspect `Scxml/Services/ScxmlDirector.cs`, the matching `StateMachine` entity/abstraction, validator, and model-builder visitor.
-- Execution semantics: inspect the matching node under `Interpreter/ModelBuilder/Model` and the algorithm in `Interpreter/Services/StateMachineInterpreter.cs`.
-- Expression/action behavior: inspect `DataModel/Services/Evaluators`, then the handler-specific evaluator in `DataModel/Handlers/{Null|Runtime|XPath}`.
-- Dependency-resolution failure: inspect the closest `DependencyInjection/*Module.cs`, then its generic base-module list and registration lifetime.
-- Event routing/lifecycle: inspect `StateMachineHost/Services`, starting from `StateMachineScopeManager`, `StateMachineRuntimeController`, or the relevant dispatcher/router.
-- Persistence issue: inspect the relevant `*PersistingController`, `StateMachineReader`, and storage implementation; also check `DataModelReferenceTracker` for object identity/reference behavior.
-- Regression coverage: search the test project by the production type name first. The `DevTests` and `Legacy` folders still contain useful behavioral coverage despite their names.
+- Follow `.editorconfig`: tabs, nullable annotations, analyzer rules, and existing naming/style.
+- Match the AGPL header and current year/style in adjacent C# files.
+- Use `ConfigureAwait(false)` where required by the analyzer and nearby library code.
+- Preserve compatibility code under `Common/Polyfills`; guard additions with precise target checks.
+- Keep package versions in `Directory.Packages.props`; omit versions from `PackageReference` entries.
+- Treat `Directory.Build.props`, `Global.Packages.props`, and generated resource designer files as generated.
+- Edit `Properties/Resources.resx`, not `Properties/Resources.Designer.cs`.
+- Preserve IoC property injection and factory patterns unless a task explicitly changes composition.
+- Ignore `bin`, `obj`, `TestResults`, and IDE metadata.
+
+Path-specific rules in `.github/instructions` take precedence for matching files.
 
 ## Build and test
 
 From the repository root:
 
 ```powershell
+dotnet restore
 dotnet build Xtate.Core.sln
 dotnet test Xtate.Core.sln
 ```
 
-For a faster focused loop, select one installed modern framework and a filter:
+For a focused loop:
 
 ```powershell
-dotnet test test\Xtate.Core.Test\Xtate.Core.Test.csproj -f net10.0 --filter "FullyQualifiedName~InterpreterTest"
+dotnet test test/Xtate.Core.Test/Xtate.Core.Test.csproj -f net10.0 --filter "FullyQualifiedName~InterpreterTest"
 ```
 
-When changing compatibility-sensitive code, build the library for `netstandard2.0` and/or `net462` as appropriate. When changing shared behavior, run the focused test first and the solution test suite before handoff when practical.
+Use `-p:SkipNetFrameworkTests=true` when the local environment cannot run `net462`. Build legacy targets when changing polyfills or compatibility-sensitive APIs.
 
-`test/Xtate.Core.Test/StateMachines/SCXML_TEST_COVERAGE.md` records the state-machine scenario coverage. Update it when adding or changing categorized SCXML behavior tests.
-
-## Code conventions and hazards
-
-- C# language version is `preview`; nullable reference types and .NET analyzers are enabled.
-- Indentation is tabs, width 4. Follow `.editorconfig` and nearby style.
-- Files carry an AGPL copyright header. Match the current year/style in adjacent files when adding production C# files.
-- Async library calls generally use `ConfigureAwait(false)`; the analyzer package enforces this broadly.
-- Global usings live in `src/Xtate.Core/Properties/GlobalUsings.cs` and `test/Xtate.Core.Test/GlobalUsings.cs`.
-- Many services use property injection or static async factory methods because Xtate.IoC constructs them. Do not casually convert these to constructors.
-- Registration order, `Option.IfNotRegistered`, sharing scope, and forwarding registrations are behavioral. Preserve them unless the task explicitly changes composition.
-- `Directory.Build.props` and `Global.Packages.props` say they are autogenerated. Avoid editing them directly. Project-specific dependency versions belong in `Directory.Packages.props` unless the repository generation workflow requires otherwise.
-- Package versions are centrally managed; omit versions from `PackageReference` entries.
-- `Version.props` defaults to `0.0.0` and is normally overridden by release automation.
-- Generated resource code is `Properties/Resources.Designer.cs`; edit `Resources.resx`, not the generated file.
-- Ignore `bin`, `obj`, `TestResults`, and IDE metadata during analysis.
+The other Markdown files in `.agents` are focused coverage plans and trackers. Update them only when the associated test-planning task or recorded coverage changes.
 
 ## Change checklist
 
-Before finishing a code change:
-
-1. Identify whether it affects the public entity graph, compiled interpreter graph, DI registration, and persistence format—not just the immediately edited class.
-2. Add or update the narrowest matching test; search for the production type and analogous behavior.
-3. Build/test a modern target, plus legacy targets if the touched API differs by framework.
+1. Trace effects across the public model, compiled model, DI registration, and persistence as applicable.
+2. Add or update the narrowest matching regression test for behavior changes.
+3. Run a focused test first, then the relevant solution build/test command.
 4. Keep generated files and unrelated existing work untouched.
-5. Update this guide only when architecture, commands, or navigation advice materially changes.
+5. Update documentation only when public usage, architecture, commands, or navigation guidance changes.

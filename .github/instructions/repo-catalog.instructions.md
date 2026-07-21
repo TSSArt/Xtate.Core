@@ -1,4 +1,8 @@
-# Repository Catalog
+---
+applyTo: "src/**/*.cs"
+---
+
+# Repository catalog
 
 ## Overview
 

@@ -1,32 +1,24 @@
 ---
-applyTo: ".github/workflows/*.{yml,yaml}"
+applyTo: ".github/workflows/**/*.{yml,yaml}"
 ---
 
-# GitHub Actions workflow instructions
+# GitHub Actions instructions
 
-## Purpose
+## Preserve workflow intent
 
-This area defines publish automation and dependency-triggered cross-repository dispatch.
+- Keep `publish.yml` tag/manual publishing, Windows legacy-framework tests, package creation, and feed publishing behavior.
+- Keep `codeql.yml` security analysis for pushes, pull requests, schedule, and manual runs.
+- Keep `publish-dependencies.yml` registry-package dispatch behavior and repository matrix.
+- Preserve restore, build, test, and pack ordering and the existing `--no-restore` / `--no-build` chaining.
 
-## Follow existing patterns
+## Security and compatibility
 
-- Keep release publishing triggered by version tags (`v*`) and manual dispatch.
-- Preserve the restore → build → test → pack pipeline with `--no-restore`/`--no-build` chaining after restore/build.
-- Keep .NET setup and Mono installation aligned with multi-target support (including `net462`).
-- Reuse existing secret names (`XTATE_GITHUB_TOKEN`, `NUGET_ORG_TOKEN`) and package feeds.
+- Keep permissions minimal and secrets scoped to the steps that require them.
+- Reuse existing secret names and package feeds; never add plaintext credentials.
+- Preserve .NET SDK and Mono setup needed by the multi-targeted solution.
+- Pin actions to explicit major versions consistent with the repository.
 
-## Implementation rules
+## Verification
 
-- Keep workflow permissions minimal (`contents: read` unless broader access is required).
-- Preserve matrix-based dependency dispatch structure in `publish-dependencies.yml`.
-- Pin third-party actions to explicit major versions as currently done.
-
-## Testing rules
-
-- Ensure workflow edits remain syntactically valid YAML and consistent with current job names/inputs.
-- Keep references to existing repository names and workflow names when dispatching.
-
-## Avoid
-
-- Do not introduce new secrets, tokens, or external endpoints without a repository requirement.
-- Do not remove steps required for version calculation, test execution, or package publishing.
+- Validate YAML syntax and expressions.
+- Check that job dependencies, artifacts, package paths, triggers, and permissions still match the intended release flow.

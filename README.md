@@ -4,19 +4,17 @@
 [![CodeQL](https://github.com/TSSArt/Xtate.Core/actions/workflows/codeql.yml/badge.svg)](https://github.com/TSSArt/Xtate.Core/actions/workflows/codeql.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-Xtate.Core is a multi-targeted .NET state-machine framework centered on the [W3C SCXML specification](https://www.w3.org/TR/scxml/).
-
-It provides SCXML parsing and serialization, programmatic and fluent state-machine builders, an asynchronous interpreter, host and event routing, pluggable data models, resource loaders, I/O processors, and optional persistence.
+Xtate.Core is the core .NET state-machine library for [Xtate](https://xtate.net/). It implements the [W3C SCXML specification](https://www.w3.org/TR/scxml/) and provides the model, parser, interpreter, hosting, transport, and persistence infrastructure used by the Xtate ecosystem.
 
 ## Features
 
 - Parse and serialize SCXML documents, including optional XInclude support.
 - Build state machines through object-model and fluent C# APIs.
-- Run state machines with an asynchronous interpreter.
-- Use null, runtime, or XPath data-model handlers.
+- Execute state machines with an asynchronous SCXML interpreter.
+- Select pluggable null, runtime, XPath, or external data-model handlers.
 - Route events through in-process, HTTP, and named-pipe I/O processors.
-- Invoke external services and persist interpreter state.
-- Target .NET 11, .NET 10, .NET 9, .NET 8, .NET Standard 2.0, and .NET Framework 4.6.2.
+- Invoke external services and optionally persist interpreter state.
+- Compose features explicitly through [Xtate.IoC](https://www.nuget.org/packages/Xtate.IoC/).
 
 ## Installation
 
@@ -28,7 +26,7 @@ dotnet add package Xtate.Core
 
 ## Quick start
 
-The following example runs a small SCXML state machine and returns its final data:
+The following example runs a minimal SCXML document and reads its final data:
 
 ```csharp
 using Xtate.Class;
@@ -59,19 +57,18 @@ var provider = services.BuildProvider();
 var interpreter = await provider.GetRequiredService<IStateMachineInterpreter>();
 var result = await interpreter.Run();
 
-Console.WriteLine(result); // Hello from Xtate!
+Console.WriteLine(result);
 ```
 
-Xtate.Core uses [Xtate.IoC](https://www.nuget.org/packages/Xtate.IoC/) for service composition. Features are registered through module classes such as `StateMachineInterpreterModule`, `ScxmlModule`, and `PersistenceModule`.
+Features are registered through module classes such as `StateMachineInterpreterModule`, `ScxmlModule`, and `PersistenceModule`.
+
+## Supported frameworks
+
+The library targets .NET 11, .NET 10, .NET 9, .NET 8, .NET Standard 2.0, and .NET Framework 4.6.2.
 
 ## Building from source
 
-### Prerequisites
-
-- [.NET 11 SDK](https://dotnet.microsoft.com/download/dotnet/11.0)
-- Mono when building or testing the .NET Framework target on a non-Windows system
-
-Clone the repository, then build and test the solution from its root:
+Install a .NET SDK capable of building the repository's target frameworks. Mono is required when building or testing the .NET Framework target on a non-Windows system.
 
 ```shell
 git clone https://github.com/TSSArt/Xtate.Core.git
@@ -81,7 +78,7 @@ dotnet build Xtate.Core.sln
 dotnet test Xtate.Core.sln
 ```
 
-To run a focused test against one framework:
+For a faster focused test loop:
 
 ```shell
 dotnet test test/Xtate.Core.Test/Xtate.Core.Test.csproj \
@@ -89,20 +86,21 @@ dotnet test test/Xtate.Core.Test/Xtate.Core.Test.csproj \
   --filter "FullyQualifiedName~InterpreterTest"
 ```
 
-## Repository structure
+## Repository layout
 
 | Path | Description |
 | --- | --- |
 | `src/Xtate.Core` | Library source and NuGet package project |
 | `test/Xtate.Core.Test` | MSTest unit, integration, persistence, and SCXML behavior tests |
+| `.github/instructions` | Path-specific guidance for coding agents |
 | `.github/workflows` | Build, security analysis, and publishing workflows |
-| `.agents/AGENTS.md` | Architecture, conventions, and maintainer guidance |
+| `.agents` | Repository guide and focused test-planning documents |
 
 ## Contributing
 
-Contributions are welcome. Before making changes, read the [repository guide](.agents/AGENTS.md), follow the existing code style, and add or update tests for behavioral changes.
+Contributions are welcome. Read the [repository guide](.agents/AGENTS.md), follow `.editorconfig`, and add or update tests for behavioral changes. Keep generated files and unrelated work unchanged.
 
-When reporting a bug, include the target framework, a minimal SCXML document or code sample, the expected behavior, and the actual behavior. Use [GitHub Issues](https://github.com/TSSArt/Xtate.Core/issues) for bug reports and feature requests.
+Use [GitHub Issues](https://github.com/TSSArt/Xtate.Core/issues) for bug reports and feature requests. For bugs, include the target framework, a minimal SCXML document or code sample, and the expected and actual behavior.
 
 ## License
 

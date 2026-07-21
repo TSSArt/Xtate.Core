@@ -1,32 +1,24 @@
 ---
-applyTo: "test/Xtate.Core.Test/**/*.cs"
+applyTo: "test/**/*.cs"
 ---
 
-# Test project instructions
+# Test source instructions
 
-## Purpose
+## Test style
 
-This area contains MSTest coverage for interpreter behavior, DI wiring, hosted flows, SCXML/XInclude, and legacy compatibility scenarios.
+- Use MSTest attributes and the assertion style already used by nearby tests.
+- Keep tests focused, deterministic, independent, and safe under parallel execution.
+- Reuse existing fixtures, `HostedTestBase`, service-collection helpers, and embedded resources.
+- Compose services with Xtate.IoC and resolve asynchronous services with the existing async APIs.
 
-## Follow existing patterns
+## Coverage
 
-- Use MSTest attributes (`[TestClass]`, `[TestMethod]`) and async tests returning `Task`.
-- Build test service providers with Xtate.IoC (`new ServiceCollection()`, `AddModule<...>()`, `BuildProvider()`).
-- Resolve services with `await provider.GetRequiredService<...>()`.
-- Use Moq for collaborators and verify structured logging behavior where applicable.
+- Place tests in the closest feature area: `DI`, `Interpreter`, `HostedTests`, `Scxml`, `StateMachines`, `UnitTests`, `Persistence`, or `Legacy`.
+- Cover the public model, compiled model, runtime behavior, registration, and persistence dimensions affected by the change.
+- Prefer state, event, result, and structured-log assertions over sleeps, timing assumptions, console output, or manual inspection.
+- Keep SCXML fixtures minimal and name them for the behavior under test.
 
-## Implementation rules
+## Verification
 
-- Keep tests close to the feature area (`DI`, `Interpreter`, `HostedTests`, `UnitTests`, `Legacy`).
-- Reuse helpers like `HostedTestBase` and `ServiceCollectionExtensions` instead of duplicating setup.
-- For hosted SCXML scenarios, keep resource/URI patterns consistent with existing embedded-resource tests.
-
-## Testing rules
-
-- Add regression tests for any production behavior change in `src/Xtate.Core`.
-- Prefer deterministic assertions over console output/manual inspection.
-
-## Avoid
-
-- Do not switch tests to Microsoft DI APIs.
-- Do not rely on fragile timing-based assertions when event/state assertions are available.
+- Run the narrowest matching test filter on one modern framework first.
+- Run broader solution tests and legacy targets when shared or compatibility-sensitive behavior changes.
