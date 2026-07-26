@@ -127,7 +127,7 @@ public class InterpreterModelLeafNodeCoverageTest
 		Assert.IsTrue(descriptor.Equals((object)equal));
 		Assert.IsFalse(descriptor.Equals(different));
 		Assert.IsFalse(descriptor.Equals(null));
-		Assert.IsFalse(descriptor.Equals(new object()));
+		Assert.IsFalse(descriptor!.Equals(new object()));
 		Assert.AreEqual(equal.GetHashCode(), descriptor.GetHashCode());
 	}
 

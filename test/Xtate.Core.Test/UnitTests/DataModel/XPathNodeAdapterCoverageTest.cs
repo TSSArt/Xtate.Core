@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Xml.XPath;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
+// ReSharper disable StringLiteralTypo
 
 namespace Xtate.Test.UnitTests.DataModel;
 

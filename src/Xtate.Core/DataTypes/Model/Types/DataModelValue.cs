@@ -643,9 +643,30 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 	public IObject AsIObject() =>
 		_value switch
 		{
-			ObjectContainer container => container.GetIObject(),
+			ObjectContainer container => container.IObject,
 			_                         => this
 		};
+
+	public bool TryGetAs<T>(out T value)
+	{
+		if(_value is ObjectContainer { IObject: T obj })
+		{
+			value = obj;
+
+			return true;
+		}
+
+		if(_value is ILazyValue and T lazyValue)
+		{
+			value = lazyValue;
+
+			return true;
+		}
+
+		value = default!;
+
+		return false;
+	}
 
 	public override bool Equals(object? obj) => obj is DataModelValue other && Equals(other);
 
@@ -775,12 +796,12 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		{
 			DateTimeOffset dateTimeOffset                                   => new DataModelValue(dateTimeOffset),
 			DataModelValue value                                            => value,
-			IObject value                                                   => new DataModelValue(new ObjectContainer(value)),
+			ILazyValue lazyValue                                            => new DataModelValue(lazyValue),
 			DataModelList list                                              => new DataModelValue(list),
+			IObject value                                                   => new DataModelValue(new ObjectContainer(value)),
 			IDictionary<string, object> dictionary                          => CreateDataModelObject(dictionary, ref map),
 			IDictionary<string, string> dictionary                          => CreateDataModelObject(dictionary, ref map),
 			IEnumerable array                                               => CreateDataModelList(array, ref map),
-			ILazyValue lazyValue                                            => new DataModelValue(lazyValue),
 			not null when TryFromAnonymousType(obj, ref map, out var value) => value,
 			_                                                               => throw new ArgumentException(Resources.Exception_UnsupportedObjectType, nameof(obj))
 		};
@@ -893,17 +914,17 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 		int GetHashCode(long int64);
 	}
 
-	public class ObjectContainer(IObject obj) : ILazyValue
+	private class ObjectContainer(IObject obj) : ILazyValue
 	{
 		private DataModelValue? _value;
+
+		public IObject IObject => obj;
 
 	#region Interface ILazyValue
 
 		public DataModelValue Value => _value ??= FromObject(obj.ToObject());
 
 	#endregion
-
-		public IObject GetIObject() => obj;
 	}
 
 	private sealed class Marker(DataModelValueType mark)

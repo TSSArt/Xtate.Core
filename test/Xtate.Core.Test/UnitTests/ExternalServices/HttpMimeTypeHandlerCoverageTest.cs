@@ -65,7 +65,7 @@ public class HttpMimeTypeHandlerCoverageTest
 		using var response = CreateHttpResponse(contentType: "application/json; charset=utf-8", content: "{\"name\":\"parsed\",\"number\":19}");
 		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
 		Assert.IsTrue(parsed.HasValue);
-		Assert.AreEqual(expected: "parsed", parsed.Value.AsList()["name"].AsString());
+		Assert.AreEqual(expected: "parsed", parsed!.Value.AsList()["name"].AsString());
 		Assert.AreEqual(expected: 19, parsed.Value.AsList()["number"].AsNumber());
 	}
 
@@ -92,7 +92,7 @@ public class HttpMimeTypeHandlerCoverageTest
 		using var response = CreateHttpResponse(contentType: "application/xml", content: "{\"name\":\"parsed\"}");
 		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
 		Assert.IsTrue(parsed.HasValue);
-		Assert.AreEqual(expected: "parsed", parsed.Value.AsList()["name"].AsString());
+		Assert.AreEqual(expected: "parsed", parsed!.Value.AsList()["name"].AsString());
 	}
 
 	[TestMethod]
@@ -121,7 +121,7 @@ public class HttpMimeTypeHandlerCoverageTest
 		using var response = CreateHttpResponse(contentType: "application/x-www-form-urlencoded", content: "one=1&one=2&encoded=hello+world&=ignored");
 		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
 		Assert.IsTrue(parsed.HasValue);
-		var list = parsed.Value.AsList();
+		var list = parsed!.Value.AsList();
 		Assert.AreEqual(expected: 2, list.KeyValues.Count(static pair => pair.Key == "one"));
 		Assert.AreEqual(expected: "hello world", list["encoded"].AsString());
 	}

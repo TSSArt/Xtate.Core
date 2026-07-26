@@ -26,6 +26,8 @@ using Xtate.IoC.Tools;
 using Xtate.StateMachineHost;
 using Xtate.TaskMonitor;
 
+// ReSharper disable StringLiteralTypo
+
 namespace Xtate.Test.UnitTests.ExternalServices;
 
 [TestClass]

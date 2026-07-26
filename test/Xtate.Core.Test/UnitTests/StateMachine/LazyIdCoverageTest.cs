@@ -63,7 +63,7 @@ public class LazyIdCoverageTest
 		Assert.IsFalse(left.Equals(otherType));
 		Assert.IsFalse(left.Equals(null));
 		Assert.IsFalse(unmaterialized.Equals(new TestLazyId()));
-		Assert.AreEqual(expected: 42, left.GetHashCode());
+		Assert.AreEqual(expected: 42, left!.GetHashCode());
 		Assert.AreEqual(expected: "id-0000002a", left.ToString());
 	}
 

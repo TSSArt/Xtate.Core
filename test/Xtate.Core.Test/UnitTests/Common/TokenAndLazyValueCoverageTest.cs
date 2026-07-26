@@ -41,7 +41,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.ThrowsExactly<ArgumentException>(() => Identifier.FromString("bad id"));
 
 		Assert.IsTrue(Identifier.TryCreate(value: "new-state", out var created));
-		Assert.AreEqual(expected: "new-state", created.Value);
+		Assert.AreEqual(expected: "new-state", created!.Value);
 		Assert.IsFalse(Identifier.TryCreate(value: null, out _));
 		Assert.IsFalse(Identifier.TryCreate(string.Empty, out _));
 		Assert.IsFalse(Identifier.TryCreate(value: "bad id", out _));

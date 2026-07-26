@@ -24,21 +24,6 @@ namespace Xtate.Test.UnitTests.DataModel;
 public class DataModelValueNestedCoverageTest
 {
 	[TestMethod]
-	public void ObjectContainerExposesSourceAndCachesConvertedValue()
-	{
-		var source = new CountingObject("value");
-		var container = new DataModelValue.ObjectContainer(source);
-
-		Assert.AreSame(source, container.GetIObject());
-		var first = container.Value;
-		var second = container.Value;
-
-		Assert.AreEqual(expected: "value", first.AsString());
-		Assert.AreEqual(first, second);
-		Assert.AreEqual(expected: 1, source.ToObjectCalls);
-	}
-
-	[TestMethod]
 	public void MarkerValuesProvideStableEqualityHashingAndDistinctUndefinedNullIdentity()
 	{
 		var undefined = DataModelValue.Undefined;

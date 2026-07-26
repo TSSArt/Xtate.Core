@@ -19,6 +19,8 @@ using System.IO;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
+// ReSharper disable AccessToDisposedClosure
+
 namespace Xtate.Test.UnitTests.Persistence;
 
 [TestClass]

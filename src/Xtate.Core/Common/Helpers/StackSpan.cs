@@ -26,18 +26,21 @@ namespace Xtate;
 ///     var span = ss ? ss : stackalloc T[ss];
 /// </summary>
 /// <typeparam name="T"></typeparam>
-internal ref struct StackSpan<T> : IDisposable where T : struct
+public ref struct StackSpan<T> : IDisposable where T : struct
 {
 	private const int SafeStackAllocationSizeInBytes = 4096;
 
 	private readonly int _length;
 
+	private readonly bool _clearOnExit;
+
 	private T[]? _array;
 
 	[MustDisposeResource]
-	public StackSpan(int length)
+	public StackSpan(int length, bool clearOnExit = false)
 	{
 		_length = length;
+		_clearOnExit = clearOnExit;
 
 		if (length > MaxLengthInStack)
 		{
@@ -58,7 +61,7 @@ internal ref struct StackSpan<T> : IDisposable where T : struct
 
 		_array = null;
 
-		ArrayPool<T>.Shared.Return(array);
+		ArrayPool<T>.Shared.Return(array, _clearOnExit);
 	}
 
 #endregion

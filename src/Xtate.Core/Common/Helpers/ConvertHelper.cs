@@ -22,7 +22,7 @@ namespace Xtate;
 /// </summary>
 /// <typeparam name="TFrom">The source type to convert from.</typeparam>
 /// <typeparam name="TTo">The target type to convert to.</typeparam>
-internal static class ConvertHelper<TFrom, TTo>
+public static class ConvertHelper<TFrom, TTo>
 {
 	/// <summary>
 	///     A cached delegate that performs the conversion from <typeparamref name="TFrom" /> to <typeparamref name="TTo" />.

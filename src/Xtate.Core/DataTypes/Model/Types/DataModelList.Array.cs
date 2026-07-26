@@ -23,7 +23,8 @@ public partial class DataModelList : IList<DataModelValue>
 
 	public void CopyTo(DataModelValue[] array, int index)
 	{
-		if (array is null) throw new ArgumentNullException(nameof(array));
+		Infra.Requires(array);
+
 		if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexShouldBeNonNegativeAndLessThanAarraySize);
 		if (_count - index < array.Length) throw new ArgumentException(Resources.Exception_DestinationArrayIsNotLongEnough, nameof(array));
 
@@ -44,7 +45,7 @@ public partial class DataModelList : IList<DataModelValue>
 		return index >= 0 && Remove(index);
 	}
 
-	bool ICollection<DataModelValue>.IsReadOnly => Access != DataModelAccess.Writable;
+	public bool IsReadOnly => Access != DataModelAccess.Writable;
 
 #endregion
 

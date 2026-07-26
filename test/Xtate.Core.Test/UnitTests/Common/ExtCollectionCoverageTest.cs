@@ -157,7 +157,7 @@ public class ExtCollectionCoverageTest
 		Assert.IsFalse(collection.Remove(value1: "group", value2: "missing"));
 
 		Assert.IsTrue(collection.TryRemoveGroup(value: "GROUP", out var groupValues));
-		CollectionAssert.AreEqual(new[] { "one" }, groupValues.ToArray());
+		CollectionAssert.AreEqual(new[] { "one" }, groupValues!.ToArray());
 		Assert.AreEqual(expected: 1, collection.Count);
 		Assert.IsFalse(collection.TryRemoveGroup(value: "missing", out _));
 

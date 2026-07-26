@@ -20,7 +20,7 @@ using System.ComponentModel;
 namespace Xtate;
 
 [ExcludeFromCodeCoverage]
-internal static class Infra
+public static class Infra
 {
 	[AssertionMethod]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
