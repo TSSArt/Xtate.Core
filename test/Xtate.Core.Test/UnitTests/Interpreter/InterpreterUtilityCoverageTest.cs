@@ -24,7 +24,7 @@ using Xtate.Logging;
 using Xtate.Logging.Provider;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterUtilityCoverageTest
@@ -66,7 +66,7 @@ public class InterpreterUtilityCoverageTest
 		var handler = new Mock<IDataModelHandler>();
 		handler.Setup(static h => h.ConvertToText(It.IsAny<DataModelValue>())).Returns("converted-outgoing");
 		var parser = new OutgoingEventVerboseEntityParser { DataModelHandler = () => handler.Object };
-		var contract = (IEntityParserHandler)parser;
+		IEntityParserHandler contract = parser;
 
 		Assert.AreEqual(Level.Verbose, contract.Level);
 		Assert.IsEmpty(contract.EnumerateProperties(Mock.Of<IOutgoingEvent>(static value => value.Data == DataModelValue.Undefined))!);
@@ -88,7 +88,7 @@ public class InterpreterUtilityCoverageTest
 		var handler = new Mock<IDataModelHandler>();
 		handler.Setup(static h => h.ConvertToText(It.IsAny<DataModelValue>())).Returns<DataModelValue>(static value => $"converted:{value}");
 		var parser = new InvokeDataVerboseEntityParser { DataModelHandler = () => handler.Object };
-		var contract = (IEntityParserHandler)parser;
+		IEntityParserHandler contract = parser;
 		var invokeData = new InvokeData(
 			InvokeId.FromString("invoke"),
 			new FullUri("service"),

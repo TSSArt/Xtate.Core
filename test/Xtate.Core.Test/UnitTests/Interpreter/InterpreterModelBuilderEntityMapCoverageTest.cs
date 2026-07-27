@@ -20,7 +20,7 @@ using Xtate.Interpreter;
 using Xtate.Interpreter.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterModelBuilderEntityMapCoverageTest

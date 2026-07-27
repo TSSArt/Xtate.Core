@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Net;
 using System.Net.Http;
 
 namespace Xtate.Http.Services;
@@ -129,12 +128,6 @@ public class HttpClientFactory : IDisposable
 
 		public HttpMessageHandler Handler => _handler;
 
-		public CookieContainer CookieContainer
-		{
-			get => _handler.CookieContainer;
-			set => _handler.CookieContainer = value;
-		}
-
 	#region Interface IDisposable
 
 		public void Dispose() => _handler.Dispose();
@@ -162,12 +155,6 @@ public class HttpClientFactory : IDisposable
 		public HandlerEntry? NextEntry;
 
 		public HttpMessageHandler Handler => _handler;
-
-		public CookieContainer CookieContainer
-		{
-			get => _handler.CookieContainer;
-			set => _handler.CookieContainer = value;
-		}
 
 		public bool IsExpired => DateTime.UtcNow >= _expiresAt;
 

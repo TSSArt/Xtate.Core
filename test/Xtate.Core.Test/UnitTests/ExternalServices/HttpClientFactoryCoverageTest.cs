@@ -18,7 +18,7 @@
 using System.Reflection;
 using Xtate.Http.Services;
 
-namespace Xtate.Test.UnitTests.ExternalServices;
+namespace Xtate.Core.Test.UnitTests.ExternalServices;
 
 [TestClass]
 public class HttpClientFactoryCoverageTest

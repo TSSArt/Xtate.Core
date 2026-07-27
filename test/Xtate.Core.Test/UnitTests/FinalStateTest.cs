@@ -23,7 +23,7 @@ using Xtate.StateMachineFluentBuilder.DependencyInjection;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.DependencyInjection;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests;
 
 [TestClass]
 public class FinalStateTest

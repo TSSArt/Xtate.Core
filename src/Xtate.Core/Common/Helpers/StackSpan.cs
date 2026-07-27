@@ -30,9 +30,9 @@ public ref struct StackSpan<T> : IDisposable where T : struct
 {
 	private const int SafeStackAllocationSizeInBytes = 4096;
 
-	private readonly int _length;
-
 	private readonly bool _clearOnExit;
+
+	private readonly int _length;
 
 	private T[]? _array;
 

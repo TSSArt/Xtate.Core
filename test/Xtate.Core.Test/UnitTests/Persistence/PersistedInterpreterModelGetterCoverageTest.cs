@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+
 using Xtate.DataModel;
 using Xtate.Interpreter;
 using Xtate.Persistence;
@@ -24,7 +26,7 @@ using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class PersistedInterpreterModelGetterCoverageTest

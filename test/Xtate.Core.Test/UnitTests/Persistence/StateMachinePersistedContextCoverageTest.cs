@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Reflection;
 using Xtate.DataModel;
 using Xtate.Interpreter;
@@ -25,7 +27,7 @@ using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using TypeInfo = Xtate.Persistence.Internal.TypeInfo;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class StateMachinePersistedContextCoverageTest
@@ -93,8 +95,8 @@ public class StateMachinePersistedContextCoverageTest
 			   {
 				   CaseSensitivity = Mock.Of<ICaseSensitivity>(static value => value.CaseInsensitive),
 				   StateMachine = Mock.Of<IStateMachine>(static value => value.Name == "persisted-machine"),
-				   IoProcessors = Array.Empty<IIoProcessor>(),
-				   XDataModelProperties = Array.Empty<IXDataModelProperty>(),
+				   IoProcessors = [],
+				   XDataModelProperties = [],
 				   StateMachineSessionId = Mock.Of<IStateMachineSessionId>(static value => value.SessionId == SessionId.FromString("persisted-session")),
 				   InterpreterModel = Mock.Of<IInterpreterModel>(value => value.EntityMap == entityMap),
 				   Storage = storage

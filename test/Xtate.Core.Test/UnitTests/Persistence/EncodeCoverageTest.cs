@@ -17,7 +17,7 @@
 
 using Xtate.Persistence.Internal;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class EncodeCoverageTest

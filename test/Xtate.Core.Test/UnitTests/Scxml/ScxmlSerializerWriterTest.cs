@@ -22,7 +22,7 @@ using Xtate.IoC;
 using Xtate.Scxml.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Scxml;
+namespace Xtate.Core.Test.UnitTests.Scxml;
 
 [TestClass]
 public class ScxmlSerializerWriterTest

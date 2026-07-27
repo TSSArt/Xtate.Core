@@ -18,7 +18,7 @@
 using Xtate.DataTypes;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.StateMachine;
+namespace Xtate.Core.Test.UnitTests.StateMachine;
 
 [TestClass]
 public class LazyIdCoverageTest
@@ -53,14 +53,14 @@ public class LazyIdCoverageTest
 		var otherType = new OtherLazyId("id-0000002a");
 		var unmaterialized = new TestLazyId();
 
-		Assert.IsTrue(left.Equals(left));
+		Assert.IsTrue(left.Equals(TestHelper.Opaque<object>(left)));
 		Assert.IsTrue(left.Equals(same));
 		Assert.IsTrue(left == same);
 		Assert.IsFalse(left != same);
 		Assert.IsFalse(left.Equals(different));
 		Assert.IsFalse(left == different);
 		Assert.IsTrue(left != different);
-		Assert.IsFalse(left.Equals(otherType));
+		Assert.IsFalse(left.Equals(TestHelper.Opaque<object>(otherType)));
 		Assert.IsFalse(left.Equals(null));
 		Assert.IsFalse(unmaterialized.Equals(new TestLazyId()));
 		Assert.AreEqual(expected: 42, left!.GetHashCode());

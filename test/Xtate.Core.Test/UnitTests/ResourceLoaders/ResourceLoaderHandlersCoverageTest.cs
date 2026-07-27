@@ -20,8 +20,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using Xtate.Interpreter;
 using Xtate.IoBoundTask;
@@ -31,16 +29,19 @@ using Xtate.ResourceLoaders.File.Services;
 using Xtate.ResourceLoaders.Resx.Services;
 using Xtate.ResourceLoaders.Services;
 using Xtate.ResourceLoaders.Web.Services;
+#if NET8_0_OR_GREATER
+using System.Reflection;
+#endif
 
-namespace Xtate.Test.UnitTests.ResourceLoaders;
+namespace Xtate.Core.Test.UnitTests.ResourceLoaders;
 
 [TestClass]
 public class ResourceLoaderHandlersCoverageTest
 {
+#if NET8_0_OR_GREATER
 	[TestMethod]
 	public async Task FileResourceLoaderReadsRelativeAndAbsoluteFileUris()
 	{
-#if NET8_0_OR_GREATER
 		var name = Assembly.GetAssembly(typeof(ResourceLoaderHandlersCoverageTest))!.GetName().Name;
 		var relativePath = name + @".runtime" + "config.json";
 		var loader = CreateFileLoader();
@@ -53,8 +54,8 @@ public class ResourceLoaderHandlersCoverageTest
 		await using var absoluteResource = await loader.Request(absoluteUri, new NameValueCollection { ["Ignored"] = "header" });
 		var absoluteContent = await absoluteResource.GetContent();
 		StringAssert.Contains(absoluteContent, substring: "runtimeOptions");
-#endif
 	}
+#endif
 
 	[TestMethod]
 	public async Task FileResourceLoaderReadsPathsRelativeToWorkingDirectoryAndAbsoluteFileUris()
@@ -266,7 +267,7 @@ public class ResourceLoaderHandlersCoverageTest
 			Request = request;
 			CancellationToken = cancellationToken;
 
-			var content = new ByteArrayContent(Encoding.UTF8.GetBytes("web payload"));
+			var content = new ByteArrayContent([.. "web payload"u8]);
 
 			if (includeContentType)
 			{

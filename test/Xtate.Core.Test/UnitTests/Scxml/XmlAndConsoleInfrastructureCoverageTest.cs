@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
@@ -30,7 +32,7 @@ using Xtate.ResourceLoaders;
 using Xtate.Scxml;
 using Xtate.Scxml.Services;
 
-namespace Xtate.Test.UnitTests.Scxml;
+namespace Xtate.Core.Test.UnitTests.Scxml;
 
 [TestClass]
 public class XmlAndConsoleInfrastructureCoverageTest

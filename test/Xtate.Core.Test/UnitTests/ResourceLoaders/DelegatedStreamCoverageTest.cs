@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+
 using System.IO;
 using System.Threading;
 using Xtate.ResourceLoaders.Internal;
 
-namespace Xtate.Test.UnitTests.ResourceLoaders;
+namespace Xtate.Core.Test.UnitTests.ResourceLoaders;
 
 [TestClass]
 public class DelegatedStreamCoverageTest
@@ -63,6 +65,9 @@ public class DelegatedStreamCoverageTest
 		stream.Position = 0;
 		stream.CopyTo(copied, bufferSize: 16);
 		CollectionAssert.AreEqual(new byte[] { 9, 8, 3 }, copied.ToArray());
+#if NET462
+		Assert.IsTrue(stream.CopyToCalled);
+#endif
 
 		stream.Position = 0;
 		var spanBuffer = new byte[2];
@@ -70,9 +75,11 @@ public class DelegatedStreamCoverageTest
 		CollectionAssert.AreEqual(new byte[] { 9, 8 }, spanBuffer);
 
 		stream.Position = 0;
-		stream.Write(new byte[] { 7, 6 }.AsSpan());
+		stream.Write([7, 6]);
 		CollectionAssert.AreEqual(new byte[] { 7, 6, 3 }, innerStream.ToArray());
 
+		// Explicit disposal verifies forwarding before the await-using scope exits.
+		// ReSharper disable once DisposeOnUsingVariable
 		await stream.DisposeAsync();
 		Assert.IsTrue(innerStream.Disposed);
 	}
@@ -127,6 +134,16 @@ public class DelegatedStreamCoverageTest
 	private sealed class TestDelegatedStream(Stream innerStream) : DelegatedStream(innerStream)
 	{
 		public void DisposeCore(bool disposing) => Dispose(disposing);
+
+#if NET462
+		public bool CopyToCalled { get; private set; }
+
+		public override void CopyTo(Stream destination, int bufferSize)
+		{
+			CopyToCalled = true;
+			base.CopyTo(destination, bufferSize);
+		}
+#endif
 	}
 
 	private sealed class ProbeStream : MemoryStream

@@ -17,7 +17,7 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class EventDescriptorTest
@@ -154,7 +154,7 @@ public class EventDescriptorTest
 		var descriptor = EventDescriptor.FromString("test.event");
 
 		// Act
-		var equals = descriptor.Equals("test.event");
+		var equals = descriptor.Equals(TestHelper.Opaque<object>("test.event"));
 
 		// Assert
 		Assert.IsFalse(equals);

@@ -20,7 +20,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Exceptions;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class SecurityContextCoverageTest
@@ -98,7 +98,7 @@ public class SecurityContextCoverageTest
 	public void NoAccessTaskSchedulerRejectsInspectionQueueingAndInlineExecution()
 	{
 		var scheduler = SecurityContext.NoAccess.Factory.Scheduler!;
-		var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+		const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
 		AssertSchedulerCallThrows(scheduler.GetType().GetMethod(name: "GetScheduledTasks", flags)!, scheduler, parameters: null);
 		AssertSchedulerCallThrows(scheduler.GetType().GetMethod(name: "QueueTask", flags)!, scheduler, [Task.CompletedTask]);

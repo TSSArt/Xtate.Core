@@ -18,7 +18,7 @@
 using System.Net;
 using Xtate.IoProcessors.Http;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
 public class HttpRequestProcessExceptionTest
@@ -38,7 +38,7 @@ public class HttpRequestProcessExceptionTest
 	public void HttpRequestProcessException_WithMessage_ShouldStoreMessage()
 	{
 		// Arrange
-		var message = "HTTP request processing failed";
+		const string message = "HTTP request processing failed";
 
 		// Act
 		var exception = new HttpRequestProcessException(message);
@@ -51,7 +51,7 @@ public class HttpRequestProcessExceptionTest
 	public void HttpRequestProcessException_WithMessageAndInner_ShouldStoreMessageAndInner()
 	{
 		// Arrange
-		var message = "HTTP request processing failed";
+		const string message = "HTTP request processing failed";
 		var innerException = new InvalidOperationException("Inner error");
 
 		// Act
@@ -67,7 +67,7 @@ public class HttpRequestProcessExceptionTest
 	{
 		// Arrange
 		var exception = new HttpRequestProcessException();
-		var statusCode = HttpStatusCode.NotFound;
+		const HttpStatusCode statusCode = HttpStatusCode.NotFound;
 
 		// Act
 		exception.StatusCode = statusCode;
@@ -90,10 +90,7 @@ public class HttpRequestProcessExceptionTest
 	public void HttpRequestProcessException_StatusCode_ShouldHandleBadRequest()
 	{
 		// Arrange
-		var exception = new HttpRequestProcessException("Bad request");
-
-		// Act
-		exception.StatusCode = HttpStatusCode.BadRequest;
+		var exception = new HttpRequestProcessException("Bad request") { StatusCode = HttpStatusCode.BadRequest };
 
 		// Assert
 		Assert.AreEqual(HttpStatusCode.BadRequest, exception.StatusCode);
@@ -103,10 +100,7 @@ public class HttpRequestProcessExceptionTest
 	public void HttpRequestProcessException_StatusCode_ShouldHandleUnauthorized()
 	{
 		// Arrange
-		var exception = new HttpRequestProcessException("Unauthorized");
-
-		// Act
-		exception.StatusCode = HttpStatusCode.Unauthorized;
+		var exception = new HttpRequestProcessException("Unauthorized") { StatusCode = HttpStatusCode.Unauthorized };
 
 		// Assert
 		Assert.AreEqual(HttpStatusCode.Unauthorized, exception.StatusCode);
@@ -116,10 +110,7 @@ public class HttpRequestProcessExceptionTest
 	public void HttpRequestProcessException_StatusCode_ShouldHandleServerError()
 	{
 		// Arrange
-		var exception = new HttpRequestProcessException("Server error");
-
-		// Act
-		exception.StatusCode = HttpStatusCode.InternalServerError;
+		var exception = new HttpRequestProcessException("Server error") { StatusCode = HttpStatusCode.InternalServerError };
 
 		// Assert
 		Assert.AreEqual(HttpStatusCode.InternalServerError, exception.StatusCode);
@@ -151,8 +142,7 @@ public class HttpRequestProcessExceptionTest
 		// Act & Assert
 		foreach (var statusCode in statusCodes)
 		{
-			var exception = new HttpRequestProcessException();
-			exception.StatusCode = statusCode;
+			var exception = new HttpRequestProcessException { StatusCode = statusCode };
 			Assert.AreEqual(statusCode, exception.StatusCode);
 		}
 	}

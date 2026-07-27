@@ -23,7 +23,7 @@ using Xtate.Interpreter.Model;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterNodeCoverageTest
@@ -72,7 +72,7 @@ public class InterpreterNodeCoverageTest
 		Assert.AreSame(inlineContent, dataNode.InlineContentEvaluator);
 		AssertDebugIdContainsDocumentId(dataNode);
 
-		var dataModelSource = new DataModelSource(ImmutableArray.Create<IData>(dataNode));
+		var dataModelSource = new DataModelSource([dataNode]);
 		var dataModelNode = new DataModelNode(new DocumentIdNode(documentIds), dataModelSource);
 
 		Assert.AreSame(dataModelSource, ((IAncestorProvider)dataModelNode).Ancestor);
@@ -89,7 +89,7 @@ public class InterpreterNodeCoverageTest
 		Assert.AreSame(param.Location, paramNode.Location);
 		AssertDebugIdContainsDocumentId(paramNode);
 
-		var doneDataSource = new DoneDataSource(new ContentSource(expression), ImmutableArray.Create<IParam>(param));
+		var doneDataSource = new DoneDataSource(new ContentSource(expression), [param]);
 		var doneDataNode = new DoneDataNode(new DocumentIdNode(documentIds), doneDataSource)
 						   {
 							   DataConverterFactory = () => new ValueTask<DataConverter>(new DataConverter(caseSensitivity: null))
@@ -355,12 +355,9 @@ public class InterpreterNodeCoverageTest
 
 	#region Interface IValueExpression
 
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
-
-		[ExcludeFromCodeCoverage]
-		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class StringExpressionSource(string value) : IValueExpression, IStringEvaluator
@@ -374,7 +371,7 @@ public class InterpreterNodeCoverageTest
 	#region Interface IValueExpression
 
 		[ExcludeFromCodeCoverage]
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
 	}
@@ -385,9 +382,9 @@ public class InterpreterNodeCoverageTest
 
 	#region Interface ILocationEvaluator
 
-		public ValueTask SetValue(IObject value)
+		public ValueTask SetValue(IObject newValue)
 		{
-			LastSetValue = value;
+			LastSetValue = newValue;
 
 			return ValueTask.CompletedTask;
 		}
@@ -401,7 +398,7 @@ public class InterpreterNodeCoverageTest
 	#region Interface ILocationExpression
 
 		[ExcludeFromCodeCoverage]
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
 	}
@@ -410,7 +407,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IInlineContent
 
-		public string? Value => value;
+		public string Value => value;
 
 	#endregion
 
@@ -419,16 +416,13 @@ public class InterpreterNodeCoverageTest
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
 
 	#endregion
-
-		[ExcludeFromCodeCoverage]
-		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class ExternalDataExpressionSource(string value) : IExternalDataExpression, IObjectEvaluator
 	{
 	#region Interface IExternalDataExpression
 
-		public Uri? Uri => new("https://data.test/");
+		public Uri Uri => new("https://data.test/");
 
 	#endregion
 
@@ -437,16 +431,13 @@ public class InterpreterNodeCoverageTest
 		public ValueTask<IObject> EvaluateObject() => new(new DataModelValue(value));
 
 	#endregion
-
-		[ExcludeFromCodeCoverage]
-		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class ConditionExpressionSource(string value) : IConditionExpression
 	{
 	#region Interface IConditionExpression
 
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
 	}
@@ -458,13 +449,13 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IOutgoingEvent
 
-		public SendId? SendId => SendId.FromString("send-id");
+		public SendId SendId => SendId.FromString("send-id");
 
 		public EventName Name => (EventName)"outgoing";
 
-		public FullUri? Target => new("https://target.test/");
+		public FullUri Target => new("https://target.test/");
 
-		public FullUri? Type => new("https://type.test/");
+		public FullUri Type => new("https://type.test/");
 
 		public int DelayMs => 10;
 
@@ -477,7 +468,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IContent
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
 		public IContentBody? Body => null;
 
@@ -490,9 +481,9 @@ public class InterpreterNodeCoverageTest
 
 		public string Name => name;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
-		public ILocationExpression? Location => location;
+		public ILocationExpression Location => location;
 
 	#endregion
 	}
@@ -507,27 +498,27 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IInvoke
 
-		public FullUri? Type => new("urn:static-type");
+		public FullUri Type => new("urn:static-type");
 
-		public IValueExpression? TypeExpression => typeExpression;
+		public IValueExpression TypeExpression => typeExpression;
 
-		public Uri? Source => new(uriString: "static/source", UriKind.Relative);
+		public Uri Source => new(uriString: "static/source", UriKind.Relative);
 
-		public IValueExpression? SourceExpression => sourceExpression;
+		public IValueExpression SourceExpression => sourceExpression;
 
-		public string? Id => "invoke";
+		public string Id => "invoke";
 
-		public ILocationExpression? IdLocation => idLocation;
+		public ILocationExpression IdLocation => idLocation;
 
-		public ImmutableArray<ILocationExpression> NameList => ImmutableArray.Create(nameLocation);
+		public ImmutableArray<ILocationExpression> NameList => [nameLocation];
 
 		public bool AutoForward => true;
 
-		public ImmutableArray<IParam> Parameters => ImmutableArray.Create(parameter);
+		public ImmutableArray<IParam> Parameters => [parameter];
 
 		public IFinalize? Finalize => null;
 
-		public IContent? Content => content;
+		public IContent Content => content;
 
 	#endregion
 	}
@@ -539,15 +530,15 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IAssign
 
-		public ILocationExpression? Location => location;
+		public ILocationExpression Location => location;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
-		public IInlineContent? InlineContent => inlineContent;
+		public IInlineContent InlineContent => inlineContent;
 
-		public string? Type => "assign-type";
+		public string Type => "assign-type";
 
-		public string? Attribute => "assign-attribute";
+		public string Attribute => "assign-attribute";
 
 	#endregion
 	}
@@ -556,9 +547,9 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface ICancel
 
-		public string? SendId => sendId;
+		public string SendId => sendId;
 
-		public IValueExpression? SendIdExpression => expression;
+		public IValueExpression SendIdExpression => expression;
 
 	#endregion
 	}
@@ -571,13 +562,13 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IForEach
 
-		public IValueExpression? Array => array;
+		public IValueExpression Array => array;
 
-		public ILocationExpression? Item => item;
+		public ILocationExpression Item => item;
 
-		public ILocationExpression? Index => index;
+		public ILocationExpression Index => index;
 
-		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+		public ImmutableArray<IExecutableEntity> Action => [executable];
 
 	#endregion
 	}
@@ -586,9 +577,9 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IIf
 
-		public IConditionExpression? Condition => condition;
+		public IConditionExpression Condition => condition;
 
-		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+		public ImmutableArray<IExecutableEntity> Action => [executable];
 
 	#endregion
 	}
@@ -597,9 +588,9 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface ILog
 
-		public string? Label => label;
+		public string Label => label;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
 	#endregion
 	}
@@ -608,7 +599,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IRaise
 
-		public IOutgoingEvent? OutgoingEvent => outgoingEvent;
+		public IOutgoingEvent OutgoingEvent => outgoingEvent;
 
 	#endregion
 	}
@@ -621,31 +612,31 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface ISend
 
-		public string? EventName => "event-name";
+		public string EventName => "event-name";
 
-		public IValueExpression? EventExpression => expression;
+		public IValueExpression EventExpression => expression;
 
-		public FullUri? Target => new("https://target.test/");
+		public FullUri Target => new("https://target.test/");
 
-		public IValueExpression? TargetExpression => expression;
+		public IValueExpression TargetExpression => expression;
 
-		public FullUri? Type => new("https://type.test/");
+		public FullUri Type => new("https://type.test/");
 
-		public IValueExpression? TypeExpression => expression;
+		public IValueExpression TypeExpression => expression;
 
-		public string? Id => "send-node-id";
+		public string Id => "send-node-id";
 
-		public ILocationExpression? IdLocation => location;
+		public ILocationExpression IdLocation => location;
 
 		public int? DelayMs => 10;
 
-		public IValueExpression? DelayExpression => expression;
+		public IValueExpression DelayExpression => expression;
 
-		public ImmutableArray<ILocationExpression> NameList => ImmutableArray.Create(location);
+		public ImmutableArray<ILocationExpression> NameList => [location];
 
-		public ImmutableArray<IParam> Parameters => ImmutableArray.Create(param);
+		public ImmutableArray<IParam> Parameters => [param];
 
-		public IContent? Content => content;
+		public IContent Content => content;
 
 	#endregion
 	}
@@ -656,7 +647,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IElseIf
 
-		public IConditionExpression? Condition => condition;
+		public IConditionExpression Condition => condition;
 
 	#endregion
 	}
@@ -669,13 +660,13 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IData
 
-		public string? Id => id;
+		public string Id => id;
 
-		public IExternalDataExpression? Source => source;
+		public IExternalDataExpression Source => source;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
-		public IInlineContent? InlineContent => inlineContent;
+		public IInlineContent InlineContent => inlineContent;
 
 	#endregion
 	}
@@ -693,7 +684,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IDoneData
 
-		public IContent? Content => content;
+		public IContent Content => content;
 
 		public ImmutableArray<IParam> Parameters => parameters;
 
@@ -704,7 +695,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IOnEntry
 
-		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+		public ImmutableArray<IExecutableEntity> Action => [executable];
 
 	#endregion
 	}
@@ -713,7 +704,7 @@ public class InterpreterNodeCoverageTest
 	{
 	#region Interface IOnExit
 
-		public ImmutableArray<IExecutableEntity> Action => ImmutableArray.Create(executable);
+		public ImmutableArray<IExecutableEntity> Action => [executable];
 
 	#endregion
 	}

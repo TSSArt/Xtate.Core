@@ -27,7 +27,7 @@ using Xtate.Scxml;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.DependencyInjection;
 
-namespace Xtate.Test.HostedTests;
+namespace Xtate.Core.Test.HostedTests;
 
 public abstract class HostedTestBase
 {
@@ -35,22 +35,13 @@ public abstract class HostedTestBase
 
 	protected Mock<ILogProvider> LogWriter { get; private set; } = null!;
 
-	public IStateMachineScopeManager StateMachineScopeManager { get; set; } = null!;
+	private IStateMachineScopeManager StateMachineScopeManager { get; set; } = null!;
 
 	[TestInitialize]
 	public async Task Initialize()
 	{
 		LogWriter = new Mock<ILogProvider>();
 		LogWriter.Setup(s => s.IsEnabled(It.IsAny<Type>(), It.IsAny<Level>())).Returns(true);
-		/*
-		Host = new StateMachineHostBuilder()
-			   //TODO:
-			   //.AddCustomActionFactory(SystemActionFactory.Instance)
-			   //.AddResourceLoaderFactory(ResxResourceLoaderFactory.Instance)
-			   .SetLogger(Logger.Object)
-			   .Build(ServiceLocator.Default);
-		return Host.StartHostAsync();
-		*/
 		var sc = new ServiceCollection();
 		sc.AddModule<StateMachineProcessorModule>();
 		sc.AddImplementationSync<StartAction.Provider>().For<IActionProvider>();

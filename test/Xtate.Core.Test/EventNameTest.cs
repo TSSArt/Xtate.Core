@@ -19,7 +19,7 @@ using System.IO;
 using System.Xml;
 using Xtate.StateMachine;
 
-namespace Xtate.Core.Test.StateMachine.Types;
+namespace Xtate.Core.Test;
 
 [TestClass]
 public class EventNameTest

@@ -15,10 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using MonitoredTask = Xtate.TaskMonitor.Services.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class TaskMonitorCoverageTest
@@ -50,10 +52,12 @@ public class TaskMonitorCoverageTest
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () => await cancelledGenericValueTask);
 		pending.SetResult(true);
 
+		return;
+
 		static async Task<int> GetPendingResultTask()
 		{
 			await Task.Yield();
-			await Task.Delay(Timeout.InfiniteTimeSpan);
+			await Task.Delay(Timeout.InfiniteTimeSpan, CancellationToken.None);
 
 			return 0;
 		}

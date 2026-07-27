@@ -15,6 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable AccessToModifiedClosure
+
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -28,7 +32,7 @@ using Xtate.TaskMonitor;
 
 // ReSharper disable StringLiteralTypo
 
-namespace Xtate.Test.UnitTests.ExternalServices;
+namespace Xtate.Core.Test.UnitTests.ExternalServices;
 
 [TestClass]
 public class SmtpClientServiceCoverageTest
@@ -219,11 +223,9 @@ public class SmtpClientServiceCoverageTest
 			using var client = await _listener.AcceptTcpClientAsync().ConfigureAwait(false);
 			using var stream = client.GetStream();
 			using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 4096, leaveOpen: true);
-			using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), bufferSize: 4096, leaveOpen: true)
-							   {
-								   NewLine = "\r\n",
-								   AutoFlush = true
-							   };
+			using var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false), bufferSize: 4096, leaveOpen: true);
+			writer.NewLine = "\r\n";
+			writer.AutoFlush = true;
 			var commands = new List<string>();
 			var message = new StringBuilder();
 			string? userName = null;

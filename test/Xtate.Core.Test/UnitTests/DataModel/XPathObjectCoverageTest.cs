@@ -19,7 +19,7 @@ using System.Xml;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathObjectCoverageTest

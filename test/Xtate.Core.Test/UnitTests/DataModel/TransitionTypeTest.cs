@@ -17,9 +17,10 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class TransitionTypeTest
 {
 	[TestMethod]
@@ -49,30 +50,24 @@ public class TransitionTypeTest
 	}
 
 	[TestMethod]
-	public void TransitionType_EqualityComparison_ShouldWork()
+	[DataRow(TransitionType.Internal, TransitionType.Internal, true)]
+	[DataRow(TransitionType.Internal, TransitionType.External, false)]
+	public void TransitionType_EqualityComparison_ShouldWork(TransitionType left, TransitionType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = TransitionType.Internal;
-		var type2 = TransitionType.Internal;
-		var type3 = TransitionType.External;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void TransitionType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var externalStr = TransitionType.External.ToString();
-		var internalStr = TransitionType.Internal.ToString();
+		var externalStr = TestHelper.EnumName(TransitionType.External);
+		var internalStr = TestHelper.EnumName(TransitionType.Internal);
 
 		// Assert
-		Assert.AreEqual(expected: "External", externalStr);
-		Assert.AreEqual(expected: "Internal", internalStr);
+		Assert.AreEqual(nameof(TransitionType.External), externalStr);
+		Assert.AreEqual(nameof(TransitionType.Internal), internalStr);
 	}
 
 	[TestMethod]

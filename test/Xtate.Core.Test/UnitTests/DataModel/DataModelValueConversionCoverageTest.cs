@@ -20,7 +20,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelValueConversionCoverageTest
@@ -128,7 +128,7 @@ public class DataModelValueConversionCoverageTest
 		Assert.IsNull(number.AsBooleanOrDefault());
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => number.AsBoolean());
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => number.AsNullableBoolean());
-		Assert.IsFalse(number.Equals((object)"12"));
+		Assert.IsFalse(number.Equals(TestHelper.Opaque<object>("12")));
 		Assert.IsTrue(number.Equals((object)new DataModelValue(12)));
 	}
 

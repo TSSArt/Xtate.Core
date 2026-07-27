@@ -17,9 +17,10 @@
 
 using Xtate.DataTypes;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class DataModelAccessTest
 {
 	[TestMethod]
@@ -59,32 +60,26 @@ public class DataModelAccessTest
 	}
 
 	[TestMethod]
-	public void DataModelAccess_EqualityComparison_ShouldWork()
+	[DataRow(DataModelAccess.ReadOnly, DataModelAccess.ReadOnly, true)]
+	[DataRow(DataModelAccess.ReadOnly, DataModelAccess.Writable, false)]
+	public void DataModelAccess_EqualityComparison_ShouldWork(DataModelAccess left, DataModelAccess right, bool expectedEqual)
 	{
-		// Act
-		var access1 = DataModelAccess.ReadOnly;
-		var access2 = DataModelAccess.ReadOnly;
-		var access3 = DataModelAccess.Writable;
-
-		// Assert
-		Assert.IsTrue(access1 == access2);
-		Assert.IsFalse(access1 == access3);
-		Assert.IsFalse(access1 != access2);
-		Assert.IsTrue(access1 != access3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void DataModelAccess_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var writableStr = DataModelAccess.Writable.ToString();
-		var readOnlyStr = DataModelAccess.ReadOnly.ToString();
-		var constantStr = DataModelAccess.Constant.ToString();
+		var writableStr = TestHelper.EnumName(DataModelAccess.Writable);
+		var readOnlyStr = TestHelper.EnumName(DataModelAccess.ReadOnly);
+		var constantStr = TestHelper.EnumName(DataModelAccess.Constant);
 
 		// Assert
-		Assert.AreEqual(expected: "Writable", writableStr);
-		Assert.AreEqual(expected: "ReadOnly", readOnlyStr);
-		Assert.AreEqual(expected: "Constant", constantStr);
+		Assert.AreEqual(nameof(DataModelAccess.Writable), writableStr);
+		Assert.AreEqual(nameof(DataModelAccess.ReadOnly), readOnlyStr);
+		Assert.AreEqual(nameof(DataModelAccess.Constant), constantStr);
 	}
 
 	[TestMethod]

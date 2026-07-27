@@ -41,7 +41,9 @@ public class CustomActionFactory
 
 		while (actionProviders.MoveNext())
 		{
-			if (actionProviders.Current!.TryGetActivator(ns, name) is not { } activator)
+			Infra.NotNull(actionProviders.Current);
+
+			if (actionProviders.Current.TryGetActivator(ns, name) is not { } activator)
 			{
 				continue;
 			}

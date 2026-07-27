@@ -18,7 +18,7 @@
 using Xtate.StateMachine;
 using Xtate.StateMachine.Services;
 
-namespace Xtate.Test.UnitTests.StateMachine;
+namespace Xtate.Core.Test.UnitTests.StateMachine;
 
 [TestClass]
 public class StateMachineVisitorCoverageTest
@@ -254,10 +254,8 @@ public class StateMachineVisitorCoverageTest
 		}
 	}
 
-	private sealed class TrackedTraversalVisitor : StateMachineVisitor
+	private sealed class TrackedTraversalVisitor() : StateMachineVisitor(trackPath: true)
 	{
-		public TrackedTraversalVisitor() : base(trackPath: true) { }
-
 		public int FinalVisits { get; private set; }
 
 		public void Process(ref IStateMachine machine)

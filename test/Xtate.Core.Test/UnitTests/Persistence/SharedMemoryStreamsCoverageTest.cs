@@ -15,13 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+// ReSharper disable MethodHasAsyncOverload
+
 using System.IO;
 using System.Reflection;
 using System.Threading;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class SharedMemoryStreamsCoverageTest
@@ -36,10 +39,10 @@ public class SharedMemoryStreamsCoverageTest
 		Assert.IsTrue(stream.CanSeek);
 		Assert.IsTrue(stream.CanWrite);
 		stream.WriteByte(1);
-		stream.Write(new byte[] { 2, 3 }, offset: 0, count: 2);
-		stream.Write(new byte[] { 4, 5 }, offset: 0, count: 2);
-		await stream.WriteAsync(new byte[] { 6 }, offset: 0, count: 1, CancellationToken.None);
-		await stream.WriteAsync(new byte[] { 7 }, offset: 0, count: 1, CancellationToken.None);
+		stream.Write([2, 3], offset: 0, count: 2);
+		stream.Write([4, 5], offset: 0, count: 2);
+		await stream.WriteAsync([6], offset: 0, count: 1, CancellationToken.None);
+		await stream.WriteAsync([7], offset: 0, count: 1, CancellationToken.None);
 		stream.Flush();
 		await stream.FlushAsync(CancellationToken.None);
 
@@ -101,9 +104,15 @@ public class SharedMemoryStreamsCoverageTest
 		Assert.ThrowsExactly<IOException>([ExcludeFromCodeCoverage]() => streams.OpenWrite("key"));
 		Assert.ThrowsExactly<IOException>([ExcludeFromCodeCoverage]() => streams.Delete("key"));
 
+		// Explicit calls cover reference-counted and repeated disposal before the using scopes exit.
+		// ReSharper disable once DisposeOnUsingVariable
 		reader1.Dispose();
 		Assert.ThrowsExactly<IOException>([ExcludeFromCodeCoverage]() => streams.Delete("key"));
+
+		// ReSharper disable once DisposeOnUsingVariable
 		reader2.Dispose();
+
+		// ReSharper disable once DisposeOnUsingVariable
 		reader2.Dispose();
 
 		Assert.IsTrue(streams.Delete("key"));

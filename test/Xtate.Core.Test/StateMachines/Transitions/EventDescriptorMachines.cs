@@ -15,153 +15,153 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.Transitions;
+namespace Xtate.Core.Test.StateMachines.Transitions;
 
 public class EventDescriptorMachines : IScxmlTestSource
 {
-	public static readonly string ExactRaisedEventMatchesTransition = """
+	private const string ExactRaisedEventMatchesTransition = """
+															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+															   <state id="start">
+															 	<onentry>
+															 	  <raise event="go"/>
+															 	</onentry>
+															 	<transition event="go" target="done"/>
+															 	<transition event="other" target="failed"/>
+															   </state>
+															   <final id="failed">
+															 	<donedata><content>failed</content></donedata>
+															   </final>
+															   <final id="done">
+															 	<donedata><content>exact</content></donedata>
+															   </final>
+															 </scxml>
+															 """;
+
+	private const string PrefixEventDescriptorMatchesChildEventName = """
 																	  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
 																	    <state id="start">
 																	  	<onentry>
-																	  	  <raise event="go"/>
+																	  	  <raise event="order.created"/>
 																	  	</onentry>
-																	  	<transition event="go" target="done"/>
-																	  	<transition event="other" target="failed"/>
+																	  	<transition event="order" target="done"/>
+																	  	<transition event="fallback" target="failed"/>
 																	    </state>
 																	    <final id="failed">
 																	  	<donedata><content>failed</content></donedata>
 																	    </final>
 																	    <final id="done">
-																	  	<donedata><content>exact</content></donedata>
+																	  	<donedata><content>prefix</content></donedata>
 																	    </final>
 																	  </scxml>
 																	  """;
 
-	public static readonly string PrefixEventDescriptorMatchesChildEventName = """
-																			   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-																			     <state id="start">
-																			   	<onentry>
-																			   	  <raise event="order.created"/>
-																			   	</onentry>
-																			   	<transition event="order" target="done"/>
-																			   	<transition event="fallback" target="failed"/>
-																			     </state>
-																			     <final id="failed">
-																			   	<donedata><content>failed</content></donedata>
-																			     </final>
-																			     <final id="done">
-																			   	<donedata><content>prefix</content></donedata>
-																			     </final>
-																			   </scxml>
-																			   """;
-
-	public static readonly string PrefixEventDescriptorDoesNotMatchLexicalPrefix = """
-																				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-																				     <state id="start">
-																				   	<onentry>
-																				   	  <raise event="foobar"/>
-																				   	</onentry>
-																				   	<transition event="foo" target="failed"/>
-																				   	<transition event="foobar" target="done"/>
-																				     </state>
-																				     <final id="failed">
-																				   	<donedata><content>failed</content></donedata>
-																				     </final>
-																				     <final id="done">
-																				   	<donedata><content>not-lexical-prefix</content></donedata>
-																				     </final>
-																				   </scxml>
-																				   """;
-
-	public static readonly string MultipleEventDescriptorsMatchAnyToken = """
+	private const string PrefixEventDescriptorDoesNotMatchLexicalPrefix = """
 																		  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
 																		    <state id="start">
 																		  	<onentry>
-																		  	  <raise event="beta"/>
+																		  	  <raise event="foobar"/>
 																		  	</onentry>
-																		  	<transition event="alpha beta gamma" target="done"/>
-																		  	<transition event="fallback" target="failed"/>
+																		  	<transition event="foo" target="failed"/>
+																		  	<transition event="foobar" target="done"/>
 																		    </state>
 																		    <final id="failed">
 																		  	<donedata><content>failed</content></donedata>
 																		    </final>
 																		    <final id="done">
-																		  	<donedata><content>multi</content></donedata>
+																		  	<donedata><content>not-lexical-prefix</content></donedata>
 																		    </final>
 																		  </scxml>
 																		  """;
 
-	public static readonly string WildcardEventDescriptorMatchesRaisedEvent = """
-																			  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-																			    <state id="start">
-																			  	<onentry>
-																			  	  <raise event="anything.here"/>
-																			  	</onentry>
-																			  	<transition event="*" target="done"/>
-																			    </state>
-																			    <final id="done">
-																			  	<donedata><content>wildcard</content></donedata>
-																			    </final>
-																			  </scxml>
-																			  """;
-
-	public static readonly string EventMatchingIsCaseSensitive = """
+	private const string MultipleEventDescriptorsMatchAnyToken = """
 																 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
 																   <state id="start">
 																 	<onentry>
-																 	  <raise event="Go"/>
+																 	  <raise event="beta"/>
 																 	</onentry>
-																 	<transition event="go" target="failed"/>
-																 	<transition event="Go" target="done"/>
+																 	<transition event="alpha beta gamma" target="done"/>
+																 	<transition event="fallback" target="failed"/>
 																   </state>
 																   <final id="failed">
 																 	<donedata><content>failed</content></donedata>
 																   </final>
 																   <final id="done">
-																 	<donedata><content>case-sensitive</content></donedata>
+																 	<donedata><content>multi</content></donedata>
 																   </final>
 																 </scxml>
 																 """;
 
-	public static readonly string EventlessTransitionRunsBeforeRaisedInternalEvent = """
-																					 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-																					   <state id="start">
-																					 	<onentry>
-																					 	  <raise event="go"/>
-																					 	</onentry>
-																					 	<transition target="done"/>
-																					 	<transition event="go" target="failed"/>
-																					   </state>
-																					   <final id="failed">
-																					 	<donedata><content>failed</content></donedata>
-																					   </final>
-																					   <final id="done">
-																					 	<donedata><content>eventless-first</content></donedata>
-																					   </final>
-																					 </scxml>
-																					 """;
+	private const string WildcardEventDescriptorMatchesRaisedEvent = """
+																	 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+																	   <state id="start">
+																	 	<onentry>
+																	 	  <raise event="anything.here"/>
+																	 	</onentry>
+																	 	<transition event="*" target="done"/>
+																	   </state>
+																	   <final id="done">
+																	 	<donedata><content>wildcard</content></donedata>
+																	   </final>
+																	 </scxml>
+																	 """;
 
-	public static readonly string RaisedInternalEventsAreProcessedFifo = """
-																		 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-																		   <state id="start">
-																		 	<onentry>
-																		 	  <raise event="first"/>
-																		 	  <raise event="second"/>
-																		 	</onentry>
-																		 	<transition event="second" target="failed"/>
-																		 	<transition event="first" target="sawFirst"/>
-																		   </state>
-																		   <state id="sawFirst">
-																		 	<transition event="second" target="done"/>
-																		   </state>
-																		   <final id="failed">
-																		 	<donedata><content>failed</content></donedata>
-																		   </final>
-																		   <final id="done">
-																		 	<donedata><content>fifo</content></donedata>
-																		   </final>
-																		 </scxml>
-																		 """;
+	private const string EventMatchingIsCaseSensitive = """
+														<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+														  <state id="start">
+															<onentry>
+															  <raise event="Go"/>
+															</onentry>
+															<transition event="go" target="failed"/>
+															<transition event="Go" target="done"/>
+														  </state>
+														  <final id="failed">
+															<donedata><content>failed</content></donedata>
+														  </final>
+														  <final id="done">
+															<donedata><content>case-sensitive</content></donedata>
+														  </final>
+														</scxml>
+														""";
+
+	private const string EventlessTransitionRunsBeforeRaisedInternalEvent = """
+																			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+																			  <state id="start">
+																				<onentry>
+																				  <raise event="go"/>
+																				</onentry>
+																				<transition target="done"/>
+																				<transition event="go" target="failed"/>
+																			  </state>
+																			  <final id="failed">
+																				<donedata><content>failed</content></donedata>
+																			  </final>
+																			  <final id="done">
+																				<donedata><content>eventless-first</content></donedata>
+																			  </final>
+																			</scxml>
+																			""";
+
+	private const string RaisedInternalEventsAreProcessedFifo = """
+																<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+																  <state id="start">
+																	<onentry>
+																	  <raise event="first"/>
+																	  <raise event="second"/>
+																	</onentry>
+																	<transition event="second" target="failed"/>
+																	<transition event="first" target="sawFirst"/>
+																  </state>
+																  <state id="sawFirst">
+																	<transition event="second" target="done"/>
+																  </state>
+																  <final id="failed">
+																	<donedata><content>failed</content></donedata>
+																  </final>
+																  <final id="done">
+																	<donedata><content>fifo</content></donedata>
+																  </final>
+																</scxml>
+																""";
 
 #region Interface IScxmlTestSource
 

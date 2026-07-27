@@ -23,7 +23,7 @@ using Xtate.Interpreter.Services;
 using Xtate.IoC.Tools;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterContextAndErrorCoverageTest

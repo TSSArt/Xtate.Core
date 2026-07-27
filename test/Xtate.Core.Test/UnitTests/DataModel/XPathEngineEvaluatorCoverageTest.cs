@@ -17,7 +17,6 @@
 
 using System.IO;
 using System.Net.Mime;
-using System.Text;
 using System.Xml.XPath;
 using Xtate.Ancestor;
 using Xtate.DataModel;
@@ -30,7 +29,7 @@ using Xtate.NameTable;
 using Xtate.ResourceLoaders;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathEngineEvaluatorCoverageTest
@@ -203,12 +202,12 @@ public class XPathEngineEvaluatorCoverageTest
 		var nameTableProvider = new Mock<INameTableProvider>();
 		nameTableProvider.Setup(static p => p.GetNameTable()).Returns(new System.Xml.NameTable());
 		var namespaces = new Mock<IXmlNamespacesInfo>();
-		namespaces.SetupGet(static n => n.Namespaces).Returns(ImmutableArray.Create<(string Prefix, string Namespace)>(("p", "urn:test")));
+		namespaces.SetupGet(static n => n.Namespaces).Returns([("p", "urn:test")]);
 		var variable = new CapturingVariableDescriptor { Name = "variable" };
 		var function = new CapturingFunction();
 		var provider = new Mock<IXPathFunctionProvider>();
 		provider.Setup(static p => p.TryGetFunction(string.Empty, "function")).Returns(function);
-		var engine = CreateEngine(new DataModelList());
+		var engine = CreateEngine([]);
 		var context = new XPathExpressionContext(nameTableProvider.Object, namespaces.Object)
 					  {
 						  FunctionProviders = [provider.Object],
@@ -225,6 +224,7 @@ public class XPathEngineEvaluatorCoverageTest
 		await context.EnsureInitialized();
 		await context.EnsureInitialized();
 		Assert.AreSame(engine, variable.InitializedEngine);
+		Assert.AreSame(engine, variable.StoredEngine);
 		Assert.AreEqual(expected: 1, function.InitializeCount);
 
 		Assert.ThrowsExactly<XPathDataModelException>([ExcludeFromCodeCoverage]() => context.ResolveVariable(prefix: "p", name: "variable"));
@@ -236,7 +236,7 @@ public class XPathEngineEvaluatorCoverageTest
 	public async Task ExternalDataEvaluatorRejectsUnsupportedMediaTypes()
 	{
 		var evaluator = CreateExternalDataEvaluator();
-		await using var resource = new Resource(new MemoryStream(Encoding.UTF8.GetBytes("data")), new ContentType("text/plain"));
+		await using var resource = new Resource(new MemoryStream([.. "data"u8]), new ContentType("text/plain"));
 
 		await Assert.ThrowsExactlyAsync<XPathDataModelException>([ExcludeFromCodeCoverage] async () => await evaluator.Parse(resource));
 	}
@@ -248,7 +248,7 @@ public class XPathEngineEvaluatorCoverageTest
 
 		foreach (var mediaType in new[] { "application/xml", "text/xml" })
 		{
-			await using var resource = new Resource(new MemoryStream(Encoding.UTF8.GetBytes("<root>value</root>")), new ContentType(mediaType));
+			await using var resource = new Resource(new MemoryStream([.. "<root>value</root>"u8]), new ContentType(mediaType));
 			var result = await evaluator.Parse(resource);
 			Assert.AreEqual(expected: "value", result.AsList()["root"].AsString());
 		}
@@ -343,6 +343,8 @@ public class XPathEngineEvaluatorCoverageTest
 	private sealed class CapturingVariableDescriptor : XPathVarDescriptor
 	{
 		public XPathEngine? InitializedEngine { get; private set; }
+
+		public XPathEngine? StoredEngine => Engine;
 
 		public override ValueTask Initialize(XPathEngine engine)
 		{

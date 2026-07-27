@@ -110,4 +110,4 @@ dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 
 # IDE0130: Namespace does not match folder structure
-dotnet_style_namespace_match_folder = false
+dotnet_style_namespace_match_folder = true

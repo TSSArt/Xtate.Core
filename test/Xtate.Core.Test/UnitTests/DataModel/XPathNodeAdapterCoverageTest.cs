@@ -19,9 +19,10 @@ using System.Reflection;
 using System.Xml.XPath;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
+
 // ReSharper disable StringLiteralTypo
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathNodeAdapterCoverageTest
@@ -31,7 +32,6 @@ public class XPathNodeAdapterCoverageTest
 	{
 		var adapter = new DefaultNodeAdapter();
 		var node = new DataModelXPathNavigator.Node(new DataModelValue("value"), adapter);
-		var related = node;
 		Span<char> buffer = stackalloc char[8];
 
 		Assert.AreEqual(XPathNodeType.Root, node.GetNodeType());
@@ -43,7 +43,7 @@ public class XPathNodeAdapterCoverageTest
 		Assert.AreEqual(string.Empty, node.GetPrefix());
 		Assert.AreEqual(string.Empty, node.GetNamespaceUri());
 		Assert.IsTrue(node.IsEmptyElement());
-		Assert.IsFalse(node.GetFirstChild(out related));
+		Assert.IsFalse(node.GetFirstChild(out var related));
 		Assert.IsFalse(node.GetNextChild(ref related));
 		Assert.IsFalse(node.GetPreviousChild(ref related));
 		Assert.IsFalse(node.GetFirstAttribute(out related));
@@ -181,7 +181,7 @@ public class XPathNodeAdapterCoverageTest
 
 		try
 		{
-			_ = AdapterFactory.GetSimpleTypeAdapter(new DataModelValue(new DataModelList()));
+			_ = AdapterFactory.GetSimpleTypeAdapter(new DataModelValue([]));
 			Assert.Fail("A list cannot use a simple-type adapter.");
 		}
 		catch (NotSupportedException) { }

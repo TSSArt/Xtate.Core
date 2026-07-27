@@ -24,7 +24,7 @@ using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using TypeInfo = Xtate.Persistence.Internal.TypeInfo;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class StateMachineReaderCoverageTest

@@ -19,7 +19,7 @@ using Xtate.Actions;
 using Xtate.DataModel;
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.Actions;
+namespace Xtate.Core.Test.UnitTests.Actions;
 
 [TestClass]
 public class ActionValueCoverageTest
@@ -79,7 +79,7 @@ public class ActionValueCoverageTest
 		values[3].SetEvaluator(new TestObjectEvaluator(new DataModelValue(true)));
 
 		var result = await action.ReadAll();
-		var defaults = await action.ReadDefaults();
+		var defaults = await TestAsyncAction.ReadDefaults();
 
 		CollectionAssert.AreEqual(new[] { "a", "b" }, result.Array.Select(static item => Convert.ToString(item)).ToArray());
 		Assert.AreEqual(expected: "from object", result.String);
@@ -106,6 +106,7 @@ public class ActionValueCoverageTest
 		values[2].SetEvaluator(new TestIntegerEvaluator(5));
 		values[3].SetEvaluator(new TestStringEvaluator("hello"));
 		locations[0].SetEvaluator(target);
+		Assert.IsTrue(action.HasLocationEvaluator);
 
 		await ((IAction)action).Execute();
 
@@ -139,7 +140,7 @@ public class ActionValueCoverageTest
 
 		private readonly IntegerValue _integer = new(expression: "integer", defaultValue: 17);
 
-		private readonly Location _location = new("target");
+		private readonly Location _location = new TestAsyncLocation("target");
 
 		private readonly ObjectValue _object = new(expression: "object", defaultValue: "default object");
 
@@ -173,7 +174,7 @@ public class ActionValueCoverageTest
 				await _location.GetValue());
 		}
 
-		public async ValueTask<ActionValues> ReadDefaults() =>
+		public static async ValueTask<ActionValues> ReadDefaults() =>
 			new(
 				await new ArrayValue(expression: null).GetValue(),
 				await new StringValue(expression: null, defaultValue: "default string").GetValue(),
@@ -182,6 +183,14 @@ public class ActionValueCoverageTest
 				await new ObjectValue(expression: null, defaultValue: "default object").GetValue(),
 				DataModelValue.Null,
 				DataModelValue.Null);
+
+		[SuppressMessage(category: "ReSharper", checkId: "RedundantOverriddenMember")]
+		private sealed class TestAsyncLocation(string expression) : Location(expression)
+		{
+			public override ValueTask SetValue(DataModelValue value) => base.SetValue(value);
+
+			public override ValueTask<DataModelValue> GetValue() => base.GetValue();
+		}
 	}
 
 	private sealed class EmptyAsyncAction : AsyncAction
@@ -197,11 +206,13 @@ public class ActionValueCoverageTest
 
 		private readonly IntegerValue _integer = new("integer");
 
-		private readonly Location _location = new("target");
+		private readonly TestSyncLocation _location = new("target");
 
 		private readonly StringValue _string = new("string");
 
 		public DataModelValue EvaluatedValue { get; private set; }
+
+		public bool HasLocationEvaluator => _location.HasEvaluator;
 
 		protected override IEnumerable<Value> GetValues() => [_array, _boolean, _integer, _string];
 
@@ -220,6 +231,11 @@ public class ActionValueCoverageTest
 		public ValueTask<DataModelValue> ReadLocation() => _location.GetValue();
 
 		public ValueTask WriteLocation(DataModelValue value) => _location.SetValue(value);
+
+		private sealed class TestSyncLocation(string expression) : Location(expression)
+		{
+			public bool HasEvaluator => LocationEvaluator is not null;
+		}
 	}
 
 	private sealed class EmptySyncAction : SyncAction

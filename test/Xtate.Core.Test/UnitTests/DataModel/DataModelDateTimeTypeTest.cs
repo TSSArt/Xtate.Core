@@ -17,9 +17,10 @@
 
 using Xtate.DataTypes;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class DataModelDateTimeTypeTest
 {
 	[TestMethod]
@@ -49,30 +50,24 @@ public class DataModelDateTimeTypeTest
 	}
 
 	[TestMethod]
-	public void DataModelDateTimeType_EqualityComparison_ShouldWork()
+	[DataRow(DataModelDateTimeType.DateTimeOffset, DataModelDateTimeType.DateTimeOffset, true)]
+	[DataRow(DataModelDateTimeType.DateTimeOffset, DataModelDateTimeType.DateTime, false)]
+	public void DataModelDateTimeType_EqualityComparison_ShouldWork(DataModelDateTimeType left, DataModelDateTimeType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = DataModelDateTimeType.DateTimeOffset;
-		var type2 = DataModelDateTimeType.DateTimeOffset;
-		var type3 = DataModelDateTimeType.DateTime;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void DataModelDateTimeType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var dateTimeStr = DataModelDateTimeType.DateTime.ToString();
-		var dateTimeOffsetStr = DataModelDateTimeType.DateTimeOffset.ToString();
+		var dateTimeStr = TestHelper.EnumName(DataModelDateTimeType.DateTime);
+		var dateTimeOffsetStr = TestHelper.EnumName(DataModelDateTimeType.DateTimeOffset);
 
 		// Assert
-		Assert.AreEqual(expected: "DateTime", dateTimeStr);
-		Assert.AreEqual(expected: "DateTimeOffset", dateTimeOffsetStr);
+		Assert.AreEqual(nameof(DataModelDateTimeType.DateTime), dateTimeStr);
+		Assert.AreEqual(nameof(DataModelDateTimeType.DateTimeOffset), dateTimeOffsetStr);
 	}
 
 	[TestMethod]

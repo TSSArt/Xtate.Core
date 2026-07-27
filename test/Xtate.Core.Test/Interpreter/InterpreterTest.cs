@@ -25,7 +25,7 @@ using Xtate.IoC.Tools;
 using Xtate.Logging;
 using Xtate.StateMachine;
 
-namespace Xtate.Core.Interpreter;
+namespace Xtate.Core.Test.Interpreter;
 
 [TestClass]
 public class InterpreterTest
@@ -36,7 +36,7 @@ public class InterpreterTest
 		// arrange
 		var linkedList = new LinkedList<int>();
 		var finalNode = new FinalNode(new DocumentIdNode(linkedList), new FinalEntity { Id = Identifier.New() });
-		var target = ImmutableArray.Create<StateEntityNode>(finalNode);
+		ImmutableArray.Create<StateEntityNode>(finalNode);
 		var transition = new TransitionNode(new DocumentIdNode(linkedList), new TransitionEntity { Target = [finalNode.Id] });
 		var initial = new InitialNode(new DocumentIdNode(linkedList), new InitialEntity { Transition = transition });
 

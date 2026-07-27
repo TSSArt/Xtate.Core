@@ -15,13 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class StateMachineHostModelCoverageTest
@@ -30,7 +32,8 @@ public class StateMachineHostModelCoverageTest
 	public async Task StateMachineStatusCompletesWhenAcceptedOrForced()
 	{
 		var accepted = new StateMachineStatus();
-		Assert.AreSame(StateMachineInterpreterState.Initializing, accepted.CurrentState);
+		IStateMachineStatus acceptedContract = accepted;
+		Assert.AreSame(StateMachineInterpreterState.Initializing, acceptedContract.CurrentState);
 		Assert.IsFalse(accepted.WhenAccepted().IsCompleted);
 
 		await accepted.OnChanged(StateMachineInterpreterState.Started);
@@ -82,7 +85,7 @@ public class StateMachineHostModelCoverageTest
 						 Data = new DataModelValue("payload")
 					 };
 
-		var scheduledEvent = new ScheduledEvent(source);
+		var scheduledEvent = new TestScheduledEvent(source);
 
 		Assert.AreSame(sender, scheduledEvent.SenderServiceId);
 		Assert.AreSame(source.IoProcessorData, scheduledEvent.IoProcessorData);
@@ -140,5 +143,11 @@ public class StateMachineHostModelCoverageTest
 		public FullUri? Target { get; init; }
 
 	#endregion
+	}
+
+	private sealed class TestScheduledEvent(IRouterEvent routerEvent) : ScheduledEvent(routerEvent)
+	{
+		// ReSharper disable once RedundantOverriddenMember
+		public override ValueTask Dispose() => base.Dispose();
 	}
 }

@@ -24,14 +24,12 @@ using Xtate.Logging;
 using Xtate.Logging.Provider;
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class InvokeTest
 {
 	private Mock<IExternalServiceManager> _externalCommunicationMock = null!;
-
-	private Mock<IInvokeController> _invokeControllerMock = null!;
 
 	private Mock<ILogProvider<IEventController>> _loggerMockE = null!;
 
@@ -70,7 +68,6 @@ public class InvokeTest
 							]
 						};
 
-		_invokeControllerMock = new Mock<IInvokeController>();
 		_loggerMockL = new Mock<ILogProvider<ILogController>>();
 		_loggerMockL.Setup(s => s.IsEnabled(Level.Info)).Returns(true);
 		_loggerMockL.Setup(s => s.IsEnabled(Level.Trace)).Returns(true);

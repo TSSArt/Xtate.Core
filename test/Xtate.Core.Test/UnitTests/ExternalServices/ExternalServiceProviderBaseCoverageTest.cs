@@ -21,7 +21,7 @@ using Xtate.ExternalServices.HttpClient.Services;
 using Xtate.ExternalServices.SmtpClient.Services;
 using Xtate.StateMachineHost;
 
-namespace Xtate.Test.UnitTests.ExternalServices;
+namespace Xtate.Core.Test.UnitTests.ExternalServices;
 
 [TestClass]
 public class ExternalServiceProviderBaseCoverageTest

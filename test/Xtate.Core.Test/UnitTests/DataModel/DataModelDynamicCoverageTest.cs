@@ -17,7 +17,7 @@
 
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelDynamicCoverageTest
@@ -66,6 +66,8 @@ public class DataModelDynamicCoverageTest
 		Assert.AreEqual(expected: 42, indexValue);
 	}
 
+	// ReSharper disable All
+
 	[TestMethod]
 	public void DataModelListDynamicSupportsMemberIndexLengthMetadataAndConversions()
 	{
@@ -91,6 +93,8 @@ public class DataModelDynamicCoverageTest
 		Assert.AreSame(list, convertedList);
 		Assert.AreSame(list, convertedValue.AsList());
 	}
+
+	// ReSharper enable All
 
 	[TestMethod]
 	public void DataModelValueDynamicDelegatesToListAndConvertsScalarValues()

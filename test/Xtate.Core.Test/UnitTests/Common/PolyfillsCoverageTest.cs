@@ -15,11 +15,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.IO;
 using System.Text;
 using System.Threading;
+#if NET462
+using System.Net.Http;
+using System.Xml;
+#endif
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class PolyfillsCoverageTest
@@ -44,7 +50,7 @@ public class PolyfillsCoverageTest
 	[TestMethod]
 	public async Task StreamReaderReadToEndAsyncReadsContentAndHonorsCancellation()
 	{
-		using var stream = new MemoryStream(Encoding.UTF8.GetBytes("first line\r\nsecond line"));
+		using var stream = new MemoryStream([.. "first line\r\nsecond line"u8]);
 		using var reader = new StreamReader(stream, Encoding.UTF8);
 
 		Assert.AreEqual(expected: "first line\r\nsecond line", await reader.ReadToEndAsync(CancellationToken.None));
@@ -52,7 +58,7 @@ public class PolyfillsCoverageTest
 		using var cancellationTokenSource = new CancellationTokenSource();
 		cancellationTokenSource.Cancel();
 
-		using var canceledStream = new MemoryStream(Encoding.UTF8.GetBytes("value"));
+		using var canceledStream = new MemoryStream([.. "value"u8]);
 		using var canceledReader = new StreamReader(canceledStream, Encoding.UTF8);
 
 		try
@@ -79,6 +85,42 @@ public class PolyfillsCoverageTest
 		Assert.IsTrue(dictionary.TryRemove(new KeyValuePair<string, int>(key: "value", value: 8)));
 		Assert.IsFalse(dictionary.ContainsKey("value"));
 	}
+
+#if NET462
+	[TestMethod]
+	public async Task Net462CompatibilityApisRemainExternallyUsable()
+	{
+		using var registration = CancellationToken.None.Register(static () => { });
+		await registration.DisposeAsync();
+
+		var hash3 = HashCode.Combine(value1: 1, value2: 2, value3: 3);
+		var hash4 = HashCode.Combine(value1: 1, value2: 2, value3: 3, value4: 4);
+		Assert.AreNotEqual(hash3, hash4);
+
+		var completionWithState = new TaskCompletionSource(state: "state");
+		var completionWithStateAndOptions = new TaskCompletionSource(state: "state", TaskCreationOptions.RunContinuationsAsynchronously);
+		Assert.IsTrue(completionWithState.TrySetResult());
+		completionWithStateAndOptions.SetResult();
+		await Task.WhenAll(completionWithState.Task, completionWithStateAndOptions.Task);
+
+		Assert.AreEqual(expected: 42, await ValueTask.FromResult(42));
+
+		using var cancellation = new CancellationTokenSource();
+		cancellation.Cancel();
+		Assert.IsTrue(ValueTask.FromCanceled(cancellation.Token).AsTask().IsCanceled);
+		Assert.IsTrue(ValueTask.FromCanceled<int>(cancellation.Token).AsTask().IsCanceled);
+
+		using var writer = XmlWriter.Create(new StringWriter());
+		await writer.DisposeAsync();
+
+		using var content = new StringContent("value");
+
+		// ReSharper disable AccessToDisposedClosure
+		Assert.ThrowsExactly<OperationCanceledException>(() => content.ReadAsStreamAsync(cancellation.Token));
+
+		// ReSharper restore AccessToDisposedClosure
+	}
+#endif
 
 	private static void AssertWrites(bool value, int size, byte[] expected)
 	{

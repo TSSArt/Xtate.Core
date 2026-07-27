@@ -27,7 +27,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class ExternalServiceExecutionCoverageTest
@@ -152,7 +152,7 @@ public class ExternalServiceExecutionCoverageTest
 		first.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-first"));
 		second.Setup(static h => h.Start()).Returns(() => Record(calls, value: "start-second"));
 		second.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-second"));
-		IStateMachineHostNew host = new StateMachineHostNew { IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object) };
+		IStateMachineHostNew host = new TestStateMachineHost { IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object) };
 
 		await host.Start();
 		await host.Stop();
@@ -203,4 +203,6 @@ public class ExternalServiceExecutionCoverageTest
 			await Task.Yield();
 		}
 	}
+
+	private sealed class TestStateMachineHost : StateMachineHostNew;
 }

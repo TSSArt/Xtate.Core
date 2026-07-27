@@ -18,7 +18,7 @@
 using System.Collections;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.StateMachine;
+namespace Xtate.Core.Test.UnitTests.StateMachine;
 
 [TestClass]
 public class CollectionTypesCoverageTest
@@ -28,7 +28,7 @@ public class CollectionTypesCoverageTest
 	{
 		var first = EventDescriptor.FromString("error.*");
 		var second = EventDescriptor.FromString("done.invoke");
-		EventDescriptors descriptors = ImmutableArray.Create<IEventDescriptor>(first, second);
+		EventDescriptors descriptors = [first, second];
 		var same = EventDescriptors.Create([first, second]);
 		var different = EventDescriptors.Create([second, first]);
 
@@ -45,6 +45,7 @@ public class CollectionTypesCoverageTest
 		}
 
 		var nonGenericEnumerator = ((IEnumerable)descriptors).GetEnumerator();
+		using var nonGenericEnumeratorScope = nonGenericEnumerator as IDisposable;
 		var nonGenericValues = new List<string>();
 
 		while (nonGenericEnumerator.MoveNext())
@@ -61,7 +62,7 @@ public class CollectionTypesCoverageTest
 		Assert.IsTrue(descriptors.Equals((object)same));
 		Assert.AreEqual(same.GetHashCode(), descriptors.GetHashCode());
 		Assert.IsFalse(descriptors.Equals(different));
-		Assert.IsFalse(descriptors.Equals("not descriptors"));
+		Assert.IsFalse(descriptors.Equals(TestHelper.Opaque<object>("not descriptors")));
 
 		var destination = new char[32];
 		Assert.IsTrue(descriptors.TryFormat(destination, out var charsWritten, format: default, provider: null));
@@ -79,7 +80,7 @@ public class CollectionTypesCoverageTest
 	{
 		var first = Identifier.FromString("state1");
 		var second = Identifier.FromString("state2");
-		Target target = ImmutableArray.Create<IIdentifier>(first, second);
+		Target target = [first, second];
 		var same = Target.Create([first, second]);
 		var different = Target.Create([second, first]);
 
@@ -96,11 +97,12 @@ public class CollectionTypesCoverageTest
 		}
 
 		var nonGenericEnumerator = ((IEnumerable)target).GetEnumerator();
+		using var nonGenericEnumeratorScope = nonGenericEnumerator as IDisposable;
 		var nonGenericValues = new List<string>();
 
 		while (nonGenericEnumerator.MoveNext())
 		{
-			nonGenericValues.Add(((IIdentifier)nonGenericEnumerator.Current).Value);
+			nonGenericValues.Add(((IIdentifier)nonGenericEnumerator.Current!).Value);
 		}
 
 		CollectionAssert.AreEqual(new[] { "state1", "state2" }, concreteValues);
@@ -110,7 +112,7 @@ public class CollectionTypesCoverageTest
 		Assert.IsTrue(target.Equals(same));
 		Assert.AreEqual(same.GetHashCode(), target.GetHashCode());
 		Assert.IsFalse(target.Equals(different));
-		Assert.IsFalse(target.Equals("not target"));
+		Assert.IsFalse(target.Equals(TestHelper.Opaque<object>("not target")));
 
 		var destination = new char[32];
 		Assert.IsTrue(target.TryFormat(destination, out var charsWritten, format: default, provider: null));

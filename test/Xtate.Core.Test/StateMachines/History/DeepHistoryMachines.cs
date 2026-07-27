@@ -15,42 +15,42 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.History;
+namespace Xtate.Core.Test.StateMachines.History;
 
 public class DeepHistoryMachines : IScxmlTestSource
 {
-	public static readonly string DeepHistoryRestoresNestedChild = """
-																   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-																     <state id="outer" initial="parent">
-																   	<history id="hist" type="deep">
-																   	  <transition target="parent"/>
-																   	</history>
-																   	<state id="parent" initial="child1">
-																   	  <state id="child1">
-																   		<transition target="child2"/>
-																   	  </state>
-																   	  <state id="child2">
-																   		<transition target="done"/>
-																   	  </state>
-																   	</state>
-																     </state>
-																     <final id="done"/>
-																   </scxml>
-																   """;
+	private const string DeepHistoryRestoresNestedChild = """
+														  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+														    <state id="outer" initial="parent">
+														  	<history id="hist" type="deep">
+														  	  <transition target="parent"/>
+														  	</history>
+														  	<state id="parent" initial="child1">
+														  	  <state id="child1">
+														  		<transition target="child2"/>
+														  	  </state>
+														  	  <state id="child2">
+														  		<transition target="done"/>
+														  	  </state>
+														  	</state>
+														    </state>
+														    <final id="done"/>
+														  </scxml>
+														  """;
 
-	public static readonly string DeepHistoryDefaultTransition = """
-																 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-																   <state id="outer">
-																 	<history id="hist" type="deep">
-																 	  <transition target="done"/>
-																 	</history>
-																 	<state id="child">
-																 	  <transition target="done"/>
-																 	</state>
-																   </state>
-																   <final id="done"/>
-																 </scxml>
-																 """;
+	private const string DeepHistoryDefaultTransition = """
+														<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+														  <state id="outer">
+															<history id="hist" type="deep">
+															  <transition target="done"/>
+															</history>
+															<state id="child">
+															  <transition target="done"/>
+															</state>
+														  </state>
+														  <final id="done"/>
+														</scxml>
+														""";
 
 #region Interface IScxmlTestSource
 

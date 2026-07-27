@@ -22,7 +22,7 @@ using System.Text.Json;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests;
 
 [TestClass]
 public class JsonSerializationTest
@@ -268,7 +268,7 @@ public class JsonSerializationTest
 	public async Task FromJsonStream()
 	{
 		// arrange
-		var stream = new MemoryStream("\"test\""u8.ToArray());
+		var stream = new MemoryStream([.. "\"test\""u8]);
 
 		// act
 		var val = (await DataModelConverter.FromJsonAsync(stream)).AsString();

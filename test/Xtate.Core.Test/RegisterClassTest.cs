@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -46,8 +46,12 @@ using Xtate.StateMachineOptions.DependencyInjection;
 
 namespace Xtate.Core.Test;
 
+// Constructed by the test dependency-injection container.
+// ReSharper disable once ClassNeverInstantiated.Global
 public class MyActionProvider() : ActionProvider<MyAction>(ns: "http://xtate.net/scxml/customaction/my", name: "myAction");
 
+// Constructed by MyActionProvider through reflection.
+// ReSharper disable once ClassNeverInstantiated.Global
 public class MyAction(XmlReader xmlReader) : SyncAction
 {
 	private readonly ObjectValue _input = new(xmlReader.GetAttribute("sourceExpr"), xmlReader.GetAttribute("source"));
@@ -296,7 +300,7 @@ public class RegisterClassTest
 		var services = new ServiceCollection();
 		services.AddModule<ScxmlModule>();
 		services.AddImplementation<DefaultIoBoundTask>().For<IIoBoundTask>();
-		services.AddConstant<IXIncludeOptions>(mockXIncludeOptions.Object);
+		services.AddConstant(mockXIncludeOptions.Object);
 		var provider = services.BuildProvider();
 
 		var uri = new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Scxml/XInclude/SingleIncludeSource.scxml");

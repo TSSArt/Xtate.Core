@@ -25,7 +25,7 @@ using Xtate.Logging;
 using Xtate.Scxml;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class EventAndInvokeControllerCoverageTest
@@ -117,7 +117,7 @@ public class EventAndInvokeControllerCoverageTest
 					 .Returns(ValueTask.FromException(failure))
 					 .Returns(ValueTask.FromException(platform));
 		var controller = CreateEventController(communication.Object, new EntityQueue<IIncomingEvent>(), runtimeError);
-		var sendId = SendId.FromString("send-00000001")!;
+		var sendId = SendId.FromString("send-00000001");
 
 		await controller.Cancel(sendId);
 		var wrapped = await Assert.ThrowsExactlyAsync<CommunicationException>([ExcludeFromCodeCoverage] async () => await controller.Cancel(sendId));
@@ -145,7 +145,7 @@ public class EventAndInvokeControllerCoverageTest
 		manager.Verify(m => m.Start(invokeData), Times.Once);
 		manager.Verify(m => m.Cancel(invokeId), Times.Once);
 		manager.Verify(m => m.Forward(invokeId, incomingEvent), Times.Once);
-		Assert.AreEqual(expected: 3, logger.Invocations.Count(static invocation => invocation.Method.Name == nameof(ILogger<IInvokeController>.Write)));
+		Assert.AreEqual(expected: 3, logger.Invocations.Count(static invocation => invocation.Method.Name == nameof(ILogger<>.Write)));
 	}
 
 	[TestMethod]

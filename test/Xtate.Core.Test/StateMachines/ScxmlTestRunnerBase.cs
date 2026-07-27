@@ -21,10 +21,12 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.DependencyInjection;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.StateMachines;
+namespace Xtate.Core.Test.StateMachines;
 
 public abstract class ScxmlTestRunnerBase
 {
+	private Container _container = null!;
+
 	private IStateMachineScopeManager _stateMachineScopeManager = null!;
 
 	[TestInitialize]
@@ -33,11 +35,15 @@ public abstract class ScxmlTestRunnerBase
 		var idle = new Mock<IDestroyOnIdleTimeout>();
 		idle.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
 
-		var container = Container.Create<StateMachineProcessorModule>(services =>
-																		  services.AddConstant(idle.Object));
+		// ReSharper disable once NotDisposedResource
+		_container = Container.Create<StateMachineProcessorModule>(services =>
+																	   services.AddConstant(idle.Object));
 
-		_stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
+		_stateMachineScopeManager = await _container.GetRequiredService<IStateMachineScopeManager>();
 	}
+
+	[TestCleanup]
+	public async Task Cleanup() => await _container.DisposeAsync();
 
 	[ExcludeFromCodeCoverage]
 	protected async Task ExecuteTestCase(ScxmlTestCase testCase)

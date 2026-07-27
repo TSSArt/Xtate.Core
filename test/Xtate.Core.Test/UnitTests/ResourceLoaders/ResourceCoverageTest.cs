@@ -15,6 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+// ReSharper disable MethodHasAsyncOverload
+// ReSharper disable AccessToDisposedClosure
+
 using System.IO;
 using System.Net.Mime;
 using System.Text;
@@ -23,7 +27,7 @@ using Xtate.ResourceLoaders;
 using Xtate.ResourceLoaders.Extensions;
 using Xtate.ResourceLoaders.Internal;
 
-namespace Xtate.Test.UnitTests.ResourceLoaders;
+namespace Xtate.Core.Test.UnitTests.ResourceLoaders;
 
 [TestClass]
 public class ResourceCoverageTest
@@ -31,7 +35,7 @@ public class ResourceCoverageTest
 	[TestMethod]
 	public async Task ResourceReadsContentWithDeclaredEncodingAndCachesBytes()
 	{
-		var text = "zażółć";
+		const string text = "zażółć";
 		var contentType = new ContentType("text/plain") { CharSet = "utf-16" };
 		await using var resource = new Resource(new MemoryStream(Encoding.Unicode.GetBytes(text)), contentType);
 
@@ -49,7 +53,7 @@ public class ResourceCoverageTest
 	[TestMethod]
 	public async Task ResourceReadsBytesFirstThenBuildsContentAndStreamsFromCache()
 	{
-		var bytes = Encoding.UTF8.GetBytes("cached text");
+		byte[] bytes = [.. "cached text"u8];
 		await using var resource = new Resource(new MemoryStream(bytes), contentType: null);
 
 		CollectionAssert.AreEqual(bytes, await resource.GetBytes());

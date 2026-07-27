@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.IO;
 using System.Xml;
 using Xtate.Scxml.Services;
 
-namespace Xtate.Test.UnitTests.Scxml;
+namespace Xtate.Core.Test.UnitTests.Scxml;
 
 [TestClass]
 public class XmlDirectorCoverageTest
@@ -53,6 +55,10 @@ public class XmlDirectorCoverageTest
 		var model = await raw.PopulateRaw();
 
 		StringAssert.Contains(model.RawContent, substring: "<child>text</child>");
+
+		var unknown = CreateDirector(xml: "<unknown-root><custom/></unknown-root>", useAsync: true);
+		var unknownModel = await unknown.PopulateUnknown();
+		CollectionAssert.AreEqual(new[] { "custom" }, unknownModel.Elements);
 	}
 
 	[TestMethod]
@@ -71,6 +77,8 @@ public class XmlDirectorCoverageTest
 		var asyncOuter = CreateDirector(xml: "<outer><child/></outer>", useAsync: true);
 		await asyncOuter.MoveToFirstElementAsync();
 		StringAssert.Contains(await asyncOuter.ReadOuter(), substring: "<outer>");
+		Assert.AreEqual(expected: 11, CoverageDirector.SysZeroToManyFound);
+		Assert.AreEqual(expected: 14, CoverageDirector.SysOneToManyFound);
 	}
 
 	private static CoverageDirector CreateDirector(string xml, bool useAsync)
@@ -86,8 +94,10 @@ public class XmlDirectorCoverageTest
 																			   {
 																				   builder.IgnoreUnknownElements(false)
 																						  .ValidateElementName("root")
-																						  .RequiredAttribute(name: "required", static (director, model) => model.Required = director.AttributeValue)
-																						  .OptionalAttribute(name: "optional", static (director, model) => model.Optional = director.AttributeValue)
+																						  .RequiredAttribute(
+																							  string.Empty, name: "required", static (director, model) => model.Required = director.AttributeValue)
+																						  .OptionalAttribute(
+																							  string.Empty, name: "optional", static (director, model) => model.Optional = director.AttributeValue)
 																						  .OptionalElement(name: "optional", VisitElement)
 																						  .SingleElement(name: "single", VisitElement)
 																						  .MultipleElements(name: "multiple", VisitElement)
@@ -96,13 +106,21 @@ public class XmlDirectorCoverageTest
 																			   });
 
 		private static readonly Policy<Model> RawPolicy = BuildPolicy<Model>(builder =>
-																				 builder.ValidateElementName("raw").RawContent(static (director, model) => model.RawContent = director.RawContent));
+																				 builder.ValidateElementName("raw")
+																						.RawContent(static (director, model) => model.RawContent = director.RawContent)
+																						.DenyUnknownElements());
+
+		private static readonly Policy<Model> UnknownPolicy = BuildPolicy<Model>(builder =>
+																					 builder.ValidateElementName("unknown-root")
+																							.UnknownElement(VisitElement)
+																							.DenyUnknownElements());
 
 		private readonly XmlReader _reader;
 
 		public CoverageDirector(XmlReader reader) : base(reader)
 		{
 			_reader = reader;
+			Infra.NotNull(reader.NameTable);
 			ModelPolicy.FillNameTable(reader.NameTable);
 			RawPolicy.FillNameTable(reader.NameTable);
 		}
@@ -113,9 +131,15 @@ public class XmlDirectorCoverageTest
 
 		public string Name => CurrentName;
 
+		public static int SysZeroToManyFound => (int)ElementType.SysZeroToManyFound;
+
+		public static int SysOneToManyFound => (int)ElementType.SysOneToManyFound;
+
 		public ValueTask<Model> PopulateModel() => Populate(new Model(), ModelPolicy);
 
 		public ValueTask<Model> PopulateRaw() => Populate(new Model(), RawPolicy);
+
+		public ValueTask<Model> PopulateUnknown() => Populate(new Model(), UnknownPolicy);
 
 		public ValueTask SkipCurrent() => Skip();
 

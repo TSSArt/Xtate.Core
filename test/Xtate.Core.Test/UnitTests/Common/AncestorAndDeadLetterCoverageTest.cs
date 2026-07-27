@@ -22,7 +22,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class AncestorAndDeadLetterCoverageTest
@@ -89,9 +89,12 @@ public class AncestorAndDeadLetterCoverageTest
 		enabledLogger.Setup(static l => l.IsEnabled(Level.Warning)).Returns(true);
 		var enabledQueue = new DeadLetterQueue<TestSource> { Logger = enabledLogger.Object };
 		await enabledQueue.Enqueue(InvokeId.FromString("invoke"), incomingEvent);
-		Assert.AreEqual(expected: 1, enabledLogger.Invocations.Count(static invocation => invocation.Method.Name == nameof(ILogger<IDeadLetterQueue<TestSource>>.Write)));
+		Assert.AreEqual(expected: 1, enabledLogger.Invocations.Count(static invocation => invocation.Method.Name == nameof(ILogger<>.Write)));
 	}
 
+	// Moq must be able to proxy ILogger<IDeadLetterQueue<TestSource>> at runtime.
+	// ReSharper disable once MemberCanBePrivate.Global
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public sealed class TestSource;
 
 	private sealed class ProviderSource(object? ancestor) : IAncestorProvider

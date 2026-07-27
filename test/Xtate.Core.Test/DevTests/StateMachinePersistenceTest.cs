@@ -19,7 +19,7 @@ using System.IO;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class StateMachinePersistenceTest

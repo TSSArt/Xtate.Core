@@ -25,7 +25,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class ExternalServiceInfrastructureCoverageTest
@@ -231,8 +231,8 @@ public class ExternalServiceInfrastructureCoverageTest
 	{
 		var sessionId = SessionId.FromString("session");
 		var processor = CreateScxmlIoProcessor(invokeId: null, sessionId);
-		var ioProcessor = (IIoProcessor)processor;
-		var router = (IEventRouter)processor;
+		IIoProcessor ioProcessor = processor;
+		IEventRouter router = processor;
 
 		Assert.AreEqual(Const.ScxmlIoProcessorId, ioProcessor.Id);
 		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, relativeUri: "#_scxml_session"), ioProcessor.Target);
@@ -259,8 +259,8 @@ public class ExternalServiceInfrastructureCoverageTest
 		var parent = new Mock<IParentEventDispatcher>();
 		var internalDispatcher = new Mock<IInternalEventDispatcher<ScxmlIoProcessor>>();
 		var processor = CreateScxmlIoProcessor(invokeId, SessionId.FromString("session"), self.Object, parent.Object, internalDispatcher.Object);
-		var ioProcessor = (IIoProcessor)processor;
-		var router = (IEventRouter)processor;
+		IIoProcessor ioProcessor = processor;
+		IEventRouter router = processor;
 
 		Assert.AreEqual(new FullUri(Const.ScxmlIoProcessorBaseUri, relativeUri: "#_source"), ioProcessor.Target);
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
@@ -288,7 +288,7 @@ public class ExternalServiceInfrastructureCoverageTest
 	[TestMethod]
 	public async Task ScxmlIoProcessorRejectsInvalidTargetsIncludingParentWithoutDispatcher()
 	{
-		var router = (IEventRouter)CreateScxmlIoProcessor(invokeId: null, SessionId.FromString("session"));
+		IEventRouter router = CreateScxmlIoProcessor(invokeId: null, SessionId.FromString("session"));
 
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
 																await router.Dispatch(Mock.Of<IRouterEvent>(e => e.Target == new FullUri("invalid")), CancellationToken.None));

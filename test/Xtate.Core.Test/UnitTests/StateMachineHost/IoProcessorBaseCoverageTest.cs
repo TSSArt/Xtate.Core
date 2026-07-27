@@ -21,7 +21,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class IoProcessorBaseCoverageTest
@@ -71,6 +71,16 @@ public class IoProcessorBaseCoverageTest
 	private sealed class TestIoProcessor(FullUri ioProcessorId, FullUri? ioProcessorAlias) : IoProcessorBase(ioProcessorId, ioProcessorAlias)
 	{
 		public IRouterEvent? DispatchedEvent { get; private set; }
+
+		[SuppressMessage(category: "ReSharper", checkId: "RedundantOverriddenMember")]
+		protected override FullUri? Target => base.Target;
+
+		protected override ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
+		{
+			_ = token.CanBeCanceled;
+
+			return base.GetRouterEvent(outgoingEvent, token);
+		}
 
 		protected override ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
 		{

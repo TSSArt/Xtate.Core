@@ -22,7 +22,7 @@ using Xtate.DataModel.XPath.Functions;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathFunctionAndIteratorCoverageTest

@@ -18,7 +18,6 @@
 using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
@@ -27,7 +26,7 @@ using Xtate.ResourceLoaders;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelServiceCoverageTest
@@ -44,7 +43,7 @@ public class DataModelServiceCoverageTest
 
 		var resourceLoader = new Mock<IResourceLoader>();
 		resourceLoader.Setup(static loader => loader.Request(It.IsAny<Uri>(), It.IsAny<NameValueCollection?>()))
-					  .ReturnsAsync(new Resource(new MemoryStream(Encoding.UTF8.GetBytes("loaded content")), contentType: null));
+					  .ReturnsAsync(new Resource(new MemoryStream([.. "loaded content"u8]), contentType: null));
 
 		var defaultEvaluator = new DefaultExternalDataExpressionEvaluator(expression)
 							   {
@@ -53,13 +52,13 @@ public class DataModelServiceCoverageTest
 							   };
 
 		Assert.AreEqual(expected: "loaded content", DataModelValue.FromObject(await defaultEvaluator.EvaluateObject()).AsString());
-		resourceLoader.Verify(loader => loader.Request(expression.Uri!, null), Times.Once);
+		resourceLoader.Verify(loader => loader.Request(expression.Uri, null), Times.Once);
 	}
 
 	[TestMethod]
 	public async Task DataModelHandlerServiceReturnsFirstMatchingProviderOrUnknownHandler()
 	{
-		var requestedType = "custom";
+		const string requestedType = "custom";
 		var matchingHandler = new Mock<IDataModelHandler>().Object;
 		var missProvider = new Mock<IDataModelHandlerProvider>();
 		var hitProvider = new Mock<IDataModelHandlerProvider>();
@@ -183,7 +182,7 @@ public class DataModelServiceCoverageTest
 	{
 	#region Interface IExternalDataExpression
 
-		public Uri? Uri => uri;
+		public Uri Uri => uri;
 
 	#endregion
 	}

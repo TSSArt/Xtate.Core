@@ -20,7 +20,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachine.Builder;
 using Xtate.StateMachineFluentBuilder;
 
-namespace Xtate.Test.UnitTests.StateMachine;
+namespace Xtate.Core.Test.UnitTests.StateMachine;
 
 [TestClass]
 public class FluentBuilderCoverageTest

@@ -15,38 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.Transitions;
+namespace Xtate.Core.Test.StateMachines.Transitions;
 
 public class EventlessTransitionMachines : IScxmlTestSource
 {
-	public static readonly string BasicEventlessTransition = """
-															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-															   <state id="start">
-															 	<transition target="done"/>
-															   </state>
-															   <final id="done"/>
-															 </scxml>
-															 """;
+	private const string BasicEventlessTransition = """
+													<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+													  <state id="start">
+														<transition target="done"/>
+													  </state>
+													  <final id="done"/>
+													</scxml>
+													""";
 
-	public static readonly string EventlessTransitionInCompound = """
-																  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-																    <state id="outer" initial="inner">
-																  	<state id="inner">
-																  	  <transition target="done"/>
-																  	</state>
-																    </state>
-																    <final id="done"/>
-																  </scxml>
-																  """;
+	private const string EventlessTransitionInCompound = """
+														 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+														   <state id="outer" initial="inner">
+														 	<state id="inner">
+														 	  <transition target="done"/>
+														 	</state>
+														   </state>
+														   <final id="done"/>
+														 </scxml>
+														 """;
 
-	public static readonly string EventlessSelfTransition = """
-															<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
-															  <state id="start">
-																<transition target="done"/>
-															  </state>
-															  <final id="done"/>
-															</scxml>
-															""";
+	private const string EventlessSelfTransition = """
+												   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="start">
+												     <state id="start">
+												   	<transition target="done"/>
+												     </state>
+												     <final id="done"/>
+												   </scxml>
+												   """;
 
 #region Interface IScxmlTestSource
 

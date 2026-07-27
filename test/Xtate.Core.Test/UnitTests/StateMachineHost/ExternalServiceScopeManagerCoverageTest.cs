@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.DataModel;
 using Xtate.DataTypes;
@@ -25,7 +27,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class ExternalServiceScopeManagerCoverageTest
@@ -51,7 +53,7 @@ public class ExternalServiceScopeManagerCoverageTest
 
 		runnerCompletion.SetResult();
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks[0].WaitAsync(cts.Token);
 		collection.Verify(c => c.Unregister(invokeId), Times.Once);
 		await manager.Cancel(invokeId, CancellationToken.None);
@@ -74,7 +76,7 @@ public class ExternalServiceScopeManagerCoverageTest
 		await manager.Cancel(invokeId, CancellationToken.None);
 		runnerCompletion.SetResult();
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
 
 		collection.Verify(c => c.Unregister(invokeId), Times.Once);

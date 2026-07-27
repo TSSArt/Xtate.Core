@@ -18,7 +18,7 @@
 using System.Threading;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class TaskExtensionsTest

@@ -20,7 +20,7 @@ using Xtate.IoC;
 using Xtate.IoProcessors.Http.DependencyInjection;
 using Xtate.IoProcessors.NamedPipe.DependencyInjection;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class DependencyInjectionModuleCoverageTest

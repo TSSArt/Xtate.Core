@@ -16,11 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
-using System.Text;
 using Xtate.Class;
 using Xtate.Interpreter;
 
-namespace Xtate.Test.UnitTests.Class;
+namespace Xtate.Core.Test.UnitTests.Class;
 
 [TestClass]
 public class StateMachineClassCoverageTest
@@ -28,7 +27,7 @@ public class StateMachineClassCoverageTest
 	[TestMethod]
 	public void ScxmlStreamStateMachineCreatesReaderOverProvidedStream()
 	{
-		using var stream = new MemoryStream(Encoding.UTF8.GetBytes("<scxml/>"));
+		using var stream = new MemoryStream([.. "<scxml/>"u8]);
 		var stateMachine = new TestScxmlStreamStateMachine(stream);
 
 		using var reader = stateMachine.GetTextReader();

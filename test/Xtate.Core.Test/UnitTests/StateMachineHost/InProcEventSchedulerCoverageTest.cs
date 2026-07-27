@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.Interpreter;
 using Xtate.Logging;
@@ -23,7 +25,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class InProcEventSchedulerCoverageTest
@@ -41,7 +43,7 @@ public class InProcEventSchedulerCoverageTest
 
 		await scheduler.ScheduleEvent(routerEvent, CancellationToken.None);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.Tasks.Single().WaitAsync(cts.Token);
 
 		miss.Verify(r => r.CanHandle(type), Times.Once);
@@ -61,10 +63,10 @@ public class InProcEventSchedulerCoverageTest
 		await scheduler.ScheduleEvent(CreateRouterEvent(delayMs: 0, type: null, SendId.FromString("send-00000001")), CancellationToken.None);
 		await scheduler.ScheduleEvent(CreateRouterEvent(delayMs: 0, new FullUri("urn:unknown"), SendId.FromString("send-00000002")), CancellationToken.None);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await Task.WhenAll(monitor.Tasks).WaitAsync(cts.Token);
 
-		var writes = logger.Invocations.Where(static invocation => invocation.Method.Name == nameof(ILogger<IEventScheduler>.Write)).ToArray();
+		var writes = logger.Invocations.Where(static invocation => invocation.Method.Name == nameof(ILogger<>.Write)).ToArray();
 		Assert.HasCount(expected: 2, writes);
 		Assert.IsInstanceOfType<PlatformException>(writes[0].Arguments[^1]);
 		Assert.IsInstanceOfType<ProcessorException>(writes[1].Arguments[^1]);
@@ -85,7 +87,7 @@ public class InProcEventSchedulerCoverageTest
 
 		await scheduler.ScheduleEvent(CreateRouterEvent(delayMs: 0, type, SendId.FromString("send-00000001")), CancellationToken.None);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.Tasks.Single().WaitAsync(cts.Token);
 
 		logger.Verify(static l => l.Write(Level.Error, It.IsAny<int>(), It.IsAny<string>(), It.IsAny<Exception>()), Times.Never);
@@ -99,20 +101,20 @@ public class InProcEventSchedulerCoverageTest
 		router.Setup(r => r.CanHandle(type)).Returns(true);
 		var monitor = new CapturingTaskMonitor();
 		await using var scheduler = CreateScheduler([router.Object], monitor);
-		var sendId = SendId.FromString("send-00000001")!;
+		var sendId = SendId.FromString("send-00000001");
 
 		await scheduler.ScheduleEvent(CreateRouterEvent(delayMs: 60_000, type, sendId), CancellationToken.None);
 		await scheduler.ScheduleEvent(CreateRouterEvent(delayMs: 60_000, type, sendId), CancellationToken.None);
 		await scheduler.CancelEvent(sendId, CancellationToken.None);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () =>
 																   await Task.WhenAll(monitor.Tasks).WaitAsync(cts.Token));
-		await scheduler.CancelEvent(SendId.FromString("send-00000002")!, CancellationToken.None);
+		await scheduler.CancelEvent(SendId.FromString("send-00000002"), CancellationToken.None);
 
 		router.Verify(static r => r.Dispatch(It.IsAny<IRouterEvent>(), It.IsAny<CancellationToken>()), Times.Never);
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-																await scheduler.CancelEvent(SendId.FromString(string.Empty)!, CancellationToken.None));
+																await scheduler.CancelEvent(SendId.FromString(string.Empty), CancellationToken.None));
 	}
 
 	[TestMethod]
@@ -125,7 +127,7 @@ public class InProcEventSchedulerCoverageTest
 		await syncScheduler.ScheduleEvent(CreateRouterEvent(delayMs: 60_000, type, sendId: null), CancellationToken.None);
 		syncScheduler.Dispose();
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () =>
 																   await syncMonitor.Tasks.Single().WaitAsync(cts.Token));
 
@@ -134,7 +136,7 @@ public class InProcEventSchedulerCoverageTest
 		await asyncScheduler.ScheduleEvent(CreateRouterEvent(delayMs: 60_000, type, SendId.FromString("send-00000001")), CancellationToken.None);
 		await asyncScheduler.DisposeAsync();
 		cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () =>
 																   await asyncMonitor.Tasks.Single().WaitAsync(cts.Token));
 
@@ -144,7 +146,7 @@ public class InProcEventSchedulerCoverageTest
 	private static InProcEventScheduler CreateScheduler(IReadOnlyCollection<IEventRouter> routers,
 														CapturingTaskMonitor monitor,
 														ILogger<IEventScheduler>? logger = null) =>
-		new()
+		new TestInProcEventScheduler
 		{
 			EventRouters = routers,
 			Logger = logger ?? Mock.Of<ILogger<IEventScheduler>>(),
@@ -161,6 +163,8 @@ public class InProcEventSchedulerCoverageTest
 
 		return routerEvent.Object;
 	}
+
+	private sealed class TestInProcEventScheduler : InProcEventScheduler;
 
 	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor

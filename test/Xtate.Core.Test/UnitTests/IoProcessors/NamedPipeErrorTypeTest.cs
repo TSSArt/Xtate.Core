@@ -17,9 +17,10 @@
 
 using Xtate.IoProcessors.NamedPipe;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class NamedPipeErrorTypeTest
 {
 	[TestMethod]
@@ -49,30 +50,24 @@ public class NamedPipeErrorTypeTest
 	}
 
 	[TestMethod]
-	public void NamedPipeErrorType_EqualityComparison_ShouldWork()
+	[DataRow(NamedPipeErrorType.Exception, NamedPipeErrorType.Exception, true)]
+	[DataRow(NamedPipeErrorType.Exception, NamedPipeErrorType.None, false)]
+	public void NamedPipeErrorType_EqualityComparison_ShouldWork(NamedPipeErrorType left, NamedPipeErrorType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = NamedPipeErrorType.Exception;
-		var type2 = NamedPipeErrorType.Exception;
-		var type3 = NamedPipeErrorType.None;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void NamedPipeErrorType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var noneStr = NamedPipeErrorType.None.ToString();
-		var exceptionStr = NamedPipeErrorType.Exception.ToString();
+		var noneStr = TestHelper.EnumName(NamedPipeErrorType.None);
+		var exceptionStr = TestHelper.EnumName(NamedPipeErrorType.Exception);
 
 		// Assert
-		Assert.AreEqual(expected: "None", noneStr);
-		Assert.AreEqual(expected: "Exception", exceptionStr);
+		Assert.AreEqual(nameof(NamedPipeErrorType.None), noneStr);
+		Assert.AreEqual(nameof(NamedPipeErrorType.Exception), exceptionStr);
 	}
 
 	[TestMethod]

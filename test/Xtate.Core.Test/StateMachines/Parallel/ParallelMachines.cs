@@ -15,56 +15,56 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.Parallel;
+namespace Xtate.Core.Test.StateMachines.Parallel;
 
 public class ParallelMachines : IScxmlTestSource
 {
-	public static readonly string SimpleParallelTwoRegions = """
-															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="par">
-															   <parallel id="par">
-															 	<state id="left">
-															 	  <final id="leftDone"/>
-															 	</state>
-															 	<state id="right">
-															 	  <final id="rightDone"/>
-															 	</state>
-															 	<transition event="done.state.par" target="done"/>
-															   </parallel>
-															   <final id="done"/>
-															 </scxml>
-															 """;
+	private const string SimpleParallelTwoRegions = """
+													<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="par">
+													  <parallel id="par">
+														<state id="left">
+														  <final id="leftDone"/>
+														</state>
+														<state id="right">
+														  <final id="rightDone"/>
+														</state>
+														<transition event="done.state.par" target="done"/>
+													  </parallel>
+													  <final id="done"/>
+													</scxml>
+													""";
 
-	public static readonly string ParallelInsideCompound = """
-														   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-														     <state id="outer" initial="par">
-														   	<parallel id="par">
-														   	  <state id="a">
-														   		<final id="aDone"/>
-														   	  </state>
-														   	  <state id="b">
-														   		<final id="bDone"/>
-														   	  </state>
-														   	  <transition event="done.state.par" target="done"/>
-														   	</parallel>
-														     </state>
-														     <final id="done"/>
-														   </scxml>
-														   """;
+	private const string ParallelInsideCompound = """
+												  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+												    <state id="outer" initial="par">
+												  	<parallel id="par">
+												  	  <state id="a">
+												  		<final id="aDone"/>
+												  	  </state>
+												  	  <state id="b">
+												  		<final id="bDone"/>
+												  	  </state>
+												  	  <transition event="done.state.par" target="done"/>
+												  	</parallel>
+												    </state>
+												    <final id="done"/>
+												  </scxml>
+												  """;
 
-	public static readonly string ParallelCompletionToDone = """
-															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="par">
-															   <parallel id="par">
-															 	<state id="r1">
-															 	  <final id="r1Done"/>
-															 	</state>
-															 	<state id="r2">
-															 	  <final id="r2Done"/>
-															 	</state>
-															 	<transition event="done.state.par" target="done"/>
-															   </parallel>
-															   <final id="done"/>
-															 </scxml>
-															 """;
+	private const string ParallelCompletionToDone = """
+													<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="par">
+													  <parallel id="par">
+														<state id="r1">
+														  <final id="r1Done"/>
+														</state>
+														<state id="r2">
+														  <final id="r2Done"/>
+														</state>
+														<transition event="done.state.par" target="done"/>
+													  </parallel>
+													  <final id="done"/>
+													</scxml>
+													""";
 
 #region Interface IScxmlTestSource
 

@@ -21,7 +21,7 @@ using Xtate.Persistence;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost.Exceptions;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class SpecificExceptionCoverageTest

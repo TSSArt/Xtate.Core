@@ -18,6 +18,7 @@
 using System.IO;
 using Xtate.Ancestor.Extensions;
 using Xtate.Class;
+using Xtate.Core.Test.DevTests;
 using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
@@ -31,7 +32,6 @@ using Xtate.ResourceLoaders.Resx.Services;
 using Xtate.Scxml;
 using Xtate.StateMachine;
 using Xtate.StateMachineFluentBuilder.DependencyInjection;
-using Xtate.Test;
 
 namespace Xtate.Core.Test.Legacy;
 
@@ -129,6 +129,8 @@ public class Evaluator : IExternalScriptExpression, IIntegerEvaluator, IStringEv
 #endregion
 }
 
+// Constructed by the test dependency-injection container.
+// ReSharper disable once ClassNeverInstantiated.Global
 public class TestDataModelHandler : DataModelHandlerBase
 {
 	protected override void Visit(ref IValueExpression expression)

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class DisposerTest
@@ -106,6 +106,7 @@ public class DisposerTest
 
 		// Assert
 		Assert.IsTrue(bothDisposable.IsSyncDisposed);
+		Assert.IsFalse(bothDisposable.IsAsyncDisposed);
 	}
 
 	[TestMethod]
@@ -114,6 +115,7 @@ public class DisposerTest
 	{
 		// Arrange
 		var notDisposable = new NotDisposable();
+		Assert.AreEqual(expected: "test", notDisposable.Value);
 
 		// Act; any exception fails the test.
 		Disposer.Dispose(notDisposable);
@@ -215,6 +217,7 @@ public class DisposerTest
 
 	private class NotDisposable
 	{
-		public string Value { get; set; } = "test";
+		// ReSharper disable once ReplaceAutoPropertyWithComputedProperty
+		public string Value { get; } = "test";
 	}
 }

@@ -15,12 +15,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.DataTypes;
 using Xtate.IoC.Tools;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class TokenAndLazyValueCoverageTest
@@ -36,7 +38,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsTrue(identifier.Equals(same));
 		Assert.IsTrue(identifier.Equals((object)same));
 		Assert.IsFalse(identifier.Equals(different));
-		Assert.IsFalse(identifier.Equals("state"));
+		Assert.IsFalse(identifier.Equals(TestHelper.Opaque<object>("state")));
 		Assert.AreEqual(identifier.GetHashCode(), same.GetHashCode());
 		Assert.ThrowsExactly<ArgumentException>(() => Identifier.FromString("bad id"));
 
@@ -61,9 +63,9 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsNull(SendId.FromString(null));
 		Assert.IsTrue(sendId.Equals(sendId));
 		Assert.IsTrue(sendId.Equals(same));
-		Assert.IsTrue(sendId.Equals((object)same!));
+		Assert.IsTrue(sendId.Equals((object)same));
 		Assert.IsFalse(sendId.Equals(different));
-		Assert.IsFalse(sendId.Equals("send-0000002a"));
+		Assert.IsFalse(sendId.Equals(TestHelper.Opaque<object>("send-0000002a")));
 		Assert.AreEqual(expected: 42, sendId.GetHashCode());
 		Assert.AreEqual(expected: "send-0000002a", sendId.ToString());
 		Assert.IsFalse(string.IsNullOrWhiteSpace(SendId.New().Value));
@@ -86,7 +88,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsTrue(explicitInvokeId.Equals(same));
 		Assert.IsTrue(explicitInvokeId.Equals((object)same));
 		Assert.IsFalse(explicitInvokeId.Equals(unique));
-		Assert.IsFalse(explicitInvokeId.Equals("invoke"));
+		Assert.IsFalse(explicitInvokeId.Equals(TestHelper.Opaque<object>("invoke")));
 		Assert.AreSame(unique, unique.UniqueId);
 		Assert.AreSame(unique, unique.UniqueId.InvokeId);
 		Assert.AreSame(collapsed, collapsed.UniqueId);
@@ -108,14 +110,15 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsTrue(SessionId.IsNullOrEmpty(string.Empty));
 		Assert.IsTrue(sessionId.Equals(sessionId));
 		Assert.IsTrue(sessionId.Equals(same));
-		Assert.IsTrue(sessionId.Equals((object)same!));
+		Assert.IsTrue(sessionId.Equals((object)same));
 		Assert.IsFalse(sessionId.Equals(different));
-		Assert.IsFalse(sessionId.Equals((object)"session-0000002a"));
+		Assert.IsFalse(sessionId.Equals(TestHelper.Opaque<object>("session-0000002a")));
 		Assert.IsFalse((bool)typeof(SessionId).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(sessionId, ["session-0000002a"])!);
 		Assert.AreEqual(expected: 42, sessionId.GetHashCode());
 		Assert.AreEqual(expected: "session-0000002a", (string)sessionId);
 		Assert.AreEqual(expected: "session-0000002a", typeof(SessionId).GetMethod(name: "op_Implicit", [typeof(SessionId)])!.Invoke(obj: null, [sessionId]));
-		string? missingSessionValue = (SessionId?)null;
+		SessionId? nullableSessionId = null;
+		string? missingSessionValue = nullableSessionId;
 		Assert.IsNull(missingSessionValue);
 		string? nullValue = null;
 		Assert.IsNull((SessionId?)nullValue);
@@ -134,7 +137,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsFalse(token.IsCancellationRequested);
 		Assert.IsTrue(token.Equals(same));
 		Assert.IsTrue(token.Equals((object)same));
-		Assert.IsFalse(token.Equals("not a token"));
+		Assert.IsFalse(token.Equals(TestHelper.Opaque<object>("not a token")));
 		Assert.IsFalse((bool)typeof(DisposeToken).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(token, ["not a token"])!);
 		Assert.IsTrue(token == same);
 		Assert.IsFalse(token != same);
@@ -153,7 +156,7 @@ public class TokenAndLazyValueCoverageTest
 	[TestMethod]
 	public async Task DisposingTokenCancelsOnDisposeAndKeepsTokenAccessible()
 	{
-		var disposingToken = new DisposingToken();
+		var disposingToken = new TestDisposingToken();
 		var token = disposingToken.Token;
 
 		Assert.IsFalse(token.IsCancellationRequested);
@@ -163,7 +166,7 @@ public class TokenAndLazyValueCoverageTest
 		Assert.IsTrue(token.IsCancellationRequested);
 		Assert.IsTrue(disposingToken.Token.IsCancellationRequested);
 
-		await new DisposingToken().DisposeAsync();
+		await new TestDisposingToken().DisposeAsync();
 	}
 
 	[TestMethod]
@@ -199,5 +202,11 @@ public class TokenAndLazyValueCoverageTest
 
 		var twoArgs = LazyValue.Create(arg1: "left", arg2: "right", (left, right) => new DataModelValue(left + "-" + right));
 		Assert.AreEqual(expected: "left-right", twoArgs.AsString());
+	}
+
+	private sealed class TestDisposingToken : DisposingToken
+	{
+		// ReSharper disable once RedundantOverriddenMember
+		protected override ValueTask DisposeAsyncCore() => base.DisposeAsyncCore();
 	}
 }

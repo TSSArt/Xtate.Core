@@ -15,33 +15,33 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.Basic;
+namespace Xtate.Core.Test.StateMachines.Basic;
 
 public class CompoundMachines : IScxmlTestSource
 {
-	public static readonly string NestedCompoundToDone = """
+	private const string NestedCompoundToDone = """
+												<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+												  <state id="outer" initial="inner">
+													<state id="inner">
+													  <transition target="done"/>
+													</state>
+												  </state>
+												  <final id="done"/>
+												</scxml>
+												""";
+
+	private const string CompoundCompletionEventToDone = """
 														 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
 														   <state id="outer" initial="inner">
 														 	<state id="inner">
-														 	  <transition target="done"/>
+														 	  <transition target="innerFinal"/>
 														 	</state>
+														 	<final id="innerFinal"/>
+														 	<transition event="done.state.outer" target="done"/>
 														   </state>
 														   <final id="done"/>
 														 </scxml>
 														 """;
-
-	public static readonly string CompoundCompletionEventToDone = """
-																  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-																    <state id="outer" initial="inner">
-																  	<state id="inner">
-																  	  <transition target="innerFinal"/>
-																  	</state>
-																  	<final id="innerFinal"/>
-																  	<transition event="done.state.outer" target="done"/>
-																    </state>
-																    <final id="done"/>
-																  </scxml>
-																  """;
 
 #region Interface IScxmlTestSource
 

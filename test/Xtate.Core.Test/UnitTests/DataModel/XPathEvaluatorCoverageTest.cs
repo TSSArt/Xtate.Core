@@ -27,7 +27,7 @@ using Xtate.Logging;
 using Xtate.NameTable;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathEvaluatorCoverageTest

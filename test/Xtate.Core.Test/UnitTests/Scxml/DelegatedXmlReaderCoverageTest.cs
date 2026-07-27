@@ -15,12 +15,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.IO;
 using System.Xml;
 using System.Xml.Schema;
 using Xtate.Scxml.Services;
 
-namespace Xtate.Test.UnitTests.Scxml;
+namespace Xtate.Core.Test.UnitTests.Scxml;
 
 [TestClass]
 public class DelegatedXmlReaderCoverageTest
@@ -141,7 +143,8 @@ public class DelegatedXmlReaderCoverageTest
 	{
 		const string source = "<root xml:base='a/'><child/><nested xml:base='../b/'></nested></root>";
 		using var inner = XmlReader.Create(new StringReader(source), new XmlReaderSettings(), baseUri: "https://example.test/root/document.scxml");
-		using var reader = new XmlBaseReader(inner) { XmlResolver = new XmlUrlResolver() };
+		var xmlUrlResolver = new XmlUrlResolver();
+		using var reader = new XmlBaseReader(inner) { XmlResolver = xmlUrlResolver };
 		var baseUriProperty = typeof(XmlBaseReader).GetProperty(nameof(XmlReader.BaseURI))!;
 
 		Assert.AreEqual(expected: "https://example.test/root/document.scxml", baseUriProperty.GetValue(reader));
@@ -180,7 +183,8 @@ public class DelegatedXmlReaderCoverageTest
 	public void XmlBaseReaderShouldResolveXmlBaseAttributeValue()
 	{
 		using var inner = XmlReader.Create(new StringReader("<root xml:base='relative/'/>"), new XmlReaderSettings(), baseUri: "https://example.test/root/document.scxml");
-		using var reader = new XmlBaseReader(inner) { XmlResolver = new XmlUrlResolver() };
+		var xmlUrlResolver = new XmlUrlResolver();
+		using var reader = new XmlBaseReader(inner) { XmlResolver = xmlUrlResolver };
 
 		Assert.IsTrue(reader.Read());
 		Assert.AreEqual(expected: "https://example.test/root/relative/", reader.BaseURI);

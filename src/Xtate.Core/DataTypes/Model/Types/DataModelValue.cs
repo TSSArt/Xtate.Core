@@ -649,14 +649,14 @@ public readonly struct DataModelValue : IObject, IEquatable<DataModelValue>, ISp
 
 	public bool TryGetAs<T>(out T value)
 	{
-		if(_value is ObjectContainer { IObject: T obj })
+		if (_value is ObjectContainer { IObject: T obj })
 		{
 			value = obj;
 
 			return true;
 		}
 
-		if(_value is ILazyValue and T lazyValue)
+		if (_value is ILazyValue and T lazyValue)
 		{
 			value = lazyValue;
 

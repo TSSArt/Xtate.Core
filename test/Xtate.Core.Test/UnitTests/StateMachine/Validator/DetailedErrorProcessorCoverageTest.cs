@@ -19,7 +19,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 using Xtate.StateMachine.Validator.Services;
 
-namespace Xtate.Test.UnitTests.StateMachine.Validator;
+namespace Xtate.Core.Test.UnitTests.StateMachine.Validator;
 
 [TestClass]
 public class DetailedErrorProcessorCoverageTest
@@ -39,7 +39,7 @@ public class DetailedErrorProcessorCoverageTest
 		var first = new ErrorItem(typeof(DetailedErrorProcessorCoverageTest), message: "first", exception: null);
 		var second = new ErrorItem(typeof(string), message: "second", exception: null);
 		var processor = new DetailedErrorProcessor(sessionId);
-		var errorProcessor = (IErrorProcessor)processor;
+		IErrorProcessor errorProcessor = processor;
 
 		errorProcessor.AddError(first);
 		errorProcessor.AddError(second);

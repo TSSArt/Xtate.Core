@@ -15,13 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.IO;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class StreamStorageCoverageTest
@@ -109,12 +111,12 @@ public class StreamStorageCoverageTest
 	[TestMethod]
 	public async Task InitializationConsumesSkipFinalAndSkipBlockControlRecords()
 	{
-		await AssertControlRecordIsEmpty([0x00, 0x00]);
+		await AssertControlRecordIsEmpty([.. "\0\0"u8]);
 		await AssertControlRecordIsEmpty([0x04, 0x01, 0x02]);
 		await AssertControlRecordIsEmpty([0x02, 0x02, 0xAA, 0xBB]);
 	}
 
-	private static StreamStorage CreateStorage(Stream stream, bool disposeStream = true, int? rollbackLevel = null) =>
+	private static TestStreamStorage CreateStorage(Stream stream, bool disposeStream = true, int? rollbackLevel = null) =>
 		new(stream, disposeStream, rollbackLevel)
 		{
 			InMemoryStorageFactory = static writeOnly => new InMemoryStorage(writeOnly),
@@ -138,6 +140,15 @@ public class StreamStorageCoverageTest
 
 		Assert.IsTrue(storage.Get([1]).IsEmpty);
 		Assert.AreEqual(expected: 0L, stream.Length);
+	}
+
+	[SuppressMessage(category: "ReSharper", checkId: "RedundantOverriddenMember")]
+	private sealed class TestStreamStorage(Stream stream, bool disposeStream, int? rollbackLevel)
+		: StreamStorage(stream, disposeStream, rollbackLevel)
+	{
+		protected override void Dispose(bool disposing) => base.Dispose(disposing);
+
+		protected override ValueTask DisposeAsyncCore() => base.DisposeAsyncCore();
 	}
 
 	private sealed class TrackingMemoryStream : MemoryStream

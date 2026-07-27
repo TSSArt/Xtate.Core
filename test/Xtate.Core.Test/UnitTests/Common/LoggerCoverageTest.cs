@@ -23,7 +23,7 @@ using Xtate.Logging.Internal;
 using Xtate.Logging.Provider;
 using Xtate.Logging.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class LoggerCoverageTest
@@ -97,6 +97,7 @@ public class LoggerCoverageTest
 
 		Assert.HasCount(expected: 2, generic.Entries);
 		Assert.HasCount(expected: 2, nonGeneric.Entries);
+		Assert.AreEqual(Level.Info, generic.Entries[0].Level);
 		Assert.AreEqual(expected: "plain", generic.Entries[0].Message);
 		Assert.AreEqual(expected: 21, generic.Entries[0].EventId);
 		CollectionAssert.AreEqual(
@@ -109,6 +110,9 @@ public class LoggerCoverageTest
 			generic.Entries[0].Parameters.Select(static parameter => parameter.FullName()).ToArray(),
 			nonGeneric.Entries[0].Parameters.Select(static parameter => parameter.FullName()).ToArray());
 		Assert.AreEqual(typeof(TestSource), nonGeneric.Entries[0].Source);
+		Assert.AreEqual(Level.Info, nonGeneric.Entries[0].Level);
+		Assert.AreEqual(expected: 21, nonGeneric.Entries[0].EventId);
+		Assert.AreEqual(expected: "plain", nonGeneric.Entries[0].Message);
 		Assert.AreEqual(expected: 2, parser.Calls);
 		Assert.AreEqual(expected: 2, nullParser.Calls);
 		Assert.AreEqual(expected: 0, disabledParser.Calls);
@@ -128,7 +132,7 @@ public class LoggerCoverageTest
 						 LogEnrichers = EmptyAsync<ILogEnricher<TestSource>>(),
 						 EntityParserHandlers = EmptyAsync<IEntityParserHandler>()
 					 };
-		var number = 42;
+		const int number = 42;
 		var formattable = new FormattableValue("formattable");
 		var plain = new PlainValue("plain");
 
@@ -190,6 +194,8 @@ public class LoggerCoverageTest
 		public override void WriteLine(string? message) => _output.AppendLine(message);
 	}
 
+	// Moq must be able to proxy ILogProvider<TestSource> at runtime.
+	// ReSharper disable once MemberCanBePrivate.Global
 	public sealed class TestSource;
 
 	private sealed class CapturingGenericProvider(params Level[] enabledLevels) : ILogProvider<TestSource>
@@ -283,7 +289,7 @@ public class LoggerCoverageTest
 
 		public bool IsEnabled(Level level) => enabled;
 
-		public IFormatProvider? FormatProvider => CultureInfo.InvariantCulture;
+		public IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
 
 	#endregion
 	}

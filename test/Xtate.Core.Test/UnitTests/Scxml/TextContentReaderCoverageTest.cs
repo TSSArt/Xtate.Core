@@ -18,7 +18,7 @@
 using System.Xml;
 using Xtate.Scxml.Internal;
 
-namespace Xtate.Test.UnitTests.Scxml;
+namespace Xtate.Core.Test.UnitTests.Scxml;
 
 [TestClass]
 public class TextContentReaderCoverageTest

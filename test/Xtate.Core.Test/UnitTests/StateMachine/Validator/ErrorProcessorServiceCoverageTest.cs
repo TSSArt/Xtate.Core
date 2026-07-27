@@ -19,7 +19,7 @@ using System.Xml;
 using Xtate.StateMachine.Validator;
 using Xtate.StateMachine.Validator.Services;
 
-namespace Xtate.Test.UnitTests.StateMachine.Validator;
+namespace Xtate.Core.Test.UnitTests.StateMachine.Validator;
 
 [TestClass]
 public class ErrorProcessorServiceCoverageTest

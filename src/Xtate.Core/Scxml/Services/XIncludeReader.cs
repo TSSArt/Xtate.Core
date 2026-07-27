@@ -399,6 +399,8 @@ public class XIncludeReader : DelegatedXmlReader
 		{
 			using var streamReader = new StreamReader(stream, GetEncoding(resource), detectEncodingFromByteOrderMarks: true);
 
+			// The synchronous branch is required when the underlying XmlReader was created with Async=false.
+			// ReSharper disable once MethodHasAsyncOverload
 			return useAsync
 				? await streamReader.ReadToEndAsync().ConfigureAwait(false)
 				: streamReader.ReadToEnd();

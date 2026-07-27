@@ -26,7 +26,7 @@ using Xtate.Logging;
 using Xtate.Logging.Provider;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterLoggingAndConnectionsCoverageTest
@@ -35,8 +35,8 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 	public async Task NoExternalConnectionsRejectsEveryCommunicationAndServiceOperation()
 	{
 		var noConnections = new NoExternalConnections { StateMachineRuntimeError = new StateMachineRuntimeError(new ScopeObject()) };
-		var communication = (IExternalCommunication)noConnections;
-		var services = (IExternalServiceManager)noConnections;
+		IExternalCommunication communication = noConnections;
+		IExternalServiceManager services = noConnections;
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		var sendId = SendId.FromString("send");
@@ -56,7 +56,7 @@ public class InterpreterLoggingAndConnectionsCoverageTest
 		var handler = new Mock<IDataModelHandler>();
 		handler.Setup(static h => h.ConvertToText(It.IsAny<DataModelValue>())).Returns("converted");
 		var parser = new EventVerboseEntityParser { DataModelHandler = () => handler.Object };
-		var parserHandler = (IEntityParserHandler)parser;
+		IEntityParserHandler parserHandler = parser;
 
 		Assert.AreEqual(Level.Verbose, parserHandler.Level);
 		Assert.IsEmpty(parserHandler.EnumerateProperties(new IncomingEvent { Data = DataModelValue.Undefined })!);

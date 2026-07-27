@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,16 +15,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.IoC;
+using System.Threading;
 
 namespace Xtate.Core.Test;
 
-public static class ServiceCollectionExtensions
+internal static class TestHelper
 {
-	public static void AddMock<T>(this IServiceCollection services) where T : class
-	{
-		var mock = new Mock<T>();
+	public static string EnumName<TEnum>(TEnum value) where TEnum : struct, Enum => value.ToString();
 
-		services.AddForwarding(_ => mock.Object);
+	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+	public static T Opaque<T>(T value)
+	{
+		object? box = value;
+
+		return (T)Volatile.Read(ref box)!;
 	}
 }

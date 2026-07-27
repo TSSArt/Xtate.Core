@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines;
+namespace Xtate.Core.Test.StateMachines;
 
 /// <summary>
 ///     Implemented by every static machine-collection class to expose its test cases

@@ -26,7 +26,7 @@ using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class PersistedEventCoverageTest
@@ -130,6 +130,7 @@ public class PersistedEventCoverageTest
 						 SendId = SendId.FromString("send-id"),
 						 Origin = new FullUri("https://example.test/origin"),
 						 OriginType = new FullUri("https://example.test/origin-type"),
+						 InvokeId = InvokeId.FromString("invoke-id"),
 						 Data = new DataModelValue("payload")
 					 };
 		var bucket = CreateBucket();
@@ -175,7 +176,8 @@ public class PersistedEventCoverageTest
 					 {
 						 SenderServiceId = SessionId.FromString("sender"),
 						 TargetType = new FullUri("https://example.test/target-type"),
-						 Target = new FullUri("https://example.test/target")
+						 Target = new FullUri("https://example.test/target"),
+						 InvokeId = InvokeId.FromString("invoke-id")
 					 };
 		var bucket = CreateBucket();
 		((IStoreSupport)CreatePersistedRouterEvent(source)).Store(bucket);

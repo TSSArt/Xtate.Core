@@ -18,7 +18,7 @@
 using System.Collections;
 using System.Reflection;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class ExtCollectionCoverageTest
@@ -139,11 +139,12 @@ public class ExtCollectionCoverageTest
 	[TestMethod]
 	public void ExtCollectionSupportsGroupedValuesRemoveTakeAndEnumeration()
 	{
-		var collection = new ExtCollection<string, string>(StringComparer.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase);
-
-		collection.Add(value1: "group", value2: "one");
-		collection.Add(value1: "GROUP", value2: "two");
-		collection.Add(value1: "other", value2: "three");
+		var collection = new ExtCollection<string, string>(StringComparer.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase)
+						 {
+							 { "group", "one" },
+							 { "GROUP", "two" },
+							 { "other", "three" }
+						 };
 
 		Assert.AreEqual(expected: 3, collection.Count);
 		CollectionAssert.AreEquivalent(new[] { "group=one", "group=two", "other=three" }, collection.Select(pair => $"{pair.Item1}={pair.Item2}").ToArray());
@@ -171,11 +172,12 @@ public class ExtCollectionCoverageTest
 	[TestMethod]
 	public void ExtCollectionTakesGroupedValuesAndRemovesFromLargerGroup()
 	{
-		var collection = new ExtCollection<int, string>();
-
-		collection.Add(value1: 1, value2: "one");
-		collection.Add(value1: 1, value2: "two");
-		collection.Add(value1: 1, value2: "three");
+		var collection = new ExtCollection<int, string>
+						 {
+							 { 1, "one" },
+							 { 1, "two" },
+							 { 1, "three" }
+						 };
 
 		Assert.IsTrue(collection.Remove(value1: 1, value2: "two"));
 		Assert.AreEqual(expected: 2, collection.Count);

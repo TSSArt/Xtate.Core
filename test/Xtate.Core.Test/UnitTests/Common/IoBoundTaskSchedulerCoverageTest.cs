@@ -15,11 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable AccessToDisposedClosure
+
 using System.Reflection;
 using System.Threading;
 using Xtate.IoBoundTask.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class IoBoundTaskSchedulerCoverageTest
@@ -86,7 +88,7 @@ public class IoBoundTaskSchedulerCoverageTest
 	{
 		var method = typeof(IoBoundTaskScheduler).GetMethod(name: "GetScheduledTasks", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-		return ((IEnumerable<Task>)method.Invoke(scheduler, parameters: null)!).ToArray();
+		return [.. (IEnumerable<Task>)method.Invoke(scheduler, parameters: null)!];
 	}
 
 	private static bool TryExecuteInline(IoBoundTaskScheduler scheduler, Task task)

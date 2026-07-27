@@ -22,7 +22,7 @@ using Xtate.Interpreter.Model;
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
-namespace Xtate.Core;
+namespace Xtate.Core.Test;
 
 public class NoStateMachineContext : IStateMachinePersistenceContext
 {

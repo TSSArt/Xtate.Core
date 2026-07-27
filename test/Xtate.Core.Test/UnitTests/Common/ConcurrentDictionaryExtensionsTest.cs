@@ -17,7 +17,7 @@
 
 using System.Threading;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class ConcurrentDictionaryExtensionsTest
@@ -76,7 +76,7 @@ public class ConcurrentDictionaryExtensionsTest
 		dict.TryAdd(key: "key2", value: 2);
 
 		// Act
-		var result = dict.TryTake(out var key, out var value);
+		var result = dict.TryTake(out var key, out _);
 
 		// Assert
 		Assert.IsTrue(result);
@@ -143,7 +143,7 @@ public class ConcurrentDictionaryExtensionsTest
 						 }));
 		}
 
-		Task.WaitAll(tasks.ToArray());
+		Task.WaitAll([.. tasks]);
 
 		// Assert
 		Assert.AreEqual(expected: 10, removedCount);

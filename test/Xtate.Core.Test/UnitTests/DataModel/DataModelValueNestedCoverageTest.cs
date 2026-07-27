@@ -18,7 +18,7 @@
 using System.Reflection;
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelValueNestedCoverageTest
@@ -51,7 +51,7 @@ public class DataModelValueNestedCoverageTest
 		var anotherNullMarker = Activator.CreateInstance(markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Null], culture: null)!;
 		var booleanMarker = Activator.CreateInstance(markerType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, binder: null, [DataModelValueType.Boolean], culture: null)!;
 
-		Assert.IsTrue(nullMarker.Equals(nullMarker));
+		Assert.IsTrue(nullMarker.Equals(TestHelper.Opaque(nullMarker)));
 		Assert.IsTrue(nullMarker.Equals(anotherNullMarker));
 		Assert.IsFalse(nullMarker.Equals(booleanMarker));
 		Assert.IsFalse(nullMarker.Equals("marker"));
@@ -116,20 +116,4 @@ public class DataModelValueNestedCoverageTest
 	}
 
 	private static object? GetNestedValue(DataModelValue value) => typeof(DataModelValue).GetField(name: "_value", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value);
-
-	private sealed class CountingObject(object? value) : IObject
-	{
-		public int ToObjectCalls { get; private set; }
-
-	#region Interface IObject
-
-		public object? ToObject()
-		{
-			ToObjectCalls ++;
-
-			return value;
-		}
-
-	#endregion
-	}
 }

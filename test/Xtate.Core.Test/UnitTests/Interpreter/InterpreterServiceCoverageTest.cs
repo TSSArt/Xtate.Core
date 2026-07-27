@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// OutgoingEventSource implements the full interface; Data is intentionally irrelevant to this parser.
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+
 using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Services;
@@ -22,7 +25,7 @@ using Xtate.Logging;
 using Xtate.Logging.Provider;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterServiceCoverageTest

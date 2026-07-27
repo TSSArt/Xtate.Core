@@ -17,9 +17,10 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class HistoryTypeTest
 {
 	[TestMethod]
@@ -49,30 +50,24 @@ public class HistoryTypeTest
 	}
 
 	[TestMethod]
-	public void HistoryType_EqualityComparison_ShouldWork()
+	[DataRow(HistoryType.Deep, HistoryType.Deep, true)]
+	[DataRow(HistoryType.Deep, HistoryType.Shallow, false)]
+	public void HistoryType_EqualityComparison_ShouldWork(HistoryType left, HistoryType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = HistoryType.Deep;
-		var type2 = HistoryType.Deep;
-		var type3 = HistoryType.Shallow;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void HistoryType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var shallowStr = HistoryType.Shallow.ToString();
-		var deepStr = HistoryType.Deep.ToString();
+		var shallowStr = TestHelper.EnumName(HistoryType.Shallow);
+		var deepStr = TestHelper.EnumName(HistoryType.Deep);
 
 		// Assert
-		Assert.AreEqual(expected: "Shallow", shallowStr);
-		Assert.AreEqual(expected: "Deep", deepStr);
+		Assert.AreEqual(nameof(HistoryType.Shallow), shallowStr);
+		Assert.AreEqual(nameof(HistoryType.Deep), deepStr);
 	}
 
 	[TestMethod]

@@ -19,7 +19,7 @@ using Xtate.DataTypes;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Services;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class BucketConverterCoverageTest

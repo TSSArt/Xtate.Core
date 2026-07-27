@@ -20,7 +20,7 @@ using Xtate.DataModel;
 using Xtate.DataModel.Null.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class NullConditionExpressionEvaluatorCoverageTest

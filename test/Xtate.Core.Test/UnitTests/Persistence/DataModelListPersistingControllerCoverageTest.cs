@@ -20,7 +20,7 @@ using Xtate.Persistence.Services;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class DataModelListPersistingControllerCoverageTest
@@ -35,7 +35,7 @@ public class DataModelListPersistingControllerCoverageTest
 		var source = new DataModelList();
 
 		using (var tracker = new DataModelReferenceTracker(referencesBucket))
-		using (var controller = new DataModelListPersistingController(listBucket, tracker, source))
+		using (new DataModelListPersistingController(listBucket, tracker, source))
 		{
 			source.Add("zero");
 			source[key: "name", caseInsensitive: false] = "case-sensitive";
@@ -51,7 +51,7 @@ public class DataModelListPersistingControllerCoverageTest
 		var restored = new DataModelList();
 
 		using (var tracker = new DataModelReferenceTracker(referencesBucket))
-		using (var controller = new DataModelListPersistingController(listBucket, tracker, restored))
+		using (new DataModelListPersistingController(listBucket, tracker, restored))
 		{
 			Assert.AreEqual(expected: 2, restored.Count);
 			Assert.AreEqual(expected: "changed", restored[0].AsList()["nested"].AsString());
@@ -67,7 +67,7 @@ public class DataModelListPersistingControllerCoverageTest
 		var bucket = new Bucket(storage);
 		using var tracker = new DataModelReferenceTracker(bucket.Nested("references"));
 
-		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => new DataModelListPersistingController(bucket, null!, new DataModelList()));
+		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => new DataModelListPersistingController(bucket, null!, []));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => new DataModelListPersistingController(bucket, tracker, null!));
 	}
 }

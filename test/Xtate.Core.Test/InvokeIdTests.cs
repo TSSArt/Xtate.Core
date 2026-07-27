@@ -17,7 +17,7 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test;
 
 [TestClass]
 public class InvokeIdTests
@@ -26,7 +26,7 @@ public class InvokeIdTests
 	public void FromString_ShouldReturnStaticInvokeId()
 	{
 		// Arrange
-		var invokeId = "testInvokeId";
+		const string invokeId = "testInvokeId";
 
 		// Act
 		var result = InvokeId.FromString(invokeId);
@@ -57,7 +57,7 @@ public class InvokeIdTests
 	{
 		// Arrange
 		var stateId = new Mock<IIdentifier>();
-		var invokeId = "testInvokeId";
+		const string invokeId = "testInvokeId";
 
 		// Act
 		var result = InvokeId.New(stateId.Object, invokeId);
@@ -72,8 +72,8 @@ public class InvokeIdTests
 	public void FromString_WithInvokeUniqueId_ShouldReturnExecutionInvokeId()
 	{
 		// Arrange
-		var invokeId = "testInvokeId";
-		var invokeUniqueId = "testInvokeUniqueId";
+		const string invokeId = "testInvokeId";
+		const string invokeUniqueId = "testInvokeUniqueId";
 
 		// Act
 		var result = InvokeId.FromString(invokeId, invokeUniqueId);

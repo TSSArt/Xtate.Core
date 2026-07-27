@@ -17,9 +17,10 @@
 
 using Xtate.DataTypes;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class DataModelValueTypeTest
 {
 	[TestMethod]
@@ -99,32 +100,26 @@ public class DataModelValueTypeTest
 	}
 
 	[TestMethod]
-	public void DataModelValueType_EqualityComparison_ShouldWork()
+	[DataRow(DataModelValueType.String, DataModelValueType.String, true)]
+	[DataRow(DataModelValueType.String, DataModelValueType.Boolean, false)]
+	public void DataModelValueType_EqualityComparison_ShouldWork(DataModelValueType left, DataModelValueType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = DataModelValueType.String;
-		var type2 = DataModelValueType.String;
-		var type3 = DataModelValueType.Boolean;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void DataModelValueType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var undefinedStr = DataModelValueType.Undefined.ToString();
-		var nullStr = DataModelValueType.Null.ToString();
-		var stringStr = DataModelValueType.String.ToString();
+		var undefinedStr = TestHelper.EnumName(DataModelValueType.Undefined);
+		var nullStr = TestHelper.EnumName(DataModelValueType.Null);
+		var stringStr = TestHelper.EnumName(DataModelValueType.String);
 
 		// Assert
-		Assert.AreEqual(expected: "Undefined", undefinedStr);
-		Assert.AreEqual(expected: "Null", nullStr);
-		Assert.AreEqual(expected: "String", stringStr);
+		Assert.AreEqual(nameof(DataModelValueType.Undefined), undefinedStr);
+		Assert.AreEqual(nameof(DataModelValueType.Null), nullStr);
+		Assert.AreEqual(nameof(DataModelValueType.String), stringStr);
 	}
 
 	[TestMethod]

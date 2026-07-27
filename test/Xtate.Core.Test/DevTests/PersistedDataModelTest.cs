@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -21,7 +21,7 @@ using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class PersistedDataModelTest
@@ -512,24 +512,24 @@ public class PersistedDataModelTest
 		dataModel.AddInternal(key: @"_name", DataModelValue.Null, DataModelAccess.ReadOnly);
 		dataModel.AddInternal(key: @"_sessionid", SessionId.New(), DataModelAccess.Constant);
 		dataModel.AddInternal(key: @"_event", value: default, DataModelAccess.ReadOnly);
-		dataModel.AddInternal(key: @"_ioprocessors", LazyValue.Create(this, ctx => GetIoProcessors()), DataModelAccess.Constant);
-		dataModel.AddInternal(key: @"_x", LazyValue.Create(this, ctx => GetPlatform()), DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_ioprocessors", LazyValue.Create(this, _ => GetIoProcessors()), DataModelAccess.Constant);
+		dataModel.AddInternal(key: @"_x", LazyValue.Create(this, _ => GetPlatform()), DataModelAccess.Constant);
 
 		var storage = new InMemoryStorage(false);
 		var bucket = new Bucket(storage);
 
 		var root1 = new DataModelList();
 		var tracker1 = new DataModelReferenceTracker(bucket.Nested("refs"));
-		var ctrl1 = new DataModelListPersistingController(bucket, tracker1, root1);
+		_ = new DataModelListPersistingController(bucket, tracker1, root1);
 
 		root1["ds"] = dataModel;
 
 		var root2 = DataModelList.Empty;
 		var tracker2 = new DataModelReferenceTracker(bucket.Nested("refs"));
-		var ctrl2 = new DataModelListPersistingController(bucket, tracker2, root2);
+		_ = new DataModelListPersistingController(bucket, tracker2, root2);
 	}
 
-	private DataModelValue GetPlatform()
+	private static DataModelValue GetPlatform()
 	{
 		var list = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive: true);
 
@@ -538,7 +538,7 @@ public class PersistedDataModelTest
 		return list;
 	}
 
-	private DataModelValue GetIoProcessors()
+	private static DataModelValue GetIoProcessors()
 	{
 		var list = new DataModelList(DataModelAccess.ReadOnly, caseInsensitive: true);
 

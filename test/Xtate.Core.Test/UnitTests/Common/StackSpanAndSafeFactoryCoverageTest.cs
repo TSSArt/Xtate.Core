@@ -17,7 +17,7 @@
 
 using Xtate.IoC.Tools.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class StackSpanAndSafeFactoryCoverageTest
@@ -52,7 +52,7 @@ public class StackSpanAndSafeFactoryCoverageTest
 
 	private static void ConvertSmallStackSpanToSpan()
 	{
-		var stackSpan = new StackSpan<int>(length: 1);
+		using var stackSpan = new StackSpan<int>(length: 1);
 		Span<int> span = stackSpan;
 
 		_ = span;

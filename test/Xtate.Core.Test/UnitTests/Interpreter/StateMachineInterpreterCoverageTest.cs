@@ -15,8 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Reflection;
 using System.Threading;
+using Xtate.DataModel;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Internal;
 using Xtate.Interpreter.Model;
@@ -24,7 +27,7 @@ using Xtate.Interpreter.Services;
 using Xtate.IoC.Tools;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class StateMachineInterpreterCoverageTest
@@ -37,6 +40,9 @@ public class StateMachineInterpreterCoverageTest
 
 		interpreter.TriggerDestroySignal();
 		eventReader.Verify(static reader => reader.Complete(), Times.Once);
+		var failedDestroyReader = new Mock<IEventReader>();
+		CreateInterpreter(failedDestroyReader.Object, CancellationToken.None).TriggerDestroySignal(new InvalidOperationException("destroy"));
+		failedDestroyReader.Verify(static reader => reader.Complete(), Times.Once);
 
 		await interpreter.HandleMainLoopFailure(new InvalidOperationException("failure"));
 		Assert.AreSame(StateMachineInterpreterState.Terminated, interpreter.NotifiedState);
@@ -71,6 +77,7 @@ public class StateMachineInterpreterCoverageTest
 			DisposeToken = new DisposeToken(cancellationToken)
 		};
 
+	[SuppressMessage(category: "ReSharper", checkId: "RedundantOverriddenMember")]
 	private sealed class TestInterpreter : StateMachineInterpreter
 	{
 		public StateMachineInterpreterState? NotifiedState { get; private set; }
@@ -78,6 +85,16 @@ public class StateMachineInterpreterCoverageTest
 		public ValueTask HandleMainLoopFailure(Exception exception) => HandleMainLoopException(exception);
 
 		public bool IsInterpreterError(Exception exception) => IsError(exception);
+
+		public override void TriggerDestroySignal(Exception? innerException) => base.TriggerDestroySignal(innerException);
+
+		protected override ValueTask EnterSteps() => base.EnterSteps();
+
+		protected override ValueTask<List<TransitionNode>> ExternalEventTransitions() => base.ExternalEventTransitions();
+
+		protected override ValueTask<IIncomingEvent> ReadExternalEvent() => base.ReadExternalEvent();
+
+		protected override bool IsError(Exception ex) => base.IsError(ex);
 
 		protected override ValueTask NotifyInterpreterState(StateMachineInterpreterState state)
 		{

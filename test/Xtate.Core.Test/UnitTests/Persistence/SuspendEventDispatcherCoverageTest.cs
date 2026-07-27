@@ -18,7 +18,7 @@
 using Xtate.Persistence;
 using Xtate.Persistence.Services;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class SuspendEventDispatcherCoverageTest
@@ -27,10 +27,9 @@ public class SuspendEventDispatcherCoverageTest
 	public void SuspendRaisesSubscribedHandlersSupportsRemovalAndOptionallySetsFlag()
 	{
 		var dispatcher = new SuspendEventDispatcher();
-		var contract = (ISuspendEventDispatcher)dispatcher;
-		var calls = 0;
+		ISuspendEventDispatcher contract = dispatcher;
 
-		void Handler() => calls ++;
+		var calls = 0;
 
 		contract.OnSuspend += Handler;
 		dispatcher.Suspend(setSuspendRequestedFlag: false);
@@ -44,5 +43,9 @@ public class SuspendEventDispatcherCoverageTest
 		contract.OnSuspend -= Handler;
 		dispatcher.Suspend(setSuspendRequestedFlag: false);
 		Assert.AreEqual(expected: 2, calls);
+
+		return;
+
+		void Handler() => calls ++;
 	}
 }

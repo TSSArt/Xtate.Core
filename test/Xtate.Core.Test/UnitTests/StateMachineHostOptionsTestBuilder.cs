@@ -15,8 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests;
 
+// Retained as documentation for the disabled options-builder implementation below.
+// ReSharper disable once UnusedType.Global
 public static class StateMachineHostOptionsTestBuilder
 {
 	/* public delegate void StateMachineHostOptionsSetup(StateMachineHostOptions options);

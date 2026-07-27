@@ -23,7 +23,7 @@ using Xtate.DataTypes;
 using Xtate.ExternalServices.HttpClient.Services;
 using Xtate.Http;
 
-namespace Xtate.Test.UnitTests.ExternalServices;
+namespace Xtate.Core.Test.UnitTests.ExternalServices;
 
 [TestClass]
 public class HttpMimeTypeHandlerCoverageTest

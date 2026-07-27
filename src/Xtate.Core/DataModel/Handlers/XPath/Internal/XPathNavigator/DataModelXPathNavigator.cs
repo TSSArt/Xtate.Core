@@ -117,6 +117,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 	private ref Node PathItem(int index)
 	{
+#pragma warning disable IDE0066
 		switch (index)
 		{
 			case 0:  return ref _path0;
@@ -127,6 +128,7 @@ public class DataModelXPathNavigator : XPathNavigator
 			case 5:  return ref _path5;
 			default: return ref _pathOther[index - PathFieldCount];
 		}
+#pragma warning restore IDE0066
 	}
 
 	public override bool MoveToId(string id) => false;

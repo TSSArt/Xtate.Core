@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.Class;
 using Xtate.DataModel;
@@ -26,7 +28,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class StateMachineExternalServiceCoverageTest

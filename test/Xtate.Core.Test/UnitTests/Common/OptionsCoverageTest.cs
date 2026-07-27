@@ -21,7 +21,7 @@ using Xtate.IoC.Options.DependencyInjection;
 using Xtate.IoC.Options.Internal;
 using Xtate.IoC.Options.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class OptionsCoverageTest
@@ -129,7 +129,7 @@ public class OptionsCoverageTest
 		}
 	}
 
-	public sealed class TestOptions
+	private sealed class TestOptions
 	{
 		public List<string> Entries { get; } = [];
 	}

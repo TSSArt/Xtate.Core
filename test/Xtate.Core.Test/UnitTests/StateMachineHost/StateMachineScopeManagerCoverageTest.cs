@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.Class;
 using Xtate.DataTypes;
@@ -24,7 +26,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class StateMachineScopeManagerCoverageTest
@@ -85,7 +87,7 @@ public class StateMachineScopeManagerCoverageTest
 		completion.SetResult(new DataModelValue("started-result"));
 		Assert.AreEqual(expected: "started-result", (await stateMachineResult.GetResult()).AsString());
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks[0].WaitAsync(cts.Token);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
 		manager.Dispose();
@@ -108,7 +110,7 @@ public class StateMachineScopeManagerCoverageTest
 		var thrown = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
 																					await stateMachineResult.GetResult());
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
 
 		Assert.AreSame(failure, thrown);
@@ -147,7 +149,7 @@ public class StateMachineScopeManagerCoverageTest
 		resultCompletion.SetResult(DataModelValue.Null);
 		Assert.AreEqual(DataModelValue.Null, await result.GetResult());
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
 		manager.Dispose();

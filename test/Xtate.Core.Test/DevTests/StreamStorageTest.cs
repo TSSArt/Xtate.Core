@@ -26,7 +26,7 @@ using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using IServiceProvider = Xtate.IoC.IServiceProvider;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 public interface IStreamCapture
 {

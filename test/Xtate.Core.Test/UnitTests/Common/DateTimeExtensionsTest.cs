@@ -17,7 +17,7 @@
 
 using System.Threading;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class DateTimeExtensionsTest
@@ -114,7 +114,7 @@ public class DateTimeExtensionsTest
 			tasks.Add(Task.Run(() => { times.Add(DateTime.UniqueUtcNow.Ticks); }));
 		}
 
-		Task.WaitAll(tasks.ToArray());
+		Task.WaitAll([.. tasks]);
 
 		// Assert
 		times.Sort();

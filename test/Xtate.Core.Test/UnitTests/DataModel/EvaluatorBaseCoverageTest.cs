@@ -21,7 +21,7 @@ using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class EvaluatorBaseCoverageTest
@@ -41,7 +41,7 @@ public class EvaluatorBaseCoverageTest
 		await AssertAssignEvaluator(new AssignSource(locationExpression, valueExpression, inlineContent), locationExpression, valueExpression, inlineContent);
 		await AssertCancelEvaluator(new CancelSource(sendId: "send-id", valueExpression), valueExpression);
 		await AssertCustomActionEvaluator(new CustomActionSource(locationExpression, valueExpression), locationExpression, valueExpression);
-		await AssertIfEvaluator(new IfSource(condition, ImmutableArray.Create<IExecutableEntity>(executable)), condition, executable);
+		await AssertIfEvaluator(new IfSource(condition, [executable]), condition, executable);
 		await AssertLogEvaluator(new LogSource(label: "label", valueExpression), valueExpression);
 		await AssertRaiseEvaluator(new RaiseSource(outgoingEvent), outgoingEvent);
 		await AssertSendEvaluator(new SendSource(content, valueExpression, locationExpression, param), content, valueExpression, locationExpression, param);
@@ -318,18 +318,16 @@ public class EvaluatorBaseCoverageTest
 
 	#region Interface IValueExpression
 
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
-
-		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class LocationExpressionSource(string expression) : ILocationExpression
 	{
 	#region Interface ILocationExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}
@@ -338,7 +336,7 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IInlineContent
 
-		public string? Value => value;
+		public string Value => value;
 
 	#endregion
 	}
@@ -349,7 +347,7 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IConditionExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}
@@ -358,13 +356,13 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IOutgoingEvent
 
-		public SendId? SendId => SendId.FromString("send-id");
+		public SendId SendId => SendId.FromString("send-id");
 
 		public EventName Name => (EventName)"outgoing";
 
-		public FullUri? Target => new("https://target.test/");
+		public FullUri Target => new("https://target.test/");
 
-		public FullUri? Type => new("https://type.test/");
+		public FullUri Type => new("https://type.test/");
 
 		public int DelayMs => 42;
 
@@ -377,7 +375,7 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IContent
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
 		public IContentBody? Body => null;
 
@@ -390,9 +388,9 @@ public class EvaluatorBaseCoverageTest
 
 		public string Name => name;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
-		public ILocationExpression? Location => location;
+		public ILocationExpression Location => location;
 
 	#endregion
 	}
@@ -404,15 +402,15 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IAssign
 
-		public ILocationExpression? Location => location;
+		public ILocationExpression Location => location;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
-		public IInlineContent? InlineContent => inlineContent;
+		public IInlineContent InlineContent => inlineContent;
 
-		public string? Type => "assign-type";
+		public string Type => "assign-type";
 
-		public string? Attribute => "assign-attribute";
+		public string Attribute => "assign-attribute";
 
 	#endregion
 	}
@@ -421,9 +419,9 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface ICancel
 
-		public string? SendId => sendId;
+		public string SendId => sendId;
 
-		public IValueExpression? SendIdExpression => sendIdExpression;
+		public IValueExpression SendIdExpression => sendIdExpression;
 
 	#endregion
 	}
@@ -432,15 +430,15 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface ICustomAction
 
-		public string? XmlNamespace => "urn:test";
+		public string XmlNamespace => "urn:test";
 
-		public string? XmlName => "custom";
+		public string XmlName => "custom";
 
-		public string? Xml => "<custom />";
+		public string Xml => "<custom />";
 
-		public ImmutableArray<ILocationExpression> Locations => ImmutableArray.Create(location);
+		public ImmutableArray<ILocationExpression> Locations => [location];
 
-		public ImmutableArray<IValueExpression> Values => ImmutableArray.Create(value);
+		public ImmutableArray<IValueExpression> Values => [value];
 
 	#endregion
 	}
@@ -449,7 +447,7 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IIf
 
-		public IConditionExpression? Condition => condition;
+		public IConditionExpression Condition => condition;
 
 		public ImmutableArray<IExecutableEntity> Action => action;
 
@@ -460,9 +458,9 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface ILog
 
-		public string? Label => label;
+		public string Label => label;
 
-		public IValueExpression? Expression => expression;
+		public IValueExpression Expression => expression;
 
 	#endregion
 	}
@@ -471,7 +469,7 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface IRaise
 
-		public IOutgoingEvent? OutgoingEvent => outgoingEvent;
+		public IOutgoingEvent OutgoingEvent => outgoingEvent;
 
 	#endregion
 	}
@@ -484,31 +482,31 @@ public class EvaluatorBaseCoverageTest
 	{
 	#region Interface ISend
 
-		public string? EventName => "event-name";
+		public string EventName => "event-name";
 
-		public IValueExpression? EventExpression => expression;
+		public IValueExpression EventExpression => expression;
 
-		public FullUri? Target => new("https://target.test/");
+		public FullUri Target => new("https://target.test/");
 
-		public IValueExpression? TargetExpression => expression;
+		public IValueExpression TargetExpression => expression;
 
-		public FullUri? Type => new("https://type.test/");
+		public FullUri Type => new("https://type.test/");
 
-		public IValueExpression? TypeExpression => expression;
+		public IValueExpression TypeExpression => expression;
 
-		public string? Id => "id";
+		public string Id => "id";
 
-		public ILocationExpression? IdLocation => location;
+		public ILocationExpression IdLocation => location;
 
 		public int? DelayMs => 42;
 
-		public IValueExpression? DelayExpression => expression;
+		public IValueExpression DelayExpression => expression;
 
-		public ImmutableArray<ILocationExpression> NameList => ImmutableArray.Create(location);
+		public ImmutableArray<ILocationExpression> NameList => [location];
 
-		public ImmutableArray<IParam> Parameters => ImmutableArray.Create(param);
+		public ImmutableArray<IParam> Parameters => [param];
 
-		public IContent? Content => content;
+		public IContent Content => content;
 
 	#endregion
 	}

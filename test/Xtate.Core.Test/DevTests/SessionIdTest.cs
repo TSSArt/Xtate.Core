@@ -17,7 +17,7 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test.DevTests;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class SessionIdTest
@@ -27,6 +27,8 @@ public class SessionIdTest
 	{
 		// arrange
 		var s1 = SessionId.New();
+
+		// ReSharper disable once InlineTemporaryVariable
 		var s2 = s1;
 
 		// act => assert

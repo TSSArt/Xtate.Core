@@ -17,10 +17,9 @@
 
 using Xtate.DataModel.XPath.Services;
 using Xtate.DataTypes;
-using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathDataModelHandlerCoverageTest
@@ -64,8 +63,5 @@ public class XPathDataModelHandlerCoverageTest
 			CustomActionContainerFactory = _ => null!
 		};
 
-	private sealed class TestXPathDataModelHandler : XPathDataModelHandler
-	{
-		public void Process(ref IScript script) => Visit(ref script);
-	}
+	private sealed class TestXPathDataModelHandler : XPathDataModelHandler;
 }

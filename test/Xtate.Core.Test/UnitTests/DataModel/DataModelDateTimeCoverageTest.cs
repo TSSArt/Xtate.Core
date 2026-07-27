@@ -19,7 +19,7 @@ using System.Globalization;
 using System.Reflection;
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelDateTimeCoverageTest

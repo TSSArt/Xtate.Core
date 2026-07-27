@@ -23,7 +23,7 @@ using Xtate.Ancestor.Extensions;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.Interpreter.Internal;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterCollectionCoverageTest
@@ -131,6 +131,7 @@ public class InterpreterCollectionCoverageTest
 
 	private sealed class TestAncestor(string value) : ITestAncestor
 	{
+		[UsedImplicitly]
 		public string Value { get; } = value;
 	}
 

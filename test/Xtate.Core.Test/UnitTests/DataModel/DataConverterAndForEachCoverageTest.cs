@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.IO;
-using System.Text;
 using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
@@ -25,7 +24,7 @@ using Xtate.Interpreter;
 using Xtate.ResourceLoaders;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataConverterAndForEachCoverageTest
@@ -56,17 +55,18 @@ public class DataConverterAndForEachCoverageTest
 	{
 		var converter = new DataConverter(new CaseSensitivitySource(caseInsensitive: true));
 		var nameEvaluator = new LocationExpressionSource(name: "DirectName", new DataModelValue("direct value"));
-		var expression = new ValueExpressionSource { ObjectValue = new DataModelValue("expression value") };
+		var expression = new ValueExpressionSource { Expression = "expression", ObjectValue = new DataModelValue("expression value") };
 		var location = new LocationExpressionSource(name: "location-source", new DataModelValue("location value"));
 		var parameters = DataConverter.AsParamArray(
-			ImmutableArray.Create<IParam>(
-				new ParamSource(name: "ExpressionParam", expression, location: null),
-				new ParamSource(name: "LocationParam", expression: null, location)));
+		[
+			new ParamSource(name: "ExpressionParam", expression, location: null),
+			new ParamSource(name: "LocationParam", expression: null, location)
+		]);
 
 		var value = await converter.GetData(
 			contentBodyEvaluator: null,
 			contentExpressionEvaluator: null,
-			ImmutableArray.Create<ILocationEvaluator>(nameEvaluator),
+			[nameEvaluator],
 			parameters);
 		var list = value.AsList();
 
@@ -81,7 +81,7 @@ public class DataConverterAndForEachCoverageTest
 	public async Task DataConverterConvertsResourceEventAndExceptionObjects()
 	{
 		var converter = new DataConverter(new CaseSensitivitySource(caseInsensitive: true));
-		await using var resource = new Resource(new MemoryStream(Encoding.UTF8.GetBytes("resource text")), contentType: null);
+		await using var resource = new Resource(new MemoryStream([.. "resource text"u8]), contentType: null);
 
 		Assert.AreEqual(expected: "resource text", (await converter.FromContent(resource)).AsString());
 
@@ -122,15 +122,17 @@ public class DataConverterAndForEachCoverageTest
 	{
 		var arrayExpression = new ValueExpressionSource
 							  {
-								  ArrayValue = Enumerable.Range(start: 0, count: 257)
-														 .Select(static index => (IObject)new DataModelValue($"item-{index}"))
-														 .ToArray()
+								  ArrayValue =
+								  [
+									  .. Enumerable.Range(start: 0, count: 257)
+												   .Select(static index => (IObject)new DataModelValue($"item-{index}"))
+								  ]
 							  };
 		var itemLocation = new LocationExpressionSource(name: "item", DataModelValue.Undefined);
 		var indexLocation = new LocationExpressionSource(name: "index", DataModelValue.Undefined);
 		var action = new ExecutableEntitySource();
-		var forEach = new ForEachSource(arrayExpression, itemLocation, indexLocation, ImmutableArray.Create<IExecutableEntity>(action));
-		var evaluator = new DefaultForEachEvaluator(forEach);
+		var forEach = new ForEachSource(arrayExpression, itemLocation, indexLocation, [action]);
+		var evaluator = new TrackingForEachEvaluator(forEach);
 
 		Assert.AreSame(forEach, ((IAncestorProvider)evaluator).Ancestor);
 		Assert.AreSame(arrayExpression, evaluator.Array);
@@ -141,6 +143,8 @@ public class DataConverterAndForEachCoverageTest
 		await evaluator.Execute();
 
 		Assert.AreEqual(expected: 257, action.ExecuteCount);
+		Assert.AreEqual(expected: 257, evaluator.ProcessItemCount);
+		Assert.AreEqual(expected: 257, evaluator.DoItemActionsCount);
 		Assert.AreEqual(expected: 257, itemLocation.SetValues.Count);
 		Assert.AreEqual(expected: 257, indexLocation.SetValues.Count);
 		Assert.AreEqual(expected: "item-0", DataModelValue.FromObject(itemLocation.SetValues[0].ToObject()).AsString());
@@ -174,7 +178,28 @@ public class DataConverterAndForEachCoverageTest
 	#endregion
 	}
 
-	private sealed class ValueExpressionSource : IValueExpression, IValueEvaluator, IObjectEvaluator, IArrayEvaluator, IStringEvaluator
+	private sealed class TrackingForEachEvaluator(IForEach forEach) : DefaultForEachEvaluator(forEach)
+	{
+		public int ProcessItemCount { get; private set; }
+
+		public int DoItemActionsCount { get; private set; }
+
+		protected override ValueTask ProcessItem(IObject instance, int index)
+		{
+			ProcessItemCount ++;
+
+			return base.ProcessItem(instance, index);
+		}
+
+		protected override ValueTask DoItemActions()
+		{
+			DoItemActionsCount ++;
+
+			return base.DoItemActions();
+		}
+	}
+
+	private sealed class ValueExpressionSource : IValueExpression, IObjectEvaluator, IArrayEvaluator, IStringEvaluator
 	{
 		public DataModelValue ObjectValue { get; init; } = DataModelValue.Undefined;
 
@@ -205,19 +230,15 @@ public class DataConverterAndForEachCoverageTest
 		public string? Expression { get; init; }
 
 	#endregion
-
-		public ValueTask<DataModelValue> Evaluate() => new(ObjectValue);
 	}
 
-	private sealed class StringOnlyEvaluator(string value) : IValueEvaluator, IStringEvaluator
+	private sealed class StringOnlyEvaluator(string value) : IStringEvaluator
 	{
 	#region Interface IStringEvaluator
 
 		public ValueTask<string> EvaluateString() => new(value);
 
 	#endregion
-
-		public ValueTask<DataModelValue> Evaluate() => new(value);
 	}
 
 	private sealed class LocationExpressionSource(string name, IObject value) : ILocationExpression, ILocationEvaluator
@@ -244,7 +265,7 @@ public class DataConverterAndForEachCoverageTest
 
 	#region Interface ILocationExpression
 
-		public string? Expression => name;
+		public string Expression => name;
 
 	#endregion
 	}
@@ -286,9 +307,9 @@ public class DataConverterAndForEachCoverageTest
 	{
 	#region Interface IForEach
 
-		public IValueExpression? Array => array;
+		public IValueExpression Array => array;
 
-		public ILocationExpression? Item => item;
+		public ILocationExpression Item => item;
 
 		public ILocationExpression? Index => index;
 

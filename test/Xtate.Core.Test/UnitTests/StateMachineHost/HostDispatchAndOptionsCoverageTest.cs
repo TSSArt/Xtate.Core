@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable AccessToDisposedClosure
+
 using System.Threading;
 using Xtate.DataModel;
 using Xtate.DataTypes;
@@ -29,7 +31,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.StateMachineOptions.Services;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class HostDispatchAndOptionsCoverageTest
@@ -189,7 +191,7 @@ public class HostDispatchAndOptionsCoverageTest
 	{
 		var deadLetters = new Mock<IDeadLetterQueue<IStateMachineCollection>>();
 		var controller = new Mock<IStateMachineController>();
-		var collection = new StateMachineCollection { DeadLetterQueue = deadLetters.Object };
+		var collection = new TestStateMachineCollection { DeadLetterQueue = deadLetters.Object };
 		var sessionId = SessionId.FromString("session");
 		var sourceEvent = Mock.Of<IIncomingEvent>();
 		using var cancellation = new CancellationTokenSource();
@@ -212,7 +214,12 @@ public class HostDispatchAndOptionsCoverageTest
 		controller.Verify(static c => c.Destroy(), Times.Once);
 	}
 
+	// Moq must be able to proxy this source type at runtime.
+	// ReSharper disable once MemberCanBePrivate.Global
+	// ReSharper disable once ClassNeverInstantiated.Global
 	public sealed class TestSource;
+
+	private sealed class TestStateMachineCollection : StateMachineCollection;
 
 	[ExcludeFromCodeCoverage]
 	private sealed class OtherServiceId(string id) : ServiceId(id)

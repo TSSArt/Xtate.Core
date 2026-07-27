@@ -16,10 +16,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections.Specialized;
-using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Reflection;
 using System.Text;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
@@ -31,10 +29,6 @@ public class HttpClientService : ExternalServiceBase
 {
 	[InstantiatedByIoC]
 	public class Provider() : ExternalServiceProviderBase<HttpClientService>(type: @"http://xtate.net/scxml/service/#HTTPClient", alias: @"http");
-
-	private static readonly FieldInfo DomainTableField = typeof(CookieContainer).GetField(name: @"m_domainTable", BindingFlags.Instance | BindingFlags.NonPublic)!;
-
-	private static readonly FieldInfo ListField = typeof(CookieContainer).Assembly.GetType(@"System.Net.PathList")!.GetField(name: @"m_list", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
 	public required IList<HttpClientMimeTypeHandler> MimeTypeHandlers { private get; [SetByIoC] init; }
 
@@ -59,18 +53,6 @@ public class HttpClientService : ExternalServiceBase
 		}
 
 		return collection;
-	}
-
-	private static List<Cookie>? CreateCookieList(in DataModelValue cookiesValue)
-	{
-		List<Cookie>? list = null;
-
-		foreach (var cookie in cookiesValue.AsListOrEmpty())
-		{
-			(list ??= []).Add(CreateCookie(cookie));
-		}
-
-		return list;
 	}
 
 	protected override async ValueTask<DataModelValue> Execute()
@@ -118,37 +100,6 @@ public class HttpClientService : ExternalServiceBase
 		}
 
 		return list ?? DataModelList.Empty;
-	}
-
-	private static Cookie CreateCookie(in DataModelValue value)
-	{
-		var cookieProps = value.AsListOrEmpty();
-
-		var cookie = new Cookie
-					 {
-						 Name = cookieProps["name"].AsStringOrDefault() ?? string.Empty,
-						 Value = cookieProps["value"].AsStringOrDefault() ?? string.Empty,
-						 Expires = cookieProps["expires"].AsDateTimeOrDefault()?.ToDateTime() ?? DateTime.MinValue,
-						 HttpOnly = cookieProps["httpOnly"].AsBooleanOrDefault() ?? false,
-						 Secure = cookieProps["secure"].AsBooleanOrDefault() ?? false
-					 };
-
-		if (cookieProps["path"].AsStringOrDefault() is { } path)
-		{
-			cookie.Path = path;
-		}
-
-		if (cookieProps["domain"].AsStringOrDefault() is { } domain)
-		{
-			cookie.Domain = domain;
-		}
-
-		if (cookieProps["port"].AsStringOrDefault() is { } port)
-		{
-			cookie.Port = port;
-		}
-
-		return cookie;
 	}
 
 	private static StringContent? CreateDefaultContent(in DataModelValue content) => content.ToObject()?.ToString() is { Length: > 0 } body ? new StringContent(body, Encoding.UTF8) : null;

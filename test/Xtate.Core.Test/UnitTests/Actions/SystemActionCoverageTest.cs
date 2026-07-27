@@ -29,7 +29,7 @@ using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 using MonitoredTask = Xtate.TaskMonitor.Services.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.Actions;
+namespace Xtate.Core.Test.UnitTests.Actions;
 
 [TestClass]
 public class SystemActionCoverageTest
@@ -51,7 +51,7 @@ public class SystemActionCoverageTest
 
 		var validErrors = new ErrorCollector<StartAction>();
 		var action = CreateStart(xml: "<start url='child.scxml' sessionId='child-session' sessionIdLocation='result' trusted='true' />", validErrors);
-		var contract = (IAction)action;
+		IAction contract = action;
 		var values = contract.GetValues().ToArray();
 		var locations = contract.GetLocations().ToArray();
 
@@ -124,7 +124,7 @@ public class SystemActionCoverageTest
 			xml: "<destroy sessionId='child-session' />", new ErrorCollector<DestroyAction>(), collection.Object,
 			new MonitoredTask { Logger = null! });
 
-		Assert.HasCount(expected: 1, ((IAction)action).GetValues().ToArray());
+		Assert.HasCount(expected: 1, [.. ((IAction)action).GetValues()]);
 		Assert.IsEmpty(((IAction)action).GetLocations());
 		await ((IAction)action).Execute();
 		Assert.AreEqual(expected: "child-session", destroyed!.ToString());

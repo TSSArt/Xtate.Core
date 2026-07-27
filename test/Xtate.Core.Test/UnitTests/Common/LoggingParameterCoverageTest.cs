@@ -18,7 +18,7 @@
 using System.Globalization;
 using Xtate.Logging.Provider;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class LoggingParameterCoverageTest

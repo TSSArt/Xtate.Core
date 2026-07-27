@@ -18,7 +18,7 @@
 using System.Globalization;
 using Xtate.DataTypes.Extensions;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class IConvertibleExtensionsCoverageTest

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.Metadata;
+namespace Xtate.Core.Test.StateMachines.Metadata;
 
 /// <summary>
 ///     SCXML machines focused on root-level metadata and attributes that should
@@ -23,49 +23,49 @@ namespace Xtate.Test.StateMachines.Metadata;
 /// </summary>
 public class MetadataMachines : IScxmlTestSource
 {
-	public static readonly string NamedStateMachine = """
-													  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NamedStateMachine" initial="done">
-													    <final id="done"/>
-													  </scxml>
-													  """;
+	private const string NamedStateMachine = """
+											 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NamedStateMachine" initial="done">
+											   <final id="done"/>
+											 </scxml>
+											 """;
 
-	public static readonly string BindingEarlyStateMachine = """
-															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" initial="done">
+	private const string BindingEarlyStateMachine = """
+													<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" initial="done">
+													  <final id="done"/>
+													</scxml>
+													""";
+
+	private const string NullDataModelNamedStateMachine = """
+														  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NullDataModel" datamodel="null" initial="done">
+														    <final id="done"/>
+														  </scxml>
+														  """;
+
+	private const string OnEntryOnExitMetadataStateMachine = """
+															 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="OnEntryOnExitMetadata" initial="start">
+															   <state id="start">
+															 	<onentry>
+															 	  <log label="enter"/>
+															 	</onentry>
+															 	<onexit>
+															 	  <log label="exit"/>
+															 	</onexit>
+															 	<transition target="done"/>
+															   </state>
 															   <final id="done"/>
 															 </scxml>
 															 """;
 
-	public static readonly string NullDataModelNamedStateMachine = """
-																   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="NullDataModel" datamodel="null" initial="done">
-																     <final id="done"/>
-																   </scxml>
-																   """;
-
-	public static readonly string OnEntryOnExitMetadataStateMachine = """
-																	  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" name="OnEntryOnExitMetadata" initial="start">
-																	    <state id="start">
-																	  	<onentry>
-																	  	  <log label="enter"/>
-																	  	</onentry>
-																	  	<onexit>
-																	  	  <log label="exit"/>
-																	  	</onexit>
-																	  	<transition target="done"/>
-																	    </state>
-																	    <final id="done"/>
-																	  </scxml>
-																	  """;
-
-	public static readonly string CompoundWithExplicitInitial = """
-																<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
-																  <state id="outer" initial="inner">
-																	<state id="inner">
-																	  <transition target="done"/>
-																	</state>
-																  </state>
-																  <final id="done"/>
-																</scxml>
-																""";
+	private const string CompoundWithExplicitInitial = """
+													   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outer">
+													     <state id="outer" initial="inner">
+													   	<state id="inner">
+													   	  <transition target="done"/>
+													   	</state>
+													     </state>
+													     <final id="done"/>
+													   </scxml>
+													   """;
 
 #region Interface IScxmlTestSource
 

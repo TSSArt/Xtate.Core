@@ -15,10 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable AccessToDisposedClosure
+
 using Xtate.DataTypes;
 using Xtate.Persistence.Services;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class DataModelReferenceTrackerCoverageTest
@@ -58,7 +60,7 @@ public class DataModelReferenceTrackerCoverageTest
 			var supplied = new DataModelList(caseInsensitive: true);
 			Assert.AreSame(supplied, baseTracker.GetValue(refId, DataModelValueType.List, supplied));
 			Assert.AreEqual(expected: "original", supplied["name"].AsString());
-			Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => baseTracker.GetValue(refId, DataModelValueType.List, new DataModelList()));
+			Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => baseTracker.GetValue(refId, DataModelValueType.List, []));
 		}
 	}
 
@@ -73,6 +75,6 @@ public class DataModelReferenceTrackerCoverageTest
 		tracker.RemoveReference(scalar);
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetRefId(scalar));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetValue(refId: 0, DataModelValueType.String, baseList: null));
-		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetValue(refId: 0, DataModelValueType.String, new DataModelList()));
+		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => tracker.GetValue(refId: 0, DataModelValueType.String, []));
 	}
 }

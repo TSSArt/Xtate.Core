@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+// ReSharper disable AccessToDisposedClosure
+
 using System.Threading;
 using Xtate.DataModel;
 using Xtate.DataTypes;
@@ -24,7 +27,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class StateMachineControllerBaseCoverageTest
@@ -129,7 +132,11 @@ public class StateMachineControllerBaseCoverageTest
 			TaskMonitor = monitor
 		};
 
-	private sealed class TestStateMachineController : StateMachineControllerBase;
+	private sealed class TestStateMachineController : StateMachineControllerBase
+	{
+		// ReSharper disable once RedundantOverriddenMember
+		protected override ValueTask Start() => base.Start();
+	}
 
 	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor

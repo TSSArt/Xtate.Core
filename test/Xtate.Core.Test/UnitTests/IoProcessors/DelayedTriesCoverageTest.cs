@@ -15,10 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.Threading;
 using Xtate.IoProcessors.NamedPipe.Internal;
 
-namespace Xtate.Test.UnitTests.IoProcessors;
+namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
 public class DelayedTriesCoverageTest
@@ -41,8 +43,8 @@ public class DelayedTriesCoverageTest
 	{
 		var delayedTries = new DelayedTries
 						   {
-							   MinDelay = TimeSpan.FromSeconds(5),
-							   MaxDelay = TimeSpan.FromSeconds(5)
+							   MinDelay = TimeSpan.FromSeconds(10),
+							   MaxDelay = TimeSpan.FromSeconds(10)
 						   };
 		using var cancellationTokenSource = new CancellationTokenSource();
 		cancellationTokenSource.Cancel();

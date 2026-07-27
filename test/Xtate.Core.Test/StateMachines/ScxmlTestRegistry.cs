@@ -15,15 +15,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Test.StateMachines.Basic;
-using Xtate.Test.StateMachines.DataModel;
-using Xtate.Test.StateMachines.History;
-using Xtate.Test.StateMachines.Metadata;
-using Xtate.Test.StateMachines.Parallel;
-using Xtate.Test.StateMachines.Transitions;
-using Xtate.Test.StateMachines.XPath;
+using Xtate.Core.Test.StateMachines.Basic;
+using Xtate.Core.Test.StateMachines.DataModel;
+using Xtate.Core.Test.StateMachines.History;
+using Xtate.Core.Test.StateMachines.Metadata;
+using Xtate.Core.Test.StateMachines.Parallel;
+using Xtate.Core.Test.StateMachines.Transitions;
+using Xtate.Core.Test.StateMachines.XPath;
 
-namespace Xtate.Test.StateMachines;
+namespace Xtate.Core.Test.StateMachines;
 
 /// <summary>
 ///     Central registry that aggregates every <see cref="IScxmlTestSource" /> and provides

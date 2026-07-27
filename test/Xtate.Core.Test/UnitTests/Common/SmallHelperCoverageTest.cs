@@ -21,7 +21,7 @@ using Xtate.IoC;
 using Xtate.StateMachine.Internal;
 using IServiceProvider = Xtate.IoC.IServiceProvider;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class SmallHelperCoverageTest
@@ -43,7 +43,7 @@ public class SmallHelperCoverageTest
 		Assert.AreEqual(expected: 0, destination.Length);
 		Assert.IsFalse("c".TryCopyIncremental(ref destination, ref charsWritten));
 
-		Assert.IsTrue(string.Empty.TryCopyTo(stackalloc char[0], out var emptyCharsWritten));
+		Assert.IsTrue(string.Empty.TryCopyTo([], out var emptyCharsWritten));
 		Assert.AreEqual(expected: 0, emptyCharsWritten);
 		Assert.IsFalse("abc".TryCopyTo(stackalloc char[2], out var failedCharsWritten));
 		Assert.AreEqual(expected: 0, failedCharsWritten);

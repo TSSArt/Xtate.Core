@@ -15,13 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+// ReSharper disable AccessToDisposedClosure
+
 using System.IO;
 using System.Net;
 using System.Threading;
 using Xtate.IoProcessors.Http;
 using Xtate.IoProcessors.Http.Internal;
 
-namespace Xtate.Test.UnitTests.IoProcessors;
+namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
 public class HttpCounterStreamCoverageTest
@@ -167,7 +170,7 @@ public class HttpCounterStreamCoverageTest
 	{
 		private readonly List<string> _events = [];
 
-		public string[] Events => _events.ToArray();
+		public string[] Events => [.. _events];
 
 		protected override void PreRead(ref int count) => _events.Add($"pre-read:{count}");
 

@@ -17,7 +17,7 @@
 
 using Xtate.IoProcessors.Http.Internal;
 
-namespace Xtate.Test.UnitTests.IoProcessors;
+namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
 public class QueryStringHelperTest

@@ -20,7 +20,7 @@ using Xtate.Interpreter.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class PersistedOrderedSetTest

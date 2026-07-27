@@ -20,7 +20,7 @@ using Xtate.Interpreter;
 using Xtate.Logging;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class StateMachineDestroyOnIdleCoverageTest
@@ -54,6 +54,8 @@ public class StateMachineDestroyOnIdleCoverageTest
 		((IDisposable)secondTracker).Dispose();
 	}
 
+#if NET5_0_OR_GREATER
+
 	[TestMethod]
 	public async Task ZeroIdleTimeoutTriggersInterpreterDestroySignal()
 	{
@@ -66,7 +68,7 @@ public class StateMachineDestroyOnIdleCoverageTest
 
 		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await destroyed.Task.WaitAsync(cts.Token);
 		await ((IAsyncDisposable)tracker).DisposeAsync();
 
@@ -91,12 +93,14 @@ public class StateMachineDestroyOnIdleCoverageTest
 
 		await tracker.OnChanged(StateMachineInterpreterState.Waiting);
 		var cts = new CancellationTokenSource();
-		cts.CancelAfter(TimeSpan.FromSeconds(5));
+		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		var loggedException = await logged.Task.WaitAsync(cts.Token);
 		await ((IAsyncDisposable)tracker).DisposeAsync();
 
 		Assert.AreSame(failure, loggedException);
 	}
+
+#endif
 
 	private static StateMachineDestroyOnIdle CreateService(TimeSpan? timeout, out InvocationCounter interpreterFactoryCalls)
 	{

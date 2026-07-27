@@ -22,7 +22,7 @@ using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class PersistenceCollectionControllerCoverageTest
@@ -190,7 +190,7 @@ public class PersistenceCollectionControllerCoverageTest
 
 	private sealed class DictionaryEntityMap(params DocumentEntity[] entities) : IEntityMap
 	{
-		private readonly Dictionary<int, IEntity> _entities = entities.ToDictionary(static entity => entity.DocumentId, static entity => (IEntity)entity);
+		private readonly Dictionary<int, IEntity> _entities = entities.ToDictionary(static entity => entity.DocumentId, static IEntity (entity) => entity);
 
 	#region Interface IEntityMap
 

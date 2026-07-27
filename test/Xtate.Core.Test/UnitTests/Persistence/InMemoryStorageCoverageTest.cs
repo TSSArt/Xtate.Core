@@ -15,9 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable AccessToDisposedClosure
+
 using Xtate.Persistence.Services;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class InMemoryStorageCoverageTest
@@ -25,7 +27,7 @@ public class InMemoryStorageCoverageTest
 	[TestMethod]
 	public void DataSnapshotAndBaselineRoundTripReplacementRemovalAndPrefixDeletion()
 	{
-		using var storage = new InMemoryStorage(writeOnly: false);
+		using var storage = new TestInMemoryStorage(writeOnly: false);
 		storage.Set([1, 1], [10]);
 		storage.Set([2], [20]);
 		storage.Set([1, 1], [11, 12]);
@@ -52,6 +54,11 @@ public class InMemoryStorageCoverageTest
 		CollectionAssert.AreEqual(data, compacted);
 		storage.RemoveAll([]);
 		Assert.AreEqual(expected: 0, storage.GetDataSize());
+
+		// Explicit disposal verifies the protected virtual disposal hook before the using scope exits.
+		// ReSharper disable once DisposeOnUsingVariable
+		storage.Dispose();
+		Assert.IsTrue(storage.DisposeCalled);
 	}
 
 	[TestMethod]
@@ -74,7 +81,12 @@ public class InMemoryStorageCoverageTest
 		storage.WriteTransactionLogToSpan(secondCopy, truncateLog: true);
 		CollectionAssert.AreEqual(log, secondCopy);
 		Assert.AreEqual(expected: 0, storage.GetTransactionLogSize());
+
+		// Explicit calls cover idempotent disposal before the using scope exits.
+		// ReSharper disable once DisposeOnUsingVariable
 		storage.Dispose();
+
+		// ReSharper disable once DisposeOnUsingVariable
 		storage.Dispose();
 	}
 
@@ -88,5 +100,17 @@ public class InMemoryStorageCoverageTest
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => writeOnly.Get([1]));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => writeOnly.GetDataSize());
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => writeOnly.WriteDataToSpan([]));
+	}
+
+	private sealed class TestInMemoryStorage(bool writeOnly) : InMemoryStorage(writeOnly)
+	{
+		public bool DisposeCalled { get; private set; }
+
+		protected override void Dispose(bool disposing)
+		{
+			DisposeCalled = true;
+
+			base.Dispose(disposing);
+		}
 	}
 }

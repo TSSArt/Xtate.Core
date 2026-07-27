@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable UseAwaitUsing
+// ReSharper disable AccessToDisposedClosure
+
 using System.Collections;
 using System.Threading;
 using System.Xml;
@@ -33,7 +36,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
-namespace Xtate.Test.UnitTests.StateMachineHost;
+namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 
 [TestClass]
 public class CommunicationAndUtilityCoverageTest
@@ -64,7 +67,7 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.AreEqual(SendStatus.Sent, await communication.TrySend(immediateEvent));
 		Assert.AreEqual(SendStatus.Scheduled, await communication.TrySend(delayedEvent));
 
-		await communication.Cancel(SendId.FromString("send-0000002a")!);
+		await communication.Cancel(SendId.FromString("send-0000002a"));
 
 		router.Verify(static r => r.Dispatch(It.IsAny<IRouterEvent>(), It.IsAny<CancellationToken>()), Times.Once);
 		scheduler.Verify(static s => s.ScheduleEvent(It.IsAny<IRouterEvent>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -217,6 +220,7 @@ public class CommunicationAndUtilityCoverageTest
 		Assert.IsTrue(directEnumerator.MoveNext());
 		Assert.AreEqual(expected: "one", directEnumerator.Current);
 		var nonGenericEnumerator = ((IEnumerable)list).GetEnumerator();
+		using var nonGenericEnumeratorScope = nonGenericEnumerator as IDisposable;
 		Assert.IsTrue(nonGenericEnumerator.MoveNext());
 		Assert.AreEqual(expected: "one", nonGenericEnumerator.Current);
 		Assert.AreEqual(expected: 0, new TestReadOnlyList<string>(default).Count);
@@ -306,13 +310,13 @@ public class CommunicationAndUtilityCoverageTest
 
 	#region Interface IExternalScriptExpression
 
-		public Uri? Uri => new("urn:" + value);
+		public Uri Uri => new("urn:" + value);
 
 	#endregion
 
 	#region Interface IScriptExpression
 
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
 	}

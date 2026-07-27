@@ -1,4 +1,4 @@
-// Copyright © 2019-2026 Sergii Artemenko
+// Copyright Â© 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -27,12 +27,12 @@ using Xtate.StateMachineFluentBuilder.DependencyInjection;
 
 // ReSharper disable AccessToModifiedClosure
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class StateMachineFluentBuilderTest
 {
-	public static ValueTask<StateMachineFluentBuilder.StateMachineFluentBuilder> GetStateMachineFluentBuilder()
+	private static ValueTask<StateMachineFluentBuilder.StateMachineFluentBuilder> GetStateMachineFluentBuilder()
 	{
 		var services = new ServiceCollection();
 		services.AddModule<StateMachineFluentBuilderModule>();

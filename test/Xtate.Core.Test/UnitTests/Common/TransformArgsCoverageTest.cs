@@ -21,7 +21,7 @@ using Xtate.IoC.TransformArgs.DependencyInjection;
 using Xtate.IoC.TransformArgs.Internal;
 using Xtate.IoC.TransformArgs.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class TransformArgsCoverageTest
@@ -207,6 +207,8 @@ public class TransformArgsCoverageTest
 
 	private sealed record Result(int Value);
 
+	// Used as a DI ancestor type token rather than instantiated directly.
+	// ReSharper disable once ClassNeverInstantiated.Local
 	private sealed class Ancestor;
 
 	private sealed class DisabledTransformer<T, TArg, TNewArg> : IArgsTransformer<T, TArg, TNewArg>

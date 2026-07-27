@@ -20,7 +20,7 @@ using Xtate.IoC;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test.StateMachines;
+namespace Xtate.Core.Test.StateMachines;
 
 [TestClass]
 public class ScxmlPlanParserUnitTest

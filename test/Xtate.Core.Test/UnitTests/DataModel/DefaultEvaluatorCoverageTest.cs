@@ -21,7 +21,7 @@ using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DefaultEvaluatorCoverageTest
@@ -36,12 +36,13 @@ public class DefaultEvaluatorCoverageTest
 		var elseAction = new ExecutableAction();
 		var source = new IfSource(
 			initialCondition,
-			ImmutableArray.Create<IExecutableEntity>(
+			[
 				initialAction,
 				new ElseIfSource(elseIfCondition),
 				selectedAction,
 				new ElseSource(),
-				elseAction));
+				elseAction
+			]);
 		var evaluator = new DefaultIfEvaluator(source);
 
 		await evaluator.Execute();
@@ -63,7 +64,7 @@ public class DefaultEvaluatorCoverageTest
 		var evaluator = new DefaultIfEvaluator(
 			new IfSource(
 				new BooleanCondition(false),
-				ImmutableArray.Create<IExecutableEntity>(new ElseSource(), elseAction)));
+				[new ElseSource(), elseAction]));
 		var emptyEvaluator = new DefaultIfEvaluator(new IfSource(new BooleanCondition(true), []));
 
 		await evaluator.Execute();
@@ -200,7 +201,7 @@ public class DefaultEvaluatorCoverageTest
 
 	#region Interface IConditionExpression
 
-		public string? Expression => result.ToString();
+		public string Expression => result.ToString();
 
 	#endregion
 	}
@@ -225,7 +226,7 @@ public class DefaultEvaluatorCoverageTest
 	{
 	#region Interface IIf
 
-		public IConditionExpression? Condition => condition;
+		public IConditionExpression Condition => condition;
 
 		public ImmutableArray<IExecutableEntity> Action => action;
 
@@ -236,7 +237,7 @@ public class DefaultEvaluatorCoverageTest
 	{
 	#region Interface IElseIf
 
-		public IConditionExpression? Condition => condition;
+		public IConditionExpression Condition => condition;
 
 	#endregion
 	}
@@ -253,7 +254,7 @@ public class DefaultEvaluatorCoverageTest
 
 	#region Interface IValueExpression
 
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
 	}
@@ -268,7 +269,7 @@ public class DefaultEvaluatorCoverageTest
 
 	#region Interface IValueExpression
 
-		public string? Expression => value;
+		public string Expression => value;
 
 	#endregion
 	}
@@ -283,7 +284,7 @@ public class DefaultEvaluatorCoverageTest
 
 	#region Interface IValueExpression
 
-		public string? Expression => value.ToString();
+		public string Expression => value.ToString();
 
 	#endregion
 	}
@@ -292,7 +293,7 @@ public class DefaultEvaluatorCoverageTest
 	{
 	#region Interface IInlineContent
 
-		public string? Value => value;
+		public string Value => value;
 
 	#endregion
 
@@ -324,7 +325,7 @@ public class DefaultEvaluatorCoverageTest
 
 	#region Interface ILocationExpression
 
-		public string? Expression => "location";
+		public string Expression => "location";
 
 	#endregion
 	}
@@ -333,15 +334,15 @@ public class DefaultEvaluatorCoverageTest
 	{
 	#region Interface IAssign
 
-		public ILocationExpression? Location => location;
+		public ILocationExpression Location => location;
 
 		public IValueExpression? Expression => expression;
 
-		public IInlineContent? InlineContent => inlineContent;
+		public IInlineContent InlineContent => inlineContent;
 
-		public string? Type => "type";
+		public string Type => "type";
 
-		public string? Attribute => "attribute";
+		public string Attribute => "attribute";
 
 	#endregion
 	}
@@ -350,7 +351,7 @@ public class DefaultEvaluatorCoverageTest
 	{
 	#region Interface IContentBody
 
-		public string? Value => value;
+		public string Value => value;
 
 	#endregion
 
@@ -430,11 +431,11 @@ public class DefaultEvaluatorCoverageTest
 	{
 	#region Interface ICustomAction
 
-		public string? XmlNamespace => "urn:test";
+		public string XmlNamespace => "urn:test";
 
-		public string? XmlName => "custom";
+		public string XmlName => "custom";
 
-		public string? Xml => "<custom />";
+		public string Xml => "<custom />";
 
 		public ImmutableArray<ILocationExpression> Locations => [];
 

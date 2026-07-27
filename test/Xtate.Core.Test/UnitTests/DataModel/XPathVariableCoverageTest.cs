@@ -19,7 +19,7 @@ using System.Xml.XPath;
 using Xtate.DataModel.XPath.Services;
 using Xtate.NameTable;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class XPathVariableCoverageTest

@@ -22,7 +22,7 @@ using Xtate.DataTypes;
 using Xtate.IoC.ServiceArray;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class CustomActionCoverageTest

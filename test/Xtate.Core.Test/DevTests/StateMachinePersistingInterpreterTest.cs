@@ -38,7 +38,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.DependencyInjection;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Core.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class StateMachinePersistingInterpreterTest

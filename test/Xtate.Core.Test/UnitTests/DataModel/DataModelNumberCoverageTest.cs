@@ -19,7 +19,7 @@ using System.Globalization;
 using System.Reflection;
 using Xtate.DataTypes;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelNumberCoverageTest
@@ -127,7 +127,7 @@ public class DataModelNumberCoverageTest
 		Assert.IsTrue(nan.IsNaN());
 		Assert.IsFalse(doubleValue.IsNaN());
 		Assert.IsTrue(intValue.Equals((object)DataModelNumber.FromInt64(10)));
-		Assert.IsFalse(intValue.Equals("10"));
+		Assert.IsFalse(intValue.Equals(TestHelper.Opaque<object>("10")));
 	}
 
 	[TestMethod]

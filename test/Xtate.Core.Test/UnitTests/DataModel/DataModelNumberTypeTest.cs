@@ -17,9 +17,10 @@
 
 using Xtate.DataTypes;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class DataModelNumberTypeTest
 {
 	[TestMethod]
@@ -69,34 +70,28 @@ public class DataModelNumberTypeTest
 	}
 
 	[TestMethod]
-	public void DataModelNumberType_EqualityComparison_ShouldWork()
+	[DataRow(DataModelNumberType.Double, DataModelNumberType.Double, true)]
+	[DataRow(DataModelNumberType.Double, DataModelNumberType.Decimal, false)]
+	public void DataModelNumberType_EqualityComparison_ShouldWork(DataModelNumberType left, DataModelNumberType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = DataModelNumberType.Double;
-		var type2 = DataModelNumberType.Double;
-		var type3 = DataModelNumberType.Decimal;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void DataModelNumberType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var int32Str = DataModelNumberType.Int32.ToString();
-		var int64Str = DataModelNumberType.Int64.ToString();
-		var doubleStr = DataModelNumberType.Double.ToString();
-		var decimalStr = DataModelNumberType.Decimal.ToString();
+		var int32Str = TestHelper.EnumName(DataModelNumberType.Int32);
+		var int64Str = TestHelper.EnumName(DataModelNumberType.Int64);
+		var doubleStr = TestHelper.EnumName(DataModelNumberType.Double);
+		var decimalStr = TestHelper.EnumName(DataModelNumberType.Decimal);
 
 		// Assert
-		Assert.AreEqual(expected: "Int32", int32Str);
-		Assert.AreEqual(expected: "Int64", int64Str);
-		Assert.AreEqual(expected: "Double", doubleStr);
-		Assert.AreEqual(expected: "Decimal", decimalStr);
+		Assert.AreEqual(nameof(DataModelNumberType.Int32), int32Str);
+		Assert.AreEqual(nameof(DataModelNumberType.Int64), int64Str);
+		Assert.AreEqual(nameof(DataModelNumberType.Double), doubleStr);
+		Assert.AreEqual(nameof(DataModelNumberType.Decimal), decimalStr);
 	}
 
 	[TestMethod]

@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// ReSharper disable MethodHasAsyncOverload
+
 using System.IO;
 using System.Net.Mime;
 using System.Text;
@@ -23,7 +25,7 @@ using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
 using Xtate.ResourceLoaders;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelConverterCoverageTest
@@ -80,7 +82,7 @@ public class DataModelConverterCoverageTest
 	[TestMethod]
 	public async Task JsonResourceLoadingUsesUtf8StreamAndNonUtf8ContentPaths()
 	{
-		var json = "{\"text\":\"zażółć\"}";
+		const string json = "{\"text\":\"zażółć\"}";
 		await using var utf8 = new Resource(
 			new MemoryStream(Encoding.UTF8.GetBytes(json)),
 			new ContentType("application/json") { CharSet = "utf-8" });

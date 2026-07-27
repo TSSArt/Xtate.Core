@@ -21,7 +21,7 @@ using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class BucketExtensionsCoverageTest
@@ -79,6 +79,7 @@ public class BucketExtensionsCoverageTest
 		bucket.Add(key: "number", value: 42);
 		bucket.Add(key: "flag", value: true);
 		bucket.Add(key: "enum", SampleEnum.Second);
+		bucket.Add(key: "first-enum", SampleEnum.First);
 
 		Assert.AreEqual(sessionId, bucket.GetSessionId("session"));
 		Assert.AreEqual(sendId, bucket.GetSendId("send"));
@@ -98,6 +99,7 @@ public class BucketExtensionsCoverageTest
 		Assert.AreEqual(expected: 42, bucket.GetInt32("number"));
 		Assert.IsTrue(bucket.GetBoolean("flag"));
 		Assert.AreEqual(SampleEnum.Second, bucket.GetEnum("enum").As<SampleEnum>());
+		Assert.AreEqual(SampleEnum.First, bucket.GetEnum("first-enum").As<SampleEnum>());
 		Assert.IsNull(bucket.GetString("missing-string"));
 		Assert.ThrowsExactly<KeyNotFoundException>([ExcludeFromCodeCoverage]() => bucket.GetInt32("missing-number"));
 		Assert.ThrowsExactly<KeyNotFoundException>([ExcludeFromCodeCoverage]() => bucket.GetBoolean("missing-flag"));

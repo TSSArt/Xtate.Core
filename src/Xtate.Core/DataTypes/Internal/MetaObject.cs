@@ -133,7 +133,7 @@ internal abstract class MetaObjectBase(Expression expression, object value) : Dy
 
 	protected abstract Expression CastToList(Expression expression);
 
-	protected Expression CastResult(Expression expression, Type returnType)
+	protected static Expression CastResult(Expression expression, Type returnType)
 	{
 		if (expression.Type == typeof(DataModelValue) && returnType == typeof(object))
 		{

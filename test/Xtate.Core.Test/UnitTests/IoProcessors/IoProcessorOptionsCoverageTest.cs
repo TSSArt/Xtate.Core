@@ -19,7 +19,7 @@ using System.Threading;
 using Xtate.IoProcessors.Http;
 using Xtate.IoProcessors.NamedPipe;
 
-namespace Xtate.Test.UnitTests.IoProcessors;
+namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
 public class IoProcessorOptionsCoverageTest
@@ -32,13 +32,13 @@ public class IoProcessorOptionsCoverageTest
 						  ListenUrl = "http://localhost:8080/",
 						  PublicBaseUrl = "https://example.test/base/",
 						  MaxMessageSize = 1024,
-						  Timeout = TimeSpan.FromSeconds(5)
+						  Timeout = TimeSpan.FromSeconds(10)
 					  };
 
 		Assert.AreEqual(expected: "http://localhost:8080/", options.ListenUrl);
 		Assert.AreEqual(expected: "https://example.test/base/", options.PublicBaseUrl);
 		Assert.AreEqual(expected: 1024, options.MaxMessageSize);
-		Assert.AreEqual(TimeSpan.FromSeconds(5), options.Timeout);
+		Assert.AreEqual(TimeSpan.FromSeconds(10), options.Timeout);
 	}
 
 	[TestMethod]

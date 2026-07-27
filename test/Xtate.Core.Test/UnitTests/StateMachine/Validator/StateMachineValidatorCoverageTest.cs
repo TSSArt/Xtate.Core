@@ -19,7 +19,7 @@ using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 using Xtate.StateMachine.Validator.Services;
 
-namespace Xtate.Test.UnitTests.StateMachine.Validator;
+namespace Xtate.Core.Test.UnitTests.StateMachine.Validator;
 
 [TestClass]
 public class StateMachineValidatorCoverageTest

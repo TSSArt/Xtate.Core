@@ -21,7 +21,7 @@ using Xtate.DataModel.Null.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class NullDataModelHandlerCoverageTest
@@ -131,7 +131,7 @@ public class NullDataModelHandlerCoverageTest
 	{
 	#region Interface IConditionExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}
@@ -140,7 +140,7 @@ public class NullDataModelHandlerCoverageTest
 	{
 	#region Interface IValueExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}
@@ -149,7 +149,7 @@ public class NullDataModelHandlerCoverageTest
 	{
 	#region Interface ILocationExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}

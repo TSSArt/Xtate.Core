@@ -23,6 +23,8 @@ using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.Interpreter;
 
+// The container-builder skeleton is retained as documentation for the disabled DI migration below.
+// ReSharper disable once UnusedType.Global
 public static class ContainerBuilder
 {
 	/*
@@ -156,34 +158,36 @@ public class TransitionToDiTest
 	[TestMethod]
 	public async Task ParseScxmlTest()
 	{
-		const string xml = @"<scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath' initial='errorSwitch'>
-<datamodel>
-  <data id='company'>
-    <about xmlns=''>
-      <name>Example company</name>
-      <website>example.com</website>
-      <CEO>John Doe</CEO>
-    </about>
-  </data>
-  <!--data id='employees' src='http://example.com/employees.xml'/-->
-  <data id='default_data'/>
-</datamodel>
-<state id='currentBehavior'/>
-<final id='newBehavior'/>
-<state id='errorSwitch' xmlns:fn='http://www.w3.org/2005/xpath-functions'>
-	<datamodel>
-		<data id='str'/>
-	</datamodel>
+		const string xml = """
+						   <scxml version='1.0' xmlns='http://www.w3.org/2005/07/scxml' datamodel='xpath' initial='errorSwitch'>
+						   <datamodel>
+						     <data id='company'>
+						       <about xmlns=''>
+						         <name>Example company</name>
+						         <website>example.com</website>
+						         <CEO>John Doe</CEO>
+						       </about>
+						     </data>
+						     <!--data id='employees' src='http://example.com/employees.xml'/-->
+						     <data id='default_data'/>
+						   </datamodel>
+						   <state id='currentBehavior'/>
+						   <final id='newBehavior'/>
+						   <state id='errorSwitch' xmlns:fn='http://www.w3.org/2005/xpath-functions'>
+						   	<datamodel>
+						   		<data id='str'/>
+						   	</datamodel>
 
-	<onentry>
-		<assign location='$str' expr=""'errorSwitch'""/>
-	</onentry>
+						   	<onentry>
+						   		<assign location='$str' expr="'errorSwitch'"/>
+						   	</onentry>
 
-	<transition cond='In($str)' target='newBehavior'/>
-	<transition target='currentBehavior'/>
+						   	<transition cond='In($str)' target='newBehavior'/>
+						   	<transition target='currentBehavior'/>
 
-	</state>
-</scxml>";
+						   	</state>
+						   </scxml>
+						   """;
 
 		var services = new ServiceCollection();
 

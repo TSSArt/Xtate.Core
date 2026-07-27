@@ -27,7 +27,7 @@ using Xtate.NameTable;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class RuntimeAndActionProviderCoverageTest
@@ -143,7 +143,7 @@ public class RuntimeAndActionProviderCoverageTest
 		var eventController = new Mock<IEventController>();
 		var invokeController = new Mock<IInvokeController>();
 		var outgoingEvent = Mock.Of<IOutgoingEvent>();
-		var sendId = SendId.FromString("send-id")!;
+		var sendId = SendId.FromString("send-id");
 		var invokeId = InvokeId.FromString("invoke-id");
 		var invokeData = new InvokeData(invokeId, Type: "urn:invoke:type", Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
@@ -187,7 +187,7 @@ public class RuntimeAndActionProviderCoverageTest
 		await executor.Execute();
 
 		var emptyDataModelController = new Mock<IDataModelController>();
-		emptyDataModelController.SetupGet(static controller => controller.DataModel).Returns(new DataModelList());
+		emptyDataModelController.SetupGet(static controller => controller.DataModel).Returns([]);
 		var emptyArgumentsExecutor = new RuntimeActionExecutor
 									 {
 										 Action = RuntimeAction.GetAction(() => Assert.AreEqual(
@@ -331,20 +331,13 @@ public class RuntimeAndActionProviderCoverageTest
 		public void Process(ref IDataModel dataModel) => Visit(ref dataModel);
 	}
 
-	private sealed class TestAction : IAction
+	private sealed class TestAction(XmlReader reader) : IAction
 	{
-		public TestAction(XmlReader reader)
-		{
-			NamespaceUri = reader.NamespaceURI;
-			LocalName = reader.LocalName;
-			AttributeValue = reader.GetAttribute("attr");
-		}
+		public string NamespaceUri { get; } = reader.NamespaceURI;
 
-		public string NamespaceUri { get; }
+		public string LocalName { get; } = reader.LocalName;
 
-		public string LocalName { get; }
-
-		public string? AttributeValue { get; }
+		public string? AttributeValue { get; } = reader.GetAttribute("attr");
 
 	#region Interface IAction
 
@@ -375,7 +368,7 @@ public class RuntimeAndActionProviderCoverageTest
 	{
 	#region Interface IConditionExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}
@@ -384,7 +377,7 @@ public class RuntimeAndActionProviderCoverageTest
 	{
 	#region Interface IValueExpression
 
-		public string? Expression => expression;
+		public string Expression => expression;
 
 	#endregion
 	}

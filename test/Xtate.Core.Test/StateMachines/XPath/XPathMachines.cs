@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines.XPath;
+namespace Xtate.Core.Test.StateMachines.XPath;
 
 /// <summary>
 ///     SCXML machines that exercise the XPath data model and simple executable
@@ -23,17 +23,17 @@ namespace Xtate.Test.StateMachines.XPath;
 /// </summary>
 public class XPathMachines : IScxmlTestSource
 {
-	public static readonly string XPathRaiseOnEntry = """
-													  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="first">
-													    <state id="first">
-													  	<onentry>
-													  	  <raise event="go"/>
-													  	</onentry>
-													  	<transition event="go" target="done"/>
-													    </state>
-													    <final id="done"/>
-													  </scxml>
-													  """;
+	private const string XPathRaiseOnEntry = """
+											 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" datamodel="xpath" initial="first">
+											   <state id="first">
+											 	<onentry>
+											 	  <raise event="go"/>
+											 	</onentry>
+											 	<transition event="go" target="done"/>
+											   </state>
+											   <final id="done"/>
+											 </scxml>
+											 """;
 
 #region Interface IScxmlTestSource
 

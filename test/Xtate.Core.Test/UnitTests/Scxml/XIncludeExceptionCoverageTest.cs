@@ -19,7 +19,7 @@ using System.IO;
 using System.Xml;
 using Xtate.Scxml;
 
-namespace Xtate.Test.UnitTests.Scxml;
+namespace Xtate.Core.Test.UnitTests.Scxml;
 
 [TestClass]
 public class XIncludeExceptionCoverageTest
@@ -103,7 +103,15 @@ public class XIncludeExceptionCoverageTest
 	{
 		public override int AttributeCount => innerReader.AttributeCount;
 
-		public override string BaseURI => innerReader.BaseURI;
+		public override string BaseURI
+		{
+			get
+			{
+				Infra.NotNull(innerReader.BaseURI);
+
+				return innerReader.BaseURI;
+			}
+		}
 
 		public override int Depth => innerReader.Depth;
 
@@ -117,7 +125,15 @@ public class XIncludeExceptionCoverageTest
 
 		public override string NamespaceURI => innerReader.NamespaceURI;
 
-		public override XmlNameTable NameTable => innerReader.NameTable;
+		public override XmlNameTable NameTable
+		{
+			get
+			{
+				Infra.NotNull(innerReader.NameTable);
+
+				return innerReader.NameTable;
+			}
+		}
 
 		public override XmlNodeType NodeType => innerReader.NodeType;
 
@@ -129,15 +145,32 @@ public class XIncludeExceptionCoverageTest
 
 		public override string? GetAttribute(string name) => innerReader.GetAttribute(name);
 
-		public override string? GetAttribute(string name, string? namespaceURI) => innerReader.GetAttribute(name, namespaceURI);
+		public override string? GetAttribute(string name, string? namespaceURI)
+		{
+			Infra.NotNull(namespaceURI);
 
-		public override string GetAttribute(int i) => innerReader.GetAttribute(i);
+			return innerReader.GetAttribute(name, namespaceURI);
+		}
+
+		public override string GetAttribute(int i)
+		{
+			var attribute = innerReader.GetAttribute(i);
+
+			Infra.NotNull(attribute);
+
+			return attribute;
+		}
 
 		public override string? LookupNamespace(string prefix) => innerReader.LookupNamespace(prefix);
 
 		public override bool MoveToAttribute(string name) => innerReader.MoveToAttribute(name);
 
-		public override bool MoveToAttribute(string name, string? ns) => innerReader.MoveToAttribute(name, ns);
+		public override bool MoveToAttribute(string name, string? ns)
+		{
+			Infra.NotNull(ns);
+
+			return innerReader.MoveToAttribute(name, ns);
+		}
 
 		public override void MoveToAttribute(int i) => innerReader.MoveToAttribute(i);
 

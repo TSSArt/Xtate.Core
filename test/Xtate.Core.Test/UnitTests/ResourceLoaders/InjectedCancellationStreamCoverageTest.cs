@@ -19,7 +19,7 @@ using System.IO;
 using System.Threading;
 using Xtate.ResourceLoaders.Internal;
 
-namespace Xtate.Test.UnitTests.ResourceLoaders;
+namespace Xtate.Core.Test.UnitTests.ResourceLoaders;
 
 [TestClass]
 public class InjectedCancellationStreamCoverageTest

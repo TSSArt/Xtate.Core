@@ -26,7 +26,7 @@ using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using TypeInfo = Xtate.Persistence.Internal.TypeInfo;
 
-namespace Xtate.Test.UnitTests.Persistence;
+namespace Xtate.Core.Test.UnitTests.Persistence;
 
 [TestClass]
 public class PersistedCustomActionNodeCoverageTest
@@ -92,7 +92,9 @@ public class PersistedCustomActionNodeCoverageTest
 		var restored = (ICustomAction?)restore.Invoke(obj: null, [bucket]);
 
 		Assert.IsNotNull(restored);
-		var restoredNotNull = restored!;
+
+		// ReSharper disable once InlineTemporaryVariable
+		var restoredNotNull = restored;
 		Assert.AreEqual(expected: "urn:test-actions", restoredNotNull.XmlNamespace);
 		Assert.AreEqual(expected: "action", restoredNotNull.XmlName);
 		Assert.AreEqual(expected: "<action xmlns='urn:test-actions'/>", restoredNotNull.Xml);

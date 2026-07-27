@@ -17,9 +17,10 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class BindingTypeTest
 {
 	[TestMethod]
@@ -49,30 +50,24 @@ public class BindingTypeTest
 	}
 
 	[TestMethod]
-	public void BindingType_EqualityComparison_ShouldWork()
+	[DataRow(BindingType.Late, BindingType.Late, true)]
+	[DataRow(BindingType.Late, BindingType.Early, false)]
+	public void BindingType_EqualityComparison_ShouldWork(BindingType left, BindingType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = BindingType.Late;
-		var type2 = BindingType.Late;
-		var type3 = BindingType.Early;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void BindingType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var earlyStr = BindingType.Early.ToString();
-		var lateStr = BindingType.Late.ToString();
+		var earlyStr = TestHelper.EnumName(BindingType.Early);
+		var lateStr = TestHelper.EnumName(BindingType.Late);
 
 		// Assert
-		Assert.AreEqual(expected: "Early", earlyStr);
-		Assert.AreEqual(expected: "Late", lateStr);
+		Assert.AreEqual(nameof(BindingType.Early), earlyStr);
+		Assert.AreEqual(nameof(BindingType.Late), lateStr);
 	}
 
 	[TestMethod]

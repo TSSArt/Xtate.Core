@@ -32,7 +32,7 @@ public class Record([CallerLineNumber] int lineNumber = 0)
 	public DataModelValue Value
 	{
 		get;
-		set
+		init
 		{
 			field = value;
 			OriginalValue = value;

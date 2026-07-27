@@ -18,7 +18,7 @@
 using Xtate.Logging;
 using Xtate.Logging.Provider;
 
-namespace Xtate.Test.HostedTests;
+namespace Xtate.Core.Test.HostedTests;
 
 [TestClass]
 public class CustomActionTest : HostedTestBase

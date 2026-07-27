@@ -15,6 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+// These source fixtures implement complete public interfaces; some optional init accessors intentionally retain defaults.
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+
 using System.Globalization;
 using Xtate.Ancestor;
 using Xtate.DataModel;
@@ -22,7 +25,7 @@ using Xtate.Interpreter.Model;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterModelStateWrapperCoverageTest
@@ -36,11 +39,11 @@ public class InterpreterModelStateWrapperCoverageTest
 		var condition = new ConditionSource { Expression = "true" };
 		var source = new TransitionSource
 					 {
-						 EventDescriptors = ImmutableArray.Create<IEventDescriptor>(EventDescriptor.FromString("event")),
+						 EventDescriptors = [EventDescriptor.FromString("event")],
 						 Condition = condition,
-						 Target = ImmutableArray.Create<IIdentifier>(targetId, missingId),
+						 Target = [targetId, missingId],
 						 Type = TransitionType.External,
-						 Action = ImmutableArray.Create<IExecutableEntity>(action)
+						 Action = [action]
 					 };
 		var ids = new LinkedList<int>();
 		var node = new TransitionNode(new DocumentIdNode(ids), source);
@@ -141,7 +144,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		var ids = new LinkedList<int>();
 		var node = new FinalNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 24;
-		var final = (IFinal)node;
+		IFinal final = node;
 
 		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
@@ -166,7 +169,7 @@ public class InterpreterModelStateWrapperCoverageTest
 		var ids = new LinkedList<int>();
 		var node = new StateNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 25;
-		var state = (IState)node;
+		IState state = node;
 
 		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
@@ -199,7 +202,7 @@ public class InterpreterModelStateWrapperCoverageTest
 					 {
 						 Id = Identifier.FromString("compound"),
 						 Initial = initialSource,
-						 States = ImmutableArray.Create<IStateEntity>(childSource)
+						 States = [childSource]
 					 };
 		var ids = new LinkedList<int>();
 		var node = new CompoundNode(new DocumentIdNode(ids), source);
@@ -224,12 +227,12 @@ public class InterpreterModelStateWrapperCoverageTest
 		var source = new ParallelSource
 					 {
 						 Id = id,
-						 States = ImmutableArray.Create<IStateEntity>(childSource)
+						 States = [childSource]
 					 };
 		var ids = new LinkedList<int>();
 		var node = new ParallelNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 27;
-		var parallel = (IParallel)node;
+		IParallel parallel = node;
 
 		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreSame(id, node.Id);
@@ -264,12 +267,12 @@ public class InterpreterModelStateWrapperCoverageTest
 						 DataModelType = "null",
 						 Binding = BindingType.Late,
 						 Initial = initialSource,
-						 States = ImmutableArray.Create<IStateEntity>(childSource)
+						 States = [childSource]
 					 };
 		var ids = new LinkedList<int>();
 		var node = new StateMachineNode(new DocumentIdNode(ids), source);
 		ids.First!.Value = 28;
-		var machine = (IStateMachine)node;
+		IStateMachine machine = node;
 
 		Assert.AreSame(source, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: "machine", node.Name);

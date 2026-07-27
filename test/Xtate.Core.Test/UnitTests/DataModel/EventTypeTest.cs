@@ -17,9 +17,10 @@
 
 using Xtate.StateMachine;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
+[SuppressMessage(category: "ReSharper", checkId: "ConvertToConstant.Local")]
 public class EventTypeTest
 {
 	[TestMethod]
@@ -69,34 +70,28 @@ public class EventTypeTest
 	}
 
 	[TestMethod]
-	public void EventType_EqualityComparison_ShouldWork()
+	[DataRow(EventType.Internal, EventType.Internal, true)]
+	[DataRow(EventType.Internal, EventType.External, false)]
+	public void EventType_EqualityComparison_ShouldWork(EventType left, EventType right, bool expectedEqual)
 	{
-		// Act
-		var type1 = EventType.Internal;
-		var type2 = EventType.Internal;
-		var type3 = EventType.External;
-
-		// Assert
-		Assert.IsTrue(type1 == type2);
-		Assert.IsFalse(type1 == type3);
-		Assert.IsFalse(type1 != type2);
-		Assert.IsTrue(type1 != type3);
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(!expectedEqual, left != right);
 	}
 
 	[TestMethod]
 	public void EventType_ToString_ShouldReturnValidString()
 	{
 		// Act
-		var noneStr = EventType.None.ToString();
-		var platformStr = EventType.Platform.ToString();
-		var internalStr = EventType.Internal.ToString();
-		var externalStr = EventType.External.ToString();
+		var noneStr = TestHelper.EnumName(EventType.None);
+		var platformStr = TestHelper.EnumName(EventType.Platform);
+		var internalStr = TestHelper.EnumName(EventType.Internal);
+		var externalStr = TestHelper.EnumName(EventType.External);
 
 		// Assert
-		Assert.AreEqual(expected: "None", noneStr);
-		Assert.AreEqual(expected: "Platform", platformStr);
-		Assert.AreEqual(expected: "Internal", internalStr);
-		Assert.AreEqual(expected: "External", externalStr);
+		Assert.AreEqual(nameof(EventType.None), noneStr);
+		Assert.AreEqual(nameof(EventType.Platform), platformStr);
+		Assert.AreEqual(nameof(EventType.Internal), internalStr);
+		Assert.AreEqual(nameof(EventType.External), externalStr);
 	}
 
 	[TestMethod]

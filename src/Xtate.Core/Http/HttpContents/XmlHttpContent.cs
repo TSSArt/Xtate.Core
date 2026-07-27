@@ -28,8 +28,6 @@ namespace Xtate.Http;
 
 public class XmlHttpContent : HttpContent
 {
-	private const DataModelConverter.XmlOptions DefaultXmlOptions = DataModelConverter.XmlOptions.None;
-
 	private readonly DataModelValue _value;
 
 	public XmlHttpContent(DataModelValue value)
@@ -49,9 +47,13 @@ public class XmlHttpContent : HttpContent
 	}
 
 #if NET5_0_OR_GREATER
-	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken) => DataModelConverter.ToXml(stream, _value);
+	protected override void SerializeToStream(Stream stream, TransportContext? context, CancellationToken cancellationToken)
+	{
+		_ = cancellationToken;
+		DataModelConverter.ToXml(stream, _value);
+	}
 
-	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToXmlAsync(stream, _value, DefaultXmlOptions, token);
+	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToXmlAsync(stream, _value, DataModelConverter.XmlOptions.None, token);
 
 #endif
 }

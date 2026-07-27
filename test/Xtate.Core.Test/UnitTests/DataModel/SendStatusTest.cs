@@ -17,41 +17,11 @@
 
 using Xtate.DataModel;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class SendStatusTest
 {
-	[TestMethod]
-	public void SendStatus_ShouldHaveSentValue()
-	{
-		// Act
-		var status = SendStatus.Sent;
-
-		// Assert
-		Assert.AreEqual(SendStatus.Sent, status);
-	}
-
-	[TestMethod]
-	public void SendStatus_ShouldHaveScheduledValue()
-	{
-		// Act
-		var status = SendStatus.Scheduled;
-
-		// Assert
-		Assert.AreEqual(SendStatus.Scheduled, status);
-	}
-
-	[TestMethod]
-	public void SendStatus_ShouldHaveToInternalQueueValue()
-	{
-		// Act
-		var status = SendStatus.ToInternalQueue;
-
-		// Assert
-		Assert.AreEqual(SendStatus.ToInternalQueue, status);
-	}
-
 	[TestMethod]
 	public void SendStatus_AllValuesShouldBeDifferent()
 	{
@@ -59,18 +29,12 @@ public class SendStatusTest
 	}
 
 	[TestMethod]
-	public void SendStatus_ShouldSupportEquality()
+	[DataRow(SendStatus.Sent, SendStatus.Sent, true)]
+	[DataRow(SendStatus.Sent, SendStatus.Scheduled, false)]
+	public void SendStatus_ShouldSupportEquality(SendStatus left, SendStatus right, bool expectedEqual)
 	{
-		// Act
-		var sent1 = SendStatus.Sent;
-		var sent2 = SendStatus.Sent;
-		var scheduled = SendStatus.Scheduled;
-
-		// Assert
-		Assert.IsTrue(sent1 == sent2);
-		Assert.IsFalse(sent1 == scheduled);
-		Assert.IsTrue(sent1.Equals(sent2));
-		Assert.IsFalse(sent1.Equals(scheduled));
+		Assert.AreEqual(expectedEqual, left == right);
+		Assert.AreEqual(expectedEqual, left.Equals(right));
 	}
 
 	[TestMethod]
@@ -99,9 +63,9 @@ public class SendStatusTest
 	public void SendStatus_ShouldHaveValidStringRepresentation()
 	{
 		// Act & Assert
-		Assert.AreEqual(expected: "Sent", SendStatus.Sent.ToString());
-		Assert.AreEqual(expected: "Scheduled", SendStatus.Scheduled.ToString());
-		Assert.AreEqual(expected: "ToInternalQueue", SendStatus.ToInternalQueue.ToString());
+		Assert.AreEqual(nameof(SendStatus.Sent), TestHelper.EnumName(SendStatus.Sent));
+		Assert.AreEqual(nameof(SendStatus.Scheduled), TestHelper.EnumName(SendStatus.Scheduled));
+		Assert.AreEqual(nameof(SendStatus.ToInternalQueue), TestHelper.EnumName(SendStatus.ToInternalQueue));
 	}
 
 	[TestMethod]

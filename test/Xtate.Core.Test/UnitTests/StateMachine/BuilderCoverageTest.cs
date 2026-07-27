@@ -19,7 +19,7 @@ using Xtate.Ancestor;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Builder.Services;
 
-namespace Xtate.Test.UnitTests.StateMachine;
+namespace Xtate.Core.Test.UnitTests.StateMachine;
 
 [TestClass]
 public class BuilderCoverageTest

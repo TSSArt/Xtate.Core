@@ -20,7 +20,7 @@ using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 using Xtate.StateMachine;
 
-namespace Xtate.Test.UnitTests.DataModel;
+namespace Xtate.Core.Test.UnitTests.DataModel;
 
 [TestClass]
 public class DataModelHandlerBaseProcessCoverageTest
@@ -29,7 +29,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	public void BaseHandlerExposesDefaultsAndProcessesEveryPublicEntityCategory()
 	{
 		var handler = CreateHandler();
-		var contract = (IDataModelHandler)handler;
+		IDataModelHandler contract = handler;
 		IExecutableEntity executable = new LogSource();
 		IValueExpression value = new ValueSource();
 		ILocationExpression location = new LocationSource();
@@ -45,8 +45,24 @@ public class DataModelHandlerBaseProcessCoverageTest
 		contract.Process(ref contentBody);
 		contract.Process(ref inlineContent);
 		contract.Process(ref externalData);
+		executable = Mock.Of<ISend>();
+		contract.Process(ref executable);
+		executable = Mock.Of<ICancel>();
+		contract.Process(ref executable);
+		executable = Mock.Of<IIf>();
+		contract.Process(ref executable);
+		executable = Mock.Of<IRaise>();
+		contract.Process(ref executable);
+		executable = Mock.Of<IForEach>();
+		contract.Process(ref executable);
+		executable = Mock.Of<IAssign>();
+		contract.Process(ref executable);
+		executable = Mock.Of<IScript>();
+		contract.Process(ref executable);
+		executable = Mock.Of<ICustomAction>();
+		contract.Process(ref executable);
 
-		Assert.IsInstanceOfType<LogSource>(executable);
+		Assert.IsInstanceOfType<ICustomAction>(executable);
 		Assert.IsInstanceOfType<ValueSource>(value);
 		Assert.IsInstanceOfType<LocationSource>(location);
 		Assert.IsInstanceOfType<ConditionSource>(condition);
@@ -152,13 +168,31 @@ public class DataModelHandlerBaseProcessCoverageTest
 
 			return externalDataExpression;
 		}
+
+		protected override ISend GetEvaluator(ISend send) => send;
+
+		protected override ICancel GetEvaluator(ICancel cancel) => cancel;
+
+		protected override IIf GetEvaluator(IIf @if) => @if;
+
+		protected override IRaise GetEvaluator(IRaise raise) => raise;
+
+		protected override IForEach GetEvaluator(IForEach forEach) => forEach;
+
+		protected override IAssign GetEvaluator(IAssign assign) => assign;
+
+		protected override IScript GetEvaluator(IScript script) => script;
+
+		protected override ICustomAction CreateCustomActionContainer(ICustomAction customAction) => customAction;
+
+		protected override ICustomAction GetEvaluator(ICustomAction customAction) => customAction;
 	}
 
 	private sealed class LogSource : ILog
 	{
 	#region Interface ILog
 
-		public string? Label => "label";
+		public string Label => "label";
 
 		public IValueExpression? Expression => null;
 
@@ -169,7 +203,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	{
 	#region Interface IValueExpression
 
-		public string? Expression => "value";
+		public string Expression => "value";
 
 	#endregion
 	}
@@ -178,7 +212,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	{
 	#region Interface ILocationExpression
 
-		public string? Expression => "location";
+		public string Expression => "location";
 
 	#endregion
 	}
@@ -187,7 +221,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	{
 	#region Interface IConditionExpression
 
-		public string? Expression => "condition";
+		public string Expression => "condition";
 
 	#endregion
 	}
@@ -196,7 +230,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	{
 	#region Interface IContentBody
 
-		public string? Value => "body";
+		public string Value => "body";
 
 	#endregion
 	}
@@ -205,7 +239,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	{
 	#region Interface IInlineContent
 
-		public string? Value => "inline";
+		public string Value => "inline";
 
 	#endregion
 	}
@@ -214,7 +248,7 @@ public class DataModelHandlerBaseProcessCoverageTest
 	{
 	#region Interface IExternalDataExpression
 
-		public Uri? Uri => new("https://example.test/data");
+		public Uri Uri => new("https://example.test/data");
 
 	#endregion
 	}

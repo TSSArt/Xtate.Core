@@ -17,7 +17,7 @@
 
 using Xtate.StateMachine.Internal;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class SegmentedNameCoverageTest

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace Xtate.Test.StateMachines;
+namespace Xtate.Core.Test.StateMachines;
 
 /// <summary>
 ///     MSTest runner for the SCXML state machine test collection.
@@ -27,7 +27,7 @@ namespace Xtate.Test.StateMachines;
 ///     allowing individual test execution and better visibility in Test Explorer.
 ///     • Assembly-level <c>[Parallelize(MethodLevel)]</c> in <c>ParallelizeAttribute.cs</c>
 ///     enables concurrent execution of all test methods.
-///     • All test methods delegate to <see cref="ExecuteTestCase" />, which builds a
+///     • All test methods delegate to <c>ExecuteTestCase</c>, which builds a
 ///     lightweight DI scope, parses the SCXML, runs the interpreter, and asserts
 ///     the returned done-data value when expected.
 ///     Adding more test cases

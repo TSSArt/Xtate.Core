@@ -22,7 +22,7 @@ using Xtate.Persistence.Services;
 
 //using TypeInfo = Xtate.Persistence.TypeInfo;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 [ExcludeFromCodeCoverage]
@@ -48,9 +48,9 @@ public class StorageTest
 			var valueLength = DecodeLength(log.Slice(keyLengthLength + keyLength, valueLengthLength));
 			var value = log.Slice(keyLengthLength + keyLength + valueLengthLength, valueLength);
 
-			AppendKey(sb, key.ToArray());
+			AppendKey(sb, [.. key]);
 			sb.Append('=');
-			AppendValue(sb, value.ToArray(), hex);
+			AppendValue(sb, [.. value], hex);
 			sb.Append(delimiter);
 
 			var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
@@ -170,7 +170,7 @@ public class StorageTest
 			   };
 	}
 
-	private static string DecodeUtf8String(Span<byte> key) => Encoding.UTF8.GetString(key.ToArray());
+	private static string DecodeUtf8String(Span<byte> key) => Encoding.UTF8.GetString([.. key]);
 
 	private static int GetLength(byte[] key, int start)
 	{

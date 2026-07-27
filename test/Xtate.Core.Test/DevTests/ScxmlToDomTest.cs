@@ -21,7 +21,7 @@ using Xtate.IoC;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
-namespace Xtate.Test;
+namespace Xtate.Core.Test.DevTests;
 
 [TestClass]
 public class ScxmlToDomTest

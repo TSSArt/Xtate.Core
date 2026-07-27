@@ -27,6 +27,7 @@ public sealed class ErrorItem(
 	int lineNumber = 0,
 	int linePosition = 0)
 {
+	// ReSharper disable once ReplaceAutoPropertyWithComputedProperty
 	public ErrorSeverity Severity { get; } = ErrorSeverity.Error;
 
 	public Type Source { get; } = source;

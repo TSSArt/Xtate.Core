@@ -17,7 +17,6 @@
 
 using System.Buffers;
 using System.Globalization;
-using System.IO;
 using System.IO.Pipes;
 using Xtate.DataModel;
 using Xtate.IoC.Options;

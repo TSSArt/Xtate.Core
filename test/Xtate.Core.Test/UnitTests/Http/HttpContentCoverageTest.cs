@@ -22,7 +22,7 @@ using System.Threading;
 using Xtate.DataTypes;
 using Xtate.Http;
 
-namespace Xtate.Test.UnitTests.Http;
+namespace Xtate.Core.Test.UnitTests.Http;
 
 [TestClass]
 public class HttpContentCoverageTest
@@ -73,13 +73,23 @@ public class HttpContentCoverageTest
 	{
 		public Task SerializeLegacy(Stream stream) => SerializeToStreamAsync(stream, context: null);
 
-		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStreamAsync(stream, context: null).Wait(token);
+		public void SerializeSync(Stream stream, CancellationToken token) =>
+#if NET5_0_OR_GREATER
+			SerializeToStreamAsync(stream, context: null, token).Wait(token);
+#else
+			SerializeToStreamAsync(stream, context: null).Wait(token);
+#endif
 	}
 
 	private sealed class TestXmlHttpContent(DataModelValue value) : XmlHttpContent(value)
 	{
 		public Task SerializeLegacy(Stream stream) => SerializeToStreamAsync(stream, context: null);
 
-		public void SerializeSync(Stream stream, CancellationToken token) => SerializeToStreamAsync(stream, context: null).Wait(token);
+		public void SerializeSync(Stream stream, CancellationToken token) =>
+#if NET5_0_OR_GREATER
+			SerializeToStreamAsync(stream, context: null, token).Wait(token);
+#else
+			SerializeToStreamAsync(stream, context: null).Wait(token);
+#endif
 	}
 }

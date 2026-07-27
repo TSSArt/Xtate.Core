@@ -23,7 +23,7 @@ using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.DependencyInjection;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.Test.StateMachines;
+namespace Xtate.Core.Test.StateMachines;
 
 [TestClass]
 public class StatesValidationTest
@@ -46,8 +46,8 @@ public class StatesValidationTest
 		var idle = new Mock<IDestroyOnIdleTimeout>();
 		idle.Setup(x => x.IdleTimeout).Returns(TimeSpan.FromMilliseconds(5000));
 
-		var container = Container.Create<StateMachineProcessorModule>(services =>
-																		  services.AddConstant(idle.Object));
+		await using var container = Container.Create<StateMachineProcessorModule>(services =>
+																					  services.AddConstant(idle.Object));
 
 		var stateMachineScopeManager = await container.GetRequiredService<IStateMachineScopeManager>();
 

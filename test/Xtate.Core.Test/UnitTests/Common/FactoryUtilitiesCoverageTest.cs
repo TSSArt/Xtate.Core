@@ -20,7 +20,7 @@ using Xtate.IoC.AncestorTracker.Internal;
 using Xtate.IoC.AncestorTracker.Services;
 using Xtate.IoC.Tools.Services;
 
-namespace Xtate.Test.UnitTests.Common;
+namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class FactoryUtilitiesCoverageTest
@@ -54,7 +54,7 @@ public class FactoryUtilitiesCoverageTest
 	{
 		var tracker = new AncestorTracker();
 		var factory = new AncestorFactory<object>(tracker);
-		var consumer = (IAncestorConsumer<object>)factory;
+		IAncestorConsumer<object> consumer = factory;
 		var value = new object();
 
 		Assert.IsNull(factory.GetValueFunc()());

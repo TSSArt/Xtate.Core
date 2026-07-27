@@ -25,7 +25,7 @@ using Xtate.Interpreter.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
 
-namespace Xtate.Test.UnitTests.Interpreter;
+namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterModelLeafNodeCoverageTest
@@ -75,8 +75,8 @@ public class InterpreterModelLeafNodeCoverageTest
 		Assert.AreEqual(expected: "state-id", node.ToString());
 		Assert.AreEqual(expected: "state-id", typeof(IdentifierNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
 		Assert.AreEqual(identifier.GetHashCode(), node.GetHashCode());
-		Assert.IsTrue(node.Equals(identifier));
-		Assert.IsFalse(node.Equals(Identifier.FromString("other")));
+		Assert.IsTrue(node.Equals(TestHelper.Opaque<object>(identifier)));
+		Assert.IsFalse(node.Equals(TestHelper.Opaque<object>(Identifier.FromString("other"))));
 		Assert.IsFalse((bool)typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, ["state-id"])!);
 		Assert.IsTrue((bool)typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [Identifier.FromString("state-id")])!);
 		Assert.IsFalse((bool)typeof(Identifier).GetMethod(nameof(Equals), [typeof(object)])!.Invoke(identifier, [null])!);
@@ -94,8 +94,8 @@ public class InterpreterModelLeafNodeCoverageTest
 		Assert.AreEqual(expected: "order.*", node.ToString());
 		Assert.AreEqual(expected: "order.*", typeof(EventDescriptorNode).GetMethod(nameof(ToString), Type.EmptyTypes)!.Invoke(node, parameters: null));
 		Assert.AreEqual(descriptor.GetHashCode(), node.GetHashCode());
-		Assert.IsTrue(node.Equals(descriptor));
-		Assert.IsFalse(node.Equals(EventDescriptor.FromString("payment.*")));
+		Assert.IsTrue(node.Equals(TestHelper.Opaque<object>(descriptor)));
+		Assert.IsFalse(node.Equals(TestHelper.Opaque<object>(EventDescriptor.FromString("payment.*"))));
 		Assert.AreEqual(expected: "order.*", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(node.IsEventMatch(new IncomingEvent { Name = EventName.FromString("order.created") }));
 		Assert.IsFalse(node.IsEventMatch(new IncomingEvent { Name = EventName.FromString("payment.created") }));
@@ -241,8 +241,5 @@ public class InterpreterModelLeafNodeCoverageTest
 		public override IIdentifier Id => id;
 	}
 
-	private sealed class BareStateEntityNode : StateEntityNode
-	{
-		public BareStateEntityNode() : base(new DocumentIdNode(list: null)) { }
-	}
+	private sealed class BareStateEntityNode() : StateEntityNode(new DocumentIdNode(list: null));
 }
