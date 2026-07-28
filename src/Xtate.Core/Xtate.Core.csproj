@@ -26,6 +26,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Xtate.SharedContent" PrivateAssets="all" />
+		<PackageReference Include="Xtate.IoC" />
 		<PackageReference Include="System.Threading.Tasks.Extensions" />
 		<PackageReference Include="System.Threading.Channels" />
 		<PackageReference Include="ConfigureAwaitChecker.Analyzer" PrivateAssets="all" />
@@ -35,14 +36,6 @@
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
 			<_Parameter1>$(MSBuildProjectName).Test</_Parameter1>
 		</AssemblyAttribute>
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(UseProjectReference)'=='true'">
-		<ProjectReference Include="$(XtateIoCRepoPath)src\Xtate.IoC\Xtate.IoC.csproj" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(UseProjectReference)'==''">
-		<PackageReference Include="Xtate.IoC" />
 	</ItemGroup>
 
 	<ItemGroup>
