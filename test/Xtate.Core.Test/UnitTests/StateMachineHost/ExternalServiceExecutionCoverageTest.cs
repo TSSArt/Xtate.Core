@@ -152,7 +152,7 @@ public class ExternalServiceExecutionCoverageTest
 		first.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-first"));
 		second.Setup(static h => h.Start()).Returns(() => Record(calls, value: "start-second"));
 		second.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-second"));
-		IStateMachineHostNew host = new TestStateMachineHost { IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object) };
+		IStateMachineHost host = new TestStateMachineHost { IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object) };
 
 		await host.Start();
 		await host.Stop();
@@ -204,5 +204,5 @@ public class ExternalServiceExecutionCoverageTest
 		}
 	}
 
-	private sealed class TestStateMachineHost : StateMachineHostNew;
+	private sealed class TestStateMachineHost : Xtate.StateMachineHost.Services.StateMachineHost;
 }

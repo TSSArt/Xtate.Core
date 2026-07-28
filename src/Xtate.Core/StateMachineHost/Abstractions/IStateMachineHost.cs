@@ -17,7 +17,7 @@
 
 namespace Xtate.StateMachineHost;
 
-public interface IStateMachineHostNew
+public interface IStateMachineHost
 {
 	ValueTask Start();
 

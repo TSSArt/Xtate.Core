@@ -46,6 +46,6 @@ public class StateMachineProcessorModule : Module<ExternalServiceModule, EventSc
 		Services.AddImplementation<ExternalEventDispatcher<Any>>().For<IExternalEventDispatcher<Any>>();
 
 		Services.AddImplementation<DeadLetterQueue<Any>>().For<IDeadLetterQueue<Any>>();
-		Services.AddImplementation<StateMachineHostNew>().For<IStateMachineHostNew>();
+		Services.AddImplementation<Services.StateMachineHost>().For<IStateMachineHost>();
 	}
 }

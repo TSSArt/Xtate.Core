@@ -17,7 +17,7 @@
 
 namespace Xtate.StateMachineHost.Services;
 
-public class StateMachineHostNew : IStateMachineHostNew
+public class StateMachineHost : IStateMachineHost
 {
 	private readonly Stack<IIoProcessorHost> _ioProcessorHosts = new();
 
@@ -25,9 +25,9 @@ public class StateMachineHostNew : IStateMachineHostNew
 
 #region Interface IStateMachineHostNew
 
-	ValueTask IStateMachineHostNew.Start() => Start();
+	ValueTask IStateMachineHost.Start() => Start();
 
-	ValueTask IStateMachineHostNew.Stop() => Stop();
+	ValueTask IStateMachineHost.Stop() => Stop();
 
 #endregion
 
