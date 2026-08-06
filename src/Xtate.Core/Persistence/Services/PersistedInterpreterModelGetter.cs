@@ -16,115 +16,72 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Buffers;
-using Xtate.DataModel;
+using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Services;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
-using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 
 namespace Xtate.Persistence.Services;
 
 public class PersistedInterpreterModelGetter
 {
-	public required Func<IStateMachine, IDataModelHandler, ValueTask<InterpreterModelBuilder>> InterpreterModelBuilderFactory { private get; [SetByIoC] init; }
-
-	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [SetByIoC] init; }
-
-	public required IDataModelHandlerService DataModelHandlerService { private get; [SetByIoC] init; }
-
 	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
-	public required IStateMachine? StateMachine { private get; [SetByIoC] init; }
+	public required IStateMachineLocation? StateMachineLocation { private get; [SetByIoC] init; }
 
-	public required IErrorProcessor ErrorProcessor { private get; [SetByIoC] init; }
+	public required IStateMachineArguments? StateMachineArguments { private get; [SetByIoC] init; }
 
 	public required ITransactionalStorage TransactionalStorage { private get; [SetByIoC] init; }
 
-	public required Func<ReadOnlyMemory<byte>, InMemoryStorage> InMemoryStorageFactory { private get; [SetByIoC] init; }
+	public required InterpreterModelBuilder InterpreterModelBuilder { private get; [SetByIoC] init; }
+
+	public required IErrorProcessor ErrorProcessor { private get; [SetByIoC] init; }
 
 	[CalledByIoC]
 	public async ValueTask<IInterpreterModel> GetInterpreterModel()
 	{
-		if (await TryRestoreInterpreterModel().ConfigureAwait(false) is { } interpreterModel)
+		try
 		{
+			IInterpreterModel interpreterModel;
+
+			try
+			{
+				interpreterModel = await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
+			}
+			finally
+			{
+				ErrorProcessor.ThrowIfErrors();
+			}
+
+			await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
+
 			return interpreterModel;
 		}
-
-		Infra.NotNull(StateMachine);
-
-		try
-		{
-			interpreterModel = await InterpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
-		}
 		finally
 		{
-			ErrorProcessor.ThrowIfErrors();
-		}
-
-		await SaveInterpreterModel(interpreterModel).ConfigureAwait(false);
-
-		await Disposer.DisposeAsync(TransactionalStorage).ConfigureAwait(false);
-
-		return interpreterModel;
-	}
-
-	private async ValueTask<IInterpreterModel?> TryRestoreInterpreterModel()
-	{
-		var bucket = new Bucket(TransactionalStorage);
-
-		if (bucket.TryGet(Key.Version, out int version) && version != 1)
-		{
-			throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadUnsupportedVersion);
-		}
-
-		var storedSessionId = bucket.GetSessionId(Key.SessionId);
-
-		if (storedSessionId is not null && storedSessionId != StateMachineSessionId.SessionId)
-		{
-			throw new PersistenceException(Resources.Exception_PersistedStateCantBeReadStoredAndProvidedSessionIdsDoesNotMatch);
-		}
-
-		if (!bucket.TryGet(Key.StateMachineDefinition, out var memory))
-		{
-			return null;
-		}
-
-		var smdBucket = new Bucket(InMemoryStorageFactory(memory));
-		var dataModelType = smdBucket.GetString(Key.DataModelType);
-		var dataModelHandler = await DataModelHandlerService.GetDataModelHandler(dataModelType).ConfigureAwait(false);
-
-		IEntityMap? entityMap = null;
-
-		if (StateMachine is not null)
-		{
-			var interpreterModelBuilder = await InterpreterModelBuilderFactory(StateMachine, dataModelHandler).ConfigureAwait(false);
-			entityMap = (await interpreterModelBuilder.BuildModel(true).ConfigureAwait(false)).EntityMap;
-		}
-
-		var restoredStateMachine = new StateMachineReader().Build(smdBucket, entityMap);
-
-		if (StateMachine is not null)
-		{
-			//TODO: Validate stateMachine vs restoredStateMachine (number of elements should be the same and documentId should point to the same entity type)
-		}
-
-		try
-		{
-			var interpreterModelBuilder = await InterpreterModelBuilderFactory(restoredStateMachine, dataModelHandler).ConfigureAwait(false);
-
-			return await interpreterModelBuilder.BuildModel(true).ConfigureAwait(false);
-		}
-		finally
-		{
-			ErrorProcessor.ThrowIfErrors();
+			await Disposer.DisposeAsync(TransactionalStorage).ConfigureAwait(false);
 		}
 	}
 
 	private async ValueTask SaveInterpreterModel(IInterpreterModel interpreterModel)
 	{
-		SaveToStorage((IStoreSupport)interpreterModel.Root, new Bucket(TransactionalStorage));
+		var bucket = new Bucket(TransactionalStorage);
+
+		if (bucket.TryGet(Key.Version, out int version))
+		{
+			if (version == 1)
+			{
+				return;
+			}
+
+			bucket.RemoveSubtree(Bucket.RootKey);
+		}
+
+		bucket.Add(Key.Version, value: 1);
+
+		SaveToStorage((IStoreSupport)interpreterModel.Root, bucket);
 
 		await TransactionalStorage.CheckPoint(0).ConfigureAwait(false);
 	}
@@ -143,8 +100,9 @@ public class PersistedInterpreterModelGetter
 
 			memoryStorage.WriteTransactionLogToSpan(span);
 
-			bucket.Add(Key.Version, value: 1);
 			bucket.AddId(Key.SessionId, StateMachineSessionId.SessionId);
+			bucket.Add(Key.Location, StateMachineLocation?.Location);
+			bucket.AddDataModelValue(Key.Arguments, StateMachineArguments?.Arguments ?? DataModelValue.Undefined);
 			bucket.Add(Key.StateMachineDefinition, span);
 		}
 		finally

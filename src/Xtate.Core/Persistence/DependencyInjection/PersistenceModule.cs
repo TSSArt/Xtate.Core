@@ -26,6 +26,7 @@ using Xtate.IoC.DependencyInjection;
 using Xtate.IoC.TransformArgs.DependencyInjection;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
+using Xtate.StateMachineHost;
 
 namespace Xtate.Persistence.DependencyInjection;
 
@@ -47,13 +48,20 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 
 		Services.AddFactory<DefaultTransactionalStorage>().For<ITransactionalStorage, string>();
 
-		Services.AddForwarding(Forward<IStorage, string>.To<ITransactionalStorage>());
+		Services.AddForwarding(Forward<IStorage, StorageType>.To<ITransactionalStorage>());
 
-		Services.ForService<ITransactionalStorage, string>().UseArgValue(@"smd").IfAncestor<PersistedInterpreterModelGetter>();
-		Services.ForService<ITransactionalStorage, string>().UseArgValue(@"ctx").IfAncestor<StateMachinePersistedContext>();
+		Services.AddSharedType<StorageManager>(SharedWithin.Scope);
+		Services.AddFactory<StorageManager>().For<ITransactionalStorage, StorageType>();
+
+		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<PersistedInterpreterModelGetter>();
+		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<ResumedStateMachineGetter>();
+		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineContext).IfAncestor<StateMachinePersistedContext>();
+		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.HostContext).IfAncestor<PersistedStateMachineScopeManager>();
+		Services.ForService<IStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<ResumedStateMachineGetter>();
 
 		Services.AddSharedImplementation<StateMachinePersistingInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
 		Services.AddSharedImplementation<StateMachinePersistedContext>(SharedWithin.Scope).For<IStateMachinePersistenceContext>().For<IStateMachineContext>();
+		Services.AddSharedImplementation<PersistedStateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
 
 		Services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
 		Services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();

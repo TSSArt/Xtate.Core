@@ -46,7 +46,7 @@ public class StateMachineScopeManagerCoverageTest
 		collection.Verify(value => value.Register(sessionId), Times.Once);
 		collection.Verify(value => value.SetController(sessionId, controller.Object), Times.Once);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
-		controller.Verify(static value => value.GetResult(), Times.Exactly(2));
+		controller.Verify(static value => value.GetResult(), Times.Exactly(1));
 		manager.Dispose();
 	}
 
@@ -65,7 +65,7 @@ public class StateMachineScopeManagerCoverageTest
 
 		Assert.AreSame(failure, thrown);
 		collection.Verify(value => value.Unregister(sessionId), Times.Once);
-		controller.Verify(static value => value.GetResult(), Times.Exactly(2));
+		controller.Verify(static value => value.GetResult(), Times.Exactly(1));
 		await manager.DisposeAsync();
 	}
 

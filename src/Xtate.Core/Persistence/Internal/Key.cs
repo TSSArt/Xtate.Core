@@ -25,6 +25,8 @@ internal enum Key
 
 	Append,
 
+	Arguments,
+
 	Array,
 
 	Attribute,

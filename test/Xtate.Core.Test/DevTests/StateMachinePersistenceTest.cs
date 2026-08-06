@@ -72,5 +72,7 @@ public class StateMachinePersistenceTest
 		}
 
 	#endregion
+
+		public bool ContainsPartition(string? partition) => _storage.ContainsKey(partition ?? "");
 	}
 }

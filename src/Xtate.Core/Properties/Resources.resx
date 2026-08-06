@@ -1077,4 +1077,7 @@ Exception: {3}</value>
   <data name="Message_AnErrorOccurredWhileTriggeringTheDestroySignal" xml:space="preserve">
     <value>An error occurred while triggering the destroy signal.</value>
   </data>
+  <data name="Exception_StateMachineDefinitionIsMissing" xml:space="preserve">
+	  <value>State machine definition is missing</value>
+  </data>
 </root>

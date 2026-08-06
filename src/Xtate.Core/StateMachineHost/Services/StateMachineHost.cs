@@ -23,7 +23,7 @@ public class StateMachineHost : IStateMachineHost
 
 	public required IAsyncEnumerable<IIoProcessorHost> IoProcessorHosts { private get; [SetByIoC] init; }
 
-#region Interface IStateMachineHostNew
+#region Interface IStateMachineHost
 
 	ValueTask IStateMachineHost.Start() => Start();
 

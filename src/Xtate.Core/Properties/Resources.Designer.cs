@@ -2236,6 +2236,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to State machine definition is missing.
+        /// </summary>
+        internal static string Exception_StateMachineDefinitionIsMissing {
+            get {
+                return ResourceManager.GetString("Exception_StateMachineDefinitionIsMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to State Machine external queue has been closed..
         /// </summary>
         internal static string Exception_StateMachineExternalQueueHasBeenClosed {

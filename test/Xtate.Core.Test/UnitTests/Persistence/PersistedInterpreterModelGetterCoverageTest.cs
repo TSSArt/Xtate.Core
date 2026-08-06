@@ -17,14 +17,13 @@
 
 // ReSharper disable UseAwaitUsing
 
-using Xtate.DataModel;
+using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.Persistence;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
-using Xtate.StateMachine.Validator;
 
 namespace Xtate.Core.Test.UnitTests.Persistence;
 
@@ -32,48 +31,44 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class PersistedInterpreterModelGetterCoverageTest
 {
 	[TestMethod]
-	public async Task UnsupportedPersistedVersionIsRejected()
+	public void UnsupportedPersistedVersionIsRejected()
 	{
 		using var storage = new TestTransactionalStorage();
 		new Bucket(storage).Add(Key.Version, value: 2);
-		var getter = CreateGetter(storage, SessionId.FromString("session"));
 
-		await Assert.ThrowsExactlyAsync<PersistenceException>([ExcludeFromCodeCoverage] async () => await getter.GetInterpreterModel());
+		// ReSharper disable once AccessToDisposedClosure
+		Assert.ThrowsExactly<PersistenceException>([ExcludeFromCodeCoverage]() => CreateGetter(storage, SessionId.FromString("session")));
 	}
 
 	[TestMethod]
-	public async Task MismatchedPersistedSessionIsRejected()
+	public void MismatchedPersistedSessionIsRejected()
 	{
 		using var storage = new TestTransactionalStorage();
 		var bucket = new Bucket(storage);
 		bucket.Add(Key.Version, value: 1);
 		bucket.AddId(Key.SessionId, SessionId.FromString("stored-session"));
-		var getter = CreateGetter(storage, SessionId.FromString("provided-session"));
 
-		await Assert.ThrowsExactlyAsync<PersistenceException>([ExcludeFromCodeCoverage] async () => await getter.GetInterpreterModel());
+		// ReSharper disable once AccessToDisposedClosure
+		Assert.ThrowsExactly<PersistenceException>([ExcludeFromCodeCoverage]() => CreateGetter(storage, SessionId.FromString("provided-session")));
 	}
 
 	[TestMethod]
-	public async Task MissingStoredDefinitionRequiresProvidedStateMachine()
+	public void LocationAndArgumentsAreRestoredWithoutBuildingTheStateMachine()
 	{
 		using var storage = new TestTransactionalStorage();
+		var location = new Uri("https://example.test/state-machines/persisted.scxml");
+		DataModelValue arguments = "persisted arguments";
+		var bucket = new Bucket(storage);
+		bucket.Add(Key.Location, location);
+		bucket.AddDataModelValue(Key.Arguments, arguments);
 		var getter = CreateGetter(storage, SessionId.FromString("session"));
 
-		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () => await getter.GetInterpreterModel());
+		Assert.AreEqual(location, getter.GetStateMachineLocation().Location);
+		Assert.AreEqual(arguments, getter.GetStateMachineArguments().Arguments);
 	}
 
-	private static PersistedInterpreterModelGetter CreateGetter(ITransactionalStorage storage, SessionId sessionId) =>
-		new()
-		{
-			InterpreterModelBuilderFactory = static (_, _) => throw new InvalidOperationException("The model-builder factory is not used by these early validation tests."),
-			InterpreterModelBuilder = null!,
-			DataModelHandlerService = Mock.Of<IDataModelHandlerService>(),
-			StateMachineSessionId = Mock.Of<IStateMachineSessionId>(value => value.SessionId == sessionId),
-			StateMachine = null,
-			ErrorProcessor = Mock.Of<IErrorProcessor>(),
-			TransactionalStorage = storage,
-			InMemoryStorageFactory = static memory => new InMemoryStorage(memory.Span)
-		};
+	private static ResumedStateMachineGetter CreateGetter(IStorage storage, SessionId sessionId) =>
+		new(Mock.Of<IStateMachineSessionId>(value => value.SessionId == sessionId), storage, static memory => new InMemoryStorage(memory.Span));
 
 	private sealed class TestTransactionalStorage : ITransactionalStorage
 	{
