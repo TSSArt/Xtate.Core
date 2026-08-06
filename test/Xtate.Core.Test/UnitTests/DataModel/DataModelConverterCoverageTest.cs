@@ -20,6 +20,7 @@
 using System.IO;
 using System.Net.Mime;
 using System.Text;
+using System.Text.Json;
 using Xtate.DataModel.Services;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
@@ -92,6 +93,36 @@ public class DataModelConverterCoverageTest
 
 		Assert.AreEqual(expected: "zażółć", (await DataModelConverter.FromJsonContentAsync(utf8)).AsList()["text"].AsString());
 		Assert.AreEqual(expected: "zażółć", (await DataModelConverter.FromJsonContentAsync(utf16)).AsList()["text"].AsString());
+	}
+
+	[TestMethod]
+	public void JsonUndefinedPoliciesAndDateKindsProduceTheirDocumentedShapes()
+	{
+		var array = DataModelConverter.CreateAsArray();
+		array.Add(DataModelValue.Undefined);
+		array.Add("value");
+
+		Assert.ThrowsExactly<JsonException>(() => DataModelConverter.ToJson(array));
+		Assert.AreEqual(expected: "[\"value\"]", DataModelConverter.ToJson(array, DataModelConverter.JsonOptions.UndefinedToSkip));
+		Assert.AreEqual(expected: "[null,\"value\"]", DataModelConverter.ToJson(array, DataModelConverter.JsonOptions.UndefinedToNull));
+
+		var obj = DataModelConverter.CreateAsObject();
+		obj.Add(key: "missing", DataModelValue.Undefined);
+		obj.Add(key: "present", value: "value");
+
+		Assert.AreEqual(expected: "{\"present\":\"value\"}", DataModelConverter.ToJson(obj));
+		Assert.AreEqual(expected: "{\"missing\":null,\"present\":\"value\"}", DataModelConverter.ToJson(obj, DataModelConverter.JsonOptions.UndefinedToNull));
+		Assert.AreEqual(expected: "{\"present\":\"value\"}", DataModelConverter.ToJson(obj, DataModelConverter.JsonOptions.UndefinedToSkipOrNull));
+
+		var utc = new DateTime(year: 2026, month: 8, day: 7, hour: 1, minute: 2, second: 3, DateTimeKind.Utc);
+		var offset = new DateTimeOffset(year: 2026, month: 8, day: 7, hour: 1, minute: 2, second: 3, TimeSpan.FromHours(2));
+		var utcRoundTrip = DataModelConverter.FromJson(DataModelConverter.ToJson(new DataModelValue(utc))).AsDateTime();
+		var offsetRoundTrip = DataModelConverter.FromJson(DataModelConverter.ToJson(new DataModelValue(offset))).AsDateTime();
+
+		Assert.AreEqual(DataModelDateTimeType.DateTime, utcRoundTrip.Type);
+		Assert.AreEqual(utc, utcRoundTrip.ToDateTime());
+		Assert.AreEqual(DataModelDateTimeType.DateTimeOffset, offsetRoundTrip.Type);
+		Assert.AreEqual(offset, offsetRoundTrip.ToDateTimeOffset());
 	}
 
 	[TestMethod]

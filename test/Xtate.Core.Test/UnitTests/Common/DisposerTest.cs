@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Threading;
+
 namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
@@ -157,6 +159,18 @@ public class DisposerTest
 		await Disposer.DisposeAsync(notDisposable);
 	}
 
+	[TestMethod]
+	public void DisposeObservesFaultedAndCanceledAsyncDisposal()
+	{
+		var exception = new InvalidOperationException("dispose failed");
+		Assert.ThrowsExactly<InvalidOperationException>(() => Disposer.Dispose(new FailedAsyncDisposable(exception)));
+
+		using var cancellationTokenSource = new CancellationTokenSource();
+		cancellationTokenSource.Cancel();
+		// ReSharper disable once AccessToDisposedClosure
+		Assert.ThrowsExactly<TaskCanceledException>(() => Disposer.Dispose(new CanceledAsyncDisposable(cancellationTokenSource.Token)));
+	}
+
 	private class MockDisposable : IDisposable
 	{
 		public bool IsDisposed { get; private set; }
@@ -219,5 +233,15 @@ public class DisposerTest
 	{
 		// ReSharper disable once ReplaceAutoPropertyWithComputedProperty
 		public string Value { get; } = "test";
+	}
+
+	private sealed class FailedAsyncDisposable(Exception exception) : IAsyncDisposable
+	{
+		public ValueTask DisposeAsync() => ValueTask.FromException(exception);
+	}
+
+	private sealed class CanceledAsyncDisposable(CancellationToken token) : IAsyncDisposable
+	{
+		public ValueTask DisposeAsync() => ValueTask.FromCanceled(token);
 	}
 }

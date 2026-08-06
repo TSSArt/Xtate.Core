@@ -71,6 +71,7 @@ public class LoggerCoverageTest
 		StringAssert.Contains(listener.Output, substring: "value");
 		StringAssert.Contains(listener.Output, substring: "long");
 		StringAssert.Contains(listener.Output, substring: "p16");
+		Assert.ThrowsExactly<InvalidOperationException>(() => provider.IsEnabled((Level)int.MaxValue));
 	}
 
 	[TestMethod]

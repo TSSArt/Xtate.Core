@@ -73,4 +73,21 @@ public class SegmentedNameCoverageTest
 		Assert.IsFalse(SegmentedName.TryFormat(ImmutableArray.Create(item1: "one", item2: "two"), separator: ".", destination, out var charsWritten));
 		Assert.AreEqual(expected: 4, charsWritten);
 	}
+
+	[TestMethod]
+	public void TryFormatReportsSeparatorAndCustomObjectCapacityFailures()
+	{
+		var separatorDestination = new char[3];
+		Assert.IsFalse(SegmentedName.TryFormat(ImmutableArray.Create(item1: "one", item2: "two"), separator: ".", separatorDestination, out var charsWritten));
+		Assert.AreEqual(expected: 3, charsWritten);
+
+		var objectDestination = new char[2];
+		Assert.IsFalse(SegmentedName.TryFormat(ImmutableArray.Create(new TextOnlyValue()), separator: ".", objectDestination, out charsWritten));
+		Assert.AreEqual(expected: 0, charsWritten);
+	}
+
+	private sealed class TextOnlyValue
+	{
+		public override string ToString() => "long";
+	}
 }

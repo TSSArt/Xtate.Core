@@ -132,10 +132,42 @@ public class BucketConverterCoverageTest
 		Assert.ThrowsExactly<NotSupportedException>([ExcludeFromCodeCoverage]() => bucket.Add(key: "decimal", value: 1M));
 	}
 
+	[TestMethod]
+	public void BucketSupportsEveryIntegralEnumStorageKindAsKeysAndValues()
+	{
+		using var storage = new InMemoryStorage(writeOnly: false);
+		var bucket = new Bucket(storage);
+
+		AssertEnum(ByteEnum.Value, value: ByteEnum.Value);
+		AssertEnum(Int16Enum.Value, value: Int16Enum.Value);
+		AssertEnum(SByteEnum.Value, value: SByteEnum.Value);
+		AssertEnum(UInt16Enum.Value, value: UInt16Enum.Value);
+		AssertEnum(UInt32Enum.Value, value: UInt32Enum.Value);
+
+		return;
+
+		void AssertEnum<T>(T key, T value) where T : struct, Enum
+		{
+			bucket.Add(key, value);
+			Assert.IsTrue(bucket.TryGet(key, out T restored));
+			Assert.AreEqual(value, restored);
+		}
+	}
+
 	private enum SampleEnum
 	{
 		Small = 1,
 
 		Large = int.MaxValue
 	}
+
+	private enum ByteEnum : byte { Value = byte.MaxValue }
+
+	private enum Int16Enum : short { Value = short.MinValue }
+
+	private enum SByteEnum : sbyte { Value = sbyte.MinValue }
+
+	private enum UInt16Enum : ushort { Value = ushort.MaxValue }
+
+	private enum UInt32Enum : uint { Value = uint.MaxValue }
 }

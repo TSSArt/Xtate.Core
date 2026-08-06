@@ -170,6 +170,18 @@ public class TokenAndLazyValueCoverageTest
 	}
 
 	[TestMethod]
+	public async Task DisposingTokenToleratesAlreadyDisposedUncancelledSources()
+	{
+		var synchronous = new TestDisposingToken();
+		synchronous.DisposeWithoutCancellation();
+		synchronous.Dispose();
+
+		var asynchronous = new TestDisposingToken();
+		asynchronous.DisposeWithoutCancellation();
+		await asynchronous.DisposeAsync();
+	}
+
+	[TestMethod]
 	public async Task CancellationTokenRegistrationConfiguredAwaitableDisposesRegistration()
 	{
 		var called = false;
@@ -204,8 +216,32 @@ public class TokenAndLazyValueCoverageTest
 		Assert.AreEqual(expected: "left-right", twoArgs.AsString());
 	}
 
+	[TestMethod]
+	public async Task LazyValuePublishesOnlyOneResultWhenFactoriesRace()
+	{
+		using var barrier = new Barrier(participantCount: 2);
+		var factoryCalls = 0;
+		var value = LazyValue.Create(() =>
+									 {
+										 // ReSharper disable once AccessToDisposedClosure
+										 barrier.SignalAndWait();
+
+										 return new DataModelValue($"value-{Interlocked.Increment(ref factoryCalls)}");
+									 });
+		var first = Task.Run(value.AsString);
+		var second = Task.Run(value.AsString);
+
+		await Task.WhenAll(first, second);
+
+		Assert.AreEqual(expected: 2, factoryCalls);
+		Assert.AreEqual(first.Result, second.Result);
+		Assert.AreEqual(first.Result, value.AsString());
+	}
+
 	private sealed class TestDisposingToken : DisposingToken
 	{
+		public void DisposeWithoutCancellation() => Dispose(disposing: false);
+
 		// ReSharper disable once RedundantOverriddenMember
 		protected override ValueTask DisposeAsyncCore() => base.DisposeAsyncCore();
 	}

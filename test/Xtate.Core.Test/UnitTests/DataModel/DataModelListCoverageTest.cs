@@ -18,6 +18,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Reflection;
+using Xtate.DataModel.Services;
 using Xtate.DataTypes;
 
 namespace Xtate.Core.Test.UnitTests.DataModel;
@@ -331,6 +332,61 @@ public class DataModelListCoverageTest
 				Assert.IsNotNull(exception.InnerException);
 			}
 		}
+	}
+
+	[TestMethod]
+	public void ListBoundaryValidationMetadataAndFormattingBranchesAreCovered()
+	{
+		var list = new DataModelList { "one", "two" };
+		Assert.ThrowsExactly<ArgumentNullException>(() => list.CopyTo(array: null!, index: 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.CopyTo(new DataModelValue[2], index: -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.CopyTo(new DataModelValue[2], index: 2));
+		var destination = new DataModelValue[3];
+		list.CopyTo(destination, index: 1);
+		Assert.AreEqual(DataModelValue.Undefined, destination[0]);
+		Assert.AreEqual((DataModelValue) "one", destination[1]);
+		Assert.AreEqual((DataModelValue) "two", destination[2]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Slice(start: -1, length: 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Slice(start: 3, length: 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Slice(start: 1, length: 2));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.TryGet(index: -1, out _));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.SetLength(length: -1));
+		Assert.ThrowsExactly<ArgumentNullException>(() => list.Add(key: null!, value: "value"));
+
+		Assert.IsFalse(new DataModelList().HasKeys);
+		Assert.IsFalse(list.HasKeys);
+		Assert.IsTrue(new DataModelList { ["key"] = "value" }.HasKeys);
+
+		var metadata = new DataModelList { ["kind"] = "missing index" };
+		var missingMetadata = new DataModelList();
+		missingMetadata.SetMetadata(index: 3, metadata);
+		Assert.AreSame(metadata, missingMetadata.GetMetadata(index: 0));
+
+		var constant = list.AsConstant();
+		Assert.ThrowsExactly<InvalidOperationException>(() => constant.Access = DataModelAccess.Writable);
+
+		Assert.AreEqual(expected: "{}", DataModelConverter.CreateAsArray().ToString());
+		Assert.IsFalse(DataModelConverter.CreateAsArray().TryFormat([], out var charsWritten, format: default, CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 0, charsWritten);
+		var oneValueArray = DataModelConverter.CreateAsArray();
+		oneValueArray.Add("x");
+		Assert.IsFalse(oneValueArray.TryFormat(new char[1], out charsWritten, format: default, CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 1, charsWritten);
+		Assert.IsFalse(oneValueArray.TryFormat(new char[2], out charsWritten, format: default, CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 2, charsWritten);
+		var twoValueArray = DataModelConverter.CreateAsArray();
+		twoValueArray.Add("x");
+		twoValueArray.Add("y");
+		Assert.IsFalse(twoValueArray.TryFormat(new char[2], out charsWritten, format: default, CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 2, charsWritten);
+	}
+
+	[TestMethod]
+	public void CopyToRejectsDestinationThatCannotHoldTheList()
+	{
+		var list = new DataModelList { "one", "two" };
+
+		Assert.ThrowsExactly<ArgumentException>(() => list.CopyTo(new DataModelValue[1], index: 0));
 	}
 
 	private static string FormatEntry(DataModelList.Entry entry) => $"{entry.Index}:{entry.Key}:{FormatValue(entry.Value)}";

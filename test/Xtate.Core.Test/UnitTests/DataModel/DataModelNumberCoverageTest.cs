@@ -190,6 +190,44 @@ public class DataModelNumberCoverageTest
 		Assert.IsTrue(InvokeOperator(methodName: "op_GreaterThanOrEqual", int64, int32));
 	}
 
+	[TestMethod]
+	public void InvalidStorageKindAndFloatingPointBoundariesUseDefensiveBranches()
+	{
+		var invalid = (DataModelNumber)Activator.CreateInstance(
+			type: typeof(DataModelNumber),
+			BindingFlags.Instance | BindingFlags.NonPublic,
+			binder: null,
+			[(DataModelNumberType)byte.MaxValue, 0L, 0L],
+			culture: null)!;
+		IConvertible convertible = invalid;
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => convertible.GetTypeCode());
+		Assert.ThrowsExactly<InvalidOperationException>(() => convertible.ToBoolean(CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidOperationException>(() => convertible.ToUInt64(CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidOperationException>(() => convertible.ToDateTime(CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidOperationException>(() => convertible.ToType(typeof(long), CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.ToString(format: null, CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.TryFormat([], out _, format: default, CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.ToInt32());
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.ToInt64());
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.ToDouble());
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.ToDecimal());
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.WriteToSize());
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.WriteTo(new byte[17]));
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.CompareTo(invalid));
+		Assert.ThrowsExactly<InvalidOperationException>(() => invalid.GetHashCode());
+		Assert.ThrowsExactly<InvalidOperationException>(() => DataModelNumber.ReadFrom([byte.MaxValue]));
+
+		var zero = DataModelNumber.FromInt64(0);
+		Assert.IsLessThan(0, zero.CompareTo(DataModelNumber.FromDouble(double.NaN)));
+		Assert.IsLessThan(0, zero.CompareTo(DataModelNumber.FromDouble(double.PositiveInfinity)));
+		Assert.IsGreaterThan(0, zero.CompareTo(DataModelNumber.FromDouble(double.NegativeInfinity)));
+		var decimalZero = DataModelNumber.FromDecimal(decimal.Zero);
+		Assert.IsLessThan(0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.NaN)));
+		Assert.IsLessThan(0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.PositiveInfinity)));
+		Assert.IsGreaterThan(0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.NegativeInfinity)));
+	}
+
 	private static object? InvokeConvertible(DataModelNumber value, string methodName, Type? conversionType = null)
 	{
 		var map = typeof(DataModelNumber).GetInterfaceMap(typeof(IConvertible));

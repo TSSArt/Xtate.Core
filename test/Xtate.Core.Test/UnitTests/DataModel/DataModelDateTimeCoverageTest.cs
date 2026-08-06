@@ -93,6 +93,32 @@ public class DataModelDateTimeCoverageTest
 		catch (ArgumentException) { }
 	}
 
+	[TestMethod]
+	public void ConvertibleFormattingAndObjectProjectionPreserveDateKinds()
+	{
+		var utc = new DateTime(year: 2026, month: 8, day: 7, hour: 1, minute: 2, second: 3, DateTimeKind.Utc);
+		var offset = new DateTimeOffset(year: 2026, month: 8, day: 7, hour: 1, minute: 2, second: 3, TimeSpan.FromHours(2));
+		var dateTime = DataModelDateTime.FromDateTime(utc);
+		var dateTimeOffset = DataModelDateTime.FromDateTimeOffset(offset);
+		IConvertible convertibleDateTime = dateTime;
+		IConvertible convertibleOffset = dateTimeOffset;
+
+		Assert.AreEqual(TypeCode.DateTime, convertibleDateTime.GetTypeCode());
+		Assert.AreEqual(TypeCode.Object, convertibleOffset.GetTypeCode());
+		Assert.AreEqual(utc, convertibleDateTime.ToDateTime(CultureInfo.InvariantCulture));
+		Assert.AreEqual(offset, convertibleOffset.ToType(typeof(DateTimeOffset), CultureInfo.InvariantCulture));
+		Assert.AreEqual(utc, dateTime.ToObject());
+		Assert.AreEqual(offset, dateTimeOffset.ToObject());
+		Assert.AreEqual(utc.ToString(format: "O", CultureInfo.InvariantCulture), dateTime.ToString(format: "O", CultureInfo.InvariantCulture));
+		Assert.AreEqual(offset.ToString(format: "O", CultureInfo.InvariantCulture), dateTimeOffset.ToString(format: "O", CultureInfo.InvariantCulture));
+
+		Span<char> destination = stackalloc char[64];
+		Assert.IsTrue(dateTime.TryFormat(destination, out var charsWritten, format: "O", CultureInfo.InvariantCulture));
+		Assert.AreEqual(dateTime.ToString(format: "O", CultureInfo.InvariantCulture), new string(destination[..charsWritten].ToArray()));
+		Assert.IsFalse(dateTimeOffset.TryFormat([], out charsWritten, format: "O", CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected: 0, charsWritten);
+	}
+
 	private static MethodInfo GetConvertibleTarget(string methodName)
 	{
 		var interfaceMap = typeof(DataModelDateTime).GetInterfaceMap(typeof(IConvertible));

@@ -92,6 +92,33 @@ public class ResourceCoverageTest
 	}
 
 	[TestMethod]
+	public async Task ResourceCoversCachedResultsContentStreamsDirectCachingAndRepeatedDisposal()
+	{
+		var contentResource = new TestResource(new MemoryStream([.. "content"u8]), contentType: null);
+		Assert.AreEqual(expected: "content", await contentResource.GetContent());
+		Assert.AreEqual(expected: "content", await contentResource.GetContent());
+
+		using (var contentStream = await contentResource.GetStream(doNotCache: false))
+		{
+			Assert.AreEqual(expected: "content", Encoding.UTF8.GetString(await contentStream.ReadToEndAsync(CancellationToken.None)));
+		}
+
+		contentResource.Dispose();
+		contentResource.Dispose();
+		contentResource.DisposeCore(disposing: false);
+
+		var bytesResource = new Resource(new MemoryStream([1, 2, 3]), contentType: null);
+		CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, await bytesResource.GetBytes());
+		CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, await bytesResource.GetBytes());
+		await bytesResource.DisposeAsync();
+		await bytesResource.DisposeAsync();
+
+		await using var streamResource = new Resource(new MemoryStream([4, 5, 6]), contentType: null);
+		using var cached = await streamResource.GetStream(doNotCache: false);
+		CollectionAssert.AreEqual(new byte[] { 4, 5, 6 }, await cached.ReadToEndAsync(CancellationToken.None));
+	}
+
+	[TestMethod]
 	public async Task StreamExtensionsReadToEndHonorsCancellationAndUnknownLengthStreams()
 	{
 		using var nonSeekable = new NonSeekableStream([1, 2, 3, 4]);
@@ -129,6 +156,11 @@ public class ResourceCoverageTest
 	private sealed class NonSeekableStream(byte[] bytes) : MemoryStream(bytes)
 	{
 		public override bool CanSeek => false;
+	}
+
+	private sealed class TestResource(Stream stream, ContentType? contentType) : Resource(stream, contentType)
+	{
+		public void DisposeCore(bool disposing) => Dispose(disposing);
 	}
 
 	private sealed class TokenObservingStream(byte[] bytes) : MemoryStream(bytes)

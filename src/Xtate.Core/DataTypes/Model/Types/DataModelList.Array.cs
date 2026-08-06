@@ -26,7 +26,7 @@ public partial class DataModelList : IList<DataModelValue>
 		Infra.Requires(array);
 
 		if (index < 0 || index >= array.Length) throw new ArgumentOutOfRangeException(nameof(index), Resources.Exception_IndexShouldBeNonNegativeAndLessThanAarraySize);
-		if (_count - index < array.Length) throw new ArgumentException(Resources.Exception_DestinationArrayIsNotLongEnough, nameof(array));
+		if (_count > array.Length - index) throw new ArgumentException(Resources.Exception_DestinationArrayIsNotLongEnough, nameof(array));
 
 		foreach (var value in Values)
 		{

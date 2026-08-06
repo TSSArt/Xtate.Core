@@ -19,6 +19,7 @@ using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
+using Xtate.Logging;
 using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.UnitTests.DataModel;
@@ -175,6 +176,48 @@ public class DefaultEvaluatorCoverageTest
 		Assert.IsTrue(controller.Sent.Data.IsUndefined());
 		Assert.IsNotNull(controller.Sent.SendId);
 		Assert.IsNull(controller.RawData);
+	}
+
+	[TestMethod]
+	public async Task DefaultContentEvaluatorsCacheSuccessfulParsesAndRetryLoggedFailures()
+	{
+		var bodyLogger = new Mock<ILogger<IContentBody>>();
+		var bodySuccess = new TestContentBodyEvaluator(new StringContentBody("body"), static () => new DataModelValue("parsed-body"))
+						  {
+							  Logger = () => ValueTask.FromResult(bodyLogger.Object)
+						  };
+		var bodyException = new FormatException("invalid body");
+		var bodyFailure = new TestContentBodyEvaluator(new StringContentBody("body"), () => throw bodyException)
+						  {
+							  Logger = () => ValueTask.FromResult(bodyLogger.Object)
+						  };
+
+		Assert.AreEqual(expected: "parsed-body", ((DataModelValue)await bodySuccess.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "parsed-body", ((DataModelValue)await bodySuccess.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: 1, bodySuccess.ParseCount);
+		Assert.IsTrue(((DataModelValue)await bodyFailure.EvaluateObject()).IsUndefined());
+		Assert.IsTrue(((DataModelValue)await bodyFailure.EvaluateObject()).IsUndefined());
+		Assert.AreEqual(expected: 2, bodyFailure.ParseCount);
+		bodyLogger.Verify(logger => logger.Write(Level.Warning, eventId: 1, It.IsAny<string>(), It.Is<Exception>(exception => ReferenceEquals(exception, bodyException))), Times.Exactly(2));
+
+		var inlineLogger = new Mock<ILogger<IInlineContent>>();
+		var inlineSuccess = new TestInlineContentEvaluator(new InlineObjectContent("inline"), static () => new DataModelValue("parsed-inline"))
+							{
+								Logger = () => ValueTask.FromResult(inlineLogger.Object)
+							};
+		var inlineException = new FormatException("invalid inline content");
+		var inlineFailure = new TestInlineContentEvaluator(new InlineObjectContent("inline"), () => throw inlineException)
+							{
+								Logger = () => ValueTask.FromResult(inlineLogger.Object)
+							};
+
+		Assert.AreEqual(expected: "parsed-inline", ((DataModelValue)await inlineSuccess.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: "parsed-inline", ((DataModelValue)await inlineSuccess.EvaluateObject()).AsString());
+		Assert.AreEqual(expected: 1, inlineSuccess.ParseCount);
+		Assert.IsTrue(((DataModelValue)await inlineFailure.EvaluateObject()).IsUndefined());
+		Assert.IsTrue(((DataModelValue)await inlineFailure.EvaluateObject()).IsUndefined());
+		Assert.AreEqual(expected: 2, inlineFailure.ParseCount);
+		inlineLogger.Verify(logger => logger.Write(Level.Warning, eventId: 1, It.IsAny<string>(), It.Is<Exception>(exception => ReferenceEquals(exception, inlineException))), Times.Exactly(2));
 	}
 
 	private static DefaultSendEvaluator CreateSendEvaluator(ISend source, IEventController controller) =>
@@ -360,6 +403,30 @@ public class DefaultEvaluatorCoverageTest
 		public ValueTask<string> EvaluateString() => new(value);
 
 	#endregion
+	}
+
+	private sealed class TestContentBodyEvaluator(IContentBody contentBody, Func<DataModelValue> parser) : DefaultContentBodyEvaluator(contentBody)
+	{
+		public int ParseCount { get; private set; }
+
+		protected override DataModelValue ParseToDataModel()
+		{
+			ParseCount ++;
+
+			return parser();
+		}
+	}
+
+	private sealed class TestInlineContentEvaluator(IInlineContent inlineContent, Func<DataModelValue> parser) : DefaultInlineContentEvaluator(inlineContent)
+	{
+		public int ParseCount { get; private set; }
+
+		protected override DataModelValue ParseToDataModel()
+		{
+			ParseCount ++;
+
+			return parser();
+		}
 	}
 
 	private sealed class ContentSource(IValueExpression? expression, IContentBody? body) : IContent

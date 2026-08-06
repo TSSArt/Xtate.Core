@@ -92,6 +92,34 @@ public class CustomActionCoverageTest
 		activator.Verify(static a => a.Activate("<run id='1'/>"), Times.Once);
 	}
 
+	[TestMethod]
+	public void FactoryRejectsMissingAndAmbiguousProviders()
+	{
+		var source = new CustomActionSource
+					 {
+						 XmlNamespace = "urn:actions",
+						 XmlName = "run",
+						 Xml = "<run/>",
+						 Locations = default,
+						 Values = default
+					 };
+		var missing = new Mock<IActionProvider>();
+		missing.Setup(static provider => provider.TryGetActivator("urn:actions", "run")).Returns((IActionActivator?)null);
+		var missingFactory = new CustomActionFactory { ActionProviders = [missing.Object] };
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => missingFactory.GetAction(source));
+
+		var activator = new Mock<IActionActivator>();
+		var first = new Mock<IActionProvider>();
+		var second = new Mock<IActionProvider>();
+		first.Setup(static provider => provider.TryGetActivator("urn:actions", "run")).Returns(activator.Object);
+		second.Setup(static provider => provider.TryGetActivator("urn:actions", "run")).Returns(activator.Object);
+		var ambiguousFactory = new CustomActionFactory { ActionProviders = [first.Object, second.Object] };
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => ambiguousFactory.GetAction(source));
+		activator.Verify(static item => item.Activate(It.IsAny<string>()), Times.Never);
+	}
+
 	private sealed class CustomActionSource : ICustomAction
 	{
 	#region Interface ICustomAction

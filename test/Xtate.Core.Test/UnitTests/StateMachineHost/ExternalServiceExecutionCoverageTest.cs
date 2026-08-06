@@ -152,16 +152,18 @@ public class ExternalServiceExecutionCoverageTest
 		first.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-first"));
 		second.Setup(static h => h.Start()).Returns(() => Record(calls, value: "start-second"));
 		second.Setup(static h => h.Stop()).Returns(() => Record(calls, value: "stop-second"));
-		IStateMachineHost host = new TestStateMachineHost
-								 {
-									 IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object)
-								 };
+		var concreteHost = new TestStateMachineHost
+						   {
+							   IoProcessorHosts = ToAsyncEnumerable(first.Object, second.Object)
+						   };
+		IStateMachineHost host = concreteHost;
 
 		await host.Start();
 		await host.Stop();
 		await host.Stop();
 
 		CollectionAssert.AreEqual(new[] { "start-first", "start-second", "stop-second", "stop-first" }, calls);
+		Assert.AreEqual(expected: 2, concreteHost.StopCount);
 	}
 
 	private static ExternalServiceRunner CreateRunner(InvokeId invokeId,
@@ -207,5 +209,15 @@ public class ExternalServiceExecutionCoverageTest
 		}
 	}
 
-	private sealed class TestStateMachineHost : Xtate.StateMachineHost.Services.StateMachineHost;
+	private sealed class TestStateMachineHost : Xtate.StateMachineHost.Services.StateMachineHost
+	{
+		public int StopCount { get; private set; }
+
+		protected override async ValueTask Stop()
+		{
+			StopCount ++;
+
+			await base.Stop();
+		}
+	}
 }

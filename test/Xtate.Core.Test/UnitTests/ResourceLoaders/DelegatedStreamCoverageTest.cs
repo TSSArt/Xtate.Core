@@ -17,6 +17,7 @@
 
 // ReSharper disable UseAwaitUsing
 
+using System.Buffers;
 using System.IO;
 using System.Threading;
 using Xtate.ResourceLoaders.Internal;
@@ -131,6 +132,22 @@ public class DelegatedStreamCoverageTest
 		CollectionAssert.AreEqual(new byte[] { 4, 3, 5, 4 }, copied.ToArray());
 	}
 
+	[TestMethod]
+	public async Task DelegatedStreamCopiesNonArrayBackedMemoryForAsyncReadAndWrite()
+	{
+		var inner = new ProbeStream([1, 2, 3]);
+		using var stream = new TestDelegatedStream(inner);
+		using var readMemory = new NonArrayMemoryManager(length: 3);
+
+		Assert.AreEqual(expected: 3, await stream.ReadAsync(readMemory.Memory, CancellationToken.None));
+		CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, readMemory.GetSpan().ToArray());
+
+		using var writeMemory = new NonArrayMemoryManager([7, 8]);
+		stream.Position = 0;
+		await stream.WriteAsync(writeMemory.Memory, CancellationToken.None);
+		CollectionAssert.AreEqual(new byte[] { 7, 8, 3 }, inner.ToArray());
+	}
+
 	private sealed class TestDelegatedStream(Stream innerStream) : DelegatedStream(innerStream)
 	{
 		public void DisposeCore(bool disposing) => Dispose(disposing);
@@ -177,5 +194,22 @@ public class DelegatedStreamCoverageTest
 			await base.DisposeAsync();
 		}
 #endif
+	}
+
+	private sealed class NonArrayMemoryManager : MemoryManager<byte>
+	{
+		private readonly byte[] _bytes;
+
+		public NonArrayMemoryManager(int length) => _bytes = new byte[length];
+
+		public NonArrayMemoryManager(byte[] bytes) => _bytes = bytes;
+
+		public override Span<byte> GetSpan() => _bytes;
+
+		public override MemoryHandle Pin(int elementIndex = 0) => throw new NotSupportedException();
+
+		public override void Unpin() { }
+
+		protected override void Dispose(bool disposing) { }
 	}
 }

@@ -53,7 +53,8 @@ public class XmlHttpContent : HttpContent
 		DataModelConverter.ToXml(stream, _value);
 	}
 
-	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) => DataModelConverter.ToXmlAsync(stream, _value, DataModelConverter.XmlOptions.None, token);
+	protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context, CancellationToken token) =>
+		DataModelConverter.ToXmlAsync(stream, _value, DataModelConverter.XmlOptions.None, token);
 
 #endif
 }

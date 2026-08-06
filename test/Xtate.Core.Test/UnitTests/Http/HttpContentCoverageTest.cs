@@ -75,7 +75,7 @@ public class HttpContentCoverageTest
 
 		public void SerializeSync(Stream stream, CancellationToken token) =>
 #if NET5_0_OR_GREATER
-			SerializeToStreamAsync(stream, context: null, token).Wait(token);
+			SerializeToStream(stream, context: null, token);
 #else
 			SerializeToStreamAsync(stream, context: null).Wait(token);
 #endif
@@ -87,7 +87,7 @@ public class HttpContentCoverageTest
 
 		public void SerializeSync(Stream stream, CancellationToken token) =>
 #if NET5_0_OR_GREATER
-			SerializeToStreamAsync(stream, context: null, token).Wait(token);
+			SerializeToStream(stream, context: null, token);
 #else
 			SerializeToStreamAsync(stream, context: null).Wait(token);
 #endif

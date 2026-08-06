@@ -67,6 +67,15 @@ public class PersistedInterpreterModelGetterCoverageTest
 		Assert.AreEqual(arguments, getter.GetStateMachineArguments().Arguments);
 	}
 
+	[TestMethod]
+	public void MissingStateMachineDefinitionIsRejectedWhenRequested()
+	{
+		using var storage = new TestTransactionalStorage();
+		var getter = CreateGetter(storage, SessionId.FromString("session"));
+
+		Assert.ThrowsExactly<PersistenceException>(getter.GetStateMachine);
+	}
+
 	private static ResumedStateMachineGetter CreateGetter(IStorage storage, SessionId sessionId) =>
 		new(Mock.Of<IStateMachineSessionId>(value => value.SessionId == sessionId), storage, static memory => new InMemoryStorage(memory.Span));
 

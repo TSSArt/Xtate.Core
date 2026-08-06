@@ -136,11 +136,12 @@ public class StateMachineScopeManagerCoverageTest
 		await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
 																	   await manager.Start(stateMachine, SecurityContextType.NewTrustedStateMachine));
 		await manager.Destroy(SessionId.FromString("missing-session"));
-		var destroyAll = manager.DestroyAll();
+		IStateMachineScopeManager scopeManager = manager;
+		var destroyAll = scopeManager.DestroyAll();
 		Assert.IsFalse(destroyAll.IsCompletedSuccessfully);
 		destroyCompletion.SetResult();
 		await destroyAll;
-		await manager.DestroyAll();
+		await scopeManager.DestroyAll();
 		controller.Verify(static value => value.Destroy(), Times.Exactly(2));
 
 		await manager.Terminate(sessionId);
@@ -162,12 +163,15 @@ public class StateMachineScopeManagerCoverageTest
 		var syncManager = await CreateManager(controller, Mock.Of<IStateMachineCollection>(), new CapturingTaskMonitor());
 		syncManager.Dispose();
 		syncManager.Dispose();
+		CollectionAssert.AreEqual(new[] { true, true }, syncManager.DisposeArguments);
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
 																	 await syncManager.Start(CreateStateMachine(SessionId.FromString("sync-disposed")), SecurityContextType.NewTrustedStateMachine));
 
 		var asyncManager = await CreateManager(controller, Mock.Of<IStateMachineCollection>(), new CapturingTaskMonitor());
 		await asyncManager.DisposeAsync();
 		await asyncManager.DisposeAsync();
+		Assert.AreEqual(expected: 2, asyncManager.DisposeAsyncCoreCount);
+		CollectionAssert.AreEqual(new[] { false, false }, asyncManager.DisposeArguments);
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
 																	 await asyncManager.Execute(
 																		 CreateStateMachine(SessionId.FromString("async-disposed")), SecurityContextType.NewTrustedStateMachine));
@@ -175,22 +179,43 @@ public class StateMachineScopeManagerCoverageTest
 
 	private static RuntimeStateMachine CreateStateMachine(SessionId sessionId) => new(Mock.Of<IStateMachine>(static value => value.Name == "coverage-machine")) { SessionId = sessionId };
 
-	private static async ValueTask<StateMachineScopeManager> CreateManager(IStateMachineController controller,
-																		   IStateMachineCollection collection,
-																		   ITaskMonitor taskMonitor)
+	private static async ValueTask<TestStateMachineScopeManager> CreateManager(IStateMachineController controller,
+																			   IStateMachineCollection collection,
+																			   ITaskMonitor taskMonitor)
 	{
 		var services = new ServiceCollection();
 		services.AddConstant(controller);
 		var provider = services.BuildProvider();
 		var securityContextFactory = new SecurityContextFactory();
 
-		return new StateMachineScopeManager
+		return new TestStateMachineScopeManager
 			   {
 				   ServiceScopeFactory = await provider.GetRequiredService<IServiceScopeFactory>(),
 				   StateMachineCollection = collection,
 				   SecurityContextRegistrationFactory = securityContextFactory.GetRegistration,
 				   TaskMonitor = taskMonitor
 			   };
+	}
+
+	private sealed class TestStateMachineScopeManager : StateMachineScopeManager
+	{
+		public List<bool> DisposeArguments { get; } = [];
+
+		public int DisposeAsyncCoreCount { get; private set; }
+
+		protected override void Dispose(bool disposing)
+		{
+			DisposeArguments.Add(disposing);
+
+			base.Dispose(disposing);
+		}
+
+		protected override async ValueTask DisposeAsyncCore()
+		{
+			DisposeAsyncCoreCount ++;
+
+			await base.DisposeAsyncCore();
+		}
 	}
 
 	[ExcludeFromCodeCoverage]

@@ -66,6 +66,23 @@ public class DataModelDynamicCoverageTest
 		Assert.AreEqual(expected: 42, indexValue);
 	}
 
+	[TestMethod]
+	public void DataModelListDynamicStringIndexesAndIntegerMetadataUseTheirExactOverloads()
+	{
+		var list = new DataModelList();
+		dynamic dyn = list;
+		var metadata = new DataModelList { ["kind"] = "indexed" };
+
+		dyn["name"] = "value";
+		dyn.SetMetadata(0, metadata);
+
+		object value = dyn["name"];
+		object returnedMetadata = dyn.GetMetadata(0);
+
+		Assert.AreEqual(expected: "value", value);
+		Assert.AreSame(metadata, returnedMetadata);
+	}
+
 	// ReSharper disable All
 
 	[TestMethod]

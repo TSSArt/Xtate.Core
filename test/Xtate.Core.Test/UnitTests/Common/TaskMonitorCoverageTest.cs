@@ -18,6 +18,9 @@
 // ReSharper disable MethodHasAsyncOverload
 
 using System.Threading;
+using System.Globalization;
+using Xtate.Logging;
+using Xtate.Logging.Internal;
 using MonitoredTask = Xtate.TaskMonitor.Services.TaskMonitor;
 
 namespace Xtate.Core.Test.UnitTests.Common;
@@ -122,7 +125,31 @@ public class TaskMonitorCoverageTest
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(Task.FromException(new InvalidOperationException("task"))));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(new ValueTask(Task.FromException(new InvalidOperationException("value task")))));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() =>
-															successMonitor.Forget(new ValueTask<int>(Task.FromException<int>(new InvalidOperationException("generic value task")))));
+												successMonitor.Forget(new ValueTask<int>(Task.FromException<int>(new InvalidOperationException("generic value task")))));
+	}
+
+	[TestMethod]
+	public async Task BaseMonitorLogsDetachedTaskFailureAndCancellation()
+	{
+		var logger = new CapturingLogger();
+		var monitor = new MonitoredTask { Logger = logger };
+		var failed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		monitor.Forget(failed.Task);
+		var exception = new InvalidOperationException("detached");
+		failed.SetException(exception);
+		var failureLog = await CompleteWithin(logger.Next.Task);
+		Assert.AreEqual(Level.Error, failureLog.Level);
+		Assert.AreSame(exception, failureLog.Entity);
+
+		logger.Next = new TaskCompletionSource<LogEntry>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var cancelled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		monitor.Forget(cancelled.Task);
+		using var cancellationTokenSource = new CancellationTokenSource();
+		cancellationTokenSource.Cancel();
+		Assert.IsTrue(cancelled.TrySetCanceled(cancellationTokenSource.Token));
+		var cancellationLog = await CompleteWithin(logger.Next.Task);
+		Assert.AreEqual(Level.Warning, cancellationLog.Level);
+		Assert.IsInstanceOfType<OperationCanceledException>(cancellationLog.Entity);
 	}
 
 	private static TestTaskMonitor CreateMonitor() => new() { Logger = null! };
@@ -155,4 +182,35 @@ public class TaskMonitorCoverageTest
 			return ValueTask.CompletedTask;
 		}
 	}
+
+	private sealed class CapturingLogger : ILogger<MonitoredTask>
+	{
+		public TaskCompletionSource<LogEntry> Next { get; set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+		public IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
+
+		public bool IsEnabled(Level level) => true;
+
+		public ValueTask Write(Level level, int eventId, string? message)
+		{
+			Next.TrySetResult(new LogEntry(level, Entity: null));
+
+			return ValueTask.CompletedTask;
+		}
+
+		public ValueTask Write<TEntity>(Level level, int eventId, string? message, TEntity entity)
+		{
+			Next.TrySetResult(new LogEntry(level, entity));
+
+			return ValueTask.CompletedTask;
+		}
+
+		public ValueTask Write(Level level, int eventId, LoggingInterpolatedStringHandler formattedMessage) =>
+			Write(level, eventId, formattedMessage.ToString(out _));
+
+		public ValueTask Write<TEntity>(Level level, int eventId, LoggingInterpolatedStringHandler formattedMessage, TEntity entity) =>
+			Write(level, eventId, formattedMessage.ToString(out _), entity);
+	}
+
+	private sealed record LogEntry(Level Level, object? Entity);
 }
