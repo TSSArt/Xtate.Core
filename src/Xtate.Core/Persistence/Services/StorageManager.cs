@@ -34,6 +34,7 @@ public class StorageManager
 		{
 			StorageType.StateMachineDefinition => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"smd"),
 			StorageType.StateMachineContext    => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"ctx"),
+			StorageType.StateMachineEvents     => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"evt"),
 			StorageType.HostContext            => StorageProvider.GetTransactionalStorage(partition: @"host", key: @"ctx"),
 			_                                  => throw Infra.Unmatched(storageType)
 		};

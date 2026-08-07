@@ -56,11 +56,13 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<PersistedInterpreterModelGetter>();
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<ResumedStateMachineGetter>();
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineContext).IfAncestor<StateMachinePersistedContext>();
+		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineEvents).IfAncestor<PersistentEventQueue>();
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.HostContext).IfAncestor<PersistedStateMachineScopeManager>();
 		Services.ForService<IStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<ResumedStateMachineGetter>();
 
 		Services.AddSharedImplementation<StateMachinePersistingInterpreter>(SharedWithin.Scope).For<IStateMachineInterpreter>();
 		Services.AddSharedImplementation<StateMachinePersistedContext>(SharedWithin.Scope).For<IStateMachinePersistenceContext>().For<IStateMachineContext>();
+		Services.AddSharedImplementation<PersistentEventQueue>(SharedWithin.Scope).For<IEventReader>().For<IEventDispatcher>();
 		Services.AddSharedImplementation<PersistedStateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
 
 		Services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);

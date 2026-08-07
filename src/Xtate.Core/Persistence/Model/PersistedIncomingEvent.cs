@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel;
 using Xtate.Interpreter;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
@@ -25,6 +26,8 @@ namespace Xtate.Persistence;
 
 public class PersistedIncomingEvent : IncomingEvent, IStoreSupport
 {
+	public PersistedIncomingEvent(IIncomingEvent incomingEvent) : base(incomingEvent) { }
+
 	public PersistedIncomingEvent(in Bucket bucket)
 	{
 		if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.EventObject)

@@ -22,7 +22,11 @@ namespace Xtate.Interpreter.Services;
 
 public class EventQueue : IEventReader, IEventDispatcher, IDisposable
 {
-	private readonly Channel<IIncomingEvent> _channel = Channel.CreateUnbounded<IIncomingEvent>();
+	private readonly Channel<IIncomingEvent> _channel;
+
+	public EventQueue() : this(Channel.CreateUnbounded<IIncomingEvent>()) { }
+
+	protected EventQueue(Channel<IIncomingEvent> channel) => _channel = channel;
 
 #region Interface IDisposable
 
