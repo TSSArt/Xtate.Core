@@ -106,7 +106,7 @@ public class StateMachineHostModelCoverageTest
 		Assert.IsTrue(scheduledEvent.CancellationToken.IsCancellationRequested);
 
 		await scheduledEvent.CancelAsync();
-		await scheduledEvent.Dispose();
+		scheduledEvent.Dispose();
 		Assert.ThrowsExactly<ObjectDisposedException>([ExcludeFromCodeCoverage]() => _ = scheduledEvent.CancellationToken.WaitHandle);
 	}
 
@@ -145,9 +145,5 @@ public class StateMachineHostModelCoverageTest
 	#endregion
 	}
 
-	private sealed class TestScheduledEvent(IRouterEvent routerEvent) : ScheduledEvent(routerEvent)
-	{
-		// ReSharper disable once RedundantOverriddenMember
-		public override ValueTask Dispose() => base.Dispose();
-	}
+	private sealed class TestScheduledEvent(IRouterEvent routerEvent) : ScheduledEvent(routerEvent);
 }

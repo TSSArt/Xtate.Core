@@ -120,6 +120,9 @@ public static class BucketExtensions
 
 		public bool GetBoolean<TKey>(TKey key) where TKey : notnull => bucket.TryGet(key, out bool value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
 
+		public DateTime GetDateTime<TKey>(TKey key) where TKey : notnull =>
+			bucket.TryGet(key, out DateTime value) ? value : throw new KeyNotFoundException(Res.Format(Resources.Exception_KeyNotFound, key));
+
 		public string? GetString<TKey>(TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? value : null;
 
 		public SessionId? GetSessionId<TKey>(TKey key) where TKey : notnull => bucket.TryGet(key, out string? value) ? SessionId.FromString(value) : null;

@@ -68,7 +68,7 @@ public class PersistedStateMachineScopeManagerCoverageTest
 		var serviceProvider = services.BuildProvider();
 		var securityContextFactory = new SecurityContextFactory();
 
-		return new PersistedStateMachineScopeManager
+		return new TestPersistedStateMachineScopeManager
 			   {
 				   Storage = storage,
 				   StorageManager = null!,
@@ -79,6 +79,8 @@ public class PersistedStateMachineScopeManagerCoverageTest
 				   TaskMonitor = taskMonitor
 			   };
 	}
+
+	private sealed class TestPersistedStateMachineScopeManager : PersistedStateMachineScopeManager;
 
 	private sealed class TestStateMachineClass : StateMachineClass;
 

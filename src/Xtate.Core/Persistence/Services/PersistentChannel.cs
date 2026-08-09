@@ -76,7 +76,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 		}
 
 		item = Interlocked.Exchange(ref _nextItem, value: null);
-		
+
 		var result = item is not null;
 
 		if (!result)
@@ -244,7 +244,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 
 	private bool TryComplete(Exception? error)
 	{
-		if (Interlocked.CompareExchange(ref _completed, value: error ?? PersistentChannelHelper.SentinelCompleted, comparand: null) is not null)
+		if (Interlocked.CompareExchange(ref _completed, error ?? PersistentChannelHelper.SentinelCompleted, comparand: null) is not null)
 		{
 			return false;
 		}

@@ -96,7 +96,8 @@ public class StateMachinePersistingInterpreterTest
 							  SuspendEventDispatcher = suspendManagerMock.Object,
 							  PersistenceOptions = persistenceOptionsMock.Object,
 							  DisposeToken = new DisposeToken(),
-							  StateMachinePersistenceContext = noStateMachineContext
+							  StateMachinePersistenceContext = noStateMachineContext,
+							  EventScheduler = () => new ValueTask<IEventScheduler>()
 						  };
 		await interpreter.Run();
 

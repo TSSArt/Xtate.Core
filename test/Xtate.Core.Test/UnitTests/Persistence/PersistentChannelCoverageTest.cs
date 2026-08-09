@@ -29,7 +29,7 @@ public class PersistentChannelCoverageTest
 	[TestMethod]
 	public async Task BufferedItemsAreReadInOrderAndCompletionFinishesAfterTheLastItem()
 	{
-		using var storage = new TestTransactionalStorage();
+		await using var storage = new TestTransactionalStorage();
 		var channel = CreateChannel(storage);
 
 		await channel.Writer.WriteAsync("one");
@@ -46,15 +46,15 @@ public class PersistentChannelCoverageTest
 
 		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 		await channel.Reader.Completion.WaitAsync(timeout.Token);
-		Assert.IsFalse(await channel.Reader.WaitToReadAsync());
-		Assert.IsFalse(await channel.Writer.WaitToWriteAsync());
-		await Assert.ThrowsExactlyAsync<ChannelClosedException>(async () => await channel.Writer.WriteAsync("three"));
+		Assert.IsFalse(await channel.Reader.WaitToReadAsync(timeout.Token));
+		Assert.IsFalse(await channel.Writer.WaitToWriteAsync(timeout.Token));
+		await Assert.ThrowsExactlyAsync<ChannelClosedException>(async () => await channel.Writer.WriteAsync(item: "three", timeout.Token));
 	}
 
 	[TestMethod]
 	public async Task PersistedItemsAndHeadPositionSurviveChannelRecreation()
 	{
-		using var storage = new TestTransactionalStorage();
+		await using var storage = new TestTransactionalStorage();
 		var first = CreateChannel(storage);
 
 		await first.Writer.WriteAsync("one");
@@ -73,7 +73,7 @@ public class PersistentChannelCoverageTest
 	[TestMethod]
 	public async Task TryWriteHandsAnItemDirectlyToAnActiveReader()
 	{
-		using var storage = new TestTransactionalStorage();
+		await using var storage = new TestTransactionalStorage();
 		var channel = CreateChannel(storage);
 		var waitingReader = channel.Reader.WaitToReadAsync().AsTask();
 
@@ -91,18 +91,18 @@ public class PersistentChannelCoverageTest
 	[TestMethod]
 	public async Task CancellationDoesNotConsumeCapacityOrPersistAnItem()
 	{
-		using var storage = new TestTransactionalStorage();
+		await using var storage = new TestTransactionalStorage();
 		var channel = CreateChannel(storage);
 		using var cancellation = new CancellationTokenSource();
 		var waitingReader = channel.Reader.WaitToReadAsync(cancellation.Token).AsTask();
-		cancellation.Cancel();
+		await cancellation.CancelAsync();
 
 		await AssertCanceled(waitingReader);
 		Assert.AreEqual(expected: 0, channel.Reader.Count);
 
 		using var writeCancellation = new CancellationTokenSource();
-		writeCancellation.Cancel();
-		await AssertCanceled(channel.Writer.WriteAsync("canceled", writeCancellation.Token).AsTask());
+		await writeCancellation.CancelAsync();
+		await AssertCanceled(channel.Writer.WriteAsync(item: "canceled", writeCancellation.Token).AsTask());
 		await AssertCanceled(() => channel.Writer.WaitToWriteAsync(writeCancellation.Token).AsTask());
 		Assert.AreEqual(expected: 0, channel.Reader.Count);
 	}
@@ -110,7 +110,7 @@ public class PersistentChannelCoverageTest
 	[TestMethod]
 	public async Task FaultedAndCanceledCompletionArePublishedToReaders()
 	{
-		using var failedStorage = new TestTransactionalStorage();
+		await using var failedStorage = new TestTransactionalStorage();
 		var failedChannel = CreateChannel(failedStorage);
 		var failure = new InvalidOperationException("channel failed");
 
@@ -123,10 +123,10 @@ public class PersistentChannelCoverageTest
 		Assert.AreSame(failure, completionFailure);
 		Assert.AreSame(failure, readFailure);
 
-		using var canceledStorage = new TestTransactionalStorage();
+		await using var canceledStorage = new TestTransactionalStorage();
 		var canceledChannel = CreateChannel(canceledStorage);
 		using var cancellation = new CancellationTokenSource();
-		cancellation.Cancel();
+		await cancellation.CancelAsync();
 		Assert.IsTrue(canceledChannel.Writer.TryComplete(new OperationCanceledException(cancellation.Token)));
 		await AssertCanceled(canceledChannel.Reader.Completion);
 	}
@@ -134,7 +134,7 @@ public class PersistentChannelCoverageTest
 	[TestMethod]
 	public async Task FailedWriteAndRestoreRollBackIndexesAndAllowRetry()
 	{
-		using var storage = new TestTransactionalStorage();
+		await using var storage = new TestTransactionalStorage();
 		var channel = CreateChannel(storage);
 		var checkpointFailure = new InvalidOperationException("checkpoint failed");
 		storage.NextCheckpointException = checkpointFailure;
@@ -147,7 +147,9 @@ public class PersistentChannelCoverageTest
 		var failRestore = true;
 		var retryChannel = new PersistentChannel<string>(
 			storage,
-			static (bucket, item) => bucket.Add("value", item),
+			static (bucket, item) => bucket.Add(key: "value", item),
+
+			// ReSharper disable once AccessToModifiedClosure
 			bucket => failRestore ? throw restoreFailure : bucket.GetString("value")!);
 		await retryChannel.Writer.WriteAsync("retry");
 
@@ -159,11 +161,11 @@ public class PersistentChannelCoverageTest
 		Assert.AreEqual(expected: "retry", await retryChannel.Reader.ReadAsync());
 		Assert.AreEqual(expected: 0, retryChannel.Reader.Count);
 	}
-	
+
 	private static PersistentChannel<string> CreateChannel(ITransactionalStorage storage) =>
 		new(
 			storage,
-			static (bucket, item) => bucket.Add("value", item),
+			static (bucket, item) => bucket.Add(key: "value", item),
 			static bucket => bucket.GetString("value")!);
 
 	private static Task AssertCanceled(Task task) => AssertCanceled(() => task);
@@ -184,19 +186,13 @@ public class PersistentChannelCoverageTest
 
 		private bool _blockCheckpoint;
 
-		public TaskCompletionSource CheckpointEntered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		private TaskCompletionSource CheckpointEntered { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-		public TaskCompletionSource CheckpointRelease { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		private TaskCompletionSource CheckpointRelease { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
 		public Exception? NextCheckpointException { private get; set; }
 
-		public void BlockNextCheckpoint(Exception exception)
-		{
-			NextCheckpointException = exception;
-			_blockCheckpoint = true;
-		}
-
-		#region Interface IAsyncDisposable
+	#region Interface IAsyncDisposable
 
 		public ValueTask DisposeAsync()
 		{
@@ -205,15 +201,15 @@ public class PersistentChannelCoverageTest
 			return ValueTask.CompletedTask;
 		}
 
-		#endregion
+	#endregion
 
-		#region Interface IDisposable
+	#region Interface IDisposable
 
 		public void Dispose() => _storage.Dispose();
 
-		#endregion
+	#endregion
 
-		#region Interface IStorage
+	#region Interface IStorage
 
 		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key) => _storage.Get(key);
 
@@ -223,9 +219,9 @@ public class PersistentChannelCoverageTest
 
 		public void RemoveAll(ReadOnlySpan<byte> prefix) => _storage.RemoveAll(prefix);
 
-		#endregion
+	#endregion
 
-		#region Interface ITransactionalStorage
+	#region Interface ITransactionalStorage
 
 		public async ValueTask CheckPoint(int level)
 		{
@@ -246,6 +242,6 @@ public class PersistentChannelCoverageTest
 
 		public ValueTask Shrink() => ValueTask.CompletedTask;
 
-		#endregion
+	#endregion
 	}
 }

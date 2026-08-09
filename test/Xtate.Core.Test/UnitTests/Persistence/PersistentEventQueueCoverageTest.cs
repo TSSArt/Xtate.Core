@@ -18,6 +18,7 @@
 using System.Threading;
 using Xtate.Interpreter;
 using Xtate.IoC;
+using Xtate.Persistence;
 using Xtate.Persistence.DependencyInjection;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
@@ -45,17 +46,17 @@ public class PersistentEventQueueCoverageTest
 		await using var container = Container.Create<PersistenceModule>();
 		var storageManager = await container.GetRequiredService<StorageManager>();
 		var expected = new IncomingEvent(new EventEntity("persisted.event"))
-						   {
-							   Type = EventType.External,
-							   Data = "payload"
-						   };
+					   {
+						   Type = EventType.External,
+						   Data = "payload"
+					   };
 
-		 using (var firstQueue = new PersistentEventQueue(await storageManager.Factory(StorageType.StateMachineEvents)))
+		await using (var firstQueue = new PersistentEventQueue(await storageManager.Factory(StorageType.StateMachineIncomingEvents)))
 		{
 			await firstQueue.Dispatch(expected, CancellationToken.None);
 		}
 
-		using var resumedQueue = new PersistentEventQueue(await storageManager.Factory(StorageType.StateMachineEvents));
+		await using var resumedQueue = new PersistentEventQueue(await storageManager.Factory(StorageType.StateMachineIncomingEvents));
 
 		Assert.IsTrue(await resumedQueue.WaitToEvent());
 		Assert.IsTrue(resumedQueue.TryReadEvent(out var actual));
@@ -63,5 +64,33 @@ public class PersistentEventQueueCoverageTest
 		Assert.AreEqual(expected.Type, actual.Type);
 		Assert.AreEqual(expected.Data, actual.Data);
 		Assert.IsFalse(resumedQueue.TryReadEvent(out _));
+	}
+
+	[TestMethod]
+	public async Task IncomingEventsWithAnotherPersistenceFormatAreNormalized()
+	{
+		await using var container = Container.Create<PersistenceModule>();
+		var storageManager = await container.GetRequiredService<StorageManager>();
+		var expected = new IncompatiblePersistedIncomingEvent();
+
+		await using (var firstQueue = new PersistentEventQueue(await storageManager.Factory(StorageType.StateMachineIncomingEvents)))
+		{
+			await firstQueue.Dispatch(expected, CancellationToken.None);
+		}
+
+		await using var resumedQueue = new PersistentEventQueue(await storageManager.Factory(StorageType.StateMachineIncomingEvents));
+
+		Assert.IsTrue(await resumedQueue.WaitToEvent());
+		Assert.IsTrue(resumedQueue.TryReadEvent(out var actual));
+		Assert.AreEqual(expected.Name, actual.Name);
+	}
+
+	private sealed class IncompatiblePersistedIncomingEvent() : IncomingEvent(new EventEntity("incompatible.event")), IStoreSupport
+	{
+	#region Interface IStoreSupport
+
+		void IStoreSupport.Store(Bucket bucket) => throw new AssertFailedException("The queue must use its own persistence format.");
+
+	#endregion
 	}
 }

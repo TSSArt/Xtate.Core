@@ -79,7 +79,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 		return Interlocked.CompareExchange(ref _dictionary, dictionary, comparand: null) ?? dictionary;
 	}
 
-	public bool TryRemoveGroup(TValue1 value, [MaybeNullWhen(false)] out IEnumerable<TValue2> values)
+	public bool TryRemoveGroup(TValue1 value, [MaybeNullWhen(false)] out IReadOnlyList<TValue2> values)
 	{
 		if (_dictionary is { } dictionary)
 		{
@@ -94,7 +94,7 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 					return true;
 				}
 
-				values = Enumerable.Repeat((TValue2)obj, count: 1);
+				values = [(TValue2)obj];
 
 				Interlocked.Decrement(ref _count);
 

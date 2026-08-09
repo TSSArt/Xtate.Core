@@ -19,6 +19,7 @@
 
 using System.Threading;
 using Xtate.Interpreter;
+using Xtate.IoC.Tools;
 using Xtate.Logging;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
@@ -150,7 +151,8 @@ public class InProcEventSchedulerCoverageTest
 		{
 			EventRouters = routers,
 			Logger = logger ?? Mock.Of<ILogger<IEventScheduler>>(),
-			TaskMonitor = monitor
+			TaskMonitor = monitor,
+			DisposeToken = new DisposeToken()
 		};
 
 	private static IRouterEvent CreateRouterEvent(int delayMs, FullUri? type, SendId? sendId)

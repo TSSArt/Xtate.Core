@@ -38,12 +38,12 @@ public class PersistentEventQueue(ITransactionalStorage storage) : EventQueue(ne
 
 	private static void Store(Bucket bucket, IIncomingEvent incomingEvent)
 	{
-		if (incomingEvent is not IStoreSupport storeSupport)
+		if (incomingEvent is not PersistedIncomingEvent persistedIncomingEvent)
 		{
-			storeSupport = new PersistedIncomingEvent(incomingEvent);
+			persistedIncomingEvent = new PersistedIncomingEvent(incomingEvent);
 		}
 
-		storeSupport.Store(bucket);
+		persistedIncomingEvent.Store(bucket);
 	}
 
 	protected override void Dispose(bool disposing)

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,26 +15,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
-using Xtate.Interpreter;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
+using Xtate.StateMachineHost;
 
 namespace Xtate.Persistence;
 
-public class PersistedIncomingEvent : IncomingEvent, IStoreSupport
+public class PersistedScheduledEvent : ScheduledEvent, IStoreSupport
 {
-	public PersistedIncomingEvent(IIncomingEvent incomingEvent) : base(incomingEvent) { }
+	public PersistedScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) => FireOn = DateTime.UtcNow.AddMilliseconds(routerEvent.DelayMs);
 
-	public PersistedIncomingEvent(in Bucket bucket)
+	public PersistedScheduledEvent(Bucket bucket)
 	{
-		if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.EventObject)
+		if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.ScheduledEvent)
 		{
 			throw new ArgumentException(Resources.Exception_InvalidTypeInfoValue);
 		}
 
+		var senderServiceId = bucket.GetServiceId(Key.SenderServiceId);
+		Infra.NotNull(senderServiceId);
+
+		SenderServiceId = senderServiceId;
 		Name = bucket.GetEventName(Key.Name);
 		Type = bucket.GetEnum(Key.Type).As<EventType>();
 		SendId = bucket.GetSendId(Key.SendId);
@@ -42,13 +45,28 @@ public class PersistedIncomingEvent : IncomingEvent, IStoreSupport
 		OriginType = bucket.GetFullUri(Key.OriginType);
 		InvokeId = bucket.GetInvokeId(Key.InvokeId);
 		Data = bucket.GetDataModelValue(Key.Data);
+		IoProcessorData = bucket.GetDataModelValue(Key.RouterEventData).AsNullableList();
+		DelayMs = bucket.GetInt32(Key.DelayMs);
+		TargetType = bucket.GetFullUri(Key.TargetType);
+		Target = bucket.GetFullUri(Key.Target);
+
+		FireOn = bucket.GetDateTime(Key.FireOn);
 	}
 
-#region Interface IStoreSupport
+	public int RefId { get; set; }
+
+	public DateTime FireOn { get; }
+
+	#region Interface IStoreSupport
 
 	public void Store(Bucket bucket)
 	{
-		bucket.Add(Key.TypeInfo, TypeInfo.EventObject);
+		bucket.Add(Key.TypeInfo, TypeInfo.ScheduledEvent);
+		bucket.AddServiceId(Key.SenderServiceId, SenderServiceId);
+		bucket.AddDataModelValue(Key.RouterEventData, IoProcessorData);
+		bucket.Add(Key.DelayMs, DelayMs);
+		bucket.Add(Key.TargetType, TargetType);
+		bucket.Add(Key.Target, Target);
 		bucket.AddEventName(Key.Name, Name);
 		bucket.Add(Key.Type, Type);
 		bucket.AddId(Key.SendId, SendId);
@@ -56,6 +74,8 @@ public class PersistedIncomingEvent : IncomingEvent, IStoreSupport
 		bucket.Add(Key.OriginType, OriginType);
 		bucket.AddId(Key.InvokeId, InvokeId);
 		bucket.AddDataModelValue(Key.Data, Data);
+
+		bucket.Add(Key.FireOn, FireOn);
 	}
 
 #endregion

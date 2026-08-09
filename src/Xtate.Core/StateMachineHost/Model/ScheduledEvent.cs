@@ -17,20 +17,35 @@
 
 namespace Xtate.StateMachineHost;
 
-public class ScheduledEvent(IRouterEvent routerEvent) : RouterEvent(routerEvent)
+public class ScheduledEvent : RouterEvent, IDisposable
 {
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
+	protected ScheduledEvent() { }
+
+	public ScheduledEvent(IRouterEvent routerEvent) : base(routerEvent) { }
+
 	public CancellationToken CancellationToken => _cancellationTokenSource.Token;
+
+#region Interface IDisposable
+
+	public void Dispose()
+	{
+		Dispose(true);
+		GC.SuppressFinalize(this);
+	}
+
+#endregion
 
 	public void Cancel() => _cancellationTokenSource.Cancel();
 
 	public Task CancelAsync() => _cancellationTokenSource.CancelAsync();
 
-	public virtual ValueTask Dispose()
+	protected virtual void Dispose(bool disposing)
 	{
-		_cancellationTokenSource.Dispose();
-
-		return default;
+		if (disposing)
+		{
+			_cancellationTokenSource.Dispose();
+		}
 	}
 }

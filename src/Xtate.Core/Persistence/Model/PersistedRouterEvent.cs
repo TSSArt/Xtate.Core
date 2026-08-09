@@ -25,6 +25,8 @@ namespace Xtate.Persistence;
 
 public class PersistedRouterEvent : RouterEvent, IStoreSupport
 {
+	public PersistedRouterEvent(IRouterEvent routerEvent) : base(routerEvent) { }
+
 	public PersistedRouterEvent(in Bucket bucket)
 	{
 		if (!bucket.TryGet(Key.TypeInfo, out TypeInfo storedTypeInfo) || storedTypeInfo != TypeInfo.RouterEvent)

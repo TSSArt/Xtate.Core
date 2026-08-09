@@ -33,6 +33,63 @@ namespace Xtate.Core.Test.DevTests;
 public class HostStateMachineResumptionTest
 {
 	[TestMethod]
+	public async Task HostStartDispatchesDelayedEventThatBecameOverdueWhileStopped()
+	{
+		var storageProvider = new StateMachinePersistenceTest.TestStorage();
+		var persistenceOptions = Mock.Of<IPersistenceOptions>(options => options.PersistenceLevel == PersistenceLevel.StableState);
+		var sessionId = SessionId.FromString("host-scheduled-event-session");
+		var stateMachinePartition = "sm-" + sessionId;
+
+		await using (var firstContainer = CreateContainer(storageProvider, persistenceOptions))
+		{
+			var host = await firstContainer.GetRequiredService<IStateMachineHost>();
+			await host.Start();
+
+			var scopeManager = await firstContainer.GetRequiredService<IStateMachineScopeManager>();
+			var stateMachine = new ScxmlStringStateMachine(
+								   """
+								   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+								     <state id="waiting">
+								       <onentry><send event="wake" delay="1s"/></onentry>
+								       <transition event="wake" target="fin"/>
+								     </state>
+								     <final id="fin"/>
+								   </scxml>
+								   """)
+							   {
+								   SessionId = sessionId
+							   };
+			var result = await scopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
+
+			await Task.Delay(millisecondsDelay: 100);
+
+			var suspendEventDispatcher = await firstContainer.GetRequiredService<SuspendEventDispatcher>();
+			suspendEventDispatcher.Suspend(setSuspendRequestedFlag: true);
+
+			await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await result.GetResult());
+			await host.Stop();
+		}
+
+		await Task.Delay(TimeSpan.FromSeconds(1));
+
+		await using (var secondContainer = CreateContainer(storageProvider, persistenceOptions))
+		{
+			var host = await secondContainer.GetRequiredService<IStateMachineHost>();
+			await host.Start();
+
+			var timeout = DateTime.UtcNow.AddSeconds(5);
+
+			while (storageProvider.ContainsPartition(stateMachinePartition) && DateTime.UtcNow < timeout)
+			{
+				await Task.Delay(millisecondsDelay: 10);
+			}
+
+			Assert.IsFalse(storageProvider.ContainsPartition(stateMachinePartition));
+			await host.Stop();
+		}
+	}
+
+	[TestMethod]
 	public async Task HostStartResumesStateMachinePreservedBySuspend()
 	{
 		var storageProvider = new StateMachinePersistenceTest.TestStorage();
