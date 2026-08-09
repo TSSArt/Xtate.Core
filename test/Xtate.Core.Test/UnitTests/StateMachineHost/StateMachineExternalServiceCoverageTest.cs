@@ -39,11 +39,12 @@ public class StateMachineExternalServiceCoverageTest
 		const string scxml = "<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>";
 		var scopeManager = new Mock<IStateMachineScopeManager>();
 		var collection = new Mock<IStateMachineCollection>();
+		var parentEventDispatcher = new Mock<IParentEventDispatcher>();
 		StateMachineClass? child = null;
 		scopeManager.Setup(s => s.Execute(It.IsAny<StateMachineClass>(), SecurityContextType.InvokedService))
 					.Callback<StateMachineClass, SecurityContextType>((stateMachineClass, _) => child = stateMachineClass)
 					.ReturnsAsync(new DataModelValue("result"));
-		var service = CreateService(scopeManager.Object, collection.Object, source: null, scxml, DataModelValue.Undefined);
+		var service = CreateService(scopeManager.Object, collection.Object, source: null, scxml, DataModelValue.Undefined, parentEventDispatcher.Object);
 
 		await ((IEventDispatcher)service).Dispatch(Mock.Of<IIncomingEvent>(), CancellationToken.None);
 		collection.VerifyNoOtherCalls();
@@ -55,6 +56,10 @@ public class StateMachineExternalServiceCoverageTest
 		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments)scxmlChild).Arguments.AsString());
 
 		var incomingEvent = Mock.Of<IIncomingEvent>();
+		await ((IParentEventDispatcher)scxmlChild).Dispatch(incomingEvent, CancellationToken.None);
+		parentEventDispatcher.Verify(p => p.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
+		collection.VerifyNoOtherCalls();
+
 		await ((IEventDispatcher)service).Dispatch(incomingEvent, CancellationToken.None);
 		collection.Verify(c => c.Dispatch(scxmlChild.SessionId, incomingEvent, It.IsAny<CancellationToken>()), Times.Once);
 
@@ -68,6 +73,7 @@ public class StateMachineExternalServiceCoverageTest
 	{
 		var scopeManager = new Mock<IStateMachineScopeManager>();
 		var collection = new Mock<IStateMachineCollection>();
+		var parentEventDispatcher = new Mock<IParentEventDispatcher>();
 		StateMachineClass? child = null;
 		scopeManager.Setup(s => s.Execute(It.IsAny<StateMachineClass>(), SecurityContextType.InvokedService))
 					.Callback<StateMachineClass, SecurityContextType>((stateMachineClass, _) => child = stateMachineClass)
@@ -77,13 +83,20 @@ public class StateMachineExternalServiceCoverageTest
 			collection.Object,
 			new Uri(uriString: "child.scxml", UriKind.Relative),
 			rawContent: null,
-			DataModelValue.Undefined);
+			DataModelValue.Undefined,
+			parentEventDispatcher.Object);
 
 		await ((IExternalService)service).GetResult();
 		var locationChild = child as LocationChildStateMachine;
 		Assert.IsNotNull(locationChild);
 		Assert.AreEqual(new Uri("https://example.test/child.scxml"), ((IStateMachineLocation)locationChild).Location);
 		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments)locationChild).Arguments.AsString());
+
+		var incomingEvent = Mock.Of<IIncomingEvent>();
+		using var cancellation = new CancellationTokenSource();
+		await ((IParentEventDispatcher)locationChild).Dispatch(incomingEvent, cancellation.Token);
+		parentEventDispatcher.Verify(p => p.Dispatch(incomingEvent, cancellation.Token), Times.Once);
+		collection.VerifyNoOtherCalls();
 
 		await service.DisposeAsync();
 		await service.DisposeAsync();
@@ -119,10 +132,11 @@ public class StateMachineExternalServiceCoverageTest
 	}
 
 	private static StateMachineExternalService CreateService(IStateMachineScopeManager scopeManager,
-															 IStateMachineCollection collection,
-															 Uri? source,
-															 string? rawContent,
-															 DataModelValue content)
+														 IStateMachineCollection collection,
+														 Uri? source,
+														 string? rawContent,
+														 DataModelValue content,
+														 IParentEventDispatcher? parentEventDispatcher = null)
 	{
 		var taskMonitor = new PassThroughTaskMonitor();
 
@@ -131,6 +145,7 @@ public class StateMachineExternalServiceCoverageTest
 				   StateMachineScopeManager = scopeManager,
 				   StateMachineLocation = Mock.Of<IStateMachineLocation>(l => l.Location == new Uri("https://example.test/parent.scxml")),
 				   StateMachineCollection = collection,
+				   ParentEventDispatcher = parentEventDispatcher ?? Mock.Of<IParentEventDispatcher>(),
 				   TaskMonitor = taskMonitor,
 				   ExternalServiceSourceBase = new ExternalServiceSource(source, rawContent, content),
 				   ExternalServiceParametersBase = new ExternalServiceParameters(new DataModelValue("parameters")),

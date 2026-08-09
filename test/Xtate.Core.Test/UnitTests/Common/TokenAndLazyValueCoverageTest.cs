@@ -217,6 +217,7 @@ public class TokenAndLazyValueCoverageTest
 	}
 
 	[TestMethod]
+	[DoNotParallelize]
 	public async Task LazyValuePublishesOnlyOneResultWhenFactoriesRace()
 	{
 		using var barrier = new Barrier(participantCount: 2);

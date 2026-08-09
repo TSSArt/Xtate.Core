@@ -74,11 +74,14 @@ public class ValueTaskExtensionsTest
 	public async Task WaitAsync_WithCancellationToken_ShouldWorkCorrectly()
 	{
 		// Arrange
-		var valueTask = new ValueTask(Task.Delay(100));
+		var completionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var valueTask = new ValueTask(completionSource.Task);
 		using var cts = new CancellationTokenSource();
 
 		// Act
-		await valueTask.WaitAsync(cts.Token);
+		var waitTask = valueTask.WaitAsync(cts.Token);
+		completionSource.SetResult();
+		await waitTask;
 	}
 
 	[TestMethod]

@@ -116,7 +116,7 @@ public class ConcurrentDictionaryExtensionsTest
 	}
 
 	[TestMethod]
-	public void TryTake_Concurrent_ShouldHandleMultipleThreads()
+	public async Task TryTake_Concurrent_ShouldHandleMultipleThreads()
 	{
 		// Arrange
 		var dict = new ConcurrentDictionary<int, string>();
@@ -143,7 +143,7 @@ public class ConcurrentDictionaryExtensionsTest
 						 }));
 		}
 
-		Task.WaitAll([.. tasks]);
+		await Task.WhenAll(tasks);
 
 		// Assert
 		Assert.AreEqual(expected: 10, removedCount);

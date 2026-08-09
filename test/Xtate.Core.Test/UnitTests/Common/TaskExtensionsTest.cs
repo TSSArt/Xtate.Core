@@ -54,11 +54,13 @@ public class TaskExtensionsTest
 	{
 		// Arrange
 		var mockMonitor = new MockTaskMonitor();
-		var task = Task.Delay(10);
+		var completionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var task = completionSource.Task;
 		using var cts = new CancellationTokenSource();
 
 		// Act
 		var result = task.WaitAsync(mockMonitor, cts.Token);
+		completionSource.SetResult();
 		await result;
 
 		// Assert

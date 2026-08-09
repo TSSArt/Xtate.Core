@@ -39,6 +39,8 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 	public required IStateMachineCollection StateMachineCollection { private get; [SetByIoC] init; }
 
+	public required IParentEventDispatcher ParentEventDispatcher { private get; [SetByIoC] init; }
+
 	public required ITaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 #region Interface IAsyncDisposable
@@ -83,7 +85,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 		{
 			var stateMachineClass = new ScxmlStringChildStateMachine(scxml)
 									{
-										ParentEventDispatcher = this,
+										ParentEventDispatcher = ParentEventDispatcher,
 										Location = StateMachineLocation.Location!,
 										Arguments = Parameters
 									};
@@ -97,7 +99,7 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 		{
 			var stateMachineClass = new LocationChildStateMachine(StateMachineLocation.Location, Source)
 									{
-										ParentEventDispatcher = this,
+										ParentEventDispatcher = ParentEventDispatcher,
 										Arguments = Parameters
 									};
 

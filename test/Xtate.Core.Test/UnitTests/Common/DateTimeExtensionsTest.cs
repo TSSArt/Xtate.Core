@@ -57,33 +57,28 @@ public class DateTimeExtensionsTest
 
 	[TestMethod]
 	[ExcludeFromCodeCoverage]
-	public void UniqueUtcNow_WithConcurrentCalls_ShouldReturnUniqueValuesInOrder()
+	public async Task UniqueUtcNow_WithConcurrentCalls_ShouldReturnUniqueValuesInOrder()
 	{
 		// Arrange
-		var results = new List<DateTime>();
-		var barrier = new Barrier(10);
+		var results = new DateTime[10];
+		var start = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 		// Act
-		for (var i = 0; i < 10; i++)
-		{
-			Task.Run(() =>
-					 {
-						 barrier.SignalAndWait();
-
-						 lock (results)
-						 {
-							 results.Add(DateTime.UniqueUtcNow);
-						 }
-					 });
-		}
-
-		// Wait for all tasks
-		Thread.Sleep(100);
+		var tasks = Enumerable.Range(start: 0, count: results.Length)
+						  .Select(index => Task.Run(async () =>
+													  {
+														  await start.Task;
+														  results[index] = DateTime.UniqueUtcNow;
+													  }))
+						  .ToArray();
+		start.SetResult(true);
+		await Task.WhenAll(tasks);
+		Array.Sort(results);
 
 		// Assert
-		for (var i = 1; i < results.Count; i++)
+		for (var i = 1; i < results.Length; i++)
 		{
-			Assert.IsTrue(results[i - 1] <= results[i], $"Values not in order: {results[i - 1]} should be <= {results[i]}");
+			Assert.IsTrue(results[i - 1] < results[i], $"Values not in order: {results[i - 1]} should be < {results[i]}");
 		}
 	}
 
@@ -103,23 +98,19 @@ public class DateTimeExtensionsTest
 	}
 
 	[TestMethod]
-	public void UniqueUtcNow_MultipleCallsAtSameTime_ShouldHaveSequentialTicks()
+	public async Task UniqueUtcNow_MultipleCallsAtSameTime_ShouldHaveSequentialTicks()
 	{
 		// Act
-		var times = new List<long>();
-		var tasks = new List<Task>();
-
-		for (var i = 0; i < 5; i++)
-		{
-			tasks.Add(Task.Run(() => { times.Add(DateTime.UniqueUtcNow.Ticks); }));
-		}
-
-		Task.WaitAll([.. tasks]);
+		var times = new long[5];
+		var tasks = Enumerable.Range(start: 0, count: times.Length)
+						  .Select(index => Task.Run(() => times[index] = DateTime.UniqueUtcNow.Ticks))
+						  .ToArray();
+		await Task.WhenAll(tasks);
 
 		// Assert
-		times.Sort();
+		Array.Sort(times);
 
-		for (var i = 1; i < times.Count; i++)
+		for (var i = 1; i < times.Length; i++)
 		{
 			Assert.IsTrue(times[i] >= times[i - 1], message: "Ticks should be in ascending order");
 		}
