@@ -37,7 +37,7 @@ internal class XPathStripRootsIterator(XPathNodeIterator iterator) : XPathNodeIt
 	{
 		if (_current?.MoveToNext() == true)
 		{
-			_position ++;
+			_position++;
 
 			return true;
 		}
@@ -53,7 +53,7 @@ internal class XPathStripRootsIterator(XPathNodeIterator iterator) : XPathNodeIt
 
 				Infra.Assert(moveToFirstChild);
 
-				_position ++;
+				_position++;
 
 				return true;
 			}

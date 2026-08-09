@@ -62,7 +62,7 @@ public class WebResourceLoader : IResourceLoader
 
 		if (headers is not null)
 		{
-			for (var i = 0; i < headers.Count; i ++)
+			for (var i = 0; i < headers.Count; i++)
 			{
 				if (headers.GetKey(i) is { Length: > 0 } key)
 				{

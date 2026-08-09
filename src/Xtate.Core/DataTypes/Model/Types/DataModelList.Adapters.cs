@@ -43,7 +43,7 @@ public partial class DataModelList
 		{
 			args.KeyValues = new HashKeyValue[size];
 
-			for (var i = 0; i < args.StoredCount; i ++)
+			for (var i = 0; i < args.StoredCount; i++)
 			{
 				args.KeyValues[i] = new HashKeyValue(hashKey: default, args.Values[i]);
 			}
@@ -58,7 +58,7 @@ public partial class DataModelList
 		{
 			args.MetaValues = new MetaValue[size];
 
-			for (var i = 0; i < args.StoredCount; i ++)
+			for (var i = 0; i < args.StoredCount; i++)
 			{
 				args.MetaValues[i] = new MetaValue(meta: default, args.Values[i]);
 			}
@@ -73,7 +73,7 @@ public partial class DataModelList
 		{
 			args.KeyMetaValues = new KeyMetaValue[size];
 
-			for (var i = 0; i < args.StoredCount; i ++)
+			for (var i = 0; i < args.StoredCount; i++)
 			{
 				args.KeyMetaValues[i] = new KeyMetaValue(hashKey: default, meta: default, args.Values[i]);
 			}
@@ -88,7 +88,7 @@ public partial class DataModelList
 		{
 			args.KeyMetaValues = new KeyMetaValue[size];
 
-			for (var i = 0; i < args.StoredCount; i ++)
+			for (var i = 0; i < args.StoredCount; i++)
 			{
 				args.KeyMetaValues[i] = new KeyMetaValue(args.KeyValues[i].HashKey, meta: default, args.KeyValues[i].Value);
 			}
@@ -103,7 +103,7 @@ public partial class DataModelList
 		{
 			args.KeyMetaValues = new KeyMetaValue[size];
 
-			for (var i = 0; i < args.StoredCount; i ++)
+			for (var i = 0; i < args.StoredCount; i++)
 			{
 				args.KeyMetaValues[i] = new KeyMetaValue(hashKey: default, args.MetaValues[i].Meta, args.MetaValues[i].Value);
 			}

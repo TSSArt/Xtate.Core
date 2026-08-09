@@ -403,7 +403,7 @@ public static class DataModelConverter
 
 			var arrayLength = list.Count;
 
-			for (var i = 0; i < arrayLength; i ++)
+			for (var i = 0; i < arrayLength; i++)
 			{
 				var value = list[i];
 

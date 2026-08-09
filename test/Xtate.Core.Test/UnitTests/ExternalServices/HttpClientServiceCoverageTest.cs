@@ -144,7 +144,7 @@ public class HttpClientServiceCoverageTest
 											DataModelList parameters,
 											DataModelValue value)
 		{
-			PrepareCalls ++;
+			PrepareCalls++;
 
 			if (contentType is not null)
 			{
@@ -157,14 +157,14 @@ public class HttpClientServiceCoverageTest
 														  DataModelList parameters,
 														  DataModelValue value)
 		{
-			CreateCalls ++;
+			CreateCalls++;
 
 			return contentType?.MediaType == "application/custom" ? new StringContent("mime-content") : null;
 		}
 
 		public override ValueTask<DataModelValue?> TryParseResponseAsync(HttpResponseMessage response, DataModelList parameters, CancellationToken token)
 		{
-			ParseCalls ++;
+			ParseCalls++;
 
 			return new ValueTask<DataModelValue?>(result);
 		}

@@ -139,7 +139,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 	private void CounterAfter((int counter, bool inParallel) saved)
 	{
 		_inParallel = saved.inParallel;
-		_counter ++;
+		_counter++;
 		_counter = _inParallel ? _counter + saved.counter : _counter > saved.counter ? _counter : saved.counter;
 	}
 
@@ -170,7 +170,7 @@ public class InterpreterModelBuilder : StateMachineVisitor
 
 		for (var node = _documentIdList?.First; node is not null; node = node.Next)
 		{
-			node.Value = id ++;
+			node.Value = id++;
 		}
 
 		_documentIdList = null;
@@ -709,9 +709,9 @@ public class InterpreterModelBuilder : StateMachineVisitor
 			DataModelHandler.Process(ref executableEntity);
 		}
 
-		_deepLevel ++;
+		_deepLevel++;
 		base.Visit(ref executableEntity);
-		_deepLevel --;
+		_deepLevel--;
 	}
 
 	private class EntityMap(IEntity?[] map) : IEntityMap

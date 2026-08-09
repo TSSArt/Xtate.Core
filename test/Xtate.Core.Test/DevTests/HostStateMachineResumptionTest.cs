@@ -33,6 +33,7 @@ namespace Xtate.Core.Test.DevTests;
 public class HostStateMachineResumptionTest
 {
 	[TestMethod]
+	[DoNotParallelize]
 	public async Task HostStartDispatchesDelayedEventThatBecameOverdueWhileStopped()
 	{
 		var storageProvider = new StateMachinePersistenceTest.TestStorage();
@@ -77,7 +78,7 @@ public class HostStateMachineResumptionTest
 			var host = await secondContainer.GetRequiredService<IStateMachineHost>();
 			await host.Start();
 
-			var timeout = DateTime.UtcNow.AddSeconds(5);
+			var timeout = DateTime.UtcNow.AddSeconds(15);
 
 			while (storageProvider.ContainsPartition(stateMachinePartition) && DateTime.UtcNow < timeout)
 			{

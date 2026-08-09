@@ -86,7 +86,7 @@ public class SharedMemoryStreams<TKey> where TKey : notnull
 		{
 			if (predicate(key) && Delete(key))
 			{
-				count ++;
+				count++;
 			}
 		}
 

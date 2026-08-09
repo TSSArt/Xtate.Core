@@ -301,7 +301,7 @@ public class CommunicationAndUtilityCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -329,7 +329,7 @@ public class CommunicationAndUtilityCoverageTest
 
 		protected override ValueTask<DataModelValue> Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return new ValueTask<DataModelValue>(new DataModelValue($"{Source}:{RawContent}:{Content.AsString()}:{Parameters.AsString()}"));
 		}

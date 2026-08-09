@@ -130,7 +130,7 @@ public class PersistedCustomActionNodeCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}

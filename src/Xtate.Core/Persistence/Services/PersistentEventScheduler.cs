@@ -115,7 +115,7 @@ public class PersistentEventScheduler : InProcEventScheduler, IAsyncInitializati
 					throw new PersistenceException(Resources.Exception_IncorrectDataFormat);
 			}
 
-			_record ++;
+			_record++;
 		}
 
 		var events = new List<PersistedScheduledEvent>(refIds.Count);
@@ -132,7 +132,7 @@ public class PersistentEventScheduler : InProcEventScheduler, IAsyncInitializati
 
 			foreach (var scheduledEvent in events)
 			{
-				scheduledEvent.RefId = _record ++;
+				scheduledEvent.RefId = _record++;
 				var recordBucket = _bucket.Nested(scheduledEvent.RefId);
 				recordBucket.Add(Operation, Add);
 				scheduledEvent.Store(recordBucket.Nested(Event));
@@ -168,7 +168,7 @@ public class PersistentEventScheduler : InProcEventScheduler, IAsyncInitializati
 
 		try
 		{
-			scheduledEvent.RefId = _record ++;
+			scheduledEvent.RefId = _record++;
 
 			var recordBucket = _bucket.Nested(scheduledEvent.RefId);
 			recordBucket.Add(Operation, Add);
@@ -180,7 +180,7 @@ public class PersistentEventScheduler : InProcEventScheduler, IAsyncInitializati
 			}
 			catch
 			{
-				_bucket.RemoveSubtree(-- _record);
+				_bucket.RemoveSubtree(--_record);
 
 				throw;
 			}
@@ -201,8 +201,8 @@ public class PersistentEventScheduler : InProcEventScheduler, IAsyncInitializati
 		{
 			foreach (var scheduledEvent in scheduledEventList)
 			{
-				count ++;
-				var recordBucket = _bucket.Nested(_record ++);
+				count++;
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Operation, Remove);
 				recordBucket.Add(RefId, scheduledEvent.RefId);
 			}
@@ -213,9 +213,9 @@ public class PersistentEventScheduler : InProcEventScheduler, IAsyncInitializati
 			}
 			catch
 			{
-				for (var i = 0; i < count; i ++)
+				for (var i = 0; i < count; i++)
 				{
-					_bucket.RemoveSubtree(-- _record);
+					_bucket.RemoveSubtree(--_record);
 				}
 
 				throw;

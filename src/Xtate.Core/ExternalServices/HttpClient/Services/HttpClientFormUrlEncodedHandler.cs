@@ -89,7 +89,7 @@ public class HttpClientFormUrlEncodedHandler : HttpClientMimeTypeHandler
 
 			var list = new DataModelList();
 
-			for (var i = 0; i < collection.Count; i ++)
+			for (var i = 0; i < collection.Count; i++)
 			{
 				if (collection.GetKey(i) is not { } key)
 				{

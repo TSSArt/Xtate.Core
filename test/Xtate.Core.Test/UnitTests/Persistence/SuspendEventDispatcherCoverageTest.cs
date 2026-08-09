@@ -46,6 +46,6 @@ public class SuspendEventDispatcherCoverageTest
 
 		return;
 
-		void Handler() => calls ++;
+		void Handler() => calls++;
 	}
 }

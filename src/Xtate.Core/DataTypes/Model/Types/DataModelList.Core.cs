@@ -103,7 +103,7 @@ public sealed partial class DataModelList
 
 			if (args.Adapter.IsKeyAvailable())
 			{
-				for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
+				for (args.Index = 0; args.Index < args.StoredCount; args.Index++)
 				{
 					args.Adapter.ReadToArgsByIndex(ref args);
 
@@ -146,7 +146,7 @@ public sealed partial class DataModelList
 				{
 					CreateArgs(out var args);
 
-					for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
+					for (args.Index = 0; args.Index < args.StoredCount; args.Index++)
 					{
 						args.Adapter.ReadToArgsByIndex(ref args);
 						args.Value.MakeDeepConstant();
@@ -398,7 +398,7 @@ public sealed partial class DataModelList
 
 		var comparer = caseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
-		for (; args.Index < args.StoredCount; args.Index ++)
+		for (; args.Index < args.StoredCount; args.Index++)
 		{
 			args.Adapter.ReadToArgsByIndex(ref args);
 
@@ -420,7 +420,7 @@ public sealed partial class DataModelList
 
 		var comparer = caseInsensitive ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
 
-		for (; args.Index < args.StoredCount; args.Index ++)
+		for (; args.Index < args.StoredCount; args.Index++)
 		{
 			args.Adapter.ReadToArgsByIndex(ref args);
 
@@ -440,7 +440,7 @@ public sealed partial class DataModelList
 	{
 		if (cursor < _count)
 		{
-			cursor ++;
+			cursor++;
 
 			if (0 <= cursor && cursor < _count)
 			{
@@ -461,7 +461,7 @@ public sealed partial class DataModelList
 	{
 		if (cursor >= 0)
 		{
-			cursor --;
+			cursor--;
 
 			if (0 <= cursor && cursor < _count)
 			{
@@ -670,7 +670,7 @@ public sealed partial class DataModelList
 		{
 			var savedIndex = args.Index;
 
-			for (args.Index = start; args.Index < end; args.Index ++)
+			for (args.Index = start; args.Index < end; args.Index++)
 			{
 				var access = args.Adapter.GetAccessByIndex(ref args);
 
@@ -768,7 +768,7 @@ public sealed partial class DataModelList
 
 		EnsureTypeAndCapacity(ref args, _count + 1);
 
-		args.Index = _count ++;
+		args.Index = _count++;
 		args.StoredCount = _count;
 
 		args.Adapter.AssignItemByIndex(ref args);
@@ -811,8 +811,8 @@ public sealed partial class DataModelList
 			return false;
 		}
 
-		_count --;
-		args.StoredCount --;
+		_count--;
+		args.StoredCount--;
 
 		if (args.Index <= args.StoredCount)
 		{
@@ -847,7 +847,7 @@ public sealed partial class DataModelList
 
 			Array.Copy(_array, args.Index, _array, args.Index + 1, _count - args.Index);
 
-			_count ++;
+			_count++;
 		}
 
 		args.StoredCount = _count;
@@ -893,7 +893,7 @@ public sealed partial class DataModelList
 		{
 			args.HashKey = new HashKey(hash, args.Key);
 			EnsureTypeAndCapacity(ref args, _count + 1);
-			args.Index = _count ++;
+			args.Index = _count++;
 			args.StoredCount = _count;
 		}
 
@@ -1052,7 +1052,7 @@ public sealed partial class DataModelList
 		clone._count = _count;
 		clone._metadata = _metadata?.DeepCloneWithMap(targetAccess, ref map);
 
-		for (args.Index = 0; args.Index < args.StoredCount; args.Index ++)
+		for (args.Index = 0; args.Index < args.StoredCount; args.Index++)
 		{
 			args.Adapter.ReadToArgsByIndex(ref args);
 

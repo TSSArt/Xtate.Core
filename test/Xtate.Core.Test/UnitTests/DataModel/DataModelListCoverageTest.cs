@@ -338,20 +338,20 @@ public class DataModelListCoverageTest
 	public void ListBoundaryValidationMetadataAndFormattingBranchesAreCovered()
 	{
 		var list = new DataModelList { "one", "two" };
-		Assert.ThrowsExactly<ArgumentNullException>(() => list.CopyTo(array: null!, index: 0));
+		Assert.ThrowsExactly<ArgumentNullException>(() => list.CopyTo(null!, index: 0));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.CopyTo(new DataModelValue[2], index: -1));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.CopyTo(new DataModelValue[2], index: 2));
 		var destination = new DataModelValue[3];
 		list.CopyTo(destination, index: 1);
 		Assert.AreEqual(DataModelValue.Undefined, destination[0]);
-		Assert.AreEqual((DataModelValue) "one", destination[1]);
-		Assert.AreEqual((DataModelValue) "two", destination[2]);
+		Assert.AreEqual((DataModelValue)"one", destination[1]);
+		Assert.AreEqual((DataModelValue)"two", destination[2]);
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Slice(start: -1, length: 1));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Slice(start: 3, length: 0));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Slice(start: 1, length: 2));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.TryGet(index: -1, out _));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.SetLength(length: -1));
-		Assert.ThrowsExactly<ArgumentNullException>(() => list.Add(key: null!, value: "value"));
+		Assert.ThrowsExactly<ArgumentNullException>(() => list.Add(null!, value: "value"));
 
 		Assert.IsFalse(new DataModelList().HasKeys);
 		Assert.IsFalse(list.HasKeys);

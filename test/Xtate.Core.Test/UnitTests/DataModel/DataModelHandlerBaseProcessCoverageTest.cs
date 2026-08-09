@@ -143,28 +143,28 @@ public class DataModelHandlerBaseProcessCoverageTest
 
 		protected override ILog GetEvaluator(ILog log)
 		{
-			LogVisits ++;
+			LogVisits++;
 
 			return log;
 		}
 
 		protected override IContentBody GetEvaluator(IContentBody contentBody)
 		{
-			ContentBodyVisits ++;
+			ContentBodyVisits++;
 
 			return contentBody;
 		}
 
 		protected override IInlineContent GetEvaluator(IInlineContent inlineContent)
 		{
-			InlineContentVisits ++;
+			InlineContentVisits++;
 
 			return inlineContent;
 		}
 
 		protected override IExternalDataExpression GetEvaluator(IExternalDataExpression externalDataExpression)
 		{
-			ExternalDataVisits ++;
+			ExternalDataVisits++;
 
 			return externalDataExpression;
 		}

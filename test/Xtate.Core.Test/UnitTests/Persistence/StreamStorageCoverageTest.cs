@@ -164,14 +164,14 @@ public class StreamStorageCoverageTest
 #if NET8_0_OR_GREATER
 		public override ValueTask DisposeAsync()
 		{
-			DisposeAsyncCount ++;
+			DisposeAsyncCount++;
 
 			return base.DisposeAsync();
 		}
 #else
 		public ValueTask DisposeAsync()
 		{
-			DisposeAsyncCount ++;
+			DisposeAsyncCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -181,7 +181,7 @@ public class StreamStorageCoverageTest
 		{
 			if (disposing)
 			{
-				DisposeCount ++;
+				DisposeCount++;
 			}
 
 			base.Dispose(disposing);

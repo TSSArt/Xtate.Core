@@ -212,7 +212,7 @@ public class StateMachineScopeManagerCoverageTest
 
 		protected override async ValueTask DisposeAsyncCore()
 		{
-			DisposeAsyncCoreCount ++;
+			DisposeAsyncCoreCount++;
 
 			await base.DisposeAsyncCore();
 		}

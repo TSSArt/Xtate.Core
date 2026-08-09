@@ -57,7 +57,7 @@ public class PersistedScheduledEvent : ScheduledEvent, IStoreSupport
 
 	public DateTime FireOn { get; }
 
-	#region Interface IStoreSupport
+#region Interface IStoreSupport
 
 	public void Store(Bucket bucket)
 	{

@@ -121,7 +121,7 @@ public partial class DataModelList
 		{
 			if (_args.Index < _count)
 			{
-				if (++ _args.Index < _count)
+				if (++_args.Index < _count)
 				{
 					Current = _args.Index < _args.StoredCount ? _args.Adapter.GetValueByIndex(ref _args) : DataModelValue.Undefined;
 
@@ -194,7 +194,7 @@ public partial class DataModelList
 		{
 			if (_args.Index < _count)
 			{
-				if (++ _args.Index < _count)
+				if (++_args.Index < _count)
 				{
 					if (_args.Index < _args.StoredCount)
 					{
@@ -353,7 +353,7 @@ public partial class DataModelList
 		{
 			if (_args.Index < _count)
 			{
-				if (++ _args.Index < _count)
+				if (++_args.Index < _count)
 				{
 					if (_args.Index < _args.StoredCount)
 					{
@@ -452,7 +452,7 @@ public partial class DataModelList
 		{
 			if (_args.Index < _list._count)
 			{
-				++ _args.Index;
+				++_args.Index;
 
 				if (_args.Key is not null)
 				{
@@ -553,7 +553,7 @@ public partial class DataModelList
 		{
 			if (_args.Index < _list._count)
 			{
-				++ _args.Index;
+				++_args.Index;
 
 				if (_args.Key is not null)
 				{
@@ -663,7 +663,7 @@ public partial class DataModelList
 		{
 			if (_args.Index < _list._count)
 			{
-				++ _args.Index;
+				++_args.Index;
 
 				if (_args.Key is not null)
 				{

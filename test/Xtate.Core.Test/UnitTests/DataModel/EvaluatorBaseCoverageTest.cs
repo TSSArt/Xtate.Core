@@ -199,7 +199,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -211,7 +211,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -223,7 +223,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -235,7 +235,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -247,7 +247,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -259,7 +259,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -271,7 +271,7 @@ public class EvaluatorBaseCoverageTest
 
 		public override ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -289,7 +289,7 @@ public class EvaluatorBaseCoverageTest
 
 		public ValueTask Log(string? message, DataModelValue arguments)
 		{
-			LogCount ++;
+			LogCount++;
 			LastMessage = message;
 			LastArguments = arguments;
 
@@ -309,7 +309,7 @@ public class EvaluatorBaseCoverageTest
 
 		public ValueTask<IObject> EvaluateObject()
 		{
-			EvaluateObjectCount ++;
+			EvaluateObjectCount++;
 
 			return new ValueTask<IObject>(new DataModelValue(value));
 		}

@@ -123,7 +123,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 				entries.Remove(sessionId);
 			}
 
-			_record ++;
+			_record++;
 		}
 
 		if (shrink)
@@ -134,7 +134,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 			foreach (var entry in entries)
 			{
-				var bucket = _bucket.Nested(_record ++);
+				var bucket = _bucket.Nested(_record++);
 				bucket.Add(Operation, Add);
 				bucket.AddId(SessionIdKey, entry);
 			}
@@ -151,7 +151,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 			foreach (var sessionId in entries)
 			{
-				resumeTasks[index ++] = Resume(new ResumedStateMachineClass(sessionId));
+				resumeTasks[index++] = Resume(new ResumedStateMachineClass(sessionId));
 			}
 
 			await Task.WhenAll(resumeTasks).ConfigureAwait(false);
@@ -164,7 +164,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 		try
 		{
-			var bucket = _bucket.Nested(_record ++);
+			var bucket = _bucket.Nested(_record++);
 			bucket.Add(Operation, Add);
 			bucket.AddId(SessionIdKey, stateMachineClass.SessionId);
 
@@ -182,7 +182,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 		try
 		{
-			var bucket = _bucket.Nested(_record ++);
+			var bucket = _bucket.Nested(_record++);
 			bucket.Add(Operation, Remove);
 			bucket.AddId(SessionIdKey, sessionId);
 

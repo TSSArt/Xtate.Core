@@ -108,7 +108,7 @@ public sealed class DataModelReferenceTracker : IDisposable
 	{
 		if (!_lists.TryGetValue(list, out var entry))
 		{
-			var refId = _nextRefId ++;
+			var refId = _nextRefId++;
 			_bucket.Add(Bucket.RootKey, _nextRefId);
 			entry.RefCount = incrementReference ? 1 : 0;
 			entry.RefId = refId;
@@ -118,7 +118,7 @@ public sealed class DataModelReferenceTracker : IDisposable
 		}
 		else if (incrementReference)
 		{
-			entry.RefCount ++;
+			entry.RefCount++;
 			_lists[list] = entry;
 		}
 
@@ -146,7 +146,7 @@ public sealed class DataModelReferenceTracker : IDisposable
 
 			if (_lists.TryGetValue(list, out var entry))
 			{
-				if (-- entry.RefCount == 0)
+				if (--entry.RefCount == 0)
 				{
 					entry.Controller.Dispose();
 					_bucket.RemoveSubtree(entry.RefId);

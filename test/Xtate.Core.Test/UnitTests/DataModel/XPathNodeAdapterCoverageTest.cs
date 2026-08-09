@@ -173,7 +173,7 @@ public class XPathNodeAdapterCoverageTest
 			typeof(ListItemNodeAdapter)
 		];
 
-		for (var index = 0; index < expectedTypes.Length; index ++)
+		for (var index = 0; index < expectedTypes.Length; index++)
 		{
 			Assert.IsTrue(items.TryGet(index, out var entry));
 			Assert.AreEqual(expectedTypes[index], AdapterFactory.GetItemAdapter(entry).GetType());

@@ -167,6 +167,7 @@ public class DisposerTest
 
 		using var cancellationTokenSource = new CancellationTokenSource();
 		cancellationTokenSource.Cancel();
+
 		// ReSharper disable once AccessToDisposedClosure
 		Assert.ThrowsExactly<TaskCanceledException>(() => Disposer.Dispose(new CanceledAsyncDisposable(cancellationTokenSource.Token)));
 	}
@@ -237,11 +238,19 @@ public class DisposerTest
 
 	private sealed class FailedAsyncDisposable(Exception exception) : IAsyncDisposable
 	{
+	#region Interface IAsyncDisposable
+
 		public ValueTask DisposeAsync() => ValueTask.FromException(exception);
+
+	#endregion
 	}
 
 	private sealed class CanceledAsyncDisposable(CancellationToken token) : IAsyncDisposable
 	{
+	#region Interface IAsyncDisposable
+
 		public ValueTask DisposeAsync() => ValueTask.FromCanceled(token);
+
+	#endregion
 	}
 }

@@ -254,7 +254,7 @@ public class LoggerCoverageTest
 
 		public IEnumerable<LoggingParameter>? EnumerateProperties<T>(T entity)
 		{
-			Calls ++;
+			Calls++;
 
 			return parameter is { } value ? [value] : null;
 		}
@@ -272,7 +272,7 @@ public class LoggerCoverageTest
 
 		public IEnumerable<LoggingParameter> EnumerateProperties()
 		{
-			Calls ++;
+			Calls++;
 
 			return [parameter];
 		}

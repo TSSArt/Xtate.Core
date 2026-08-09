@@ -51,7 +51,7 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 
 			var list = new List<T>(bytes.Length / 4);
 
-			for (var i = 0; i < list.Count; i ++)
+			for (var i = 0; i < list.Count; i++)
 			{
 				var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
 
@@ -92,7 +92,7 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 		using var ss = new StackSpan<byte>(list.Count * 4);
 		var span = ss ? ss : stackalloc byte[ss];
 
-		for (var i = 0; i < list.Count; i ++)
+		for (var i = 0; i < list.Count; i++)
 		{
 			BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].UseAncestor.As<IDocumentId>().DocumentId);
 		}

@@ -72,7 +72,7 @@ internal sealed class InvokeIdSetPersistingController : IDisposable
 					break;
 			}
 
-			_record ++;
+			_record++;
 		}
 
 		if (shrink)
@@ -83,7 +83,7 @@ internal sealed class InvokeIdSetPersistingController : IDisposable
 
 			foreach (var invokeId in _invokeIdSet)
 			{
-				var recordBucket = bucket.Nested(_record ++);
+				var recordBucket = bucket.Nested(_record++);
 				recordBucket.AddId(InvokeId, invokeId);
 				recordBucket.Add(Operation, Added);
 			}
@@ -107,7 +107,7 @@ internal sealed class InvokeIdSetPersistingController : IDisposable
 		{
 			case InvokeIdSet.ChangedAction.Add:
 			{
-				var bucket = _bucket.Nested(_record ++);
+				var bucket = _bucket.Nested(_record++);
 				bucket.AddId(InvokeId, invokeId);
 				bucket.Add(Operation, Added);
 
@@ -122,7 +122,7 @@ internal sealed class InvokeIdSetPersistingController : IDisposable
 				}
 				else
 				{
-					var bucket = _bucket.Nested(_record ++);
+					var bucket = _bucket.Nested(_record++);
 					bucket.AddId(InvokeId, invokeId);
 					bucket.Add(Operation, Removed);
 				}

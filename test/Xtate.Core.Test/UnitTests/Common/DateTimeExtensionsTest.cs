@@ -64,7 +64,7 @@ public class DateTimeExtensionsTest
 		var barrier = new Barrier(10);
 
 		// Act
-		for (var i = 0; i < 10; i ++)
+		for (var i = 0; i < 10; i++)
 		{
 			Task.Run(() =>
 					 {
@@ -81,7 +81,7 @@ public class DateTimeExtensionsTest
 		Thread.Sleep(100);
 
 		// Assert
-		for (var i = 1; i < results.Count; i ++)
+		for (var i = 1; i < results.Count; i++)
 		{
 			Assert.IsTrue(results[i - 1] <= results[i], $"Values not in order: {results[i - 1]} should be <= {results[i]}");
 		}
@@ -109,7 +109,7 @@ public class DateTimeExtensionsTest
 		var times = new List<long>();
 		var tasks = new List<Task>();
 
-		for (var i = 0; i < 5; i ++)
+		for (var i = 0; i < 5; i++)
 		{
 			tasks.Add(Task.Run(() => { times.Add(DateTime.UniqueUtcNow.Ticks); }));
 		}
@@ -119,7 +119,7 @@ public class DateTimeExtensionsTest
 		// Assert
 		times.Sort();
 
-		for (var i = 1; i < times.Count; i ++)
+		for (var i = 1; i < times.Count; i++)
 		{
 			Assert.IsTrue(times[i] >= times[i - 1], message: "Ticks should be in ascending order");
 		}

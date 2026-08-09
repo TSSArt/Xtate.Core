@@ -130,7 +130,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 		while ((pos = id.IndexOf(Dot, pos) + 1) > 0)
 		{
-			count ++;
+			count++;
 		}
 
 		return count;
@@ -144,7 +144,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 		while ((pos2 = id.IndexOf(Dot, pos)) >= 0)
 		{
-			span[index ++] = (Identifier)id[pos..pos2];
+			span[index++] = (Identifier)id[pos..pos2];
 
 			pos = pos2 + 1;
 		}
@@ -208,7 +208,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 		{
 			writer.WriteString(_parts[0].Value);
 
-			for (var i = 1; i < _parts.Length; i ++)
+			for (var i = 1; i < _parts.Length; i++)
 			{
 				writer.WriteString(@".");
 				writer.WriteString(_parts[i].Value);

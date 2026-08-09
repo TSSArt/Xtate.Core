@@ -54,6 +54,42 @@ public class StateMachineDestroyOnIdleCoverageTest
 		((IDisposable)secondTracker).Dispose();
 	}
 
+	private static StateMachineDestroyOnIdle CreateService(TimeSpan? timeout, out InvocationCounter interpreterFactoryCalls)
+	{
+		interpreterFactoryCalls = new InvocationCounter();
+		var counter = interpreterFactoryCalls;
+		var interpreter = Mock.Of<IStateMachineInterpreter>();
+
+		return new StateMachineDestroyOnIdle
+			   {
+				   Logger = Mock.Of<ILogger<StateMachineDestroyOnIdle>>(),
+				   DestroyOnIdleTimeout = timeout is { } value ? new DestroyOnIdleTimeout(value) : null,
+				   StateMachineInterpreterFactory = () =>
+													{
+														counter.Count++;
+
+														return new ValueTask<IStateMachineInterpreter>(interpreter);
+													}
+			   };
+	}
+
+	private static StateMachineDestroyOnIdle CreateService(TimeSpan timeout,
+														   IStateMachineInterpreter interpreter,
+														   ILogger<StateMachineDestroyOnIdle> logger) =>
+		new()
+		{
+			Logger = logger,
+			DestroyOnIdleTimeout = new DestroyOnIdleTimeout(timeout),
+			StateMachineInterpreterFactory = () => new ValueTask<IStateMachineInterpreter>(interpreter)
+		};
+
+	private sealed record DestroyOnIdleTimeout(TimeSpan IdleTimeout) : IDestroyOnIdleTimeout;
+
+	private sealed class InvocationCounter
+	{
+		public int Count { get; set; }
+	}
+
 #if NET5_0_OR_GREATER
 
 	[TestMethod]
@@ -101,40 +137,4 @@ public class StateMachineDestroyOnIdleCoverageTest
 	}
 
 #endif
-
-	private static StateMachineDestroyOnIdle CreateService(TimeSpan? timeout, out InvocationCounter interpreterFactoryCalls)
-	{
-		interpreterFactoryCalls = new InvocationCounter();
-		var counter = interpreterFactoryCalls;
-		var interpreter = Mock.Of<IStateMachineInterpreter>();
-
-		return new StateMachineDestroyOnIdle
-			   {
-				   Logger = Mock.Of<ILogger<StateMachineDestroyOnIdle>>(),
-				   DestroyOnIdleTimeout = timeout is { } value ? new DestroyOnIdleTimeout(value) : null,
-				   StateMachineInterpreterFactory = () =>
-													{
-														counter.Count ++;
-
-														return new ValueTask<IStateMachineInterpreter>(interpreter);
-													}
-			   };
-	}
-
-	private static StateMachineDestroyOnIdle CreateService(TimeSpan timeout,
-														   IStateMachineInterpreter interpreter,
-														   ILogger<StateMachineDestroyOnIdle> logger) =>
-		new()
-		{
-			Logger = logger,
-			DestroyOnIdleTimeout = new DestroyOnIdleTimeout(timeout),
-			StateMachineInterpreterFactory = () => new ValueTask<IStateMachineInterpreter>(interpreter)
-		};
-
-	private sealed record DestroyOnIdleTimeout(TimeSpan IdleTimeout) : IDestroyOnIdleTimeout;
-
-	private sealed class InvocationCounter
-	{
-		public int Count { get; set; }
-	}
 }

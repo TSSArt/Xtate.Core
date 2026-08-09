@@ -149,7 +149,7 @@ public class CustomActionCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}

@@ -155,7 +155,7 @@ public class XPathObject(object value) : IObject
 					return ToDataModelObject(iterator);
 
 				case XPathNodeType.Text:
-					count ++;
+					count++;
 
 					if (navigator.DataModelValue.Type == DataModelValueType.String)
 					{

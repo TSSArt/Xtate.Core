@@ -36,7 +36,7 @@ internal static class SegmentedName
 			return false;
 		}
 
-		for (var i = 0; i < segments1.Length; i ++)
+		for (var i = 0; i < segments1.Length; i++)
 		{
 			if (!EqualityComparer<T>.Default.Equals(segments1[i], segments2[i]))
 			{
@@ -82,7 +82,7 @@ internal static class SegmentedName
 			return true;
 		}
 
-		for (var i = 0; i < segments.Length; i ++)
+		for (var i = 0; i < segments.Length; i++)
 		{
 			if (i > 0 && !separator.TryCopyIncremental(ref destination, ref charsWritten))
 			{

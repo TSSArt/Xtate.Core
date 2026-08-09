@@ -44,6 +44,7 @@ namespace Xtate.Core.Test.DevTests;
 public class StateMachinePersistingInterpreterTest
 {
 	[TestMethod]
+	[DoNotParallelize]
 	public async Task TestInterpreterRunAsync()
 	{
 		var stateMachine = new LocationStateMachine(new Uri("res://Xtate.Core.Test/Xtate.Core.Test/Legacy/test.scxml"));

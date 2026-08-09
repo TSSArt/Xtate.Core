@@ -44,7 +44,7 @@ internal sealed class EntityQueuePersistingController<T> : IDisposable where T :
 		bucket.TryGet(Head, out _headIndex);
 		bucket.TryGet(Tail, out _tailIndex);
 
-		for (var i = _headIndex; i < _tailIndex; i ++)
+		for (var i = _headIndex; i < _tailIndex; i++)
 		{
 			entityQueue.Enqueue(creator(bucket.Nested(i)));
 		}
@@ -66,7 +66,7 @@ internal sealed class EntityQueuePersistingController<T> : IDisposable where T :
 		switch (action)
 		{
 			case EntityQueue<T>.ChangedAction.Enqueue:
-				var bucket = _bucket.Nested(_tailIndex ++);
+				var bucket = _bucket.Nested(_tailIndex++);
 				_bucket.Add(Tail, _tailIndex);
 				entity!.UseAncestor.As<IStoreSupport>().Store(bucket);
 
@@ -75,7 +75,7 @@ internal sealed class EntityQueuePersistingController<T> : IDisposable where T :
 			case EntityQueue<T>.ChangedAction.Dequeue:
 				if (_entityQueue.Count > 1)
 				{
-					_bucket.RemoveSubtree(_headIndex ++);
+					_bucket.RemoveSubtree(_headIndex++);
 					_bucket.Add(Head, _headIndex);
 				}
 				else

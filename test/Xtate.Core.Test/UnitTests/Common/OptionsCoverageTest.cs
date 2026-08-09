@@ -61,7 +61,7 @@ public class OptionsCoverageTest
 		var configureCount = 0;
 		var configure = new ConfigureAsync<TestOptions>(value =>
 														{
-															configureCount ++;
+															configureCount++;
 															value.Entries.Add("configure");
 
 															return ValueTask.CompletedTask;

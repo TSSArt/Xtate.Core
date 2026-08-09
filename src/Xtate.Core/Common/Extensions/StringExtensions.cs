@@ -73,12 +73,12 @@ internal static class StringExtensions
 
 				if (addSpace)
 				{
-					buf[count ++] = ' ';
+					buf[count++] = ' ';
 					addSpace = false;
 				}
 			}
 
-			buf[count ++] = ch;
+			buf[count++] = ch;
 		}
 
 		return str.Length == count && !normalized ? str : buf[..count].ToString();

@@ -133,7 +133,7 @@ public class StateMachinePersistedContextCoverageTest
 
 		public ValueTask DisposeAsync()
 		{
-			DisposeAsyncCount ++;
+			DisposeAsyncCount++;
 			_storage.Dispose();
 
 			return ValueTask.CompletedTask;
@@ -145,7 +145,7 @@ public class StateMachinePersistedContextCoverageTest
 
 		public void Dispose()
 		{
-			DisposeCount ++;
+			DisposeCount++;
 			_storage.Dispose();
 		}
 
@@ -174,7 +174,7 @@ public class StateMachinePersistedContextCoverageTest
 
 		public ValueTask Shrink()
 		{
-			ShrinkCount ++;
+			ShrinkCount++;
 
 			return ValueTask.CompletedTask;
 		}

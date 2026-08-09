@@ -200,7 +200,7 @@ public class TokenAndLazyValueCoverageTest
 		var noArgCalls = 0;
 		var noArg = LazyValue.Create(() =>
 									 {
-										 noArgCalls ++;
+										 noArgCalls++;
 
 										 return new DataModelValue("created");
 									 });

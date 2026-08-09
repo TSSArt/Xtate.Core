@@ -218,7 +218,7 @@ public class InterpreterModelLeafNodeCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}

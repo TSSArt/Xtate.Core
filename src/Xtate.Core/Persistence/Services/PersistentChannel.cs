@@ -177,7 +177,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 	{
 		await _lock.WaitAsync(token).ConfigureAwait(false);
 
-		var cellIndex = unchecked(++ _tailIndex);
+		var cellIndex = unchecked(++_tailIndex);
 
 		try
 		{
@@ -189,7 +189,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 		catch
 		{
 			// Rollback tail index if write failed
-			_bucket.Add(Keys.Tail, unchecked(-- _tailIndex));
+			_bucket.Add(Keys.Tail, unchecked(--_tailIndex));
 			_bucket.RemoveSubtree(cellIndex);
 
 			throw;
@@ -204,7 +204,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 	{
 		await _lock.WaitAsync(token).ConfigureAwait(false);
 
-		var cellIndex = unchecked(++ _headIndex);
+		var cellIndex = unchecked(++_headIndex);
 		T? item = null;
 
 		try
@@ -218,7 +218,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 
 			if (Interlocked.CompareExchange(ref _nextItem, item, comparand: null) is not null)
 			{
-				_bucket.Add(Keys.Head, unchecked(-- _headIndex));
+				_bucket.Add(Keys.Head, unchecked(--_headIndex));
 				_store(_bucket.Nested(cellIndex), item);
 
 				await _storage.CheckPoint(0).ConfigureAwait(false);
@@ -227,7 +227,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 		catch
 		{
 			// Rollback head index if read failed
-			_bucket.Add(Keys.Head, unchecked(-- _headIndex));
+			_bucket.Add(Keys.Head, unchecked(--_headIndex));
 
 			if (item is not null)
 			{

@@ -84,7 +84,7 @@ public class HttpClientService : ExternalServiceBase
 
 		DataModelList? list = null;
 
-		for (var i = 0; i < responseHeaders.Count; i ++)
+		for (var i = 0; i < responseHeaders.Count; i++)
 		{
 			if (responseHeaders.GetKey(i) is not { } name)
 			{

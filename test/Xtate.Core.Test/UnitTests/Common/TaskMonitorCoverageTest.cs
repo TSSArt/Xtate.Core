@@ -17,8 +17,8 @@
 
 // ReSharper disable MethodHasAsyncOverload
 
-using System.Threading;
 using System.Globalization;
+using System.Threading;
 using Xtate.Logging;
 using Xtate.Logging.Internal;
 using MonitoredTask = Xtate.TaskMonitor.Services.TaskMonitor;
@@ -125,7 +125,7 @@ public class TaskMonitorCoverageTest
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(Task.FromException(new InvalidOperationException("task"))));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => successMonitor.Forget(new ValueTask(Task.FromException(new InvalidOperationException("value task")))));
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() =>
-												successMonitor.Forget(new ValueTask<int>(Task.FromException<int>(new InvalidOperationException("generic value task")))));
+															successMonitor.Forget(new ValueTask<int>(Task.FromException<int>(new InvalidOperationException("generic value task")))));
 	}
 
 	[TestMethod]
@@ -187,9 +187,15 @@ public class TaskMonitorCoverageTest
 	{
 		public TaskCompletionSource<LogEntry> Next { get; set; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
-		public IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
+	#region Interface ILogger
 
 		public bool IsEnabled(Level level) => true;
+
+		public IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
+
+	#endregion
+
+	#region Interface ILogger<MonitoredTask>
 
 		public ValueTask Write(Level level, int eventId, string? message)
 		{
@@ -198,18 +204,25 @@ public class TaskMonitorCoverageTest
 			return ValueTask.CompletedTask;
 		}
 
-		public ValueTask Write<TEntity>(Level level, int eventId, string? message, TEntity entity)
+		public ValueTask Write<TEntity>(Level level,
+										int eventId,
+										string? message,
+										TEntity entity)
 		{
 			Next.TrySetResult(new LogEntry(level, entity));
 
 			return ValueTask.CompletedTask;
 		}
 
-		public ValueTask Write(Level level, int eventId, LoggingInterpolatedStringHandler formattedMessage) =>
-			Write(level, eventId, formattedMessage.ToString(out _));
+		public ValueTask Write(Level level, int eventId, LoggingInterpolatedStringHandler formattedMessage) => Write(level, eventId, formattedMessage.ToString(out _));
 
-		public ValueTask Write<TEntity>(Level level, int eventId, LoggingInterpolatedStringHandler formattedMessage, TEntity entity) =>
+		public ValueTask Write<TEntity>(Level level,
+										int eventId,
+										LoggingInterpolatedStringHandler formattedMessage,
+										TEntity entity) =>
 			Write(level, eventId, formattedMessage.ToString(out _), entity);
+
+	#endregion
 	}
 
 	private sealed record LogEntry(Level Level, object? Entity);

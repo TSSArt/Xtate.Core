@@ -64,7 +64,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 				if (seg[len - 1] == '/')
 				{
-					len --;
+					len--;
 				}
 
 				if (len > 0)

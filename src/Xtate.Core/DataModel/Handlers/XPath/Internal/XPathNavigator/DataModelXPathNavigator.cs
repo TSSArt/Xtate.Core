@@ -107,7 +107,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 		Array.Copy(source._pathOther, destination._pathOther, otherCount);
 
-		for (var i = 0; i < PathFieldCount; i ++)
+		for (var i = 0; i < PathFieldCount; i++)
 		{
 			destination.PathItem(i) = source.PathItem(i);
 		}
@@ -225,7 +225,7 @@ public class DataModelXPathNavigator : XPathNavigator
 			return false;
 		}
 
-		for (var i = 0; i <= _pathLength; i ++)
+		for (var i = 0; i <= _pathLength; i++)
 		{
 			if (!PathItem(i).Equals(navigator.PathItem(i)))
 			{
@@ -250,7 +250,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 	private void PushNode(in Node node)
 	{
-		_pathLength ++;
+		_pathLength++;
 
 		if (_pathLength >= PathFieldCount)
 		{
@@ -269,7 +269,7 @@ public class DataModelXPathNavigator : XPathNavigator
 		PathItem(_pathLength) = node;
 	}
 
-	private void PopNode() => PathItem(_pathLength --) = default;
+	private void PopNode() => PathItem(_pathLength--) = default;
 
 	internal void FirstChild(IObject valueObject) => AddChildren(valueObject, last: false, clear: false);
 
@@ -416,7 +416,7 @@ public class DataModelXPathNavigator : XPathNavigator
 			{
 				var key = XmlConverter.NsNameToKey(navigator.NamespaceURI, navigator.LocalName);
 				var metadata = new DataModelValue(navigator.Current.Metadata).CloneAsWritable().AsListOrDefault();
-				list.Insert(start ++, key, navigator.Current.DataModelValue.CloneAsWritable(), metadata);
+				list.Insert(start++, key, navigator.Current.DataModelValue.CloneAsWritable(), metadata);
 			}
 
 			return;
@@ -428,7 +428,7 @@ public class DataModelXPathNavigator : XPathNavigator
 		{
 			foreach (var entry in arr.Entries)
 			{
-				list.Insert(start ++, entry.Key, entry.Value.CloneAsWritable(), entry.Metadata?.CloneAsWritable());
+				list.Insert(start++, entry.Key, entry.Value.CloneAsWritable(), entry.Metadata?.CloneAsWritable());
 			}
 		}
 		else

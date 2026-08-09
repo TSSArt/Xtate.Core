@@ -113,7 +113,7 @@ internal static class Encode
 	{
 		var encodedValue = GetEncodedValue(value);
 
-		for (var i = 0; i < span.Length; i ++)
+		for (var i = 0; i < span.Length; i++)
 		{
 			span[i] = (byte)encodedValue;
 

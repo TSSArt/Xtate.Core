@@ -1343,7 +1343,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 			var delta = queueLength - _queueLength;
 			_queueLength = queueLength;
 			_sum += delta;
-			_data[_index ++ % IterationCount] = delta;
+			_data[_index++ % IterationCount] = delta;
 
 			return false;
 		}

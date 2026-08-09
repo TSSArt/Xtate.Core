@@ -38,10 +38,10 @@ public class RuntimeAndActionProviderCoverageTest
 		var syncCalls = 0;
 		var asyncCalls = 0;
 
-		await RuntimeAction.GetAction(() => syncCalls ++).DoAction();
+		await RuntimeAction.GetAction(() => syncCalls++).DoAction();
 		await RuntimeAction.GetAction(() =>
 									  {
-										  asyncCalls ++;
+										  asyncCalls++;
 
 										  return ValueTask.CompletedTask;
 									  })
@@ -90,7 +90,7 @@ public class RuntimeAndActionProviderCoverageTest
 		var conditionExpression = RuntimePredicate.GetPredicate(() => true);
 		IValueExpression valueExpression = RuntimeValue.GetValue(new DataModelValue("runtime value"));
 		var actionCalls = 0;
-		IExecutableEntity executableEntity = RuntimeAction.GetAction(() => actionCalls ++);
+		IExecutableEntity executableEntity = RuntimeAction.GetAction(() => actionCalls++);
 
 		((IDataModelHandler)handler).Process(ref conditionExpression);
 		((IDataModelHandler)handler).Process(ref valueExpression);

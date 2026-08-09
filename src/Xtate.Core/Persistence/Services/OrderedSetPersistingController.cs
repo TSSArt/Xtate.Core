@@ -71,7 +71,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 				}
 			}
 
-			_record ++;
+			_record++;
 		}
 
 		if (shrink)
@@ -82,7 +82,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 
 			foreach (var entity in orderedSet)
 			{
-				var recordBucket = bucket.Nested(_record ++);
+				var recordBucket = bucket.Nested(_record++);
 				recordBucket.Add(DocumentId, entity.UseAncestor.As<IDocumentId>().DocumentId);
 				recordBucket.Add(Operation, Added);
 			}
@@ -106,7 +106,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 		{
 			case OrderedSet<T>.ChangedAction.Add:
 			{
-				var bucket = _bucket.Nested(_record ++);
+				var bucket = _bucket.Nested(_record++);
 				bucket.Add(DocumentId, item!.UseAncestor.As<IDocumentId>().DocumentId);
 				bucket.Add(Operation, Added);
 
@@ -127,7 +127,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 				}
 				else
 				{
-					var bucket = _bucket.Nested(_record ++);
+					var bucket = _bucket.Nested(_record++);
 					bucket.Add(DocumentId, item!.UseAncestor.As<IDocumentId>().DocumentId);
 					bucket.Add(Operation, Deleted);
 				}

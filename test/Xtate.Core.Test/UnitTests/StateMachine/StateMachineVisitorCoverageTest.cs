@@ -241,14 +241,14 @@ public class StateMachineVisitorCoverageTest
 
 		protected override void VisitUnknown(ref IStateEntity entity)
 		{
-			UnknownStates ++;
+			UnknownStates++;
 			LastUnknownState = entity;
 			base.VisitUnknown(ref entity);
 		}
 
 		protected override void VisitUnknown(ref IExecutableEntity entity)
 		{
-			UnknownExecutables ++;
+			UnknownExecutables++;
 			LastUnknownExecutable = entity;
 			base.VisitUnknown(ref entity);
 		}
@@ -266,7 +266,7 @@ public class StateMachineVisitorCoverageTest
 
 		protected override void Visit(ref IFinal entity)
 		{
-			FinalVisits ++;
+			FinalVisits++;
 			base.Visit(ref entity);
 		}
 	}
@@ -320,7 +320,7 @@ public class StateMachineVisitorCoverageTest
 
 			foreach (var _ in trackList)
 			{
-				InitialEnumerationCount ++;
+				InitialEnumerationCount++;
 			}
 
 			trackList[0] = first;
@@ -332,7 +332,7 @@ public class StateMachineVisitorCoverageTest
 
 			foreach (var _ in trackList)
 			{
-				ModifiedEnumerationCount ++;
+				ModifiedEnumerationCount++;
 			}
 		}
 	}

@@ -194,7 +194,7 @@ public class DataModelNumberCoverageTest
 	public void InvalidStorageKindAndFloatingPointBoundariesUseDefensiveBranches()
 	{
 		var invalid = (DataModelNumber)Activator.CreateInstance(
-			type: typeof(DataModelNumber),
+			typeof(DataModelNumber),
 			BindingFlags.Instance | BindingFlags.NonPublic,
 			binder: null,
 			[(DataModelNumberType)byte.MaxValue, 0L, 0L],
@@ -219,13 +219,13 @@ public class DataModelNumberCoverageTest
 		Assert.ThrowsExactly<InvalidOperationException>(() => DataModelNumber.ReadFrom([byte.MaxValue]));
 
 		var zero = DataModelNumber.FromInt64(0);
-		Assert.IsLessThan(0, zero.CompareTo(DataModelNumber.FromDouble(double.NaN)));
-		Assert.IsLessThan(0, zero.CompareTo(DataModelNumber.FromDouble(double.PositiveInfinity)));
-		Assert.IsGreaterThan(0, zero.CompareTo(DataModelNumber.FromDouble(double.NegativeInfinity)));
+		Assert.IsLessThan(upperBound: 0, zero.CompareTo(DataModelNumber.FromDouble(double.NaN)));
+		Assert.IsLessThan(upperBound: 0, zero.CompareTo(DataModelNumber.FromDouble(double.PositiveInfinity)));
+		Assert.IsGreaterThan(lowerBound: 0, zero.CompareTo(DataModelNumber.FromDouble(double.NegativeInfinity)));
 		var decimalZero = DataModelNumber.FromDecimal(decimal.Zero);
-		Assert.IsLessThan(0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.NaN)));
-		Assert.IsLessThan(0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.PositiveInfinity)));
-		Assert.IsGreaterThan(0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.NegativeInfinity)));
+		Assert.IsLessThan(upperBound: 0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.NaN)));
+		Assert.IsLessThan(upperBound: 0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.PositiveInfinity)));
+		Assert.IsGreaterThan(lowerBound: 0, decimalZero.CompareTo(DataModelNumber.FromDouble(double.NegativeInfinity)));
 	}
 
 	private static object? InvokeConvertible(DataModelNumber value, string methodName, Type? conversionType = null)

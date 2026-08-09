@@ -80,7 +80,7 @@ public class StorageTest
 
 			var rowSize = keyLengthLength + keyLength + valueLengthLength + valueLength;
 			log = log[rowSize..];
-			count ++;
+			count++;
 		}
 
 		return count;
@@ -138,7 +138,7 @@ public class StorageTest
 	[ExcludeFromCodeCoverage]
 	private static int GetBytesLength(byte[] key, int start)
 	{
-		for (var i = start; i < key.Length; i ++)
+		for (var i = start; i < key.Length; i++)
 		{
 			if (key[i] == 0xFF)
 			{

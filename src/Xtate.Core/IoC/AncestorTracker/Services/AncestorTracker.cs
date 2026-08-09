@@ -32,7 +32,7 @@ public class AncestorTracker : IAncestorTracker, IServiceProviderActions, IServi
 
 		var node = _node.Value;
 
-		for (; node != null && level > 0; node = node.PrevNode, level --) { }
+		for (; node != null && level > 0; node = node.PrevNode, level--) { }
 
 		return node?.AncestorType == type;
 	}

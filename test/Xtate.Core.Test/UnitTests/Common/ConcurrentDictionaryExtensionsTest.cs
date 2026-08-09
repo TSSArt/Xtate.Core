@@ -123,7 +123,7 @@ public class ConcurrentDictionaryExtensionsTest
 		var tasks = new List<Task>();
 
 		// Add items
-		for (var i = 0; i < 10; i ++)
+		for (var i = 0; i < 10; i++)
 		{
 			dict.TryAdd(i, $"value{i}");
 		}
@@ -131,7 +131,7 @@ public class ConcurrentDictionaryExtensionsTest
 		var removedCount = 0;
 
 		// Act - Remove items concurrently
-		for (var i = 0; i < 10; i ++)
+		for (var i = 0; i < 10; i++)
 		{
 			tasks.Add(
 				Task.Run(() =>

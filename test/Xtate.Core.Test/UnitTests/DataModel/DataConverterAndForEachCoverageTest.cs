@@ -186,14 +186,14 @@ public class DataConverterAndForEachCoverageTest
 
 		protected override ValueTask ProcessItem(IObject instance, int index)
 		{
-			ProcessItemCount ++;
+			ProcessItemCount++;
 
 			return base.ProcessItem(instance, index);
 		}
 
 		protected override ValueTask DoItemActions()
 		{
-			DoItemActionsCount ++;
+			DoItemActionsCount++;
 
 			return base.DoItemActions();
 		}
@@ -278,7 +278,7 @@ public class DataConverterAndForEachCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}

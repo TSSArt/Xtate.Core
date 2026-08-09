@@ -502,7 +502,7 @@ public class IoProcessorAndHostCoverageTest
 
 		protected override Task BackgroundProcess()
 		{
-			BackgroundCount ++;
+			BackgroundCount++;
 			ObservedTokens.Add(Token);
 
 			return Task.CompletedTask;
@@ -517,7 +517,7 @@ public class IoProcessorAndHostCoverageTest
 
 		protected override async Task ProtectedBackgroundProcess()
 		{
-			AttemptCount ++;
+			AttemptCount++;
 			Entered.TrySetResult();
 
 			if (failuresBeforeSuccess < 0)
@@ -542,9 +542,9 @@ public class IoProcessorAndHostCoverageTest
 
 		public Task RunProtected() => ProtectedBackgroundProcess();
 
-		protected override void StartListener() => StartListenerCount ++;
+		protected override void StartListener() => StartListenerCount++;
 
-		protected override void StopListener() => StopListenerCount ++;
+		protected override void StopListener() => StopListenerCount++;
 	}
 
 	private sealed class TestNamedPipeIoProcessorHost(Mock<IExternalEventDispatcher<NamedPipeIoProcessorHost>> externalDispatcher) : NamedPipeIoProcessorHost

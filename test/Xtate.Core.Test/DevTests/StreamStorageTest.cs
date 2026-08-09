@@ -93,7 +93,7 @@ public class ProxyMemoryStream : MemoryStream
 			throw new ArgumentException("Zero len");
 		}
 
-		if (-- FailWriteCountdown == 0)
+		if (--FailWriteCountdown == 0)
 		{
 			throw new ArgumentException("?");
 		}

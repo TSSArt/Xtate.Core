@@ -48,7 +48,7 @@ public class StateMachineValidationException(ImmutableArray<ErrorItem> validatio
 				sb.AppendLine();
 			}
 
-			sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index ++, validationMessages.Length, error));
+			sb.Append(Res.Format(Resources.Exception_StateMachineValidationExceptionMessage, index++, validationMessages.Length, error));
 		}
 
 		return sb.ToString();

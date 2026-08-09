@@ -60,7 +60,7 @@ public readonly struct Bucket
 		{
 			var block = _block;
 
-			for (int i = 0, shift = size; i < bytes.Length; i ++, shift ++)
+			for (int i = 0, shift = size; i < bytes.Length; i++, shift++)
 			{
 				block |= (ulong)bytes[i] << (shift * 8);
 			}
@@ -330,7 +330,7 @@ public readonly struct Bucket
 				length = 8;
 			}
 
-			for (var i = length - 1; i >= 0; i --)
+			for (var i = length - 1; i >= 0; i--)
 			{
 				_block2 = (_block2 << 8) | (0xFFUL & span[i]);
 			}
@@ -342,7 +342,7 @@ public readonly struct Bucket
 		{
 			var size = GetSize(block);
 
-			for (var i = 0; i < size; i ++, index ++)
+			for (var i = 0; i < size; i++, index++)
 			{
 				buf[index] = unchecked((byte)block);
 				block >>= 8;
@@ -392,7 +392,7 @@ public readonly struct Bucket
 		{
 			var value = GetEncodedValue(GetValue(key));
 
-			for (var i = 0; i < bytes.Length; i ++)
+			for (var i = 0; i < bytes.Length; i++)
 			{
 				bytes[i] = (byte)value;
 
@@ -555,7 +555,7 @@ public readonly struct Bucket
 			while (value is < sbyte.MinValue or > sbyte.MaxValue)
 			{
 				value >>= 8;
-				count ++;
+				count++;
 			}
 
 			return count;
@@ -563,7 +563,7 @@ public readonly struct Bucket
 
 		protected override void Write(int value, Span<byte> bytes)
 		{
-			for (var i = 0; i < bytes.Length; i ++)
+			for (var i = 0; i < bytes.Length; i++)
 			{
 				bytes[i] = unchecked((byte)value);
 				value >>= 8;
@@ -574,7 +574,7 @@ public readonly struct Bucket
 		{
 			var value = (int)(sbyte)bytes[^1];
 
-			for (var i = bytes.Length - 2; i >= 0; i --)
+			for (var i = bytes.Length - 2; i >= 0; i--)
 			{
 				value = (value << 8) | bytes[i];
 			}

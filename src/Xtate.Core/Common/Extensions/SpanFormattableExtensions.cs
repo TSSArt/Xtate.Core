@@ -69,7 +69,7 @@ internal static class SpanFormattableExtensions
 			{
 				destination[0] = ch;
 
-				charsWritten ++;
+				charsWritten++;
 				destination = destination[1..];
 
 				return true;

@@ -82,7 +82,7 @@ internal static class QueryStringHelper
 			{
 				while (scanIndex != equalIndex && char.IsWhiteSpace(query[scanIndex]))
 				{
-					++ scanIndex;
+					++scanIndex;
 				}
 
 				var name = UnescapeDataString(query[scanIndex..equalIndex]);

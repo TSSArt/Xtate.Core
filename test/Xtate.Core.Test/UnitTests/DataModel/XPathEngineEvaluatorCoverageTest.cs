@@ -360,7 +360,7 @@ public class XPathEngineEvaluatorCoverageTest
 
 		public override ValueTask Initialize()
 		{
-			InitializeCount ++;
+			InitializeCount++;
 
 			return ValueTask.CompletedTask;
 		}

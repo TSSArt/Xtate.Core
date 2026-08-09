@@ -98,11 +98,6 @@ public class InProcEventScheduler : IEventScheduler, IDisposable, IAsyncDisposab
 
 	protected virtual void Dispose(bool disposing)
 	{
-		int t = 0;
-
-		t ++;
-		t++;
-
 		if (disposing)
 		{
 			List<Exception>? exceptions = null;

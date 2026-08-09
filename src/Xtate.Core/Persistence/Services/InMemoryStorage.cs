@@ -343,7 +343,7 @@ public class InMemoryStorage : IStorage
 		{
 			if (_buffers is not null)
 			{
-				for (var i = 0; i < _buffers.Count; i ++)
+				for (var i = 0; i < _buffers.Count; i++)
 				{
 					_buffers[i] = (_buffers[i].Owner, 0);
 				}

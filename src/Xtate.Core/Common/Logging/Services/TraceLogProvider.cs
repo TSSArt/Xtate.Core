@@ -50,7 +50,7 @@ public abstract class TraceLogProvider
 
 		sb.Append(@"{0}");
 
-		for (var i = 1; i < argsCount; i ++)
+		for (var i = 1; i < argsCount; i++)
 		{
 			sb.AppendLine().Append(@"  {").Append(i).Append('}');
 		}

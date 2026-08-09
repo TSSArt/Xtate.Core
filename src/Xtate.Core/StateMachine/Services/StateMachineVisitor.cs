@@ -127,7 +127,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 					return true;
 				}
 
-				for (var i = 0; i < items.Length; i ++)
+				for (var i = 0; i < items.Length; i++)
 				{
 					if (!ReferenceEquals(items[i], ModifiedItems[i]))
 					{
@@ -1075,7 +1075,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IIdentifier> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1085,7 +1085,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IStateEntity> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1095,7 +1095,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<ITransition> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1105,7 +1105,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IEventDescriptor> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1115,7 +1115,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IHistory> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1125,7 +1125,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IOnEntry> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1135,7 +1135,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IOnExit> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1145,7 +1145,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IExecutableEntity> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1155,7 +1155,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IInvoke> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1165,7 +1165,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IValueExpression> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1175,7 +1175,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<ILocationExpression> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1185,7 +1185,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IData> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);
@@ -1195,7 +1195,7 @@ public abstract class StateMachineVisitor(bool trackPath = false)
 
 	protected virtual void Build(ref TrackList<IParam> trackList)
 	{
-		for (var i = 0; i < trackList.Count; i ++)
+		for (var i = 0; i < trackList.Count; i++)
 		{
 			var item = trackList[i];
 			VisitWrapper(ref item);

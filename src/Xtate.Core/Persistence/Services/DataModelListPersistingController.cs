@@ -202,7 +202,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					throw Infra.Unmatched(operation);
 			}
 
-			_record ++;
+			_record++;
 		}
 	}
 
@@ -226,7 +226,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 
 		if (metadata is not null)
 		{
-			var recordBucket = _bucket.Nested(_record ++);
+			var recordBucket = _bucket.Nested(_record++);
 			recordBucket.Add(Key.Operation, Key.SetMetadata);
 			var entry = new DataModelList.Entry(metadata);
 			AddEntry(recordBucket, entry);
@@ -269,7 +269,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 
 		void Set(in DataModelList.Entry entry)
 		{
-			var recordBucket = _bucket.Nested(_record ++);
+			var recordBucket = _bucket.Nested(_record++);
 			recordBucket.Add(Key.Operation, Key.Set);
 			recordBucket.Add(Key.Index, entry.Index);
 			AddEntry(recordBucket, entry);
@@ -277,7 +277,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 
 		void Append(in DataModelList.Entry entry)
 		{
-			var recordBucket = _bucket.Nested(_record ++);
+			var recordBucket = _bucket.Nested(_record++);
 			recordBucket.Add(Key.Operation, Key.Append);
 			AddEntry(recordBucket, entry);
 		}
@@ -294,7 +294,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 
 			case DataModelList.ChangeAction.Append:
 			{
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Operation, Key.Append);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
@@ -303,7 +303,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			}
 			case DataModelList.ChangeAction.SetCsKey:
 			{
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Operation, Key.SetCsKey);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
@@ -312,7 +312,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			}
 			case DataModelList.ChangeAction.SetCiKey:
 			{
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Operation, Key.SetCiKey);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);
@@ -321,7 +321,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			}
 			case DataModelList.ChangeAction.SetAt:
 			{
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Index, entry.Index);
 				recordBucket.Add(Key.Operation, Key.Set);
 				AddEntry(recordBucket, entry);
@@ -331,7 +331,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			}
 			case DataModelList.ChangeAction.InsertAt:
 			{
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Index, entry.Index);
 				recordBucket.Add(Key.Operation, Key.Insert);
 				AddEntry(recordBucket, entry);
@@ -343,7 +343,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			{
 				RemoveReferences(entry);
 
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Operation, Key.Remove);
 				recordBucket.Add(Key.Index, entry.Index);
 
@@ -362,7 +362,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 					}
 				}
 
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Operation, Key.SetLength);
 				recordBucket.Add(Key.Index, entry.Index);
 
@@ -372,7 +372,7 @@ internal sealed class DataModelListPersistingController : DataModelPersistingCon
 			{
 				RemoveReferences(new DataModelList.Entry(_list.GetMetadata()));
 
-				var recordBucket = _bucket.Nested(_record ++);
+				var recordBucket = _bucket.Nested(_record++);
 				recordBucket.Add(Key.Operation, Key.SetMetadata);
 				AddEntry(recordBucket, entry);
 				AddReferences(entry);

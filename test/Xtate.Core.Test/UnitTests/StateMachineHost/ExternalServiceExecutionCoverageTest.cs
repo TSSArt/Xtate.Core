@@ -215,7 +215,7 @@ public class ExternalServiceExecutionCoverageTest
 
 		protected override async ValueTask Stop()
 		{
-			StopCount ++;
+			StopCount++;
 
 			await base.Stop();
 		}

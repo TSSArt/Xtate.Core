@@ -264,7 +264,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 		while (value is < sbyte.MinValue or > sbyte.MaxValue)
 		{
 			value >>= 8;
-			count ++;
+			count++;
 		}
 
 		return count;
@@ -300,7 +300,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 
 	private static void WriteInt64(long value, Span<byte> bytes)
 	{
-		for (var i = 0; i < bytes.Length; i ++)
+		for (var i = 0; i < bytes.Length; i++)
 		{
 			bytes[i] = unchecked((byte)value);
 			value >>= 8;
@@ -326,7 +326,7 @@ public readonly struct DataModelNumber : IConvertible, ISpanFormattable, IEquata
 	{
 		var value = (long)(sbyte)bytes[^1];
 
-		for (var i = bytes.Length - 2; i >= 0; i --)
+		for (var i = bytes.Length - 2; i >= 0; i--)
 		{
 			value = (value << 8) | bytes[i];
 		}

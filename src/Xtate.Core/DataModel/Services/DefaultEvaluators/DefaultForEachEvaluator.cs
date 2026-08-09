@@ -52,7 +52,7 @@ public class DefaultForEachEvaluator : ForEachEvaluator
 	{
 		var array = await _arrayEvaluator.EvaluateArray().ConfigureAwait(false);
 
-		for (var i = 0; i < array.Length; i ++)
+		for (var i = 0; i < array.Length; i++)
 		{
 			await ProcessItem(array[i], i).ConfigureAwait(false);
 		}

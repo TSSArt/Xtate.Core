@@ -138,11 +138,11 @@ public class BucketConverterCoverageTest
 		using var storage = new InMemoryStorage(writeOnly: false);
 		var bucket = new Bucket(storage);
 
-		AssertEnum(ByteEnum.Value, value: ByteEnum.Value);
-		AssertEnum(Int16Enum.Value, value: Int16Enum.Value);
-		AssertEnum(SByteEnum.Value, value: SByteEnum.Value);
-		AssertEnum(UInt16Enum.Value, value: UInt16Enum.Value);
-		AssertEnum(UInt32Enum.Value, value: UInt32Enum.Value);
+		AssertEnum(ByteEnum.Value, ByteEnum.Value);
+		AssertEnum(Int16Enum.Value, Int16Enum.Value);
+		AssertEnum(SByteEnum.Value, SByteEnum.Value);
+		AssertEnum(UInt16Enum.Value, UInt16Enum.Value);
+		AssertEnum(UInt32Enum.Value, UInt32Enum.Value);
 
 		return;
 
@@ -161,13 +161,28 @@ public class BucketConverterCoverageTest
 		Large = int.MaxValue
 	}
 
-	private enum ByteEnum : byte { Value = byte.MaxValue }
+	private enum ByteEnum : byte
+	{
+		Value = byte.MaxValue
+	}
 
-	private enum Int16Enum : short { Value = short.MinValue }
+	private enum Int16Enum : short
+	{
+		Value = short.MinValue
+	}
 
-	private enum SByteEnum : sbyte { Value = sbyte.MinValue }
+	private enum SByteEnum : sbyte
+	{
+		Value = sbyte.MinValue
+	}
 
-	private enum UInt16Enum : ushort { Value = ushort.MaxValue }
+	private enum UInt16Enum : ushort
+	{
+		Value = ushort.MaxValue
+	}
 
-	private enum UInt32Enum : uint { Value = uint.MaxValue }
+	private enum UInt32Enum : uint
+	{
+		Value = uint.MaxValue
+	}
 }

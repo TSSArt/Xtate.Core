@@ -331,7 +331,7 @@ public class InterpreterModelStateWrapperCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}

@@ -456,7 +456,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			if (_xmlReader.LookupNamespace(prefix) is { Length: > 0 } val)
 			{
 				namespaces ??= ArrayPool<PrefixNamespace>.Shared.Rent(_namespacePrefixes.Count);
-				namespaces[count ++] = new PrefixNamespace(prefix, val);
+				namespaces[count++] = new PrefixNamespace(prefix, val);
 			}
 		}
 
@@ -499,7 +499,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			return false;
 		}
 
-		for (var i = 0; i < count; i ++)
+		for (var i = 0; i < count; i++)
 		{
 			if (!ReferenceEquals(list[i].Prefix, array[i].Prefix) || list[i].Namespace != array[i].Namespace)
 			{

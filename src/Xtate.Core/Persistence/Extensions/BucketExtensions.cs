@@ -43,7 +43,7 @@ public static class BucketExtensions
 
 			var listStorage = bucket.Nested(key);
 
-			for (var i = 0; i < array.Length; i ++)
+			for (var i = 0; i < array.Length; i++)
 			{
 				array[i].UseAncestor.As<IStoreSupport>().Store(listStorage.Nested(i));
 			}
@@ -60,7 +60,7 @@ public static class BucketExtensions
 
 			var builder = ImmutableArray.CreateBuilder<TValue>(length);
 
-			for (var i = 0; i < length; i ++)
+			for (var i = 0; i < length; i++)
 			{
 				var item = factory(itemsBucket.Nested(i)) ?? throw new PersistenceException(Resources.Exception_ItemCantBeNull);
 

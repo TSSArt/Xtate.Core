@@ -95,7 +95,7 @@ public class LazyIdCoverageTest
 
 		protected override string GenerateId()
 		{
-			GenerateCount ++;
+			GenerateCount++;
 
 			return $"generated-{GetHashCode():x8}";
 		}

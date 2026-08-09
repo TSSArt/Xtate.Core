@@ -30,7 +30,7 @@ public partial class DataModelList : IList<DataModelValue>
 
 		foreach (var value in Values)
 		{
-			array[index ++] = value;
+			array[index++] = value;
 		}
 	}
 
@@ -102,12 +102,12 @@ public partial class DataModelList : IList<DataModelValue>
 		{
 			if (start > 0)
 			{
-				start --;
+				start--;
 
 				continue;
 			}
 
-			array[index ++] = value;
+			array[index++] = value;
 
 			if (index == length)
 			{

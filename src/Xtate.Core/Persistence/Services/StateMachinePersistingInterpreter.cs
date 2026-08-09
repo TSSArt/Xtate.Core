@@ -188,7 +188,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 		result = [with(length)];
 
-		for (var i = 0; i < length; i ++)
+		for (var i = 0; i < length; i++)
 		{
 			var documentId = bucket.GetInt32(i);
 
@@ -210,7 +210,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 
 		bucket.Add(Bucket.RootKey, result.Count);
 
-		for (var i = 0; i < result.Count; i ++)
+		for (var i = 0; i < result.Count; i++)
 		{
 			bucket.Add(i, result[i].DocumentId);
 		}
@@ -240,7 +240,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		switch (methodState)
 		{
 			case MethodState.Executing:
-				_index ++;
+				_index++;
 				_stateBucket.Add(_index, _subIndex);
 				_subIndex = 0;
 				bucket = default;
@@ -253,7 +253,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 					Infra.Fail();
 				}
 
-				_subIndex ++;
+				_subIndex++;
 				bucket = subBucket;
 
 				return true;
@@ -268,7 +268,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		var topBucket = _stateBucket.Nested(_index);
 		var getStatus = topBucket.TryGet(Bucket.RootKey, out int subIndex);
 		Infra.Assert(getStatus);
-		_index --;
+		_index--;
 		_subIndex = subIndex;
 
 		var subBucket = _stateBucket.Nested(_index).Nested(_subIndex);
@@ -292,7 +292,7 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 		else
 		{
 			subBucket.Add(Bucket.RootKey, MethodState.Completed);
-			_subIndex ++;
+			_subIndex++;
 		}
 
 		bucket = subBucket;

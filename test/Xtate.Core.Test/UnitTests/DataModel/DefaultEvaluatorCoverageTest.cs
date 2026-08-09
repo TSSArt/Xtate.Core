@@ -235,7 +235,7 @@ public class DefaultEvaluatorCoverageTest
 
 		public ValueTask<bool> EvaluateBoolean()
 		{
-			EvaluateCount ++;
+			EvaluateCount++;
 
 			return new ValueTask<bool>(result);
 		}
@@ -257,7 +257,7 @@ public class DefaultEvaluatorCoverageTest
 
 		public ValueTask Execute()
 		{
-			ExecuteCount ++;
+			ExecuteCount++;
 
 			return ValueTask.CompletedTask;
 		}
@@ -411,7 +411,7 @@ public class DefaultEvaluatorCoverageTest
 
 		protected override DataModelValue ParseToDataModel()
 		{
-			ParseCount ++;
+			ParseCount++;
 
 			return parser();
 		}
@@ -423,7 +423,7 @@ public class DefaultEvaluatorCoverageTest
 
 		protected override DataModelValue ParseToDataModel()
 		{
-			ParseCount ++;
+			ParseCount++;
 
 			return parser();
 		}

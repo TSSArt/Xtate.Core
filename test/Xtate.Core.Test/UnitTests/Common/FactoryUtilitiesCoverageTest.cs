@@ -34,7 +34,7 @@ public class FactoryUtilitiesCoverageTest
 					  {
 						  Factory = () =>
 									{
-										invocationCount ++;
+										invocationCount++;
 
 										return new ValueTask<object>(value);
 									}
