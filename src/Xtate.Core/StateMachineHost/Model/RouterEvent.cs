@@ -25,24 +25,19 @@ public class RouterEvent : IncomingEvent, IRouterEvent
 {
 	protected RouterEvent() { }
 
-	public RouterEvent(ServiceId senderServiceId,
-					   FullUri? originType,
-					   FullUri? origin,
-					   IOutgoingEvent outgoingEvent) : base(outgoingEvent)
+	public RouterEvent(IOutgoingEvent outgoingEvent) : base(outgoingEvent)
 	{
-		SenderServiceId = senderServiceId;
-		OriginType = originType;
-		Origin = origin;
 		Type = EventType.External;
 		DelayMs = outgoingEvent.DelayMs;
 		TargetType = outgoingEvent.Type;
 		Target = outgoingEvent.Target;
-		InvokeId = senderServiceId as InvokeId;
 	}
 
 	protected RouterEvent(IRouterEvent routerEvent) : base(routerEvent)
 	{
 		SenderServiceId = routerEvent.SenderServiceId;
+		InvokeId = routerEvent.InvokeId;
+		TargetServiceId = routerEvent.TargetServiceId;
 		IoProcessorData = routerEvent.IoProcessorData;
 		TargetType = routerEvent.TargetType;
 		Target = routerEvent.Target;
@@ -53,7 +48,17 @@ public class RouterEvent : IncomingEvent, IRouterEvent
 
 	public int DelayMs { get; init; }
 
-	public ServiceId SenderServiceId { get; init; } = null!;
+	public ServiceId SenderServiceId
+	{
+		get;
+		init
+		{
+			field = value;
+			InvokeId = value as InvokeId;
+		}
+	} = null!;
+
+	public ServiceId? TargetServiceId { get; init; }
 
 	public DataModelList? IoProcessorData { get; init; }
 

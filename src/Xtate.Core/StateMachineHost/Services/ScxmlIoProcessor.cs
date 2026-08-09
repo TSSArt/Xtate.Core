@@ -23,9 +23,9 @@ namespace Xtate.StateMachineHost.Services;
 
 public class ScxmlIoProcessor() : IoProcessorBase(Const.ScxmlIoProcessorId, Const.ScxmlIoProcessorAliasId)
 {
-	public required IEventDispatcher SelfEventDispatcher { private get; [SetByIoC] init; }
+	public required IStateMachineSessionId StateMachineSessionId { private get; [SetByIoC] init; }
 
-	public required IParentEventDispatcher? ParentEventDispatcher { private get; [SetByIoC] init; }
+	public required IParentStateMachineSessionId? ParentStateMachineSessionId { private get; [SetByIoC] init; }
 
 	public required IInternalEventDispatcher<ScxmlIoProcessor> InternalEventDispatcher { private get; [SetByIoC] init; }
 
@@ -35,34 +35,44 @@ public class ScxmlIoProcessor() : IoProcessorBase(Const.ScxmlIoProcessorId, Cons
 
 	protected override ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)
 	{
-		var target = routerEvent.Target;
-
-		if (target is null)
+		if (routerEvent.TargetServiceId is not { } targetServiceId)
 		{
-			return SelfEventDispatcher.Dispatch(routerEvent, token);
+			throw new ProcessorException(Resources.Exception_InvalidTargetFormat);
 		}
 
-		if (ParentEventDispatcher is not null && IsTargetParent(target))
-		{
-			return ParentEventDispatcher.Dispatch(routerEvent, token);
-		}
-
-		if (IsTargetSessionId(target, out var sessionId))
-		{
-			return InternalEventDispatcher.Dispatch(sessionId, routerEvent, token);
-		}
-
-		if (IsTargetInvokeId(target, out var invokeId))
-		{
-			return InternalEventDispatcher.Dispatch(invokeId, routerEvent, token);
-		}
-
-		throw new ProcessorException(Resources.Exception_InvalidTargetFormat);
+		return InternalEventDispatcher.Dispatch(targetServiceId, routerEvent, token);
 	}
 
 	protected override FullUri CreateExternalServiceTarget(InvokeId invokeId) => new(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value);
 
 	protected override FullUri CreateStateMachineTarget(SessionId sessionId) => new(Const.ScxmlIoProcessorBaseUri, Const.ScxmlIoProcessorSessionIdPrefix + sessionId.Value);
+
+	protected override ServiceId GetTargetServiceId(IOutgoingEvent outgoingEvent)
+	{
+		var target = outgoingEvent.Target;
+
+		if (target is null)
+		{
+			return StateMachineSessionId.SessionId;
+		}
+
+		if (IsTargetParent(target) && ParentStateMachineSessionId?.ParentSessionId is { } parentSessionId)
+		{
+			return parentSessionId;
+		}
+
+		if (IsTargetSessionId(target, out var sessionId))
+		{
+			return sessionId;
+		}
+
+		if (IsTargetInvokeId(target, out var invokeId))
+		{
+			return invokeId;
+		}
+
+		throw new ProcessorException(Resources.Exception_InvalidTargetFormat);
+	}
 
 	private static bool IsTargetParent(FullUri target) => target == Const.ParentTarget || target == Const.ScxmlIoProcessorParentTarget;
 

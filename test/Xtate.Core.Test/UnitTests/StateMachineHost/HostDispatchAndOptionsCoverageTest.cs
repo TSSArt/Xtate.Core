@@ -58,24 +58,21 @@ public class HostDispatchAndOptionsCoverageTest
 	}
 
 	[TestMethod]
-	public async Task ScxmlStringChildStateMachineForwardsParentEventsAndRegistersItself()
+	public async Task ScxmlStringChildStateMachineRegistersInvokedStateMachineContext()
 	{
 		const string scxml = "<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>";
-		var incomingEvent = Mock.Of<IIncomingEvent>();
-		using var cancellation = new CancellationTokenSource();
-		var withoutParent = new ScxmlStringChildStateMachine(scxml) { ParentEventDispatcher = null };
-		await ((IParentEventDispatcher)withoutParent).Dispatch(incomingEvent, cancellation.Token);
-
-		var parent = new Mock<IEventDispatcher>();
-		parent.Setup(p => p.Dispatch(incomingEvent, cancellation.Token)).Returns(ValueTask.CompletedTask);
-		var child = new ScxmlStringChildStateMachine(scxml) { ParentEventDispatcher = parent.Object };
-		await ((IParentEventDispatcher)child).Dispatch(incomingEvent, cancellation.Token);
-		parent.Verify(p => p.Dispatch(incomingEvent, cancellation.Token), Times.Once);
+		var parentSessionId = SessionId.FromString("parent");
+		var invokeId = InvokeId.FromString("child", "unique-child");
+		var type = new FullUri("scxml");
+		var child = new ScxmlStringInvokedStateMachine(scxml) { ParentSessionId = parentSessionId, InvokeId = invokeId, Type = type };
 
 		var services = new ServiceCollection();
 		child.AddServices(services);
-		var resolved = await services.BuildProvider().GetRequiredService<IParentEventDispatcher>();
-		Assert.AreSame(child, resolved);
+		var provider = services.BuildProvider();
+		Assert.AreSame(child, await provider.GetRequiredService<IInvokedStateMachine>());
+		Assert.AreSame(child, await provider.GetRequiredService<IParentStateMachineSessionId>());
+		Assert.AreSame(child, await provider.GetRequiredService<IExternalServiceInvokeId>());
+		Assert.AreSame(child, await provider.GetRequiredService<IExternalServiceType>());
 	}
 
 	[TestMethod]
@@ -166,24 +163,34 @@ public class HostDispatchAndOptionsCoverageTest
 	}
 
 	[TestMethod]
-	public async Task LocationChildStateMachineResolvesBothRelativeConstructorFormsAndForwardsParentEvents()
+	public async Task LocationChildStateMachineResolvesBothRelativeConstructorFormsAndRegistersInvokedContext()
 	{
 		var baseUri = new Uri("https://example.test/machines/");
-		var fromString = new LocationChildStateMachine(baseUri, relativeUri: "child.scxml") { ParentEventDispatcher = null };
-		var fromUri = new LocationChildStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative)) { ParentEventDispatcher = null };
+		var parentSessionId = SessionId.FromString("parent");
+		var invokeId = InvokeId.FromString("child", "unique-child");
+		var type = new FullUri("scxml");
+		var fromString = new LocationInvokedStateMachine(baseUri, relativeUri: "child.scxml")
+						 {
+							 ParentSessionId = parentSessionId,
+							 InvokeId = invokeId,
+							 Type = type
+						 };
+		var fromUri = new LocationInvokedStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative))
+					  {
+						  ParentSessionId = parentSessionId,
+						  InvokeId = invokeId,
+						  Type = type
+					  };
 		Assert.AreEqual(new Uri("https://example.test/machines/child.scxml"), ((IStateMachineLocation)fromString).Location);
 		Assert.AreEqual(new Uri("https://example.test/machines/second.scxml"), ((IStateMachineLocation)fromUri).Location);
 
-		var incomingEvent = Mock.Of<IIncomingEvent>();
-		await ((IParentEventDispatcher)fromString).Dispatch(incomingEvent, CancellationToken.None);
-		var parent = new Mock<IEventDispatcher>();
-		fromUri = new LocationChildStateMachine(baseUri, new Uri(uriString: "second.scxml", UriKind.Relative)) { ParentEventDispatcher = parent.Object };
-		await ((IParentEventDispatcher)fromUri).Dispatch(incomingEvent, CancellationToken.None);
-		parent.Verify(p => p.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
-
 		var services = new ServiceCollection();
 		fromUri.AddServices(services);
-		Assert.AreSame(fromUri, await services.BuildProvider().GetRequiredService<IParentEventDispatcher>());
+		var provider = services.BuildProvider();
+		Assert.AreSame(fromUri, await provider.GetRequiredService<IInvokedStateMachine>());
+		Assert.AreSame(fromUri, await provider.GetRequiredService<IParentStateMachineSessionId>());
+		Assert.AreSame(fromUri, await provider.GetRequiredService<IExternalServiceInvokeId>());
+		Assert.AreSame(fromUri, await provider.GetRequiredService<IExternalServiceType>());
 	}
 
 	[TestMethod]

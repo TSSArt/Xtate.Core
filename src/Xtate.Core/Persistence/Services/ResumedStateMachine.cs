@@ -16,30 +16,22 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.Class;
-using Xtate.DataModel;
 using Xtate.Interpreter;
 using Xtate.IoC;
+using Xtate.Persistence.DependencyInjection;
+using Xtate.StateMachine;
 
-namespace Xtate.StateMachineHost.Services;
+namespace Xtate.Persistence.Services;
 
-public class LocationChildStateMachine : LocationStateMachine, IParentEventDispatcher
+public class ResumedStateMachine : StateMachineClass
 {
-	public LocationChildStateMachine(Uri? baseUri, string relativeUri) : base(baseUri, relativeUri) { }
-
-	public LocationChildStateMachine(Uri? baseUri, Uri relativeUri) : base(baseUri, relativeUri) { }
-
-	public required IEventDispatcher? ParentEventDispatcher { private get; [SetByIoC] init; }
-
-#region Interface IEventDispatcher
-
-	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ParentEventDispatcher?.Dispatch(incomingEvent, token) ?? ValueTask.CompletedTask;
-
-#endregion
+	public ResumedStateMachine(SessionId sessionId) => SessionId = sessionId;
 
 	public override void AddServices(IServiceCollection services)
 	{
 		base.AddServices(services);
 
-		services.AddForwarding<IParentEventDispatcher>(_ => this);
+		services.AddModule<PersistenceModule>();
+		services.AddSharedFactory<ResumedStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>().For<IStateMachineLocation>().For<IStateMachineArguments>();
 	}
 }

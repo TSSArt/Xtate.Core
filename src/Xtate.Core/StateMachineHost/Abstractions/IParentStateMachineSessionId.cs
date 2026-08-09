@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,23 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
-using Xtate.DataTypes;
 using Xtate.StateMachine;
 
 namespace Xtate.StateMachineHost;
 
-public interface IRouterEvent : IIncomingEvent
+public interface IParentStateMachineSessionId
 {
-	ServiceId SenderServiceId { get; }
-
-	ServiceId? TargetServiceId { get; }
-
-	DataModelList? IoProcessorData { get; }
-
-	int DelayMs { get; }
-
-	FullUri? TargetType { get; }
-
-	FullUri? Target { get; }
+	SessionId ParentSessionId { get; }
 }

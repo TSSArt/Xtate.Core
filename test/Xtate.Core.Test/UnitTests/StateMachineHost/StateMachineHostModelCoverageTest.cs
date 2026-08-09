@@ -69,9 +69,11 @@ public class StateMachineHostModelCoverageTest
 	public async Task ScheduledEventCopiesRouterEventAndExposesCancelableToken()
 	{
 		var sender = SessionId.FromString("sender");
+		var target = SessionId.FromString("target");
 		var source = new RouterEventSource
 					 {
 						 SenderServiceId = sender,
+						 TargetServiceId = target,
 						 IoProcessorData = new DataModelList { ["key"] = new DataModelValue("value") },
 						 DelayMs = 25,
 						 TargetType = new FullUri("https://example.test/type"),
@@ -88,6 +90,7 @@ public class StateMachineHostModelCoverageTest
 		var scheduledEvent = new TestScheduledEvent(source);
 
 		Assert.AreSame(sender, scheduledEvent.SenderServiceId);
+		Assert.AreSame(target, scheduledEvent.TargetServiceId);
 		Assert.AreSame(source.IoProcessorData, scheduledEvent.IoProcessorData);
 		Assert.AreEqual(expected: 25, scheduledEvent.DelayMs);
 		Assert.AreEqual(source.TargetType, scheduledEvent.TargetType);
@@ -133,6 +136,8 @@ public class StateMachineHostModelCoverageTest
 	#region Interface IRouterEvent
 
 		public ServiceId SenderServiceId { get; init; } = null!;
+
+		public ServiceId? TargetServiceId { get; init; }
 
 		public DataModelList? IoProcessorData { get; init; }
 

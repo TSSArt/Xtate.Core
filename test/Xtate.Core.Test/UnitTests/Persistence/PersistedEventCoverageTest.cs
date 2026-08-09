@@ -123,6 +123,7 @@ public class PersistedEventCoverageTest
 		var source = new RouterEventSource
 					 {
 						 SenderServiceId = SessionId.FromString("sender-session"),
+						 TargetServiceId = SessionId.FromString("target-session"),
 						 IoProcessorData = new DataModelList { ["key"] = new DataModelValue("value") },
 						 DelayMs = 125,
 						 Name = EventName.FromString("router.event"),
@@ -139,6 +140,7 @@ public class PersistedEventCoverageTest
 		var restored = new PersistedRouterEvent(bucket);
 
 		Assert.AreEqual(expected: "sender-session", restored.SenderServiceId.ToString());
+		Assert.AreEqual(expected: "target-session", restored.TargetServiceId!.ToString());
 		Assert.AreEqual(expected: 125, restored.DelayMs);
 		Assert.AreEqual(expected: "value", restored.IoProcessorData!["key"].AsString());
 		AssertIncomingEvent(source, restored);
@@ -152,6 +154,27 @@ public class PersistedEventCoverageTest
 		var bucket = CreateBucket();
 
 		Assert.ThrowsExactly<ArgumentException>([ExcludeFromCodeCoverage]() => _ = new PersistedRouterEvent(bucket));
+	}
+
+	[TestMethod]
+	public void PersistedScheduledEventRoundTripsTargetServiceId()
+	{
+		var targetServiceId = SessionId.FromString("parent-session");
+		var source = new RouterEventSource
+					 {
+						 SenderServiceId = InvokeId.FromString("child", "unique-child"),
+						 TargetServiceId = targetServiceId,
+						 Target = new FullUri("#_parent"),
+						 DelayMs = 100
+					 };
+		var bucket = CreateBucket();
+
+		new PersistedScheduledEvent(source).Store(bucket);
+		var restored = new PersistedScheduledEvent(bucket);
+
+		Assert.AreEqual(targetServiceId, restored.TargetServiceId);
+		Assert.AreEqual(source.SenderServiceId, restored.SenderServiceId);
+		Assert.AreEqual(source.Target, restored.Target);
 	}
 
 	[TestMethod]
@@ -202,6 +225,7 @@ public class PersistedEventCoverageTest
 		var bucket = CreateBucket();
 		SeedIncomingEvent(bucket, TypeInfo.RouterEvent, source);
 		bucket.AddServiceId(Key.SenderServiceId, source.SenderServiceId);
+		bucket.AddServiceId(Key.TargetServiceId, source.TargetServiceId);
 		bucket.AddDataModelValue(Key.RouterEventData, source.IoProcessorData);
 		bucket.Add(Key.DelayMs, source.DelayMs);
 		bucket.Add(Key.TargetType, source.TargetType);
@@ -268,6 +292,8 @@ public class PersistedEventCoverageTest
 	#region Interface IRouterEvent
 
 		public ServiceId SenderServiceId { get; init; } = null!;
+
+		public ServiceId? TargetServiceId { get; init; }
 
 		public DataModelList? IoProcessorData { get; init; }
 

@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,23 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
-using Xtate.DataTypes;
-using Xtate.StateMachine;
+using Xtate.IoC.Tools;
+using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.Services;
 
-namespace Xtate.StateMachineHost;
+namespace Xtate.Persistence.Services;
 
-public interface IRouterEvent : IIncomingEvent
+[InstantiatedByIoC]
+public class PersistedStateMachineController : StateMachineControllerBase
 {
-	ServiceId SenderServiceId { get; }
+	public required Deferred<IEventScheduler> EventScheduler { get; init; }
 
-	ServiceId? TargetServiceId { get; }
+	protected override async ValueTask Start()
+	{
+		await base.Start().ConfigureAwait(false);
 
-	DataModelList? IoProcessorData { get; }
-
-	int DelayMs { get; }
-
-	FullUri? TargetType { get; }
-
-	FullUri? Target { get; }
+		_ = await EventScheduler().ConfigureAwait(false);
+	}
 }

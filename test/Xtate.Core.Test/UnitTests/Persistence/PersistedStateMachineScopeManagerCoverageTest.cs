@@ -22,6 +22,7 @@ using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.IoC;
 using Xtate.Persistence;
+using Xtate.Persistence.DependencyInjection;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
@@ -59,19 +60,25 @@ public class PersistedStateMachineScopeManagerCoverageTest
 	}
 
 	private static async ValueTask<PersistedStateMachineScopeManager> CreateManager(ITransactionalStorage storage,
-																					ITaskMonitor taskMonitor,
-																					SnapshotCollection snapshots)
+																		ITaskMonitor taskMonitor,
+																		SnapshotCollection snapshots)
 	{
 		var services = new ServiceCollection();
+		services.AddModule<PersistenceModule>();
 		services.AddConstant(snapshots);
 		services.AddImplementation<CapturingController>().For<IStateMachineController>();
 		var serviceProvider = services.BuildProvider();
 		var securityContextFactory = new SecurityContextFactory();
+		var storageProvider = Mock.Of<IStorageProvider>();
 
 		return new TestPersistedStateMachineScopeManager
 			   {
 				   Storage = storage,
-				   StorageManager = null!,
+				   StorageManager = new StorageManager
+									{
+										StorageProvider = storageProvider,
+										StateMachineSessionId = Mock.Of<IStateMachineSessionId>()
+									},
 				   PersistedTaskMonitor = taskMonitor,
 				   ServiceScopeFactory = await serviceProvider.GetRequiredService<IServiceScopeFactory>(),
 				   StateMachineCollection = Mock.Of<IStateMachineCollection>(),
@@ -108,7 +115,8 @@ public class PersistedStateMachineScopeManagerCoverageTest
 
 	#region Interface IExternalService
 
-		public ValueTask<DataModelValue> GetResult() => ValueTask.FromException<DataModelValue>(new StateMachineSuspendedException { Owner = _sessionId });
+		public ValueTask<DataModelValue> GetResult() =>
+			ValueTask.FromException<DataModelValue>(new StateMachineSuspendedException { Owner = _sessionId });
 
 	#endregion
 

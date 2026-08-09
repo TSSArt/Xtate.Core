@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,27 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Class;
-using Xtate.DataModel;
-using Xtate.Interpreter;
-using Xtate.IoC;
+namespace Xtate.StateMachineHost;
 
-namespace Xtate.StateMachineHost.Services;
-
-public class ScxmlStringChildStateMachine(string scxml) : ScxmlStringStateMachine(scxml), IParentEventDispatcher
-{
-	public required IEventDispatcher? ParentEventDispatcher { private get; [SetByIoC] init; }
-
-#region Interface IEventDispatcher
-
-	public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ParentEventDispatcher?.Dispatch(incomingEvent, token) ?? default;
-
-#endregion
-
-	public override void AddServices(IServiceCollection services)
-	{
-		base.AddServices(services);
-
-		services.AddForwarding<IParentEventDispatcher>(_ => this);
-	}
-}
+public interface IInvokedStateMachine : IParentStateMachineSessionId, IExternalServiceInvokeId, IExternalServiceType;

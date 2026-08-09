@@ -20,10 +20,8 @@ using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Model;
 using Xtate.Interpreter.Services;
-using Xtate.IoC.Tools;
 using Xtate.Persistence.Extensions;
 using Xtate.StateMachine;
-using Xtate.StateMachineHost;
 
 namespace Xtate.Persistence.Services;
 
@@ -47,8 +45,6 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 	private bool _suspending;
 
 	public required IInterpreterModel InterpreterModel { private get; [SetByIoC] init; }
-
-	public required Deferred<IEventScheduler> EventScheduler { get; init; }
 
 	public required IStateMachinePersistenceContext StateMachinePersistenceContext
 	{
@@ -125,20 +121,13 @@ public class StateMachinePersistingInterpreter : StateMachineInterpreter
 			{
 				_stateBucket.Add(executionCountKey, executionCount + 1);
 
-				return Resumed();
+				return base.NotifyInterpreterState(StateMachinePersistingInterpreterState.Resumed);
 			}
 
 			_stateBucket.Add(executionCountKey, value: 1);
 		}
 
 		return base.NotifyInterpreterState(state);
-	}
-
-	private async ValueTask Resumed()
-	{
-		_ = await EventScheduler().ConfigureAwait(false);
-
-		await base.NotifyInterpreterState(StateMachinePersistingInterpreterState.Resumed).ConfigureAwait(false);
 	}
 
 	private bool Enter(StateBagKey key) => Enter(key, out _, iteration: false);

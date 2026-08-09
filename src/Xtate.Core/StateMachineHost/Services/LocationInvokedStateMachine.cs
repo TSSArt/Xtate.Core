@@ -16,22 +16,42 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.Class;
-using Xtate.Interpreter;
 using Xtate.IoC;
-using Xtate.Persistence.DependencyInjection;
 using Xtate.StateMachine;
 
-namespace Xtate.Persistence.Services;
+namespace Xtate.StateMachineHost.Services;
 
-public class ResumedStateMachineClass : StateMachineClass
+public class LocationInvokedStateMachine : LocationStateMachine, IInvokedStateMachine
 {
-	public ResumedStateMachineClass(SessionId sessionId) => SessionId = sessionId;
+	public LocationInvokedStateMachine(Uri? baseUri, string relativeUri) : base(baseUri, relativeUri) { }
+
+	public LocationInvokedStateMachine(Uri? baseUri, Uri relativeUri) : base(baseUri, relativeUri) { }
+
+#region Interface IExternalServiceInvokeId
+
+	public required InvokeId InvokeId { get; init; }
+
+#endregion
+
+#region Interface IExternalServiceType
+
+	public required FullUri Type { get; init; }
+
+#endregion
+
+#region Interface IParentStateMachineSessionId
+
+	public required SessionId ParentSessionId { get; init; }
+
+#endregion
 
 	public override void AddServices(IServiceCollection services)
 	{
 		base.AddServices(services);
 
-		services.AddModule<PersistenceModule>();
-		services.AddSharedFactory<ResumedStateMachineGetter>(SharedWithin.Scope).For<IStateMachine>().For<IStateMachineLocation>().For<IStateMachineArguments>();
+		services.AddForwarding<IInvokedStateMachine>(_ => this);
+		services.AddForwarding<IParentStateMachineSessionId>(_ => this);
+		services.AddForwarding<IExternalServiceInvokeId>(_ => this);
+		services.AddForwarding<IExternalServiceType>(_ => this);
 	}
 }

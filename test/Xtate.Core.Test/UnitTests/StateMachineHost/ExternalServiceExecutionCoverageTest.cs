@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Threading;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
@@ -33,7 +32,7 @@ namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 public class ExternalServiceExecutionCoverageTest
 {
 	[TestMethod]
-	public async Task ExternalServiceClassForwardsInvokeContextAndRegistersEveryForwardingService()
+	public async Task ExternalServiceClassForwardsInvokeAndParentContextAndRegistersEveryForwardingService()
 	{
 		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
 		var invokeData = new InvokeData(
@@ -60,19 +59,9 @@ public class ExternalServiceExecutionCoverageTest
 		Assert.AreEqual(expected: "content", ((IExternalServiceSource)serviceClass).Content.AsString());
 		Assert.AreEqual(expected: "parameters", ((IExternalServiceParameters)serviceClass).Parameters.AsString());
 		Assert.AreSame(sessionId, ((IStateMachineSessionId)serviceClass).SessionId);
+		Assert.AreSame(sessionId, ((IParentStateMachineSessionId)serviceClass).ParentSessionId);
 		Assert.AreEqual(location, ((IStateMachineLocation)serviceClass).Location);
 		Assert.IsTrue(((ICaseSensitivity)serviceClass).CaseInsensitive);
-
-		var sourceEvent = Mock.Of<IIncomingEvent>();
-		await ((IParentEventDispatcher)serviceClass).Dispatch(sourceEvent, CancellationToken.None);
-		await ((IParentEventDispatcher)serviceClass).Dispatch(sourceEvent, CancellationToken.None);
-		targetDispatcher.Verify(
-			d => d.Dispatch(
-				It.Is<IncomingEvent>(e => e.Type == EventType.External &&
-										  e.OriginType == invokeData.Type &&
-										  e.Origin == new FullUri("#_invoke") &&
-										  e.InvokeId == invokeId),
-				CancellationToken.None), Times.Exactly(2));
 
 		var services = new ServiceCollection();
 		serviceClass.AddServices(services);
@@ -84,7 +73,7 @@ public class ExternalServiceExecutionCoverageTest
 		Assert.AreSame(serviceClass, await provider.GetRequiredService<IExternalServiceType>());
 		Assert.AreSame(serviceClass, await provider.GetRequiredService<IExternalServiceSource>());
 		Assert.AreSame(serviceClass, await provider.GetRequiredService<IExternalServiceParameters>());
-		Assert.AreSame(serviceClass, await provider.GetRequiredService<IParentEventDispatcher>());
+		Assert.AreSame(serviceClass, await provider.GetRequiredService<IParentStateMachineSessionId>());
 	}
 
 	[TestMethod]

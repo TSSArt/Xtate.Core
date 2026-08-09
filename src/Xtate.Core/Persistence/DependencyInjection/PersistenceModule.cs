@@ -70,6 +70,8 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 		Services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
 		Services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
 
+		Services.AddImplementation<PersistedStateMachineController>().For<IStateMachineController>();
+		
 		Services.AddImplementation<PersistedStateMachineHost>().For<IStateMachineHost>();
 	}
 

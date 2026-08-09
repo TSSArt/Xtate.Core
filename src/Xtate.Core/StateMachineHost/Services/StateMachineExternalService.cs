@@ -39,7 +39,11 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 	public required IStateMachineCollection StateMachineCollection { private get; [SetByIoC] init; }
 
-	public required IParentEventDispatcher ParentEventDispatcher { private get; [SetByIoC] init; }
+	public required IStateMachineSessionId ParentStateMachineSessionId { private get; [SetByIoC] init; }
+
+	public required IExternalServiceInvokeId ExternalServiceInvokeId { private get; [SetByIoC] init; }
+
+	public required IExternalServiceType ExternalServiceType { private get; [SetByIoC] init; }
 
 	public required ITaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
@@ -83,9 +87,11 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 		if (scxml is not null)
 		{
-			var stateMachineClass = new ScxmlStringChildStateMachine(scxml)
+			var stateMachineClass = new ScxmlStringInvokedStateMachine(scxml)
 									{
-										ParentEventDispatcher = ParentEventDispatcher,
+										ParentSessionId = ParentStateMachineSessionId.SessionId,
+										InvokeId = ExternalServiceInvokeId.InvokeId,
+										Type = ExternalServiceType.Type,
 										Location = StateMachineLocation.Location!,
 										Arguments = Parameters
 									};
@@ -97,9 +103,11 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 		if (Source is not null)
 		{
-			var stateMachineClass = new LocationChildStateMachine(StateMachineLocation.Location, Source)
+			var stateMachineClass = new LocationInvokedStateMachine(StateMachineLocation.Location, Source)
 									{
-										ParentEventDispatcher = ParentEventDispatcher,
+										ParentSessionId = ParentStateMachineSessionId.SessionId,
+										InvokeId = ExternalServiceInvokeId.InvokeId,
+										Type = ExternalServiceType.Type,
 										Arguments = Parameters
 									};
 

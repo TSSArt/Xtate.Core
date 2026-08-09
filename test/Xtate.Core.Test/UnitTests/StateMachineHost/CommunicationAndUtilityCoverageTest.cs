@@ -50,7 +50,7 @@ public class CommunicationAndUtilityCoverageTest
 		var internalEvent = CreateOutgoingEvent(target: "internal", delayMs: 0);
 		var immediateEvent = CreateOutgoingEvent(target: "external", delayMs: 0);
 		var delayedEvent = CreateOutgoingEvent(target: "external", delayMs: 5);
-		var routerEvent = new RouterEvent(InvokeId.FromString("sender"), originType: null, origin: null, immediateEvent);
+		var routerEvent = new RouterEvent(immediateEvent) { SenderServiceId = InvokeId.FromString("sender") };
 
 		router.Setup(static r => r.CanHandle(new FullUri("processor"))).Returns(true);
 		router.Setup(static r => r.IsInternalTarget(new FullUri("internal"))).Returns(true);
@@ -82,7 +82,12 @@ public class CommunicationAndUtilityCoverageTest
 	{
 		var sender = InvokeId.FromString("sender");
 		var outgoingEvent = CreateOutgoingEvent(type: "processor", target: "target", delayMs: 123);
-		var routerEvent = new RouterEvent(sender, new FullUri("originType"), new FullUri("origin"), outgoingEvent);
+		var routerEvent = new RouterEvent(outgoingEvent)
+						  {
+							  SenderServiceId = sender,
+							  OriginType = new FullUri("originType"),
+							  Origin = new FullUri("origin")
+						  };
 
 		Assert.AreSame(sender, routerEvent.SenderServiceId);
 		Assert.AreSame(sender, routerEvent.InvokeId);

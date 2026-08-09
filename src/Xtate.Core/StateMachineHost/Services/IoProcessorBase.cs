@@ -58,14 +58,18 @@ public abstract class IoProcessorBase(FullUri ioProcessorId, FullUri? ioProcesso
 
 	protected virtual bool IsInternalTarget(FullUri? target) => false;
 
-	protected virtual ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token)
-	{
-		var serviceId = (ServiceId?)InvokeIdBase?.InvokeId ?? SessionIdBase.SessionId;
+	protected virtual ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
+		new(new RouterEvent(outgoingEvent)
+			{
+				SenderServiceId = GetSenderServiceId(outgoingEvent),
+				TargetServiceId = GetTargetServiceId(outgoingEvent),
+				OriginType = ioProcessorId,
+				Origin = Target
+			});
 
-		var routerEvent = new RouterEvent(serviceId, ioProcessorId, Target, outgoingEvent);
+	protected virtual ServiceId GetSenderServiceId(IOutgoingEvent outgoingEvent) => (ServiceId?)InvokeIdBase?.InvokeId ?? SessionIdBase.SessionId;
 
-		return new ValueTask<IRouterEvent>(routerEvent);
-	}
+	protected virtual ServiceId? GetTargetServiceId(IOutgoingEvent outgoingEvent) => null;
 
 	protected abstract ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token);
 }

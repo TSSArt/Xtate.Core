@@ -65,11 +65,11 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 #endregion
 
-	private async Task Resume(ResumedStateMachineClass stateMachineClass)
+	private async Task Resume(ResumedStateMachine stateMachine)
 	{
-		var stateMachineResult = await base.Run(stateMachineClass).ConfigureAwait(false);
+		var stateMachineResult = await base.Run(stateMachine).ConfigureAwait(false);
 
-		GetResultAndRemoveStorage(stateMachineClass.SessionId, stateMachineResult).Forget(PersistedTaskMonitor);
+		GetResultAndRemoveStorage(stateMachine.SessionId, stateMachineResult).Forget(PersistedTaskMonitor);
 	}
 
 	protected override async ValueTask<StateMachineResult> Run(StateMachineClass stateMachineClass)
@@ -151,7 +151,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 			foreach (var sessionId in entries)
 			{
-				resumeTasks[index++] = Resume(new ResumedStateMachineClass(sessionId));
+				resumeTasks[index++] = Resume(new ResumedStateMachine(sessionId));
 			}
 
 			await Task.WhenAll(resumeTasks).ConfigureAwait(false);

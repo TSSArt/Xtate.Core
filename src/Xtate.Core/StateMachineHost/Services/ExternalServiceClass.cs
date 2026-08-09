@@ -38,7 +38,8 @@ public class ExternalServiceClass(
 	  ICaseSensitivity,
 	  IStateMachineSessionId,
 	  IStateMachineLocation,
-	  IParentEventDispatcher
+	  IParentEventDispatcher,
+	  IParentStateMachineSessionId
 {
 	private FullUri? _origin;
 
@@ -95,6 +96,12 @@ public class ExternalServiceClass(
 
 #endregion
 
+#region Interface IParentStateMachineSessionId
+
+	SessionId IParentStateMachineSessionId.ParentSessionId { get; } = stateMachineSessionId.SessionId;
+
+#endregion
+
 #region Interface IStateMachineLocation
 
 	Uri? IStateMachineLocation.Location { get; } = stateMachineLocation.Location;
@@ -119,5 +126,6 @@ public class ExternalServiceClass(
 		services.AddForwarding<IExternalServiceSource>(self);
 		services.AddForwarding<IExternalServiceParameters>(self);
 		services.AddForwarding<IParentEventDispatcher>(self);
+		services.AddForwarding<IParentStateMachineSessionId>(self);
 	}
 }

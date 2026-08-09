@@ -38,6 +38,7 @@ public class PersistedRouterEvent : RouterEvent, IStoreSupport
 		Infra.NotNull(senderServiceId);
 
 		SenderServiceId = senderServiceId;
+		TargetServiceId = bucket.GetServiceId(Key.TargetServiceId);
 		Name = bucket.GetEventName(Key.Name);
 		Type = bucket.GetEnum(Key.Type).As<EventType>();
 		SendId = bucket.GetSendId(Key.SendId);
@@ -57,6 +58,7 @@ public class PersistedRouterEvent : RouterEvent, IStoreSupport
 	{
 		bucket.Add(Key.TypeInfo, TypeInfo.RouterEvent);
 		bucket.AddServiceId(Key.SenderServiceId, SenderServiceId);
+		bucket.AddServiceId(Key.TargetServiceId, TargetServiceId);
 		bucket.AddDataModelValue(Key.RouterEventData, IoProcessorData);
 		bucket.Add(Key.DelayMs, DelayMs);
 		bucket.Add(Key.TargetType, TargetType);

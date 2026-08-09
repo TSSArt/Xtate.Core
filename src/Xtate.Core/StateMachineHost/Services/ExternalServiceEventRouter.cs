@@ -55,7 +55,13 @@ public class ExternalServiceEventRouter : IEventRouter
 	public bool IsInternalTarget(FullUri? target) => false;
 
 	public ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
-		new(new RouterEvent(StateMachineSessionId.SessionId, Const.ScxmlIoProcessorId, Const.ParentTarget, outgoingEvent));
+		new(
+			new RouterEvent(outgoingEvent)
+			{
+				SenderServiceId = StateMachineSessionId.SessionId,
+				OriginType = Const.ScxmlIoProcessorId,
+				Origin = Const.ParentTarget
+			});
 
 	public ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token) => ExternalServiceCollection.Dispatch(GetInvokeId(routerEvent.Target), routerEvent, token);
 
