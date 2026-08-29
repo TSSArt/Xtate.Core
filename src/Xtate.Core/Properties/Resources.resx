@@ -1080,4 +1080,10 @@ Exception: {3}</value>
   <data name="Exception_StateMachineDefinitionIsMissing" xml:space="preserve">
 	  <value>State machine definition is missing</value>
   </data>
+  <data name="Exception_TheExternalServiceDoesNotSupportRestoringItsExecutionState" xml:space="preserve">
+	  <value>The external service does not support restoring its execution state.</value>
+  </data>
+  <data name="Exception_ExternalServiceHasBeenSuspended" xml:space="preserve">
+	  <value>External service has been suspended.</value>
+  </data>
 </root>

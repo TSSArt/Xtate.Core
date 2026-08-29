@@ -1416,6 +1416,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to External service has been suspended..
+        /// </summary>
+        internal static string Exception_ExternalServiceHasBeenSuspended {
+            get {
+                return ResourceManager.GetString("Exception_ExternalServiceHasBeenSuspended", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to External Service with provided InvokeId does not exist..
         /// </summary>
         internal static string Exception_ExternalServiceWithProvidedInvokeIdDoesNotExist {
@@ -2358,6 +2367,15 @@ namespace Xtate {
         internal static string Exception_TargetValueIsMissed {
             get {
                 return ResourceManager.GetString("Exception_TargetValueIsMissed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The external service does not support restoring its execution state..
+        /// </summary>
+        internal static string Exception_TheExternalServiceDoesNotSupportRestoringItsExecutionState {
+            get {
+                return ResourceManager.GetString("Exception_TheExternalServiceDoesNotSupportRestoringItsExecutionState", resourceCulture);
             }
         }
         

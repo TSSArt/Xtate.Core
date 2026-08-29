@@ -63,7 +63,7 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		var collection = await container.GetRequiredService<IExternalServiceCollection>();
 		var scopeManager = await container.GetRequiredService<IExternalServiceScopeManager>();
 		var controller = await container.GetRequiredService<IExternalServiceController>();
-		var stateMachineService = await container.GetRequiredService<StateMachineExternalService>();
+		_ = await container.GetRequiredService<StateMachineExternalService>();
 		var resumeClass = await container.GetRequiredService<ResumeExternalServiceClass, InvokeData>(CreateInvokeData());
 
 		Assert.IsInstanceOfType<ExternalServiceCollection>(collection);
@@ -196,8 +196,8 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		Assert.AreEqual(invokeData.Type, restored.Type);
 		Assert.AreEqual(invokeData.Source, restored.Source);
 		Assert.AreEqual(invokeData.RawContent, restored.RawContent);
-		Assert.AreEqual(invokeData.Content.ToString(), restored.Content.ToString());
-		Assert.AreEqual(invokeData.Parameters.ToString(), restored.Parameters.ToString());
+		Assert.AreEqual(invokeData.Content, restored.Content);
+		Assert.AreEqual(invokeData.Parameters, restored.Parameters);
 
 		result.SetResult(DataModelValue.Undefined);
 		await Task.WhenAll(secondMonitor.ForgottenTasks);
@@ -245,8 +245,8 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		Assert.AreEqual(expected.Type, actual.Type);
 		Assert.AreEqual(expected.Source, actual.Source);
 		Assert.AreEqual(expected.RawContent, actual.RawContent);
-		Assert.AreEqual(expected.Content.ToString(), actual.Content.ToString());
-		Assert.AreEqual(expected.Parameters.ToString(), actual.Parameters.ToString());
+		Assert.AreEqual(expected.Content, actual.Content);
+		Assert.AreEqual(expected.Parameters, actual.Parameters);
 	}
 
 	[TestMethod]
@@ -543,7 +543,7 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		return scopeManager;
 	}
 
-	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData, IExternalServiceCollection collection) =>
+	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData, IExternalServiceCollection _) =>
 		new(
 			invokeData,
 			Mock.Of<IEventDispatcher>(),
@@ -551,7 +551,7 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 			Mock.Of<IStateMachineLocation>(),
 			Mock.Of<ICaseSensitivity>());
 
-	private static ResumeExternalServiceClass CreateResumeExternalServiceClass(InvokeData invokeData, IExternalServiceCollection collection) =>
+	private static ResumeExternalServiceClass CreateResumeExternalServiceClass(InvokeData invokeData, IExternalServiceCollection _) =>
 		new(
 			invokeData,
 			Mock.Of<IEventDispatcher>(),

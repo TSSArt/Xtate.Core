@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Diagnostics;
 using System.Threading;
 using Xtate.Interpreter;
 using Xtate.IoC;
@@ -60,6 +61,7 @@ public class PersistentEventQueueCoverageTest
 
 		Assert.IsTrue(await resumedQueue.WaitToEvent());
 		Assert.IsTrue(resumedQueue.TryReadEvent(out var actual));
+		Debug.Assert(actual != null, nameof(actual) + " != null");
 		Assert.AreEqual(expected.Name, actual.Name);
 		Assert.AreEqual(expected.Type, actual.Type);
 		Assert.AreEqual(expected.Data, actual.Data);
@@ -82,6 +84,7 @@ public class PersistentEventQueueCoverageTest
 
 		Assert.IsTrue(await resumedQueue.WaitToEvent());
 		Assert.IsTrue(resumedQueue.TryReadEvent(out var actual));
+		Debug.Assert(actual != null, nameof(actual) + " != null");
 		Assert.AreEqual(expected.Name, actual.Name);
 	}
 

@@ -36,7 +36,7 @@ public class PersistedExternalServiceController : ExternalServiceController
 		{
 			if (ResumableExternalService is not IResumableExternalService resumableExternalService)
 			{
-				throw new InvalidOperationException("The external service does not support restoring its execution state.");
+				throw new InvalidOperationException(Resources.Exception_TheExternalServiceDoesNotSupportRestoringItsExecutionState);
 			}
 
 			await resumableExternalService.RestoreExecutionState().ConfigureAwait(false);
@@ -54,7 +54,7 @@ public class PersistedExternalServiceController : ExternalServiceController
 
 		if (exception is OperationCanceledException && SuspendEventDispatcher.IsSuspendRequested)
 		{
-			return ValueTask.FromException(new ExternalServiceSuspendedException(message: "External service has been suspended.", exception) { Owner = this });
+			return ValueTask.FromException(new ExternalServiceSuspendedException(message: Resources.Exception_ExternalServiceHasBeenSuspended, exception) { Owner = this });
 		}
 
 		return base.HandleExecutionException(exception);
