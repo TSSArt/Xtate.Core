@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Globalization;
 using System.Threading;
 using Xtate.Class;
 using Xtate.DataModel;
@@ -466,12 +467,7 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 
 	private static void AssertDataModelListEqual(DataModelValue expected, DataModelValue actual)
 	{
-		Assert.AreEqual(DataModelValueType.List, actual.Type);
-		var expectedList = expected.AsList();
-		var actualList = actual.AsList();
-		Assert.AreEqual(expectedList.Count, actualList.Count);
-		CollectionAssert.AreEqual(expectedList.Keys.ToArray(), actualList.Keys.ToArray());
-		CollectionAssert.AreEqual(expectedList.Values.ToArray(), actualList.Values.ToArray());
+		Assert.AreEqual(expected.ToString(CultureInfo.InvariantCulture), actual.ToString(CultureInfo.InvariantCulture));
 	}
 
 	private static PersistedExternalServiceController CreateController(IExternalService externalService,

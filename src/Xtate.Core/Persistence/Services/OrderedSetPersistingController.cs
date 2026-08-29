@@ -119,8 +119,10 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 		{
 			case OrderedSet<T>.ChangedAction.Add:
 			{
+				Infra.NotNull(item);
+
 				var bucket = _bucket.Nested(_record++);
-				bucket.Add(DocumentId, item!.UseAncestor.As<IDocumentId>().DocumentId);
+				bucket.Add(DocumentId, item.UseAncestor.As<IDocumentId>().DocumentId);
 				_storeItemAction?.Invoke(bucket.Nested(Item), item);
 				bucket.Add(Operation, Added);
 
