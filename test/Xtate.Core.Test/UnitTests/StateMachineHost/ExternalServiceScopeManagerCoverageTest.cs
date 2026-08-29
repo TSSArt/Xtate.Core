@@ -113,6 +113,7 @@ public class ExternalServiceScopeManagerCoverageTest
 		var syncManager = await CreateManager(controller, collection.Object, new CapturingTaskMonitor());
 		syncManager.Dispose();
 		syncManager.Dispose();
+		CollectionAssert.AreEqual(new[] { true, true }, syncManager.DisposeArguments);
 
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
 																	 await syncManager.Start(CreateExternalServiceClass(CreateInvokeData(InvokeId.FromString("sync"))), CancellationToken.None));
@@ -120,26 +121,49 @@ public class ExternalServiceScopeManagerCoverageTest
 		var asyncManager = await CreateManager(controller, collection.Object, new CapturingTaskMonitor());
 		await asyncManager.DisposeAsync();
 		await asyncManager.DisposeAsync();
+		Assert.AreEqual(expected: 2, asyncManager.DisposeAsyncCoreCount);
+		CollectionAssert.AreEqual(new[] { false, false }, asyncManager.DisposeArguments);
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
 																	 await asyncManager.Start(CreateExternalServiceClass(CreateInvokeData(InvokeId.FromString("async"))), CancellationToken.None));
 	}
 
-	private static async ValueTask<ExternalServiceScopeManager> CreateManager(IExternalServiceController controller,
-																			  IExternalServiceCollection collection,
-																			  ITaskMonitor taskMonitor)
+	private static async ValueTask<TestExternalServiceScopeManager> CreateManager(IExternalServiceController controller,
+																	  IExternalServiceCollection collection,
+																	  ITaskMonitor taskMonitor)
 	{
 		var services = new ServiceCollection();
 		services.AddConstant(controller);
 		var provider = services.BuildProvider();
 		var securityContextFactory = new SecurityContextFactory();
 
-		return new ExternalServiceScopeManager
+		return new TestExternalServiceScopeManager
 			   {
 				   ServiceScopeFactory = await provider.GetRequiredService<IServiceScopeFactory>(),
 				   SecurityContextRegistrationFactory = securityContextFactory.GetRegistration,
 				   ExternalServiceCollection = collection,
 				   TaskMonitor = taskMonitor
 			   };
+	}
+
+	private sealed class TestExternalServiceScopeManager : ExternalServiceScopeManager
+	{
+		public List<bool> DisposeArguments { get; } = [];
+
+		public int DisposeAsyncCoreCount { get; private set; }
+
+		protected override void Dispose(bool disposing)
+		{
+			DisposeArguments.Add(disposing);
+
+			base.Dispose(disposing);
+		}
+
+		protected override async ValueTask DisposeAsyncCore()
+		{
+			DisposeAsyncCoreCount++;
+
+			await base.DisposeAsyncCore();
+		}
 	}
 
 	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData) =>

@@ -110,6 +110,7 @@ public class StateMachineHostModelCoverageTest
 
 		await scheduledEvent.CancelAsync();
 		scheduledEvent.Dispose();
+		CollectionAssert.AreEqual(new[] { true }, scheduledEvent.DisposeArguments);
 		Assert.ThrowsExactly<ObjectDisposedException>([ExcludeFromCodeCoverage]() => _ = scheduledEvent.CancellationToken.WaitHandle);
 	}
 
@@ -150,5 +151,15 @@ public class StateMachineHostModelCoverageTest
 	#endregion
 	}
 
-	private sealed class TestScheduledEvent(IRouterEvent routerEvent) : ScheduledEvent(routerEvent);
+	private sealed class TestScheduledEvent(IRouterEvent routerEvent) : ScheduledEvent(routerEvent)
+	{
+		public List<bool> DisposeArguments { get; } = [];
+
+		protected override void Dispose(bool disposing)
+		{
+			DisposeArguments.Add(disposing);
+
+			base.Dispose(disposing);
+		}
+	}
 }

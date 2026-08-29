@@ -127,6 +127,7 @@ public class InProcEventSchedulerCoverageTest
 		var syncScheduler = CreateScheduler([router.Object], syncMonitor);
 		await syncScheduler.ScheduleEvent(CreateRouterEvent(delayMs: 60_000, type, sendId: null), CancellationToken.None);
 		syncScheduler.Dispose();
+		CollectionAssert.AreEqual(new[] { true }, syncScheduler.DisposeArguments);
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () =>
@@ -136,6 +137,8 @@ public class InProcEventSchedulerCoverageTest
 		var asyncScheduler = CreateScheduler([router.Object], asyncMonitor);
 		await asyncScheduler.ScheduleEvent(CreateRouterEvent(delayMs: 60_000, type, SendId.FromString("send-00000001")), CancellationToken.None);
 		await asyncScheduler.DisposeAsync();
+		Assert.AreEqual(expected: 1, asyncScheduler.DisposeAsyncCoreCount);
+		CollectionAssert.AreEqual(new[] { false }, asyncScheduler.DisposeArguments);
 		cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>([ExcludeFromCodeCoverage] async () =>
@@ -144,10 +147,10 @@ public class InProcEventSchedulerCoverageTest
 		router.Verify(static r => r.Dispatch(It.IsAny<IRouterEvent>(), It.IsAny<CancellationToken>()), Times.Never);
 	}
 
-	private static InProcEventScheduler CreateScheduler(IReadOnlyCollection<IEventRouter> routers,
-														CapturingTaskMonitor monitor,
-														ILogger<IEventScheduler>? logger = null) =>
-		new TestInProcEventScheduler
+	private static TestInProcEventScheduler CreateScheduler(IReadOnlyCollection<IEventRouter> routers,
+															CapturingTaskMonitor monitor,
+															ILogger<IEventScheduler>? logger = null) =>
+		new()
 		{
 			EventRouters = routers,
 			Logger = logger ?? Mock.Of<ILogger<IEventScheduler>>(),
@@ -166,7 +169,26 @@ public class InProcEventSchedulerCoverageTest
 		return routerEvent.Object;
 	}
 
-	private sealed class TestInProcEventScheduler : InProcEventScheduler;
+	private sealed class TestInProcEventScheduler : InProcEventScheduler
+	{
+		public List<bool> DisposeArguments { get; } = [];
+
+		public int DisposeAsyncCoreCount { get; private set; }
+
+		protected override void Dispose(bool disposing)
+		{
+			DisposeArguments.Add(disposing);
+
+			base.Dispose(disposing);
+		}
+
+		protected override async ValueTask DisposeAsyncCore()
+		{
+			DisposeAsyncCoreCount++;
+
+			await base.DisposeAsyncCore();
+		}
+	}
 
 	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor

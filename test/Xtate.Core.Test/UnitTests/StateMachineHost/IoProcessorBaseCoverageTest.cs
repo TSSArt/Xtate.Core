@@ -60,6 +60,7 @@ public class IoProcessorBaseCoverageTest
 		var outgoingEvent = Mock.Of<IOutgoingEvent>(source => source.Name == (EventName)"event");
 		var routerEvent = await router.GetRouterEvent(outgoingEvent, CancellationToken.None);
 		Assert.AreEqual(sessionId, routerEvent.SenderServiceId);
+		Assert.AreSame(outgoingEvent, sessionProcessor.SenderEvent);
 		Assert.AreEqual(id, routerEvent.OriginType);
 		Assert.IsNull(routerEvent.Target);
 		Assert.AreEqual(expected: "event", routerEvent.Name.ToString());
@@ -72,6 +73,8 @@ public class IoProcessorBaseCoverageTest
 	{
 		public IRouterEvent? DispatchedEvent { get; private set; }
 
+		public IOutgoingEvent? SenderEvent { get; private set; }
+
 		[SuppressMessage(category: "ReSharper", checkId: "RedundantOverriddenMember")]
 		protected override FullUri? Target => base.Target;
 
@@ -80,6 +83,13 @@ public class IoProcessorBaseCoverageTest
 			_ = token.CanBeCanceled;
 
 			return base.GetRouterEvent(outgoingEvent, token);
+		}
+
+		protected override ServiceId GetSenderServiceId(IOutgoingEvent outgoingEvent)
+		{
+			SenderEvent = outgoingEvent;
+
+			return base.GetSenderServiceId(outgoingEvent);
 		}
 
 		protected override ValueTask Dispatch(IRouterEvent routerEvent, CancellationToken token)

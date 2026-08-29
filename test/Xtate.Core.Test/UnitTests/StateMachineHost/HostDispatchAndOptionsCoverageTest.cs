@@ -114,7 +114,7 @@ public class HostDispatchAndOptionsCoverageTest
 					  {
 						  ExternalServiceCollection = collection.Object,
 						  ExternalServiceScopeManager = scopes.Object,
-						  ExternalServiceClassFactory = invokeData => new ValueTask<ExternalServiceClass>(externalServiceClass = CreateExternalServiceClass(invokeData, collection.Object)),
+						  ExternalServiceClassFactory = invokeData => new ValueTask<ExternalServiceClass>(externalServiceClass = CreateExternalServiceClass(invokeData)),
 						  DisposeToken = disposeToken
 					  };
 		var invokeId = InvokeId.FromString("invoke");
@@ -130,7 +130,7 @@ public class HostDispatchAndOptionsCoverageTest
 		scopes.Verify(s => s.Cancel(invokeId, cancellation.Token), Times.Once);
 	}
 
-	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData, IExternalServiceCollection collection) =>
+	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData) =>
 		new(
 			invokeData,
 			Mock.Of<IEventDispatcher>(),

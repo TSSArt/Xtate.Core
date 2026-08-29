@@ -96,6 +96,16 @@ public class ReportedPublicApiUsageCoverageTest
 	}
 
 	[TestMethod]
+	public void SessionIdProtectedConstructorsSupportDerivedIdentifiers()
+	{
+		var generated = TestSessionId.New();
+		var supplied = TestSessionId.FromString("derived-session");
+
+		Assert.IsFalse(SessionId.IsNullOrEmpty(generated));
+		Assert.AreEqual(expected: "derived-session", supplied.ToString());
+	}
+
+	[TestMethod]
 	public void MutableEventContractSupportsPostConstructionPopulation()
 	{
 		var entity = new EventEntity("event");
@@ -182,6 +192,17 @@ public class ReportedPublicApiUsageCoverageTest
 	}
 
 	private sealed class TestRouterEvent : RouterEvent;
+
+	private sealed class TestSessionId : SessionId
+	{
+		private TestSessionId() { }
+
+		private TestSessionId(string value) : base(value) { }
+
+		public static new TestSessionId New() => new();
+
+		public static new TestSessionId FromString(string value) => new(value);
+	}
 
 	private sealed class CapturingLogProvider : ILogProvider
 	{

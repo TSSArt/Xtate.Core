@@ -91,6 +91,7 @@ public class ExternalServiceExecutionCoverageTest
 		await controller.WaitForCompletion();
 
 		service.Verify(static s => s.GetResult(), Times.Once);
+		Assert.AreEqual(expected: 1, controller.ExecuteCount);
 		Assert.HasCount(expected: 1, sentEvents);
 		Assert.AreEqual(EventName.GetDoneInvokeName(invokeId).ToString(), sentEvents[0].Name.ToString());
 		Assert.AreEqual(expected: "result", sentEvents[0].Data.AsString());
@@ -193,10 +194,10 @@ public class ExternalServiceExecutionCoverageTest
 		Assert.AreEqual(expected: 2, concreteHost.StopCount);
 	}
 
-	private static ExternalServiceController CreateController(InvokeId invokeId,
-															  IExternalService service,
-															  IExternalCommunication communication,
-															  ILogger<ExternalServiceController> logger) =>
+	private static TestExternalServiceController CreateController(InvokeId invokeId,
+														  IExternalService service,
+														  IExternalCommunication communication,
+														  ILogger<ExternalServiceController> logger) =>
 		new()
 		{
 			ExternalService = service,
@@ -205,6 +206,18 @@ public class ExternalServiceExecutionCoverageTest
 			Logger = logger,
 			ExternalServiceInvokeId = Mock.Of<IExternalServiceInvokeId>(i => i.InvokeId == invokeId)
 		};
+
+	private sealed class TestExternalServiceController : ExternalServiceController
+	{
+		public int ExecuteCount { get; private set; }
+
+		protected override async ValueTask Execute()
+		{
+			ExecuteCount++;
+
+			await base.Execute();
+		}
+	}
 
 	private static Mock<IExternalCommunication> CreateCommunication(List<IOutgoingEvent> events, SendStatus status)
 	{
