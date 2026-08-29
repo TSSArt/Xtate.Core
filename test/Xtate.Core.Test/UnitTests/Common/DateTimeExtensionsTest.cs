@@ -62,13 +62,13 @@ public class DateTimeExtensionsTest
 		var start = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 		// Act
-		var tasks = Enumerable.Range(start: 0, count: results.Length)
-						  .Select(index => Task.Run(async () =>
-													  {
-														  await start.Task;
-														  results[index] = DateTime.UniqueUtcNow;
-													  }))
-						  .ToArray();
+		var tasks = Enumerable.Range(start: 0, results.Length)
+							  .Select(index => Task.Run(async () =>
+														{
+															await start.Task;
+															results[index] = DateTime.UniqueUtcNow;
+														}))
+							  .ToArray();
 		start.SetResult(true);
 		await Task.WhenAll(tasks);
 		Array.Sort(results);
@@ -100,9 +100,9 @@ public class DateTimeExtensionsTest
 	{
 		// Act
 		var times = new long[5];
-		var tasks = Enumerable.Range(start: 0, count: times.Length)
-						  .Select(index => Task.Run(() => times[index] = DateTime.UniqueUtcNow.Ticks))
-						  .ToArray();
+		var tasks = Enumerable.Range(start: 0, times.Length)
+							  .Select(index => Task.Run(() => times[index] = DateTime.UniqueUtcNow.Ticks))
+							  .ToArray();
 		await Task.WhenAll(tasks);
 
 		// Assert

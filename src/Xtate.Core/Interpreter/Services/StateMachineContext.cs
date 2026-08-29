@@ -48,7 +48,7 @@ public class StateMachineContext : IStateMachineContext
 
 	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 
-	public InvokeIdSet ActiveInvokes { get; } = [];
+	public OrderedSet<InvokeNode> ActiveInvokes { get; } = [];
 
 	public DataModelValue DoneData { get; set; }
 

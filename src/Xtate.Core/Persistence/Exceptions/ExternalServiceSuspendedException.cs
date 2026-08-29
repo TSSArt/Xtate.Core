@@ -15,14 +15,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
-using Xtate.StateMachineHost.Services;
+using Xtate.Interpreter;
 
-namespace Xtate.StateMachineHost;
+namespace Xtate.Persistence;
 
-public interface IExternalServiceScopeManager
+[Serializable]
+public class ExternalServiceSuspendedException : OwnedXtateException
 {
-	ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token);
+	public ExternalServiceSuspendedException() { }
 
-	ValueTask Cancel(InvokeId invokeId, CancellationToken token);
+	public ExternalServiceSuspendedException(string? message) : base(message) { }
+
+	public ExternalServiceSuspendedException(string? message, Exception? innerException) : base(message, innerException) { }
 }

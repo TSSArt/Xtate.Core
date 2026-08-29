@@ -30,26 +30,26 @@ public class ParentEventDispatchIntegrationTest
 	public async Task InvokedScxmlSendToParentReachesParentStateMachine()
 	{
 		const string parentScxml = """
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="waiting">
-			  <state id="waiting">
-			    <invoke id="child" type="scxml">
-			      <content>
-			        <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="sending">
-			          <state id="sending">
-			            <onentry>
-			              <send event="from.child" target="#_parent"/>
-			            </onentry>
-			          </state>
-			        </scxml>
-			      </content>
-			    </invoke>
-			    <transition event="from.child" target="passed"/>
-			  </state>
-			  <final id="passed">
-			    <donedata><content>parent-received-child-event</content></donedata>
-			  </final>
-			</scxml>
-			""";
+								   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="waiting">
+								     <state id="waiting">
+								       <invoke id="child" type="scxml">
+								         <content>
+								           <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="sending">
+								             <state id="sending">
+								               <onentry>
+								                 <send event="from.child" target="#_parent"/>
+								               </onentry>
+								             </state>
+								           </scxml>
+								         </content>
+								       </invoke>
+								       <transition event="from.child" target="passed"/>
+								     </state>
+								     <final id="passed">
+								       <donedata><content>parent-received-child-event</content></donedata>
+								     </final>
+								   </scxml>
+								   """;
 
 		await using var container = Container.Create<StateMachineProcessorModule>();
 		var scopeManager = await container.GetRequiredService<IStateMachineScopeManager>();

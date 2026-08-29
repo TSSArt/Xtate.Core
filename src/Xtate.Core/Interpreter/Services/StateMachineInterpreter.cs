@@ -411,7 +411,18 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 		}
 	}
 
-	private bool IsInvokeActive(InvokeId invokeId) => StateMachineContext.ActiveInvokes.Contains(invokeId);
+	private bool IsInvokeActive(InvokeId invokeId)
+	{
+		foreach (var invoke in StateMachineContext.ActiveInvokes)
+		{
+			if (invoke.CurrentInvokeId == invokeId)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	protected virtual async ValueTask<IIncomingEvent> ReadExternalEvent()
 	{
@@ -1203,7 +1214,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 			invoke.CurrentInvokeId = invokeId;
 
-			StateMachineContext.ActiveInvokes.Add(invokeId);
+			StateMachineContext.ActiveInvokes.Add(invoke);
 
 			await InvokeController.Start(invokeData).ConfigureAwait(false);
 		}
@@ -1220,7 +1231,7 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 			var tmpInvokeId = invoke.CurrentInvokeId;
 			Infra.NotNull(tmpInvokeId);
 
-			StateMachineContext.ActiveInvokes.Remove(tmpInvokeId);
+			StateMachineContext.ActiveInvokes.Remove(invoke);
 
 			invoke.CurrentInvokeId = null;
 

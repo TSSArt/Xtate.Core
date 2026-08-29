@@ -59,7 +59,8 @@ public abstract class IoProcessorBase(FullUri ioProcessorId, FullUri? ioProcesso
 	protected virtual bool IsInternalTarget(FullUri? target) => false;
 
 	protected virtual ValueTask<IRouterEvent> GetRouterEvent(IOutgoingEvent outgoingEvent, CancellationToken token) =>
-		new(new RouterEvent(outgoingEvent)
+		new(
+			new RouterEvent(outgoingEvent)
 			{
 				SenderServiceId = GetSenderServiceId(outgoingEvent),
 				TargetServiceId = GetTargetServiceId(outgoingEvent),

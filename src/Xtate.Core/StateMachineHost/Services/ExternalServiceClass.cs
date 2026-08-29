@@ -70,7 +70,7 @@ public class ExternalServiceClass(
 
 #region Interface IExternalServiceInvokeId
 
-	InvokeId IExternalServiceInvokeId.InvokeId => invokeData.InvokeId;
+	public InvokeId InvokeId => invokeData.InvokeId;
 
 #endregion
 
@@ -114,7 +114,7 @@ public class ExternalServiceClass(
 
 #endregion
 
-	public void AddServices(IServiceCollection services)
+	public virtual void AddServices(IServiceCollection services)
 	{
 		Func<IServiceProvider, ExternalServiceClass> self = _ => this;
 

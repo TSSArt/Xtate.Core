@@ -19,7 +19,9 @@
 
 using System.Reflection;
 using Xtate.DataModel;
+using Xtate.DataModel.Services;
 using Xtate.Interpreter;
+using Xtate.Interpreter.Model;
 using Xtate.Persistence;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
@@ -43,7 +45,8 @@ public class StateMachinePersistedContextCoverageTest
 		var stateBucket = context.GetStateBucket();
 		stateBucket.Add(key: "state-value", value: 42);
 		context.DataModel["persisted"] = "value";
-		context.ActiveInvokes.Add(InvokeId.FromString("active-invoke"));
+
+		//context.ActiveInvokes.Add(InvokeId.FromString("active-invoke"));
 		await context.CheckPoint(level: 3);
 		await context.Shrink();
 
@@ -71,6 +74,26 @@ public class StateMachinePersistedContextCoverageTest
 	}
 
 	[TestMethod]
+	public async Task InitializationRestoresCurrentInvokeIdToCompiledInvokeNode()
+	{
+		var storage = new RecordingTransactionalStorage();
+		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
+		var sourceInvoke = CreateInvokeNode(documentId: 0);
+		var firstContext = CreateContext(storage, new SingleEntityMap(sourceInvoke));
+		await firstContext.InitializeAsync();
+		sourceInvoke.CurrentInvokeId = invokeId;
+		firstContext.ActiveInvokes.Add(sourceInvoke);
+
+		var restoredInvoke = CreateInvokeNode(documentId: 0);
+		var secondContext = CreateContext(storage, new SingleEntityMap(restoredInvoke));
+
+		await secondContext.InitializeAsync();
+
+		Assert.AreEqual(invokeId, restoredInvoke.CurrentInvokeId);
+		Assert.IsTrue(secondContext.ActiveInvokes.Contains(restoredInvoke));
+	}
+
+	[TestMethod]
 	public void EventCreatorRestoresPersistedIncomingEvent()
 	{
 		var bucket = new Bucket(new InMemoryStorage(writeOnly: false));
@@ -87,9 +110,9 @@ public class StateMachinePersistedContextCoverageTest
 		Assert.AreEqual(EventType.External, incomingEvent.Type);
 	}
 
-	private static StateMachinePersistedContext CreateContext(ITransactionalStorage storage)
+	private static StateMachinePersistedContext CreateContext(ITransactionalStorage storage, IEntityMap? entityMap = null)
 	{
-		var entityMap = new EmptyEntityMap();
+		entityMap ??= new EmptyEntityMap();
 
 		return new StateMachinePersistedContext
 			   {
@@ -101,6 +124,32 @@ public class StateMachinePersistedContextCoverageTest
 				   InterpreterModel = Mock.Of<IInterpreterModel>(value => value.EntityMap == entityMap),
 				   Storage = storage
 			   };
+	}
+
+	private static InvokeNode CreateInvokeNode(int documentId)
+	{
+		var documentIds = new LinkedList<int>();
+		var invoke = new InvokeNode(new DocumentIdNode(documentIds), Mock.Of<IInvoke>())
+					 {
+						 DataConverter = static () => new ValueTask<DataConverter>((DataConverter)null!)
+					 };
+		documentIds.Last!.Value = documentId;
+
+		return invoke;
+	}
+
+	private sealed class SingleEntityMap(IEntity entity) : IEntityMap
+	{
+	#region Interface IEntityMap
+
+		public bool TryGetEntityByDocumentId(int id, [MaybeNullWhen(false)] out IEntity result)
+		{
+			result = id == 0 ? entity : null;
+
+			return result is not null;
+		}
+
+	#endregion
 	}
 
 	private sealed class EmptyEntityMap : IEntityMap

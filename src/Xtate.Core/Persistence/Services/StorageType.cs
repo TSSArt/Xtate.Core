@@ -23,9 +23,11 @@ public enum StorageType
 
 	StateMachineContext,
 
-	HostContext,
-
 	StateMachineIncomingEvents,
 
-	StateMachineScheduledEvents
+	StateMachineScheduledEvents,
+
+	StateMachineExternalServices,
+
+	HostContext
 }

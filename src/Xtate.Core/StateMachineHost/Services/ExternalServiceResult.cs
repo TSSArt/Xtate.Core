@@ -15,14 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
-using Xtate.StateMachineHost.Services;
+namespace Xtate.StateMachineHost.Services;
 
-namespace Xtate.StateMachineHost;
-
-public interface IExternalServiceScopeManager
+public readonly struct ExternalServiceResult(Task task)
 {
-	ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token);
-
-	ValueTask Cancel(InvokeId invokeId, CancellationToken token);
+	public ValueTask WaitForCompletion() => new(task);
 }

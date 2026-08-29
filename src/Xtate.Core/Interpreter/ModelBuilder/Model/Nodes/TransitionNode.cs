@@ -42,7 +42,7 @@ public class TransitionNode : ITransition, IAncestorProvider, IDocumentId, IDebu
 		Source = null!;
 	}
 
-	public ImmutableArray<StateEntityNode> TargetState { get; private set; }
+	public ImmutableArray<StateEntityNode> TargetState { get; private set; } = [];
 
 	public StateEntityNode Source { get; private set; }
 
@@ -84,6 +84,13 @@ public class TransitionNode : ITransition, IAncestorProvider, IDocumentId, IDebu
 
 	public bool TryMapTarget(Dictionary<IIdentifier, StateEntityNode> idMap)
 	{
+		if (Target.IsDefault)
+		{
+			TargetState = [];
+
+			return true;
+		}
+
 		TargetState = ImmutableArray.CreateRange(Target.Array, (id, map) => map.TryGetValue(id, out var node) ? node : null!, idMap);
 
 		foreach (var node in TargetState)

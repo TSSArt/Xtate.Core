@@ -20,6 +20,7 @@ using Xtate.Interpreter;
 using Xtate.Interpreter.Model;
 using Xtate.Interpreter.Services;
 using Xtate.IoC;
+using Xtate.Persistence.Extensions;
 
 namespace Xtate.Persistence.Services;
 
@@ -45,7 +46,7 @@ public class StateMachinePersistedContext : StateMachineContext, IStateMachinePe
 {
 	private readonly AsyncInit<StateMachinePersistedContext> _init = new(context => context.Init());
 
-	private InvokeIdSetPersistingController? _activeInvokesController;
+	private OrderedSetPersistingController<InvokeNode>? _activeInvokesController;
 
 	private OrderedSetPersistingController<StateEntityNode>? _configurationController;
 
@@ -109,7 +110,7 @@ public class StateMachinePersistedContext : StateMachineContext, IStateMachinePe
 
 		_configurationController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.Configuration), Configuration, entityMap);
 		_statesToInvokeController = new OrderedSetPersistingController<StateEntityNode>(bucket.Nested(StorageSection.StatesToInvoke), StatesToInvoke, entityMap);
-		_activeInvokesController = new InvokeIdSetPersistingController(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes);
+		_activeInvokesController = new OrderedSetPersistingController<InvokeNode>(bucket.Nested(StorageSection.ActiveInvokes), ActiveInvokes, entityMap, StoreItemAction, RestoreItemAction);
 		_dataModelReferenceTracker = new DataModelReferenceTracker(bucket.Nested(StorageSection.DataModelReferences));
 		_dataModelPersistingController = new DataModelListPersistingController(bucket.Nested(StorageSection.DataModel), _dataModelReferenceTracker, DataModel);
 		_historyValuePersistingController = new KeyListPersistingController<StateEntityNode>(bucket.Nested(StorageSection.HistoryValue), HistoryValue, entityMap);
@@ -117,6 +118,10 @@ public class StateMachinePersistedContext : StateMachineContext, IStateMachinePe
 
 		return ValueTask.CompletedTask;
 	}
+
+	private static void StoreItemAction(Bucket bucket, InvokeNode invokeNode) => bucket.AddId(Bucket.RootKey, invokeNode.CurrentInvokeId);
+
+	private static void RestoreItemAction(Bucket bucket, InvokeNode invokeNode) => invokeNode.CurrentInvokeId = bucket.GetInvokeId(Bucket.RootKey);
 
 	private static IIncomingEvent EventCreator(Bucket bucket) => new PersistedIncomingEvent(bucket);
 

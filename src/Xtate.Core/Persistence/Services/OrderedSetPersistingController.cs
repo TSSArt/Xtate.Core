@@ -31,16 +31,27 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 
 	private const int Deleted = 3;
 
+	private const int Item = 4;
+
 	private readonly Bucket _bucket;
 
 	private readonly OrderedSet<T> _orderedSet;
 
+	private readonly Action<Bucket, T>? _storeItemAction;
+
 	private int _record;
 
-	public OrderedSetPersistingController(in Bucket bucket, OrderedSet<T> orderedSet, IEntityMap entityMap)
+	public OrderedSetPersistingController(in Bucket bucket, OrderedSet<T> orderedSet, IEntityMap entityMap) : this(bucket, orderedSet, entityMap, storeItemAction: null, restoreItemAction: null) { }
+
+	public OrderedSetPersistingController(in Bucket bucket,
+										  OrderedSet<T> orderedSet,
+										  IEntityMap entityMap,
+										  Action<Bucket, T>? storeItemAction,
+										  Action<Bucket, T>? restoreItemAction)
 	{
 		_bucket = bucket;
 		_orderedSet = orderedSet;
+		_storeItemAction = storeItemAction;
 
 		var shrink = !orderedSet.IsEmpty;
 
@@ -62,6 +73,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 
 				if (operation == Added)
 				{
+					restoreItemAction?.Invoke(recordBucket.Nested(Item), item);
 					orderedSet.Add(item);
 				}
 				else
@@ -84,6 +96,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			{
 				var recordBucket = bucket.Nested(_record++);
 				recordBucket.Add(DocumentId, entity.UseAncestor.As<IDocumentId>().DocumentId);
+				_storeItemAction?.Invoke(recordBucket.Nested(Item), entity);
 				recordBucket.Add(Operation, Added);
 			}
 		}
@@ -108,6 +121,7 @@ internal sealed class OrderedSetPersistingController<T> : IDisposable where T : 
 			{
 				var bucket = _bucket.Nested(_record++);
 				bucket.Add(DocumentId, item!.UseAncestor.As<IDocumentId>().DocumentId);
+				_storeItemAction?.Invoke(bucket.Nested(Item), item);
 				bucket.Add(Operation, Added);
 
 				break;

@@ -34,6 +34,106 @@ public class HostStateMachineResumptionTest
 {
 	[TestMethod]
 	[DoNotParallelize]
+	[Timeout(15000)]
+	public async Task HostStartResumesNestedStateMachineInvoke()
+	{
+		var storageProvider = new StateMachinePersistenceTest.TestStorage();
+		var persistenceOptions = Mock.Of<IPersistenceOptions>(options => options.PersistenceLevel == PersistenceLevel.StableState);
+		var sessionId = SessionId.FromString("host-invoke-resumption-session");
+		var stateMachinePartition = "sm-" + sessionId;
+
+		await using (var firstContainer = CreateContainer(storageProvider, persistenceOptions))
+		{
+			var scopeManager = await firstContainer.GetRequiredService<IStateMachineScopeManager>();
+			var stateMachine = new ScxmlStringStateMachine(
+								   """
+								   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+								     <state id="waiting">
+								       <invoke id="child" type="scxml">
+								         <content>
+								           <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+								             <state id="child-waiting">
+								               <transition event="complete" target="child-final"/>
+								             </state>
+								             <final id="child-final"/>
+								           </scxml>
+								         </content>
+								       </invoke>
+								       <transition event="go">
+								         <send event="complete" target="#_child"/>
+								       </transition>
+								       <transition event="done.invoke.child" target="parent-final"/>
+								     </state>
+								     <final id="parent-final"/>
+								   </scxml>
+								   """)
+							   {
+								   SessionId = sessionId
+							   };
+			var result = await scopeManager.Start(stateMachine, SecurityContextType.NewStateMachine);
+
+			await Task.Delay(millisecondsDelay: 500);
+
+			await using (var activeInvokeStorage = await storageProvider.GetTransactionalStorage(stateMachinePartition, key: "inv"))
+			{
+				var activeInvokeBucket = new Bucket(activeInvokeStorage);
+				var hasPrematureRemoval = activeInvokeBucket.Nested(1).TryGet(key: 0, out int prematureOperation);
+				Assert.IsFalse(hasPrematureRemoval, $"Invoke completed before suspension with operation: {prematureOperation}");
+			}
+
+			var suspendEventDispatcher = await firstContainer.GetRequiredService<SuspendEventDispatcher>();
+			suspendEventDispatcher.Suspend(setSuspendRequestedFlag: true);
+
+			await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await result.GetResult());
+		}
+
+		Assert.IsTrue(storageProvider.ContainsPartition(stateMachinePartition));
+		PersistedInvokeData persistedInvoke;
+
+		await using (var invokeStorage = await storageProvider.GetTransactionalStorage(stateMachinePartition, key: "inv"))
+		{
+			var invokeBucket = new Bucket(invokeStorage);
+			persistedInvoke = new PersistedInvokeData(invokeBucket.Nested(0).Nested(3));
+			var hasSecondRecord = invokeBucket.Nested(1).TryGet(key: 0, out int secondOperation);
+			Assert.IsFalse(hasSecondRecord, $"Unexpected second invoke record operation: {secondOperation}");
+		}
+
+		var suspendedInvokedPartition = "sm-" + SessionId.FromString(persistedInvoke.InvokeId.UniqueId.Value);
+		Assert.IsTrue(storageProvider.ContainsPartition(suspendedInvokedPartition), $"Invoked state machine was not persisted in {suspendedInvokedPartition}.");
+
+		await using (var secondContainer = CreateContainer(storageProvider, persistenceOptions))
+		{
+			var host = await secondContainer.GetRequiredService<IStateMachineHost>();
+			var hostStart = host.Start().AsTask();
+			var hostStartCompleted = await Task.WhenAny(hostStart, Task.Delay(TimeSpan.FromSeconds(5))) == hostStart;
+			Assert.IsTrue(hostStartCompleted, message: "Host start did not finish while restoring the parent and its invoked state machine.");
+			await hostStart;
+			Assert.IsTrue(storageProvider.ContainsPartition(suspendedInvokedPartition), message: "Invoked state machine completed or was removed during restoration.");
+
+			var stateMachines = await secondContainer.GetRequiredService<IStateMachineCollection>();
+			await stateMachines.Dispatch(
+				sessionId,
+				new IncomingEvent(new EventEntity("go")) { Type = EventType.External },
+				CancellationToken.None);
+
+			var timeout = DateTime.UtcNow.AddSeconds(10);
+
+			while (storageProvider.ContainsPartition(stateMachinePartition) && DateTime.UtcNow < timeout)
+			{
+				await Task.Delay(millisecondsDelay: 10);
+			}
+
+			var invokedPartition = "sm-" + SessionId.FromString(persistedInvoke.InvokeId.UniqueId.Value);
+			Assert.IsFalse(
+				storageProvider.ContainsPartition(stateMachinePartition),
+				$"Parent remained persisted; invoked partition present: {storageProvider.ContainsPartition(invokedPartition)}.");
+			Assert.IsFalse(storageProvider.ContainsPartition(invokedPartition));
+			await host.Stop();
+		}
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
 	public async Task HostStartDispatchesDelayedEventThatBecameOverdueWhileStopped()
 	{
 		var storageProvider = new StateMachinePersistenceTest.TestStorage();

@@ -15,10 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections;
 using Xtate.DataModel;
 using Xtate.DataTypes;
-using Xtate.Interpreter.Internal;
 using Xtate.Interpreter.Services;
 using Xtate.Logging;
 using Xtate.Logging.Provider;
@@ -29,37 +27,6 @@ namespace Xtate.Core.Test.UnitTests.Interpreter;
 [TestClass]
 public class InterpreterUtilityCoverageTest
 {
-	[TestMethod]
-	public void InvokeIdSetTracksUniqueIdsRaisesOnlyRealChangesAndEnumeratesBothWays()
-	{
-		var first = InvokeId.FromString(invokeId: "first", uniqueInvokeId: "unique-one");
-		var sameUniqueId = InvokeId.FromString(invokeId: "alias", uniqueInvokeId: "unique-one");
-		var second = InvokeId.FromString(invokeId: "second", uniqueInvokeId: "unique-two");
-		var set = new InvokeIdSet();
-		var changes = new List<(InvokeIdSet.ChangedAction Action, InvokeId Id)>();
-		set.Changed += (action, id) => changes.Add((action, id));
-
-		set.Add(first);
-		set.Add(sameUniqueId);
-		set.Add(second);
-		set.Remove(sameUniqueId);
-		set.Remove(first);
-
-		Assert.AreEqual(expected: 1, set.Count);
-		Assert.IsFalse(set.Contains(first));
-		Assert.IsTrue(set.Contains(second));
-		Assert.AreEqual(expected: 3, changes.Count);
-		Assert.AreEqual(InvokeIdSet.ChangedAction.Add, changes[0].Action);
-		Assert.AreEqual(InvokeIdSet.ChangedAction.Add, changes[1].Action);
-		Assert.AreEqual(InvokeIdSet.ChangedAction.Remove, changes[2].Action);
-		Assert.AreSame(second.UniqueId, set.Single());
-		Assert.AreEqual(expected: 1, set.Cast<object>().Count());
-		var interfaceMap = typeof(InvokeIdSet).GetInterfaceMap(typeof(IEnumerable));
-		var enumerator = (IEnumerator)interfaceMap.TargetMethods.Single().Invoke(set, parameters: null)!;
-		Assert.IsTrue(enumerator.MoveNext());
-		Assert.AreSame(second.UniqueId, enumerator.Current);
-	}
-
 	[TestMethod]
 	public void OutgoingEventVerboseParserHandlesUndefinedHandlerAndFallbackConversions()
 	{

@@ -38,7 +38,7 @@ public class NoStateMachineContext : IStateMachinePersistenceContext
 
 	public OrderedSet<StateEntityNode> StatesToInvoke { get; } = [];
 
-	public InvokeIdSet ActiveInvokes { get; } = [];
+	public OrderedSet<InvokeNode> ActiveInvokes { get; } = [];
 
 	public KeyList<StateEntityNode> HistoryValue { get; } = [];
 

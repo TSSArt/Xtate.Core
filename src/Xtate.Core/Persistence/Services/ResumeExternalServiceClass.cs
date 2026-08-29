@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,14 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
+using Xtate.DataModel;
+using Xtate.Interpreter;
+using Xtate.IoC;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.StateMachineHost;
+namespace Xtate.Persistence.Services;
 
-public interface IExternalServiceScopeManager
+[InstantiatedByIoC]
+public class ResumeExternalServiceClass(
+	InvokeData invokeData,
+	IEventDispatcher eventDispatcher,
+	IStateMachineSessionId stateMachineSessionId,
+	IStateMachineLocation stateMachineLocation,
+	ICaseSensitivity caseSensitivity) : ExternalServiceClass(invokeData, eventDispatcher, stateMachineSessionId, stateMachineLocation, caseSensitivity), IResumeExternalService
 {
-	ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token);
+	public override void AddServices(IServiceCollection services)
+	{
+		base.AddServices(services);
 
-	ValueTask Cancel(InvokeId invokeId, CancellationToken token);
+		services.AddForwarding<IResumeExternalService>(_ => this);
+	}
 }

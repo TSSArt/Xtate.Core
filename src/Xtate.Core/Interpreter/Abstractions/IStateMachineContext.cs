@@ -32,7 +32,7 @@ public interface IStateMachineContext
 
 	OrderedSet<StateEntityNode> StatesToInvoke { get; }
 
-	InvokeIdSet ActiveInvokes { get; }
+	OrderedSet<InvokeNode> ActiveInvokes { get; }
 
 	KeyList<StateEntityNode> HistoryValue { get; }
 

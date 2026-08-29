@@ -20,7 +20,7 @@ using Xtate.StateMachine.Internal;
 
 namespace Xtate.StateMachine;
 
-public sealed class UniqueInvokeId : InvokeId
+public class UniqueInvokeId : InvokeId
 {
 	internal UniqueInvokeId(InvokeId? invokeId, IIdentifier stateId) : base(stateId) => InvokeId = invokeId ?? this;
 

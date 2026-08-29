@@ -22,7 +22,6 @@ using System.Linq.Expressions;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Threading;
-using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.DataTypes.Internal;
 using Xtate.ExternalServices.HttpClient.Services;
@@ -33,6 +32,7 @@ using Xtate.Scxml;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Validator;
 using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.Services;
 
 namespace Xtate.Core.Test.UnitTests;
 
@@ -291,12 +291,12 @@ public class ReportedPublicApiUsageCoverageTest
 
 	#region Interface IExternalServiceScopeManager
 
-		public ValueTask Start(InvokeData invokeData, CancellationToken token)
+		public ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token)
 		{
-			_ = invokeData;
+			_ = externalServiceClass;
 			Token = token;
 
-			return ValueTask.CompletedTask;
+			return ValueTask.FromResult(new ExternalServiceResult(Task.CompletedTask));
 		}
 
 		public ValueTask Cancel(InvokeId invokeId, CancellationToken token)

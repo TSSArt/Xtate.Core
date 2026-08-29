@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -18,6 +18,7 @@
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
+using Xtate.Interpreter;
 using Xtate.IoC;
 using Xtate.Logging;
 using Xtate.Scxml;
@@ -26,11 +27,9 @@ using Xtate.StateMachine;
 namespace Xtate.StateMachineHost.Services;
 
 [InstantiatedByIoC]
-public class ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvokeId) : IExternalServiceRunner
+public class ExternalServiceController : IExternalServiceController
 {
-	private readonly AsyncInit<ExternalServiceRunner> _execute = new(runner => runner.Execute());
-
-	private readonly InvokeId _invokeId = externalServiceInvokeId.InvokeId;
+	private readonly AsyncInit<ExternalServiceController> _execute = new(controller => controller.Execute());
 
 	public required IExternalService ExternalService { private get; [SetByIoC] init; }
 
@@ -38,19 +37,38 @@ public class ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvok
 
 	public required IExternalCommunication ExternalCommunication { private get; [SetByIoC] init; }
 
-	public required ILogger<ExternalServiceRunner> Logger { private get; [SetByIoC] init; }
+	public required ILogger<ExternalServiceController> Logger { private get; [SetByIoC] init; }
 
-#region Interface IExternalServiceRunner
+	public required IExternalServiceInvokeId ExternalServiceInvokeId { private get; [SetByIoC] init; }
+
+#region Interface IExternalServiceController
 
 	public ValueTask WaitForCompletion() => AsyncInit.For(this).Run(_execute);
 
+	public virtual async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
+	{
+		if (ExternalService is not IEventDispatcher eventDispatcher)
+		{
+			return;
+		}
+
+		if (incomingEvent is not IncomingEvent)
+		{
+			incomingEvent = new IncomingEvent(incomingEvent);
+		}
+
+		await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
+	}
+
 #endregion
+
+	protected virtual ValueTask<DataModelValue> GetResult() => ExternalService.GetResult();
 
 	protected virtual async ValueTask Execute()
 	{
 		try
 		{
-			var outgoingEvent = CreateEventFromResult(await ExternalService.GetResult().ConfigureAwait(false));
+			var outgoingEvent = CreateEventFromResult(await GetResult().ConfigureAwait(false));
 			var sendStatus = await ExternalCommunication.TrySend(outgoingEvent).ConfigureAwait(false);
 			Infra.Assert(sendStatus == SendStatus.Sent);
 		}
@@ -76,7 +94,7 @@ public class ExternalServiceRunner(IExternalServiceInvokeId externalServiceInvok
 	}
 
 	private EventEntity CreateEventFromResult(DataModelValue result) =>
-		new() { Name = EventName.GetDoneInvokeName(_invokeId), Data = result, Type = Const.ScxmlIoProcessorId, Target = Const.ParentTarget };
+		new() { Name = EventName.GetDoneInvokeName(ExternalServiceInvokeId.InvokeId), Data = result, Type = Const.ScxmlIoProcessorId, Target = Const.ParentTarget };
 
 	private EventEntity CreateEventFromException(Exception ex) =>
 		new() { Name = EventName.ErrorExecution, Data = DataConverter.FromException(ex), Type = Const.ScxmlIoProcessorId, Target = Const.ParentTarget };

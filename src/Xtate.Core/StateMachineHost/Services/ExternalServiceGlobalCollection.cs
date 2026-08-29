@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
-using Xtate.Interpreter;
 using Xtate.StateMachine;
 
 namespace Xtate.StateMachineHost.Services;
@@ -24,44 +23,36 @@ namespace Xtate.StateMachineHost.Services;
 [InstantiatedByIoC]
 public class ExternalServiceGlobalCollection : IExternalServiceGlobalCollection
 {
-	private readonly ExtDictionary<UniqueInvokeId, IExternalService> _externalServices = [];
+	private readonly ExtDictionary<UniqueInvokeId, IExternalServiceController> _externalServiceControllers = [];
 
 #region Interface IExternalServiceGlobalCollection
 
 	public void Register(UniqueInvokeId uniqueInvokeId)
 	{
-		var tryAddPending = _externalServices.TryAddPending(uniqueInvokeId);
+		var tryAddPending = _externalServiceControllers.TryAddPending(uniqueInvokeId);
 
 		Infra.Assert(tryAddPending);
 	}
 
-	public void SetExternalService(UniqueInvokeId uniqueInvokeId, IExternalService externalService)
+	public void SetExternalServiceController(UniqueInvokeId uniqueInvokeId, IExternalServiceController externalServiceController)
 	{
-		var tryAdd = _externalServices.TryAdd(uniqueInvokeId, externalService);
+		var tryAdd = _externalServiceControllers.TryAdd(uniqueInvokeId, externalServiceController);
 
 		Infra.Assert(tryAdd);
 	}
 
-	public void Unregister(UniqueInvokeId uniqueInvokeId) => _externalServices.TryRemove(uniqueInvokeId, out _);
+	public void Unregister(UniqueInvokeId uniqueInvokeId) => _externalServiceControllers.TryRemove(uniqueInvokeId, out _);
 
 	public async ValueTask<bool> TryDispatch(UniqueInvokeId uniqueInvokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		var (found, externalService) = await _externalServices.TryGetValueAsync(uniqueInvokeId).ConfigureAwait(false);
+		var (found, externalServiceController) = await _externalServiceControllers.TryGetValueAsync(uniqueInvokeId).ConfigureAwait(false);
 
 		if (!found)
 		{
 			return false;
 		}
 
-		if (externalService is IEventDispatcher eventDispatcher)
-		{
-			if (incomingEvent is not IncomingEvent)
-			{
-				incomingEvent = new IncomingEvent(incomingEvent);
-			}
-
-			await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
-		}
+		await externalServiceController.Dispatch(incomingEvent, token).ConfigureAwait(false);
 
 		return true;
 	}

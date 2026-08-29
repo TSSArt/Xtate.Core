@@ -62,7 +62,7 @@ public class HostDispatchAndOptionsCoverageTest
 	{
 		const string scxml = "<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'/>";
 		var parentSessionId = SessionId.FromString("parent");
-		var invokeId = InvokeId.FromString("child", "unique-child");
+		var invokeId = InvokeId.FromString(invokeId: "child", uniqueInvokeId: "unique-child");
 		var type = new FullUri("scxml");
 		var child = new ScxmlStringInvokedStateMachine(scxml) { ParentSessionId = parentSessionId, InvokeId = invokeId, Type = type };
 
@@ -109,10 +109,12 @@ public class HostDispatchAndOptionsCoverageTest
 		var scopes = new Mock<IExternalServiceScopeManager>();
 		using var cancellation = new CancellationTokenSource();
 		var disposeToken = new DisposeToken(cancellation.Token);
+		ExternalServiceClass? externalServiceClass = null;
 		var manager = new ExternalServiceManager
 					  {
 						  ExternalServiceCollection = collection.Object,
 						  ExternalServiceScopeManager = scopes.Object,
+						  ExternalServiceClassFactory = invokeData => new ValueTask<ExternalServiceClass>(externalServiceClass = CreateExternalServiceClass(invokeData, collection.Object)),
 						  DisposeToken = disposeToken
 					  };
 		var invokeId = InvokeId.FromString("invoke");
@@ -124,9 +126,17 @@ public class HostDispatchAndOptionsCoverageTest
 		await manager.Cancel(invokeId);
 
 		collection.Verify(c => c.Dispatch(invokeId, incomingEvent, cancellation.Token), Times.Once);
-		scopes.Verify(s => s.Start(invokeData, cancellation.Token), Times.Once);
+		scopes.Verify(s => s.Start(externalServiceClass!, cancellation.Token), Times.Once);
 		scopes.Verify(s => s.Cancel(invokeId, cancellation.Token), Times.Once);
 	}
+
+	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData, IExternalServiceCollection collection) =>
+		new(
+			invokeData,
+			Mock.Of<IEventDispatcher>(),
+			Mock.Of<IStateMachineSessionId>(),
+			Mock.Of<IStateMachineLocation>(),
+			Mock.Of<ICaseSensitivity>());
 
 	[TestMethod]
 	public async Task ExternalEventDispatcherRoutesSessionsHandledAndUnhandledInvokesAndUnknownServices()
@@ -137,8 +147,8 @@ public class HostDispatchAndOptionsCoverageTest
 		var dispatcher = new ExternalEventDispatcher<TestSource>
 						 {
 							 StateMachineCollection = stateMachines.Object,
-							 ExternalServiceGlobalCollection = globalServices.Object,
-							 DeadLetterQueue = deadLetters.Object
+							 DeadLetterQueue = deadLetters.Object,
+							 ExternalServiceGlobalCollection = globalServices.Object
 						 };
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 		using var cancellation = new CancellationTokenSource();
@@ -167,7 +177,7 @@ public class HostDispatchAndOptionsCoverageTest
 	{
 		var baseUri = new Uri("https://example.test/machines/");
 		var parentSessionId = SessionId.FromString("parent");
-		var invokeId = InvokeId.FromString("child", "unique-child");
+		var invokeId = InvokeId.FromString(invokeId: "child", uniqueInvokeId: "unique-child");
 		var type = new FullUri("scxml");
 		var fromString = new LocationInvokedStateMachine(baseUri, relativeUri: "child.scxml")
 						 {
@@ -213,6 +223,7 @@ public class HostDispatchAndOptionsCoverageTest
 		controller.Verify(c => c.Dispatch(incomingEvent, cancellation.Token), Times.Once);
 		await collection.Destroy(sessionId);
 		controller.Verify(static c => c.Destroy(), Times.Once);
+		controller.Setup(static c => c.GetResult()).ReturnsAsync(new DataModelValue("result"));
 
 		collection.Unregister(sessionId);
 		await collection.Dispatch(sessionId, sourceEvent, cancellation.Token);

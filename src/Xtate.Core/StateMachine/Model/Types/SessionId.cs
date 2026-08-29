@@ -20,13 +20,13 @@ using Xtate.StateMachine.Internal;
 
 namespace Xtate.StateMachine;
 
-public sealed class SessionId : ServiceId, IEquatable<SessionId>
+public class SessionId : ServiceId, IEquatable<SessionId>
 {
 	private static readonly SessionId Empty = FromString(string.Empty);
 
-	private SessionId() { }
+	protected SessionId() { }
 
-	private SessionId(string value) : base(value) { }
+	protected SessionId(string value) : base(value) { }
 
 	public override string ServiceType => nameof(SessionId);
 

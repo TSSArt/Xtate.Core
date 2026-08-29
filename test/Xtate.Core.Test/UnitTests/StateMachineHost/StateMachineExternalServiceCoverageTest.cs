@@ -46,12 +46,10 @@ public class StateMachineExternalServiceCoverageTest
 					.ReturnsAsync(new DataModelValue("result"));
 		var service = CreateService(scopeManager.Object, collection.Object, source: null, scxml, DataModelValue.Undefined);
 
-		await ((IEventDispatcher)service).Dispatch(Mock.Of<IIncomingEvent>(), CancellationToken.None);
-		collection.VerifyNoOtherCalls();
-
 		Assert.AreEqual(expected: "result", (await ((IExternalService)service).GetResult()).AsString());
 		var scxmlChild = child as ScxmlStringInvokedStateMachine;
 		Assert.IsNotNull(scxmlChild);
+		Assert.AreEqual(expected: "unique-child", scxmlChild.SessionId.Value);
 		Assert.AreEqual(new Uri("https://example.test/parent.scxml"), ((IStateMachineLocation)scxmlChild).Location);
 		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments)scxmlChild).Arguments.AsString());
 		AssertChildContext(scxmlChild);
@@ -84,6 +82,7 @@ public class StateMachineExternalServiceCoverageTest
 		await ((IExternalService)service).GetResult();
 		var locationChild = child as LocationInvokedStateMachine;
 		Assert.IsNotNull(locationChild);
+		Assert.AreEqual(expected: "unique-child", locationChild.SessionId.Value);
 		Assert.AreEqual(new Uri("https://example.test/child.scxml"), ((IStateMachineLocation)locationChild).Location);
 		Assert.AreEqual(expected: "parameters", ((IStateMachineArguments)locationChild).Arguments.AsString());
 		AssertChildContext(locationChild);
@@ -122,16 +121,16 @@ public class StateMachineExternalServiceCoverageTest
 	}
 
 	private static StateMachineExternalService CreateService(IStateMachineScopeManager scopeManager,
-														 IStateMachineCollection collection,
-														 Uri? source,
-														 string? rawContent,
-														 DataModelValue content)
+															 IStateMachineCollection collection,
+															 Uri? source,
+															 string? rawContent,
+															 DataModelValue content)
 	{
 		var taskMonitor = new PassThroughTaskMonitor();
 
 		return new StateMachineExternalService
 			   {
-				   StateMachineScopeManager = scopeManager,
+				   StateMachineScopeManager = () => new ValueTask<IStateMachineScopeManager>(scopeManager),
 				   StateMachineLocation = Mock.Of<IStateMachineLocation>(l => l.Location == new Uri("https://example.test/parent.scxml")),
 				   StateMachineCollection = collection,
 				   ParentStateMachineSessionId = Mock.Of<IStateMachineSessionId>(s => s.SessionId == SessionId.FromString("parent-session")),
@@ -148,7 +147,7 @@ public class StateMachineExternalServiceCoverageTest
 	private static void AssertChildContext(IInvokedStateMachine child)
 	{
 		Assert.AreEqual(SessionId.FromString("parent-session"), child.ParentSessionId);
-		Assert.AreEqual(InvokeId.FromString("child", "unique-child"), child.InvokeId);
+		Assert.AreEqual(InvokeId.FromString(invokeId: "child", uniqueInvokeId: "unique-child"), child.InvokeId);
 		Assert.AreEqual(new FullUri("scxml"), child.Type);
 	}
 

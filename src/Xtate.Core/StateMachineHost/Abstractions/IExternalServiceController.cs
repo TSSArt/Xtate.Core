@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,9 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.DataModel;
+
 namespace Xtate.StateMachineHost;
 
-public interface IExternalServiceRunner
+public interface IExternalServiceController
 {
 	ValueTask WaitForCompletion();
+
+	ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token);
 }

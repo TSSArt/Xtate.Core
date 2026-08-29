@@ -15,12 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.Interpreter;
-
 namespace Xtate.Persistence;
 
 [Serializable]
-public class StateMachineSuspendedException : OwnedXtateException
+public class StateMachineSuspendedException : ExternalServiceSuspendedException
 {
 	public StateMachineSuspendedException() { }
 

@@ -28,13 +28,20 @@ public class ExternalServiceManager : IExternalServiceManager
 
 	public required IExternalServiceScopeManager ExternalServiceScopeManager { private get; [SetByIoC] init; }
 
+	public required Func<InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [SetByIoC] init; }
+
 	public required DisposeToken DisposeToken { private get; [SetByIoC] init; }
 
 #region Interface IExternalServiceManager
 
 	public ValueTask Forward(InvokeId invokeId, IIncomingEvent incomingEvent) => ExternalServiceCollection.Dispatch(invokeId, incomingEvent, DisposeToken);
 
-	public ValueTask Start(InvokeData invokeData) => ExternalServiceScopeManager.Start(invokeData, DisposeToken);
+	public async ValueTask Start(InvokeData invokeData)
+	{
+		var externalServiceClass = await ExternalServiceClassFactory(invokeData).ConfigureAwait(false);
+
+		await ExternalServiceScopeManager.Start(externalServiceClass, DisposeToken).ConfigureAwait(false);
+	}
 
 	public ValueTask Cancel(InvokeId invokeId) => ExternalServiceScopeManager.Cancel(invokeId, DisposeToken);
 

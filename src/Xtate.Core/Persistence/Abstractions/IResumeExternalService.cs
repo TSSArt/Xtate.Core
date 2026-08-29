@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,14 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
-using Xtate.StateMachineHost.Services;
+namespace Xtate.Persistence;
 
-namespace Xtate.StateMachineHost;
-
-public interface IExternalServiceScopeManager
-{
-	ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token);
-
-	ValueTask Cancel(InvokeId invokeId, CancellationToken token);
-}
+public interface IResumeExternalService;

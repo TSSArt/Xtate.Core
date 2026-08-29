@@ -24,7 +24,7 @@ public interface IExternalServiceGlobalCollection
 {
 	void Register(UniqueInvokeId uniqueInvokeId);
 
-	void SetExternalService(UniqueInvokeId uniqueInvokeId, IExternalService externalService);
+	void SetExternalServiceController(UniqueInvokeId uniqueInvokeId, IExternalServiceController externalServiceController);
 
 	void Unregister(UniqueInvokeId uniqueInvokeId);
 

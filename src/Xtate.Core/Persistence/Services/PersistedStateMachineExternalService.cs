@@ -1,4 +1,4 @@
-﻿// Copyright © 2019-2026 Sergii Artemenko
+// Copyright © 2019-2026 Sergii Artemenko
 // 
 // This file is part of the Xtate project. <https://xtate.net/>
 // 
@@ -15,14 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.StateMachine;
+using Xtate.Class;
 using Xtate.StateMachineHost.Services;
 
-namespace Xtate.StateMachineHost;
+namespace Xtate.Persistence.Services;
 
-public interface IExternalServiceScopeManager
+[InstantiatedByIoC]
+public class PersistedStateMachineExternalService : StateMachineExternalService, IResumableExternalService
 {
-	ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token);
+	private StateMachineClass? _stateMachineClass;
 
-	ValueTask Cancel(InvokeId invokeId, CancellationToken token);
+#region Interface IResumableExternalService
+
+	public ValueTask RestoreExecutionState()
+	{
+		_stateMachineClass = new ResumedInvokedStateMachine(SessionId, ParentSessionId, InvokeId, Type);
+
+		return ValueTask.CompletedTask;
+	}
+
+#endregion
+
+	protected override StateMachineClass GetInvokedStateMachineClass() => _stateMachineClass ?? base.GetInvokedStateMachineClass();
 }

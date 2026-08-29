@@ -16,7 +16,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.DataModel;
-using Xtate.Interpreter;
 using Xtate.StateMachine;
 
 namespace Xtate.StateMachineHost.Services;
@@ -24,7 +23,7 @@ namespace Xtate.StateMachineHost.Services;
 [InstantiatedByIoC]
 public class ExternalServiceCollection : IExternalServiceCollection
 {
-	private readonly ExtDictionary<InvokeId, IExternalService> _externalServices = [];
+	private readonly ExtDictionary<InvokeId, IExternalServiceController> _externalServiceControllers = [];
 
 	public required IExternalServiceGlobalCollection ExternalServiceGlobalCollection { private get; [SetByIoC] init; }
 
@@ -34,44 +33,36 @@ public class ExternalServiceCollection : IExternalServiceCollection
 
 	public void Register(InvokeId invokeId)
 	{
-		var tryAddPending = _externalServices.TryAddPending(invokeId);
+		var tryAddPending = _externalServiceControllers.TryAddPending(invokeId);
 
 		Infra.Assert(tryAddPending);
 
 		ExternalServiceGlobalCollection.Register(invokeId.UniqueId);
 	}
 
-	public void SetExternalService(InvokeId invokeId, IExternalService externalService)
+	public void SetController(InvokeId invokeId, IExternalServiceController externalServiceController)
 	{
-		var tryAdd = _externalServices.TryAdd(invokeId, externalService);
+		var tryAdd = _externalServiceControllers.TryAdd(invokeId, externalServiceController);
 
 		Infra.Assert(tryAdd);
 
-		ExternalServiceGlobalCollection.SetExternalService(invokeId.UniqueId, externalService);
+		ExternalServiceGlobalCollection.SetExternalServiceController(invokeId.UniqueId, externalServiceController);
 	}
 
 	public void Unregister(InvokeId invokeId)
 	{
 		ExternalServiceGlobalCollection.Unregister(invokeId.UniqueId);
 
-		_externalServices.TryRemove(invokeId, out _);
+		_externalServiceControllers.TryRemove(invokeId, out _);
 	}
 
 	public async ValueTask Dispatch(InvokeId invokeId, IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		var (found, externalService) = await _externalServices.TryGetValueAsync(invokeId).ConfigureAwait(false);
+		var (found, externalServiceController) = await _externalServiceControllers.TryGetValueAsync(invokeId).ConfigureAwait(false);
 
 		if (found)
 		{
-			if (externalService is IEventDispatcher eventDispatcher)
-			{
-				if (incomingEvent is not IncomingEvent)
-				{
-					incomingEvent = new IncomingEvent(incomingEvent);
-				}
-
-				await eventDispatcher.Dispatch(incomingEvent, token).ConfigureAwait(false);
-			}
+			await externalServiceController.Dispatch(incomingEvent, token).ConfigureAwait(false);
 
 			return;
 		}

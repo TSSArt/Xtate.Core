@@ -162,7 +162,7 @@ public class PersistedEventCoverageTest
 		var targetServiceId = SessionId.FromString("parent-session");
 		var source = new RouterEventSource
 					 {
-						 SenderServiceId = InvokeId.FromString("child", "unique-child"),
+						 SenderServiceId = InvokeId.FromString(invokeId: "child", uniqueInvokeId: "unique-child"),
 						 TargetServiceId = targetServiceId,
 						 Target = new FullUri("#_parent"),
 						 DelayMs = 100

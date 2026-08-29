@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-using Xtate.DataModel;
 using Xtate.IoC;
 using Xtate.StateMachine;
 using Xtate.TaskMonitor;
@@ -26,8 +25,6 @@ namespace Xtate.StateMachineHost.Services;
 public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDisposable, IAsyncDisposable
 {
 	private ExtDictionary<InvokeId, IServiceScope>? _scopes = [];
-
-	public required Func<InvokeData, ValueTask<ExternalServiceClass>> ExternalServiceClassFactory { private get; [SetByIoC] init; }
 
 	public required IServiceScopeFactory ServiceScopeFactory { private get; [SetByIoC] init; }
 
@@ -62,25 +59,30 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 #region Interface IExternalServiceScopeManager
 
-	public virtual async ValueTask Start(InvokeData invokeData, CancellationToken token)
+	public virtual async ValueTask<ExternalServiceResult> Start(ExternalServiceClass externalServiceClass, CancellationToken token)
 	{
 		await using var registration = SecurityContextRegistrationFactory(SecurityContextType.InvokedService).ConfigureAwait(false);
 
-		IExternalServiceRunner? runner = null;
+		var serviceProvider = CreateServiceScope(externalServiceClass).ServiceProvider;
+
+		IExternalServiceController? controller = null;
+		var resultTcs = new TaskCompletionSource();
 
 		try
 		{
-			runner = await Start(invokeData).WaitAsync(TaskMonitor, token).ConfigureAwait(false);
+			controller = await Start(serviceProvider, externalServiceClass.InvokeId).WaitAsync(TaskMonitor, token).ConfigureAwait(false);
+
+			return new ExternalServiceResult(resultTcs.Task);
 		}
 		finally
 		{
-			if (runner is not null)
+			if (controller is not null)
 			{
-				WaitAndCleanup(invokeData.InvokeId, runner).Forget(TaskMonitor);
+				WaitAndCleanup(externalServiceClass.InvokeId, controller, resultTcs).Forget(TaskMonitor);
 			}
 			else
 			{
-				await Cleanup(invokeData.InvokeId).ConfigureAwait(false);
+				await Cleanup(externalServiceClass.InvokeId).ConfigureAwait(false);
 			}
 		}
 	}
@@ -89,30 +91,25 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 
 #endregion
 
-	private async ValueTask<IExternalServiceRunner> Start(InvokeData invokeData)
+	private async ValueTask<IExternalServiceController> Start(IServiceProvider serviceProvider, InvokeId invokeId)
 	{
-		var externalServiceClass = await ExternalServiceClassFactory(invokeData).ConfigureAwait(false);
+		ExternalServiceCollection.Register(invokeId);
 
-		var serviceScope = CreateServiceScope(invokeData.InvokeId, externalServiceClass);
+		var externalServiceController = await serviceProvider.GetRequiredService<IExternalServiceController>().ConfigureAwait(false);
 
-		ExternalServiceCollection.Register(invokeData.InvokeId);
+		ExternalServiceCollection.SetController(invokeId, externalServiceController);
 
-		var runner = await serviceScope.ServiceProvider.GetRequiredService<IExternalServiceRunner>().ConfigureAwait(false);
-		var externalService = await serviceScope.ServiceProvider.GetRequiredService<IExternalService>().ConfigureAwait(false);
-
-		ExternalServiceCollection.SetExternalService(invokeData.InvokeId, externalService);
-
-		return runner;
+		return externalServiceController;
 	}
 
-	private IServiceScope CreateServiceScope(InvokeId invokeId, ExternalServiceClass externalServiceClass)
+	private IServiceScope CreateServiceScope(ExternalServiceClass externalServiceClass)
 	{
 		var scopes = _scopes;
 		Infra.EnsureNotDisposed(scopes is not null, this);
 
 		var serviceScope = ServiceScopeFactory.CreateScope(externalServiceClass.AddServices);
 
-		if (scopes.TryAdd(invokeId, serviceScope))
+		if (scopes.TryAdd(externalServiceClass.InvokeId, serviceScope))
 		{
 			return serviceScope;
 		}
@@ -122,18 +119,6 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		throw Infra.Fail<Exception>(Resources.Exception_MoreThanOneExternalServicesExecutingWithSameInvokeId);
 	}
 
-	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceRunner externalServiceRunner)
-	{
-		try
-		{
-			await externalServiceRunner.WaitForCompletion().ConfigureAwait(false);
-		}
-		finally
-		{
-			await Cleanup(invokeId).ConfigureAwait(false);
-		}
-	}
-
 	private async ValueTask Cleanup(InvokeId invokeId)
 	{
 		ExternalServiceCollection.Unregister(invokeId);
@@ -141,6 +126,38 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 		if (_scopes?.TryRemove(invokeId, out var serviceScope) == true)
 		{
 			await serviceScope.DisposeAsync().ConfigureAwait(false);
+		}
+	}
+
+	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceController externalServiceController, TaskCompletionSource resultTcs)
+	{
+		Exception? exception = null;
+
+		try
+		{
+			await externalServiceController.WaitForCompletion().ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			exception = ex;
+		}
+
+		await Cleanup(invokeId).ConfigureAwait(false);
+
+		switch (exception)
+		{
+			case null:
+				resultTcs.SetResult();
+
+				break;
+
+			case OperationCanceledException ocx when resultTcs.TrySetCanceled(ocx.CancellationToken):
+				break;
+
+			default:
+				resultTcs.SetException(exception);
+
+				break;
 		}
 	}
 

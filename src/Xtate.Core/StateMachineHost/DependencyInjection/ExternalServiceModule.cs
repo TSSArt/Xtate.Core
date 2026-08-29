@@ -35,7 +35,7 @@ public class ExternalServiceModule : Module
 		Services.AddSharedImplementation<ExternalServiceGlobalCollection>(SharedWithin.Container).For<IExternalServiceGlobalCollection>();
 		Services.AddSharedImplementation<ExternalServiceCollection>(SharedWithin.Scope).For<IExternalServiceCollection>();
 		Services.AddSharedImplementation<ExternalServiceScopeManager>(SharedWithin.Scope).For<IExternalServiceScopeManager>();
-		Services.AddSharedImplementation<ExternalServiceRunner>(SharedWithin.Scope).For<IExternalServiceRunner>();
+		Services.AddSharedImplementation<ExternalServiceController>(SharedWithin.Scope).For<IExternalServiceController>();
 
 		Services.AddType<StateMachineExternalService>();
 		Services.AddImplementation<StateMachineExternalService.Provider>().For<IExternalServiceProvider>();

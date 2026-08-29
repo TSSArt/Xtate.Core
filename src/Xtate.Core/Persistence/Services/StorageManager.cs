@@ -32,12 +32,13 @@ public class StorageManager
 	public ValueTask<ITransactionalStorage> Factory(StorageType storageType) =>
 		storageType switch
 		{
-			StorageType.StateMachineDefinition      => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"smd"),
-			StorageType.StateMachineContext         => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"ctx"),
-			StorageType.StateMachineIncomingEvents  => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"evt"),
-			StorageType.StateMachineScheduledEvents => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"sch"),
-			StorageType.HostContext                 => StorageProvider.GetTransactionalStorage(partition: @"host", key: @"ctx"),
-			_                                       => throw Infra.Unmatched(storageType)
+			StorageType.StateMachineDefinition       => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"smd"),
+			StorageType.StateMachineContext          => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"ctx"),
+			StorageType.StateMachineIncomingEvents   => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"evt"),
+			StorageType.StateMachineScheduledEvents  => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"sch"),
+			StorageType.StateMachineExternalServices => StorageProvider.GetTransactionalStorage(GetPartition(StateMachineSessionId.SessionId), key: @"inv"),
+			StorageType.HostContext                  => StorageProvider.GetTransactionalStorage(partition: @"host", key: @"ctx"),
+			_                                        => throw Infra.Unmatched(storageType)
 		};
 
 	public ValueTask RemoveStorage(SessionId sessionId) => StorageProvider.RemoveAllTransactionalStorage(GetPartition(sessionId));

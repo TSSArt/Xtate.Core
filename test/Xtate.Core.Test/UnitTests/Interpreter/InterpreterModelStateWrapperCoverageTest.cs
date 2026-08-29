@@ -31,6 +31,23 @@ namespace Xtate.Core.Test.UnitTests.Interpreter;
 public class InterpreterModelStateWrapperCoverageTest
 {
 	[TestMethod]
+	public void TargetlessTransitionNodeHasInitializedEmptyTargetState()
+	{
+		var source = new TransitionSource
+					 {
+						 EventDescriptors = ImmutableArray<IEventDescriptor>.Empty,
+						 Target = default,
+						 Type = TransitionType.Internal,
+						 Action = ImmutableArray<IExecutableEntity>.Empty
+					 };
+		var node = new TransitionNode(new DocumentIdNode(list: null), source);
+
+		Assert.IsTrue(node.TryMapTarget([]));
+		Assert.IsFalse(node.TargetState.IsDefault);
+		Assert.IsEmpty(node.TargetState);
+	}
+
+	[TestMethod]
 	public async Task TransitionNodeForwardsEvaluatorsMapsTargetsAndDeconstructs()
 	{
 		var targetId = Identifier.FromString("target");

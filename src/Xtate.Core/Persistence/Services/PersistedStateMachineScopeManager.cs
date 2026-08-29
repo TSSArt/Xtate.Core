@@ -20,6 +20,7 @@ using Xtate.DataTypes;
 using Xtate.IoC;
 using Xtate.Persistence.Extensions;
 using Xtate.StateMachine;
+using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.Services;
 using Xtate.TaskMonitor;
 
@@ -69,23 +70,33 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 	{
 		var stateMachineResult = await base.Run(stateMachine).ConfigureAwait(false);
 
-		GetResultAndRemoveStorage(stateMachine.SessionId, stateMachineResult).Forget(PersistedTaskMonitor);
+		GetResultAndRemoveStorage(stateMachine.SessionId, unregister: true, stateMachineResult).Forget(PersistedTaskMonitor);
 	}
+
+	private bool IsAutoResumeOnInit(StateMachineClass stateMachineClass) => stateMachineClass is not IInvokedStateMachine;
 
 	protected override async ValueTask<StateMachineResult> Run(StateMachineClass stateMachineClass)
 	{
-		await Register(stateMachineClass).ConfigureAwait(false);
+		var autoResumeOnInit = IsAutoResumeOnInit(stateMachineClass);
+
+		if (autoResumeOnInit)
+		{
+			await Register(stateMachineClass).ConfigureAwait(false);
+		}
 
 		var stateMachineResult = await base.Run(stateMachineClass).ConfigureAwait(false);
 
-		return new StateMachineResult(GetResultAndRemoveStorage(stateMachineClass.SessionId, stateMachineResult));
+		return new StateMachineResult(GetResultAndRemoveStorage(stateMachineClass.SessionId, autoResumeOnInit, stateMachineResult));
 	}
 
-	private async Task<DataModelValue> GetResultAndRemoveStorage(SessionId sessionId, StateMachineResult stateMachineResult)
+	private async Task<DataModelValue> GetResultAndRemoveStorage(SessionId sessionId, bool unregister, StateMachineResult stateMachineResult)
 	{
 		var resultValue = await stateMachineResult.GetResult().ConfigureAwait(false);
 
-		await Unregister(sessionId).ConfigureAwait(false);
+		if (unregister)
+		{
+			await Unregister(sessionId).ConfigureAwait(false);
+		}
 
 		await StorageManager.RemoveStorage(sessionId).ConfigureAwait(false);
 
@@ -94,7 +105,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 	private async ValueTask Init()
 	{
-		var entries = new HashSet<SessionId>();
+		var entries = new Dictionary<SessionId, ResumedStateMachine>();
 
 		var shrink = false;
 
@@ -113,7 +124,7 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 			if (operation is Add)
 			{
-				entries.Add(sessionId);
+				entries.Add(sessionId, new ResumedStateMachine(sessionId));
 			}
 
 			if (operation is Remove)
@@ -132,11 +143,11 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 
 			_record = 0;
 
-			foreach (var entry in entries)
+			foreach (var entry in entries.Values)
 			{
 				var bucket = _bucket.Nested(_record++);
 				bucket.Add(Operation, Add);
-				bucket.AddId(SessionIdKey, entry);
+				bucket.AddId(SessionIdKey, entry.SessionId);
 			}
 
 			await Storage.CheckPoint(0).ConfigureAwait(false);
@@ -149,9 +160,9 @@ public class PersistedStateMachineScopeManager : StateMachineScopeManager, IAsyn
 			var index = 0;
 			var resumeTasks = new Task[entries.Count];
 
-			foreach (var sessionId in entries)
+			foreach (var stateMachine in entries.Values)
 			{
-				resumeTasks[index++] = Resume(new ResumedStateMachine(sessionId));
+				resumeTasks[index++] = Resume(stateMachine);
 			}
 
 			await Task.WhenAll(resumeTasks).ConfigureAwait(false);

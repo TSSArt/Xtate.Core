@@ -31,42 +31,41 @@ namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 public class ExternalServiceInfrastructureCoverageTest
 {
 	[TestMethod]
-	public async Task GlobalCollectionWaitsForRegisteredServiceWrapsEventsAndUnregisters()
+	public async Task GlobalCollectionWaitsForRegisteredControllerDispatchesEventsAndUnregisters()
 	{
 		var collection = new ExternalServiceGlobalCollection();
 		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
 		var uniqueInvokeId = invokeId.UniqueId;
 		var sourceEvent = Mock.Of<IIncomingEvent>();
-		var dispatcher = new Mock<IEventDispatcher>();
-		var service = dispatcher.As<IExternalService>().Object;
+		var controller = new Mock<IExternalServiceController>();
 
 		Assert.IsFalse(await collection.TryDispatch(uniqueInvokeId, sourceEvent, CancellationToken.None));
 
 		collection.Register(uniqueInvokeId);
 		var pendingDispatch = collection.TryDispatch(uniqueInvokeId, sourceEvent, CancellationToken.None).AsTask();
 		Assert.IsFalse(pendingDispatch.IsCompleted);
-		collection.SetExternalService(uniqueInvokeId, service);
+		collection.SetExternalServiceController(uniqueInvokeId, controller.Object);
 
 		Assert.IsTrue(await pendingDispatch);
-		dispatcher.Verify(d => d.Dispatch(It.Is<IncomingEvent>(e => !ReferenceEquals(e, sourceEvent)), CancellationToken.None), Times.Once);
+		controller.Verify(c => c.Dispatch(sourceEvent, CancellationToken.None), Times.Once);
 
 		var incomingEvent = new IncomingEvent { Name = (EventName)"event" };
 		Assert.IsTrue(await collection.TryDispatch(uniqueInvokeId, incomingEvent, CancellationToken.None));
-		dispatcher.Verify(d => d.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
+		controller.Verify(c => c.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
 
 		collection.Unregister(uniqueInvokeId);
 		Assert.IsFalse(await collection.TryDispatch(uniqueInvokeId, sourceEvent, CancellationToken.None));
 	}
 
 	[TestMethod]
-	public async Task GlobalCollectionTreatsNonDispatcherServiceAsHandledAndReleasesRemovedPendingDispatch()
+	public async Task GlobalCollectionTreatsControllerAsHandledAndReleasesRemovedPendingDispatch()
 	{
 		var collection = new ExternalServiceGlobalCollection();
 		var directId = InvokeId.FromString("direct").UniqueId;
 		var pendingId = InvokeId.FromString("pending").UniqueId;
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 
-		collection.SetExternalService(directId, Mock.Of<IExternalService>());
+		collection.SetExternalServiceController(directId, Mock.Of<IExternalServiceController>());
 		Assert.IsTrue(await collection.TryDispatch(directId, incomingEvent, CancellationToken.None));
 
 		collection.Register(pendingId);
@@ -76,63 +75,51 @@ public class ExternalServiceInfrastructureCoverageTest
 	}
 
 	[TestMethod]
-	public async Task LocalCollectionRegistersDispatchersAndMirrorsLifecycleToGlobalCollection()
+	public async Task LocalCollectionRegistersControllersWithinStateMachineScope()
 	{
-		var global = new Mock<IExternalServiceGlobalCollection>();
 		var deadLetters = new Mock<IDeadLetterQueue<IExternalServiceCollection>>();
 		var collection = new ExternalServiceCollection
 						 {
-							 ExternalServiceGlobalCollection = global.Object,
-							 DeadLetterQueue = deadLetters.Object
+							 DeadLetterQueue = deadLetters.Object,
+							 ExternalServiceGlobalCollection = Mock.Of<IExternalServiceGlobalCollection>()
 						 };
 		var invokeId = InvokeId.FromString(invokeId: "invoke", uniqueInvokeId: "unique-invoke");
 		var sourceEvent = Mock.Of<IIncomingEvent>();
-		var dispatcher = new Mock<IEventDispatcher>();
-		var service = dispatcher.As<IExternalService>().Object;
+		var controller = new Mock<IExternalServiceController>();
 
 		collection.Register(invokeId);
 		var pendingDispatch = collection.Dispatch(invokeId, sourceEvent, CancellationToken.None).AsTask();
 		Assert.IsFalse(pendingDispatch.IsCompleted);
-		collection.SetExternalService(invokeId, service);
+		collection.SetController(invokeId, controller.Object);
 		await pendingDispatch;
 
-		global.Verify(g => g.Register(invokeId.UniqueId), Times.Once);
-		global.Verify(g => g.SetExternalService(invokeId.UniqueId, service), Times.Once);
-		dispatcher.Verify(d => d.Dispatch(It.Is<IncomingEvent>(e => !ReferenceEquals(e, sourceEvent)), CancellationToken.None), Times.Once);
+		controller.Verify(c => c.Dispatch(sourceEvent, CancellationToken.None), Times.Once);
 
 		var incomingEvent = new IncomingEvent { Name = (EventName)"event" };
 		await collection.Dispatch(invokeId, incomingEvent, CancellationToken.None);
-		dispatcher.Verify(d => d.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
+		controller.Verify(c => c.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
 
 		collection.Unregister(invokeId);
-		global.Verify(g => g.Unregister(invokeId.UniqueId), Times.Once);
 	}
 
 	[TestMethod]
-	public async Task LocalCollectionUsesGlobalFallbackDeadLettersAndHandlesNonDispatcherServices()
+	public async Task LocalCollectionDoesNotFallBackOutsideStateMachineScope()
 	{
-		var global = new Mock<IExternalServiceGlobalCollection>();
 		var deadLetters = new Mock<IDeadLetterQueue<IExternalServiceCollection>>();
 		var collection = new ExternalServiceCollection
 						 {
-							 ExternalServiceGlobalCollection = global.Object,
-							 DeadLetterQueue = deadLetters.Object
+							 DeadLetterQueue = deadLetters.Object,
+							 ExternalServiceGlobalCollection = Mock.Of<IExternalServiceGlobalCollection>()
 						 };
 		var directId = InvokeId.FromString("direct");
-		var globalId = InvokeId.FromString("global");
 		var missingId = InvokeId.FromString("missing");
 		var incomingEvent = Mock.Of<IIncomingEvent>();
 
-		collection.SetExternalService(directId, Mock.Of<IExternalService>());
-		global.Setup(g => g.TryDispatch(globalId.UniqueId, incomingEvent, CancellationToken.None)).ReturnsAsync(true);
-		global.Setup(g => g.TryDispatch(missingId.UniqueId, incomingEvent, CancellationToken.None)).ReturnsAsync(false);
+		collection.SetController(directId, Mock.Of<IExternalServiceController>());
 
 		await collection.Dispatch(directId, incomingEvent, CancellationToken.None);
-		await collection.Dispatch(globalId, incomingEvent, CancellationToken.None);
 		await collection.Dispatch(missingId, incomingEvent, CancellationToken.None);
 
-		global.Verify(g => g.TryDispatch(directId.UniqueId, incomingEvent, CancellationToken.None), Times.Never);
-		deadLetters.Verify(d => d.Enqueue(globalId, incomingEvent), Times.Never);
 		deadLetters.Verify(d => d.Enqueue(missingId, incomingEvent), Times.Once);
 	}
 
@@ -275,8 +262,8 @@ public class ExternalServiceInfrastructureCoverageTest
 		Assert.AreSame(sessionId, selfEvent.TargetServiceId);
 		Assert.AreSame(parentSessionId, parentEvent.TargetServiceId);
 		Assert.AreSame(parentSessionId, absoluteParentEvent.TargetServiceId);
-		Assert.AreEqual("target", sessionEvent.TargetServiceId!.ToString());
-		Assert.AreEqual("target", invokeEvent.TargetServiceId!.ToString());
+		Assert.AreEqual(expected: "target", sessionEvent.TargetServiceId!.ToString());
+		Assert.AreEqual(expected: "target", invokeEvent.TargetServiceId!.ToString());
 		await router.Dispatch(selfEvent, CancellationToken.None);
 		await router.Dispatch(parentEvent, CancellationToken.None);
 		await router.Dispatch(absoluteParentEvent, CancellationToken.None);
@@ -296,16 +283,16 @@ public class ExternalServiceInfrastructureCoverageTest
 		IEventRouter router = CreateScxmlIoProcessor(invokeId: null, SessionId.FromString("session"));
 
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-																		await router.GetRouterEvent(Mock.Of<IOutgoingEvent>(e => e.Target == new FullUri("invalid")), CancellationToken.None));
+																await router.GetRouterEvent(Mock.Of<IOutgoingEvent>(e => e.Target == new FullUri("invalid")), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-																		await router.GetRouterEvent(Mock.Of<IOutgoingEvent>(e => e.Target == Const.ParentTarget), CancellationToken.None));
+																await router.GetRouterEvent(Mock.Of<IOutgoingEvent>(e => e.Target == Const.ParentTarget), CancellationToken.None));
 		await Assert.ThrowsExactlyAsync<ProcessorException>([ExcludeFromCodeCoverage] async () =>
-																		await router.Dispatch(Mock.Of<IRouterEvent>(), CancellationToken.None));
+																await router.Dispatch(Mock.Of<IRouterEvent>(), CancellationToken.None));
 	}
 
 	private static ScxmlIoProcessor CreateScxmlIoProcessor(InvokeId? invokeId,
-																   SessionId sessionId,
-																   SessionId? parentSessionId = null,
+														   SessionId sessionId,
+														   SessionId? parentSessionId = null,
 														   IInternalEventDispatcher<ScxmlIoProcessor>? internalDispatcher = null) =>
 		new()
 		{

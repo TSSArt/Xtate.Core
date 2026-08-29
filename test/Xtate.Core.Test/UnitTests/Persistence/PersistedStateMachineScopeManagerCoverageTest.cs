@@ -35,6 +35,27 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class PersistedStateMachineScopeManagerCoverageTest
 {
 	[TestMethod]
+	public async Task CompletedStateMachineIsNotRestored()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var sessionId = SessionId.FromString("completed-scope-session");
+		var snapshots = new SnapshotCollection();
+		var behavior = ControllerBehavior.Completed;
+
+		var firstManager = await CreateManager(storage, new CapturingTaskMonitor(), snapshots, behavior);
+		await firstManager.InitializeAsync();
+
+		var result = await firstManager.Start(new TestStateMachineClass { SessionId = sessionId }, SecurityContextType.NewStateMachine);
+		await result.GetResult();
+
+		var secondManager = await CreateManager(storage, new CapturingTaskMonitor(), snapshots, behavior);
+		await secondManager.InitializeAsync();
+
+		Assert.AreEqual(expected: 1, snapshots.Items.Count);
+		Assert.AreEqual(sessionId, snapshots.Items.Single());
+	}
+
+	[TestMethod]
 	public async Task SuspendedStateMachineIsResumedWithItsSessionId()
 	{
 		await using var storage = new TestTransactionalStorage();
@@ -59,24 +80,153 @@ public class PersistedStateMachineScopeManagerCoverageTest
 		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await secondMonitor.ForgottenResultTasks[0]);
 	}
 
+	[TestMethod]
+	public async Task CompletedInvokedStateMachineIsNotRestored()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var original = CreateInvokedStateMachine("completed-invoked");
+		var snapshots = new InvocationSnapshotCollection();
+
+		var firstManager = await CreateInvokedManager(storage, new CapturingTaskMonitor(), snapshots, ControllerBehavior.Completed);
+		await firstManager.InitializeAsync();
+
+		var result = await firstManager.Start(original, SecurityContextType.InvokedService);
+		await result.GetResult();
+
+		var secondManager = await CreateInvokedManager(storage, new CapturingTaskMonitor(), snapshots, ControllerBehavior.Completed);
+		await secondManager.InitializeAsync();
+
+		Assert.HasCount(expected: 1, snapshots.Items);
+		AssertInvocationSnapshot(original, snapshots.Items.Single());
+	}
+
+	[TestMethod]
+	public async Task SuspendedInvokedStateMachineIsNotRestoredByHostScopeManager()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var original = CreateInvokedStateMachine("suspended-invoked");
+		var snapshots = new InvocationSnapshotCollection();
+
+		var firstManager = await CreateInvokedManager(storage, new CapturingTaskMonitor(), snapshots, ControllerBehavior.Suspended);
+		await firstManager.InitializeAsync();
+
+		var result = await firstManager.Start(original, SecurityContextType.InvokedService);
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await result.GetResult());
+
+		var secondMonitor = new CapturingTaskMonitor();
+		var secondManager = await CreateInvokedManager(storage, secondMonitor, snapshots, ControllerBehavior.Suspended);
+		await secondManager.InitializeAsync();
+
+		Assert.HasCount(expected: 1, snapshots.Items);
+		AssertInvocationSnapshot(original, snapshots.Items.Single());
+		Assert.IsEmpty(secondMonitor.ForgottenResultTasks);
+	}
+
+	[TestMethod]
+	public async Task SuspendedParentAndInvokedChildResumeOnlyParent()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var parentSessionId = SessionId.FromString("mixed-parent");
+		var child = CreateInvokedStateMachine("mixed-child");
+		var snapshots = new SnapshotCollection();
+		var behavior = ControllerBehavior.Suspended;
+		var firstManager = await CreateManager(storage, new CapturingTaskMonitor(), snapshots, behavior);
+		await firstManager.InitializeAsync();
+
+		var parentResult = await firstManager.Start(new TestStateMachineClass { SessionId = parentSessionId }, SecurityContextType.NewStateMachine);
+		var childResult = await firstManager.Start(child, SecurityContextType.InvokedService);
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await parentResult.GetResult());
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await childResult.GetResult());
+
+		var secondMonitor = new CapturingTaskMonitor();
+		var secondManager = await CreateManager(storage, secondMonitor, snapshots, behavior);
+		await secondManager.InitializeAsync();
+
+		CollectionAssert.AreEqual(
+			new[] { parentSessionId, child.SessionId, parentSessionId },
+			snapshots.Items);
+		Assert.HasCount(expected: 1, secondMonitor.ForgottenResultTasks);
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await secondMonitor.ForgottenResultTasks.Single());
+	}
+
+	[TestMethod]
+	public async Task MixedCompletedAndSuspendedParentsRestoreOnlySuspendedEntriesOnce()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var completedSessionId = SessionId.FromString("mixed-completed-parent");
+		var firstSuspendedSessionId = SessionId.FromString("mixed-suspended-parent-one");
+		var secondSuspendedSessionId = SessionId.FromString("mixed-suspended-parent-two");
+		var snapshots = new SnapshotCollection();
+		var behavior = new ControllerBehavior(sessionId =>
+												  sessionId == completedSessionId
+													  ? new ValueTask<DataModelValue>(DataModelValue.Undefined)
+													  : ValueTask.FromException<DataModelValue>(new StateMachineSuspendedException { Owner = sessionId }));
+		var firstManager = await CreateManager(storage, new CapturingTaskMonitor(), snapshots, behavior);
+		await firstManager.InitializeAsync();
+
+		var completedResult = await firstManager.Start(new TestStateMachineClass { SessionId = completedSessionId }, SecurityContextType.NewStateMachine);
+		var firstSuspendedResult = await firstManager.Start(new TestStateMachineClass { SessionId = firstSuspendedSessionId }, SecurityContextType.NewStateMachine);
+		var secondSuspendedResult = await firstManager.Start(new TestStateMachineClass { SessionId = secondSuspendedSessionId }, SecurityContextType.NewStateMachine);
+		await completedResult.GetResult();
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await firstSuspendedResult.GetResult());
+		await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await secondSuspendedResult.GetResult());
+
+		var secondMonitor = new CapturingTaskMonitor();
+		var secondManager = await CreateManager(storage, secondMonitor, snapshots, behavior);
+		await secondManager.InitializeAsync();
+
+		Assert.AreEqual(expected: 1, snapshots.Items.Count(id => id == completedSessionId));
+		Assert.AreEqual(expected: 2, snapshots.Items.Count(id => id == firstSuspendedSessionId));
+		Assert.AreEqual(expected: 2, snapshots.Items.Count(id => id == secondSuspendedSessionId));
+		Assert.HasCount(expected: 2, secondMonitor.ForgottenResultTasks);
+
+		foreach (var task in secondMonitor.ForgottenResultTasks)
+		{
+			await Assert.ThrowsExactlyAsync<StateMachineSuspendedException>(async () => await task);
+		}
+	}
+
 	private static async ValueTask<PersistedStateMachineScopeManager> CreateManager(ITransactionalStorage storage,
-																		ITaskMonitor taskMonitor,
-																		SnapshotCollection snapshots)
+																					ITaskMonitor taskMonitor,
+																					SnapshotCollection snapshots,
+																					ControllerBehavior? behavior = null)
 	{
 		var services = new ServiceCollection();
 		services.AddModule<PersistenceModule>();
 		services.AddConstant(snapshots);
+		services.AddConstant(behavior ?? ControllerBehavior.Suspended);
 		services.AddImplementation<CapturingController>().For<IStateMachineController>();
+
+		return await CreateManager(storage, taskMonitor, services);
+	}
+
+	private static async ValueTask<PersistedStateMachineScopeManager> CreateInvokedManager(ITransactionalStorage storage,
+																						   ITaskMonitor taskMonitor,
+																						   InvocationSnapshotCollection snapshots,
+																						   ControllerBehavior behavior)
+	{
+		var services = new ServiceCollection();
+		services.AddModule<PersistenceModule>();
+		services.AddConstant(snapshots);
+		services.AddConstant(behavior);
+		services.AddImplementation<CapturingInvokedController>().For<IStateMachineController>();
+
+		return await CreateManager(storage, taskMonitor, services);
+	}
+
+	private static async ValueTask<PersistedStateMachineScopeManager> CreateManager(ITransactionalStorage storage,
+																					ITaskMonitor taskMonitor,
+																					ServiceCollection services)
+	{
 		var serviceProvider = services.BuildProvider();
 		var securityContextFactory = new SecurityContextFactory();
-		var storageProvider = Mock.Of<IStorageProvider>();
 
 		return new TestPersistedStateMachineScopeManager
 			   {
 				   Storage = storage,
 				   StorageManager = new StorageManager
 									{
-										StorageProvider = storageProvider,
+										StorageProvider = Mock.Of<IStorageProvider>(),
 										StateMachineSessionId = Mock.Of<IStateMachineSessionId>()
 									},
 				   PersistedTaskMonitor = taskMonitor,
@@ -87,23 +237,95 @@ public class PersistedStateMachineScopeManagerCoverageTest
 			   };
 	}
 
+	private static TestInvokedStateMachineClass CreateInvokedStateMachine(string id) =>
+		new()
+		{
+			SessionId = SessionId.FromString(id + "-session"),
+			ParentSessionId = SessionId.FromString(id + "-parent"),
+			InvokeId = InvokeId.FromString(id + "-invoke", id + "-unique"),
+			Type = new FullUri("urn:" + id)
+		};
+
+	private static void AssertInvocationSnapshot(TestInvokedStateMachineClass expected, InvocationSnapshot actual)
+	{
+		Assert.AreEqual(expected.SessionId, actual.SessionId);
+		Assert.AreEqual(expected.ParentSessionId, actual.ParentSessionId);
+		Assert.AreEqual(expected.InvokeId, actual.InvokeId);
+		Assert.AreEqual(expected.Type, actual.Type);
+	}
+
 	private sealed class TestPersistedStateMachineScopeManager : PersistedStateMachineScopeManager;
 
 	private sealed class TestStateMachineClass : StateMachineClass;
+
+	private sealed class TestInvokedStateMachineClass : StateMachineClass, IInvokedStateMachine
+	{
+	#region Interface IExternalServiceInvokeId
+
+		public required InvokeId InvokeId { get; init; }
+
+	#endregion
+
+	#region Interface IExternalServiceType
+
+		public required FullUri Type { get; init; }
+
+	#endregion
+
+	#region Interface IParentStateMachineSessionId
+
+		public required SessionId ParentSessionId { get; init; }
+
+	#endregion
+
+		public override void AddServices(IServiceCollection services)
+		{
+			base.AddServices(services);
+
+			services.AddForwarding<IInvokedStateMachine>(_ => this);
+			services.AddForwarding<IParentStateMachineSessionId>(_ => this);
+			services.AddForwarding<IExternalServiceInvokeId>(_ => this);
+			services.AddForwarding<IExternalServiceType>(_ => this);
+		}
+	}
 
 	private sealed class SnapshotCollection
 	{
 		public List<SessionId> Items { get; } = [];
 	}
 
+	private sealed class InvocationSnapshotCollection
+	{
+		public List<InvocationSnapshot> Items { get; } = [];
+	}
+
+	private sealed record InvocationSnapshot(
+		SessionId SessionId,
+		SessionId ParentSessionId,
+		InvokeId InvokeId,
+		FullUri Type);
+
+	private sealed class ControllerBehavior(Func<SessionId, ValueTask<DataModelValue>> getResult)
+	{
+		public static ControllerBehavior Completed { get; } = new(_ => new ValueTask<DataModelValue>(DataModelValue.Undefined));
+
+		public static ControllerBehavior Suspended { get; } =
+			new(sessionId => ValueTask.FromException<DataModelValue>(new StateMachineSuspendedException { Owner = sessionId }));
+
+		public ValueTask<DataModelValue> GetResult(SessionId sessionId) => getResult(sessionId);
+	}
+
 	[InstantiatedByIoC]
 	private sealed class CapturingController : IStateMachineController
 	{
+		private readonly ControllerBehavior _behavior;
+
 		private readonly SessionId _sessionId;
 
-		public CapturingController(SnapshotCollection snapshots, IStateMachineSessionId sessionId)
+		public CapturingController(SnapshotCollection snapshots, IStateMachineSessionId sessionId, ControllerBehavior behavior)
 		{
 			_sessionId = sessionId.SessionId;
+			_behavior = behavior;
 			snapshots.Items.Add(_sessionId);
 		}
 
@@ -115,8 +337,45 @@ public class PersistedStateMachineScopeManagerCoverageTest
 
 	#region Interface IExternalService
 
-		public ValueTask<DataModelValue> GetResult() =>
-			ValueTask.FromException<DataModelValue>(new StateMachineSuspendedException { Owner = _sessionId });
+		public ValueTask<DataModelValue> GetResult() => _behavior.GetResult(_sessionId);
+
+	#endregion
+
+	#region Interface IStateMachineController
+
+		public ValueTask Destroy() => ValueTask.CompletedTask;
+
+	#endregion
+	}
+
+	[InstantiatedByIoC]
+	private sealed class CapturingInvokedController : IStateMachineController
+	{
+		private readonly ControllerBehavior _behavior;
+
+		private readonly SessionId _sessionId;
+
+		public CapturingInvokedController(InvocationSnapshotCollection snapshots,
+										  IStateMachineSessionId sessionId,
+										  IParentStateMachineSessionId parentSessionId,
+										  IExternalServiceInvokeId invokeId,
+										  IExternalServiceType type,
+										  ControllerBehavior behavior)
+		{
+			_sessionId = sessionId.SessionId;
+			_behavior = behavior;
+			snapshots.Items.Add(new InvocationSnapshot(_sessionId, parentSessionId.ParentSessionId, invokeId.InvokeId, type.Type));
+		}
+
+	#region Interface IEventDispatcher
+
+		public ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token) => ValueTask.CompletedTask;
+
+	#endregion
+
+	#region Interface IExternalService
+
+		public ValueTask<DataModelValue> GetResult() => _behavior.GetResult(_sessionId);
 
 	#endregion
 

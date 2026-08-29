@@ -27,6 +27,7 @@ using Xtate.IoC.TransformArgs.DependencyInjection;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 using Xtate.StateMachineHost;
+using Xtate.StateMachineHost.Services;
 
 namespace Xtate.Persistence.DependencyInjection;
 
@@ -43,6 +44,7 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 		Services.AddSharedImplementation<SuspendEventDispatcher>(SharedWithin.Container).For<SuspendEventDispatcher>().For<ISuspendEventDispatcher>();
 
 		Services.AddType<InterpreterModelBuilder, IStateMachine, IDataModelHandler>();
+		Services.AddType<ResumeExternalServiceClass, InvokeData>();
 
 		Services.AddFactory<PersistedInterpreterModelGetter>().For<IInterpreterModel>(SharedWithin.Scope);
 
@@ -58,6 +60,7 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineContext).IfAncestor<StateMachinePersistedContext>();
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineIncomingEvents).IfAncestor<PersistentEventQueue>();
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineScheduledEvents).IfAncestor<PersistentEventScheduler>();
+		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.StateMachineExternalServices).IfAncestor<PersistedExternalServiceScopeManager>();
 		Services.ForService<ITransactionalStorage, StorageType>().UseArgValue(StorageType.HostContext).IfAncestor<PersistedStateMachineScopeManager>();
 		Services.ForService<IStorage, StorageType>().UseArgValue(StorageType.StateMachineDefinition).IfAncestor<ResumedStateMachineGetter>();
 
@@ -66,12 +69,15 @@ public class PersistenceModule : Module<StateMachineInterpreterModule, Persisten
 		Services.AddSharedImplementation<PersistentEventQueue>(SharedWithin.Scope).For<IEventReader>().For<IEventDispatcher>();
 		Services.AddSharedImplementation<PersistedStateMachineScopeManager>(SharedWithin.Container).For<IStateMachineScopeManager>();
 		Services.AddSharedImplementation<PersistentEventScheduler>(SharedWithin.Scope).For<IEventScheduler>();
+		Services.AddSharedImplementation<PersistedExternalServiceScopeManager>(SharedWithin.Scope).For<PersistedExternalServiceScopeManager>().For<IExternalServiceScopeManager>();
+		Services.AddSharedImplementation<PersistedExternalServiceController>(SharedWithin.Scope).For<IExternalServiceController>();
+		Services.AddImplementation<PersistedStateMachineExternalService>().For<StateMachineExternalService>();
 
 		Services.AddSharedTypeSync<SharedMemoryStreams<Any>>(SharedWithin.Container);
 		Services.AddImplementation<InMemoryStorageProvider>().For<IStorageProvider>();
 
 		Services.AddImplementation<PersistedStateMachineController>().For<IStateMachineController>();
-		
+
 		Services.AddImplementation<PersistedStateMachineHost>().For<IStateMachineHost>();
 	}
 

@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Threading;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
 using Xtate.DataTypes;
@@ -77,17 +78,17 @@ public class ExternalServiceExecutionCoverageTest
 	}
 
 	[TestMethod]
-	public async Task RunnerSendsDoneEventOnceAndPreservesResult()
+	public async Task ControllerSendsDoneEventOnceAndPreservesResult()
 	{
 		var invokeId = InvokeId.FromString("invoke");
 		var service = new Mock<IExternalService>();
 		service.Setup(static s => s.GetResult()).ReturnsAsync(new DataModelValue("result"));
 		var sentEvents = new List<IOutgoingEvent>();
 		var communication = CreateCommunication(sentEvents, SendStatus.Sent);
-		var runner = CreateRunner(invokeId, service.Object, communication.Object, Mock.Of<ILogger<ExternalServiceRunner>>());
+		var controller = CreateController(invokeId, service.Object, communication.Object, Mock.Of<ILogger<ExternalServiceController>>());
 
-		await runner.WaitForCompletion();
-		await runner.WaitForCompletion();
+		await controller.WaitForCompletion();
+		await controller.WaitForCompletion();
 
 		service.Verify(static s => s.GetResult(), Times.Once);
 		Assert.HasCount(expected: 1, sentEvents);
@@ -98,16 +99,16 @@ public class ExternalServiceExecutionCoverageTest
 	}
 
 	[TestMethod]
-	public async Task RunnerConvertsServiceExceptionToErrorExecutionEvent()
+	public async Task ControllerConvertsServiceExceptionToErrorExecutionEvent()
 	{
 		var failure = new InvalidOperationException("service failed");
 		var service = new Mock<IExternalService>();
 		service.Setup(static s => s.GetResult()).Returns(new ValueTask<DataModelValue>(Task.FromException<DataModelValue>(failure)));
 		var sentEvents = new List<IOutgoingEvent>();
 		var communication = CreateCommunication(sentEvents, SendStatus.Sent);
-		var runner = CreateRunner(InvokeId.FromString("invoke"), service.Object, communication.Object, Mock.Of<ILogger<ExternalServiceRunner>>());
+		var controller = CreateController(InvokeId.FromString("invoke"), service.Object, communication.Object, Mock.Of<ILogger<ExternalServiceController>>());
 
-		await runner.WaitForCompletion();
+		await controller.WaitForCompletion();
 
 		Assert.HasCount(expected: 1, sentEvents);
 		Assert.AreEqual(EventName.ErrorExecution.ToString(), sentEvents[0].Name.ToString());
@@ -115,20 +116,57 @@ public class ExternalServiceExecutionCoverageTest
 	}
 
 	[TestMethod]
-	public async Task RunnerLogsOriginalAndSecondaryFailuresWhenErrorEventCannotBeSent()
+	public async Task ControllerLogsOriginalAndSecondaryFailuresWhenErrorEventCannotBeSent()
 	{
 		var service = new Mock<IExternalService>();
 		service.Setup(static s => s.GetResult()).ReturnsAsync(new DataModelValue("result"));
 		var communication = new Mock<IExternalCommunication>();
 		communication.Setup(static c => c.TrySend(It.IsAny<IOutgoingEvent>())).ReturnsAsync(SendStatus.Scheduled);
-		var logger = new Mock<ILogger<ExternalServiceRunner>>();
-		var runner = CreateRunner(InvokeId.FromString("invoke"), service.Object, communication.Object, logger.Object);
+		var logger = new Mock<ILogger<ExternalServiceController>>();
+		var controller = CreateController(InvokeId.FromString("invoke"), service.Object, communication.Object, logger.Object);
 
-		await runner.WaitForCompletion();
+		await controller.WaitForCompletion();
 
 		communication.Verify(static c => c.TrySend(It.IsAny<IOutgoingEvent>()), Times.Exactly(2));
 		logger.Verify(static l => l.Write(Level.Error, eventId: 1, "Service Execution error.", It.IsAny<Exception>()), Times.Once);
 		logger.Verify(static l => l.Write(Level.Error, eventId: 2, "Error on sending error to Parent.", It.IsAny<Exception>()), Times.Once);
+	}
+
+	[TestMethod]
+	public async Task ControllerDispatchesIncomingEventToExternalService()
+	{
+		var service = new Mock<IExternalService>();
+		var eventDispatcher = service.As<IEventDispatcher>();
+		var controller = CreateController(
+			InvokeId.FromString("invoke"),
+			service.Object,
+			Mock.Of<IExternalCommunication>(),
+			Mock.Of<ILogger<ExternalServiceController>>());
+		var sourceEvent = Mock.Of<IIncomingEvent>();
+
+		await controller.Dispatch(sourceEvent, CancellationToken.None);
+
+		eventDispatcher.Verify(dispatcher => dispatcher.Dispatch(It.Is<IncomingEvent>(incomingEvent => !ReferenceEquals(incomingEvent, sourceEvent)), CancellationToken.None), Times.Once);
+
+		var incomingEvent = new IncomingEvent();
+		await controller.Dispatch(incomingEvent, CancellationToken.None);
+
+		eventDispatcher.Verify(dispatcher => dispatcher.Dispatch(incomingEvent, CancellationToken.None), Times.Once);
+	}
+
+	[TestMethod]
+	public async Task ControllerIgnoresDispatchWhenExternalServiceIsNotEventDispatcher()
+	{
+		var service = new Mock<IExternalService>(MockBehavior.Strict);
+		var controller = CreateController(
+			InvokeId.FromString("invoke"),
+			service.Object,
+			Mock.Of<IExternalCommunication>(),
+			Mock.Of<ILogger<ExternalServiceController>>());
+
+		await controller.Dispatch(Mock.Of<IIncomingEvent>(), CancellationToken.None);
+
+		service.VerifyNoOtherCalls();
 	}
 
 	[TestMethod]
@@ -155,16 +193,17 @@ public class ExternalServiceExecutionCoverageTest
 		Assert.AreEqual(expected: 2, concreteHost.StopCount);
 	}
 
-	private static ExternalServiceRunner CreateRunner(InvokeId invokeId,
-													  IExternalService service,
-													  IExternalCommunication communication,
-													  ILogger<ExternalServiceRunner> logger) =>
-		new(Mock.Of<IExternalServiceInvokeId>(i => i.InvokeId == invokeId))
+	private static ExternalServiceController CreateController(InvokeId invokeId,
+															  IExternalService service,
+															  IExternalCommunication communication,
+															  ILogger<ExternalServiceController> logger) =>
+		new()
 		{
 			ExternalService = service,
 			DataConverter = new DataConverter(caseSensitivity: null),
 			ExternalCommunication = communication,
-			Logger = logger
+			Logger = logger,
+			ExternalServiceInvokeId = Mock.Of<IExternalServiceInvokeId>(i => i.InvokeId == invokeId)
 		};
 
 	private static Mock<IExternalCommunication> CreateCommunication(List<IOutgoingEvent> events, SendStatus status)

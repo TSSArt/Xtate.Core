@@ -15,10 +15,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.Class;
 using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.ExternalServices;
 using Xtate.Interpreter;
+using Xtate.IoC.Tools;
 using Xtate.Scxml;
 using Xtate.StateMachine;
 using Xtate.TaskMonitor;
@@ -31,9 +33,13 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 	[InstantiatedByIoC]
 	public class Provider() : ExternalServiceProviderBase<StateMachineExternalService>(Const.ScxmlServiceTypeId, Const.ScxmlServiceAliasTypeId);
 
-	private SessionId? _sessionId;
+	private bool _disposed;
 
-	public required IStateMachineScopeManager StateMachineScopeManager { private get; [SetByIoC] init; }
+	public InvokeId InvokeId { get; private init; } = null!;
+
+	public SessionId SessionId { get; private init; } = null!;
+
+	public required Deferred<IStateMachineScopeManager> StateMachineScopeManager { private get; [SetByIoC] init; }
 
 	public required IStateMachineLocation StateMachineLocation { private get; [SetByIoC] init; }
 
@@ -41,7 +47,19 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 	public required IStateMachineSessionId ParentStateMachineSessionId { private get; [SetByIoC] init; }
 
-	public required IExternalServiceInvokeId ExternalServiceInvokeId { private get; [SetByIoC] init; }
+	public SessionId ParentSessionId => ParentStateMachineSessionId.SessionId;
+
+	public FullUri Type => ExternalServiceType.Type;
+
+	[SetByIoC]
+	public required IExternalServiceInvokeId ExternalServiceInvokeId
+	{
+		init
+		{
+			InvokeId = value.InvokeId;
+			SessionId = new InvokeSessionId(InvokeId.UniqueId);
+		}
+	}
 
 	public required IExternalServiceType ExternalServiceType { private get; [SetByIoC] init; }
 
@@ -73,69 +91,77 @@ public class StateMachineExternalService : ExternalServiceBase, IDisposable, IAs
 
 	protected override async ValueTask Dispatch(IIncomingEvent incomingEvent, CancellationToken token)
 	{
-		if (_sessionId is { } sessionId)
+		if (!_disposed)
 		{
 			using var combinedToken = CancellationTokenSource.CreateLinkedTokenSource(token, DestroyToken);
 
-			await StateMachineCollection.Dispatch(sessionId, incomingEvent, combinedToken.Token).ConfigureAwait(false);
+			await StateMachineCollection.Dispatch(SessionId, incomingEvent, combinedToken.Token).ConfigureAwait(false);
 		}
 	}
 
-	protected override ValueTask<DataModelValue> Execute()
+	protected virtual StateMachineClass GetInvokedStateMachineClass()
 	{
-		var scxml = RawContent ?? Content.AsStringOrDefault();
+		StateMachineClass? stateMachineClass = null;
 
-		if (scxml is not null)
+		if ((RawContent ?? Content.AsStringOrDefault()) is { } scxml)
 		{
-			var stateMachineClass = new ScxmlStringInvokedStateMachine(scxml)
-									{
-										ParentSessionId = ParentStateMachineSessionId.SessionId,
-										InvokeId = ExternalServiceInvokeId.InvokeId,
-										Type = ExternalServiceType.Type,
-										Location = StateMachineLocation.Location!,
-										Arguments = Parameters
-									};
-
-			_sessionId = stateMachineClass.SessionId;
-
-			return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
+			stateMachineClass = new ScxmlStringInvokedStateMachine(scxml)
+								{
+									SessionId = SessionId,
+									ParentSessionId = ParentSessionId,
+									InvokeId = InvokeId,
+									Type = Type,
+									Location = StateMachineLocation.Location!,
+									Arguments = Parameters
+								};
 		}
 
 		if (Source is not null)
 		{
-			var stateMachineClass = new LocationInvokedStateMachine(StateMachineLocation.Location, Source)
-									{
-										ParentSessionId = ParentStateMachineSessionId.SessionId,
-										InvokeId = ExternalServiceInvokeId.InvokeId,
-										Type = ExternalServiceType.Type,
-										Arguments = Parameters
-									};
-
-			_sessionId = stateMachineClass.SessionId;
-
-			return StateMachineScopeManager.Execute(stateMachineClass, SecurityContextType.InvokedService);
+			stateMachineClass = new LocationInvokedStateMachine(StateMachineLocation.Location, Source)
+								{
+									SessionId = SessionId,
+									ParentSessionId = ParentSessionId,
+									InvokeId = InvokeId,
+									Type = Type,
+									Arguments = Parameters
+								};
 		}
 
-		throw Infra.Fail<Exception>();
+		Infra.NotNull(stateMachineClass);
+
+		return stateMachineClass;
+	}
+
+	protected override async ValueTask<DataModelValue> Execute()
+	{
+		var stateMachineScopeManager = await StateMachineScopeManager().ConfigureAwait(false);
+
+		return await stateMachineScopeManager.Execute(GetInvokedStateMachineClass(), SecurityContextType.InvokedService).ConfigureAwait(false);
 	}
 
 	protected virtual void Dispose(bool disposing)
 	{
-		if (disposing && _sessionId is { } sessionId)
+		if (disposing && !_disposed)
 		{
-			_sessionId = null;
+			_disposed = true;
 
-			StateMachineCollection.Destroy(sessionId).Forget(TaskMonitor);
+			StateMachineCollection.Destroy(SessionId).Forget(TaskMonitor);
 		}
 	}
 
 	protected virtual async ValueTask DisposeAsyncCore()
 	{
-		if (_sessionId is { } sessionId)
+		if (!_disposed)
 		{
-			_sessionId = null;
+			_disposed = true;
 
-			await StateMachineCollection.Destroy(sessionId).ConfigureAwait(false);
+			await StateMachineCollection.Destroy(SessionId).ConfigureAwait(false);
 		}
+	}
+
+	private class InvokeSessionId(UniqueInvokeId uniqueInvokeId) : SessionId
+	{
+		protected override string GenerateId() => uniqueInvokeId.Value;
 	}
 }

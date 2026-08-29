@@ -33,25 +33,24 @@ namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 public class ExternalServiceScopeManagerCoverageTest
 {
 	[TestMethod]
-	public async Task StartRegistersServiceWaitsForRunnerAndCleansUpAfterCompletion()
+	public async Task StartRegistersServiceWaitsForControllerAndCleansUpAfterCompletion()
 	{
 		var invokeId = InvokeId.FromString("invoke");
-		var runnerCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-		var runner = new Mock<IExternalServiceRunner>();
-		runner.Setup(static r => r.WaitForCompletion()).Returns(new ValueTask(runnerCompletion.Task));
-		var externalService = Mock.Of<IExternalService>();
+		var controllerCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var controller = new Mock<IExternalServiceController>();
+		controller.Setup(static c => c.WaitForCompletion()).Returns(new ValueTask(controllerCompletion.Task));
 		var collection = new Mock<IExternalServiceCollection>();
 		var monitor = new CapturingTaskMonitor();
-		var manager = await CreateManager(runner.Object, externalService, collection.Object, monitor);
+		var manager = await CreateManager(controller.Object, collection.Object, monitor);
 
-		await manager.Start(CreateInvokeData(invokeId), CancellationToken.None);
+		await manager.Start(CreateExternalServiceClass(CreateInvokeData(invokeId)), CancellationToken.None);
 
 		collection.Verify(c => c.Register(invokeId), Times.Once);
-		collection.Verify(c => c.SetExternalService(invokeId, externalService), Times.Once);
+		collection.Verify(c => c.SetController(invokeId, controller.Object), Times.Once);
 		Assert.HasCount(expected: 1, monitor.ForgottenTasks);
 		Assert.IsFalse(monitor.ForgottenTasks[0].IsCompleted);
 
-		runnerCompletion.SetResult();
+		controllerCompletion.SetResult();
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks[0].WaitAsync(cts.Token);
@@ -64,17 +63,17 @@ public class ExternalServiceScopeManagerCoverageTest
 	public async Task CancelDisposesActiveScopeAndCompletionStillUnregistersService()
 	{
 		var invokeId = InvokeId.FromString("invoke");
-		var runnerCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-		var runner = new Mock<IExternalServiceRunner>();
-		runner.Setup(static r => r.WaitForCompletion()).Returns(new ValueTask(runnerCompletion.Task));
+		var controllerCompletion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var controller = new Mock<IExternalServiceController>();
+		controller.Setup(static c => c.WaitForCompletion()).Returns(new ValueTask(controllerCompletion.Task));
 		var collection = new Mock<IExternalServiceCollection>();
 		var monitor = new CapturingTaskMonitor();
-		var manager = await CreateManager(runner.Object, Mock.Of<IExternalService>(), collection.Object, monitor);
+		var manager = await CreateManager(controller.Object, collection.Object, monitor);
 
-		await manager.Start(CreateInvokeData(invokeId), CancellationToken.None);
+		await manager.Start(CreateExternalServiceClass(CreateInvokeData(invokeId)), CancellationToken.None);
 		await manager.Cancel(invokeId, CancellationToken.None);
 		await manager.Cancel(invokeId, CancellationToken.None);
-		runnerCompletion.SetResult();
+		controllerCompletion.SetResult();
 		var cts = new CancellationTokenSource();
 		cts.CancelAfter(TimeSpan.FromSeconds(10));
 		await monitor.ForgottenTasks.Single().WaitAsync(cts.Token);
@@ -84,27 +83,24 @@ public class ExternalServiceScopeManagerCoverageTest
 	}
 
 	[TestMethod]
-	public async Task FailedClassFactoryRunsCleanupAndDoesNotLeaveScope()
+	public async Task FailedControllerResolutionRunsCleanupAndDoesNotLeaveScope()
 	{
 		var invokeId = InvokeId.FromString("invoke");
-		var failure = new InvalidOperationException("class creation failed");
 		var collection = new Mock<IExternalServiceCollection>();
 		var securityContextFactory = new SecurityContextFactory();
 		var services = new ServiceCollection();
 		var provider = services.BuildProvider();
 		var manager = new ExternalServiceScopeManager
 					  {
-						  ExternalServiceClassFactory = _ => ValueTask.FromException<ExternalServiceClass>(failure),
 						  ServiceScopeFactory = await provider.GetRequiredService<IServiceScopeFactory>(),
 						  SecurityContextRegistrationFactory = securityContextFactory.GetRegistration,
 						  ExternalServiceCollection = collection.Object,
 						  TaskMonitor = new CapturingTaskMonitor()
 					  };
 
-		var thrown = await Assert.ThrowsExactlyAsync<InvalidOperationException>([ExcludeFromCodeCoverage] async () =>
-																					await manager.Start(CreateInvokeData(invokeId), CancellationToken.None));
+		await Assert.ThrowsExactlyAsync<MissedServiceException>([ExcludeFromCodeCoverage] async () =>
+																	await manager.Start(CreateExternalServiceClass(CreateInvokeData(invokeId)), CancellationToken.None));
 
-		Assert.AreSame(failure, thrown);
 		collection.Verify(c => c.Unregister(invokeId), Times.Once);
 		manager.Dispose();
 	}
@@ -112,36 +108,33 @@ public class ExternalServiceScopeManagerCoverageTest
 	[TestMethod]
 	public async Task DisposedManagerRejectsNewScopesInBothDisposalModes()
 	{
-		var runner = Mock.Of<IExternalServiceRunner>();
+		var controller = Mock.Of<IExternalServiceController>();
 		var collection = new Mock<IExternalServiceCollection>();
-		var syncManager = await CreateManager(runner, Mock.Of<IExternalService>(), collection.Object, new CapturingTaskMonitor());
+		var syncManager = await CreateManager(controller, collection.Object, new CapturingTaskMonitor());
 		syncManager.Dispose();
 		syncManager.Dispose();
 
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
-																	 await syncManager.Start(CreateInvokeData(InvokeId.FromString("sync")), CancellationToken.None));
+																	 await syncManager.Start(CreateExternalServiceClass(CreateInvokeData(InvokeId.FromString("sync"))), CancellationToken.None));
 
-		var asyncManager = await CreateManager(runner, Mock.Of<IExternalService>(), collection.Object, new CapturingTaskMonitor());
+		var asyncManager = await CreateManager(controller, collection.Object, new CapturingTaskMonitor());
 		await asyncManager.DisposeAsync();
 		await asyncManager.DisposeAsync();
 		await Assert.ThrowsExactlyAsync<ObjectDisposedException>([ExcludeFromCodeCoverage] async () =>
-																	 await asyncManager.Start(CreateInvokeData(InvokeId.FromString("async")), CancellationToken.None));
+																	 await asyncManager.Start(CreateExternalServiceClass(CreateInvokeData(InvokeId.FromString("async"))), CancellationToken.None));
 	}
 
-	private static async ValueTask<ExternalServiceScopeManager> CreateManager(IExternalServiceRunner runner,
-																			  IExternalService externalService,
+	private static async ValueTask<ExternalServiceScopeManager> CreateManager(IExternalServiceController controller,
 																			  IExternalServiceCollection collection,
 																			  ITaskMonitor taskMonitor)
 	{
 		var services = new ServiceCollection();
-		services.AddConstant(runner);
-		services.AddConstant(externalService);
+		services.AddConstant(controller);
 		var provider = services.BuildProvider();
 		var securityContextFactory = new SecurityContextFactory();
 
 		return new ExternalServiceScopeManager
 			   {
-				   ExternalServiceClassFactory = invokeData => new ValueTask<ExternalServiceClass>(CreateExternalServiceClass(invokeData)),
 				   ServiceScopeFactory = await provider.GetRequiredService<IServiceScopeFactory>(),
 				   SecurityContextRegistrationFactory = securityContextFactory.GetRegistration,
 				   ExternalServiceCollection = collection,
