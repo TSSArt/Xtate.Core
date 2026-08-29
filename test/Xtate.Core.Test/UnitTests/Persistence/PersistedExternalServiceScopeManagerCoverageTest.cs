@@ -196,8 +196,8 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		Assert.AreEqual(invokeData.Type, restored.Type);
 		Assert.AreEqual(invokeData.Source, restored.Source);
 		Assert.AreEqual(invokeData.RawContent, restored.RawContent);
-		Assert.AreEqual(invokeData.Content, restored.Content);
-		Assert.AreEqual(invokeData.Parameters, restored.Parameters);
+		AssertDataModelListEqual(invokeData.Content, restored.Content);
+		AssertDataModelListEqual(invokeData.Parameters, restored.Parameters);
 
 		result.SetResult(DataModelValue.Undefined);
 		await Task.WhenAll(secondMonitor.ForgottenTasks);
@@ -245,8 +245,8 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		Assert.AreEqual(expected.Type, actual.Type);
 		Assert.AreEqual(expected.Source, actual.Source);
 		Assert.AreEqual(expected.RawContent, actual.RawContent);
-		Assert.AreEqual(expected.Content, actual.Content);
-		Assert.AreEqual(expected.Parameters, actual.Parameters);
+		AssertDataModelListEqual(expected.Content, actual.Content);
+		AssertDataModelListEqual(expected.Parameters, actual.Parameters);
 	}
 
 	[TestMethod]
@@ -463,6 +463,16 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 			RawContent: "<content />",
 			DataModelValue.FromObject(new DataModelList { ["content"] = 42 }),
 			DataModelValue.FromObject(new DataModelList { ["parameter"] = "value" }));
+
+	private static void AssertDataModelListEqual(DataModelValue expected, DataModelValue actual)
+	{
+		Assert.AreEqual(DataModelValueType.List, actual.Type);
+		var expectedList = expected.AsList();
+		var actualList = actual.AsList();
+		Assert.AreEqual(expectedList.Count, actualList.Count);
+		CollectionAssert.AreEqual(expectedList.Keys.ToArray(), actualList.Keys.ToArray());
+		CollectionAssert.AreEqual(expectedList.Values.ToArray(), actualList.Values.ToArray());
+	}
 
 	private static PersistedExternalServiceController CreateController(IExternalService externalService,
 																	   InvokeId invokeId,

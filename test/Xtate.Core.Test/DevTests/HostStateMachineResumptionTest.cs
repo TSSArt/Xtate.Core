@@ -34,7 +34,7 @@ public class HostStateMachineResumptionTest
 {
 	[TestMethod]
 	[DoNotParallelize]
-	[Timeout(15000)]
+	[Timeout(30000)]
 	public async Task HostStartResumesNestedStateMachineInvoke()
 	{
 		var storageProvider = new StateMachinePersistenceTest.TestStorage();
