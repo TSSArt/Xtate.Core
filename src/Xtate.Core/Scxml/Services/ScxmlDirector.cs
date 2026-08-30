@@ -28,9 +28,7 @@ namespace Xtate.Scxml.Services;
 
 public class ScxmlDirector : XmlDirector<ScxmlDirector>
 {
-	private const char Space = ' ';
-
-	private static readonly char[] SpaceSplitter = [Space];
+	private static readonly char[] XmlWhitespaceSplitter = [' ', '\t', '\r', '\n'];
 
 	private static readonly Policy<IStateMachineBuilder> StateMachinePolicy = BuildPolicy<IStateMachineBuilder>(StateMachineBuildPolicy);
 
@@ -231,12 +229,12 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			throw new ArgumentException(Resources.Exception_ListOfIdentifiersCannotBeEmpty, nameof(value));
 		}
 
-		if (value.IndexOf(Space) < 0)
+		if (value.IndexOfAny(XmlWhitespaceSplitter) < 0)
 		{
 			return [Identifier.FromString(value)];
 		}
 
-		var identifiers = value.Split(SpaceSplitter, StringSplitOptions.None);
+		var identifiers = value.Split(XmlWhitespaceSplitter, StringSplitOptions.RemoveEmptyEntries);
 
 		var builder = ImmutableArray.CreateBuilder<IIdentifier>(identifiers.Length);
 
@@ -255,12 +253,12 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			throw new ArgumentException(Resources.Exception_ListOfEventsCannotBeEmpty, nameof(value));
 		}
 
-		if (value.IndexOf(Space) < 0)
+		if (value.IndexOfAny(XmlWhitespaceSplitter) < 0)
 		{
 			return [EventDescriptor.FromString(value)];
 		}
 
-		var eventDescriptors = value.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
+		var eventDescriptors = value.Split(XmlWhitespaceSplitter, StringSplitOptions.RemoveEmptyEntries);
 
 		if (eventDescriptors.Length == 0)
 		{
@@ -304,12 +302,12 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			throw new ArgumentException(Resources.Exception_ListOfLocationsCannotBeEmpty, nameof(expression));
 		}
 
-		if (expression.IndexOf(Space) < 0)
+		if (expression.IndexOfAny(XmlWhitespaceSplitter) < 0)
 		{
 			return [new LocationExpression { Expression = expression, Ancestor = CreateAncestor(namespaces: true) }];
 		}
 
-		var locationExpressions = expression.Split(SpaceSplitter, StringSplitOptions.RemoveEmptyEntries);
+		var locationExpressions = expression.Split(XmlWhitespaceSplitter, StringSplitOptions.RemoveEmptyEntries);
 
 		if (locationExpressions.Length == 0)
 		{
@@ -379,7 +377,11 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	{
 		Infra.Requires(value);
 
-		if (!Enum.TryParse(value, ignoreCase: true, out T result) || value.Any(char.IsUpper))
+		if (value.Length == 0 ||
+			char.IsWhiteSpace(value[0]) ||
+			char.IsWhiteSpace(value[^1]) ||
+			!Enum.TryParse(value, ignoreCase: true, out T result) ||
+			value.Any(char.IsUpper))
 		{
 			throw new ArgumentException(Res.Format(Resources.Exception_ValueCannotBeParsed, typeof(T).Name));
 		}
@@ -390,6 +392,11 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 	private static int AsMilliseconds(string value)
 	{
 		Infra.RequiresNonEmptyString(value);
+
+		if (char.IsWhiteSpace(value[0]) || char.IsWhiteSpace(value[^1]))
+		{
+			throw new ArgumentException(Resources.Exception_DelayParsingError);
+		}
 
 		if (value == @"0")
 		{

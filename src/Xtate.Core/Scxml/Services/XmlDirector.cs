@@ -438,6 +438,10 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 
 					_attributes[new QualifiedName(ns, name)] = type + (int)AttributeType.SysIncrement;
 				}
+				else if (string.IsNullOrEmpty(ns))
+				{
+					OnError(CreateMessage(Resources.ErrorMessage_DetectedUnknownAttribute, ns, name));
+				}
 			}
 
 			public void ProcessAttributesCompleted()

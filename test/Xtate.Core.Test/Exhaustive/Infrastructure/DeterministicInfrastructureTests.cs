@@ -218,8 +218,9 @@ public sealed class DeterministicInfrastructureTests
 
 		scheduler.Schedule(delayMilliseconds: 10, () => trace.Add("third"));
 		scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("first"));
-		using var cancelled = scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("cancelled"));
+		var cancelled = scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("cancelled"));
 		scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("second"));
+		cancelled.Dispose();
 
 		scheduler.AdvanceTo(5);
 		CollectionAssert.AreEqual(new[] { "first", "second" }, trace);

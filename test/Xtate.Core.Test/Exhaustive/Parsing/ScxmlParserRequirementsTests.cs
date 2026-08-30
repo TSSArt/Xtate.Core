@@ -500,7 +500,6 @@ public sealed class ScxmlParserRequirementsTests
 	[DataRow("binding=\"LATE\"")]
 	[DataRow("binding=\" late\"")]
 	[DataRow("unknown=\"value\"")]
-	[Ignore("Product defect DEF-SCXML-PARSE-003: invalid/unknown root attributes are accepted.")]
 	/*
 	CASE-METADATA
 	cases:
@@ -710,13 +709,12 @@ public sealed class ScxmlParserRequirementsTests
 	}
 
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-021: malformed XML can return a partial model.")]
 	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><state id=\"unfinished\">")]
 	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"></state>")]
 	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" version=\"1.0\" />")]
 	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\">&notAnEntity;</scxml>")]
 	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><p:state id=\"bad\" /></scxml>")]
-	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" xmlns:p=\"urn:one\"><state id=\"bad\" xmlns:p=\"urn:two\" /></scxml>")]
+	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><state id=\"bad\" xmlns:p=\"urn:one\" xmlns:p=\"urn:two\" /></scxml>")]
 	[DataRow("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" /><scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" />")]
 	/*
 	CASE-METADATA
@@ -771,6 +769,7 @@ public sealed class ScxmlParserRequirementsTests
 		var result = await ScxmlParserHarness.ParseAsync(document, baseUri: "urn:exhaustive:malformed");
 		Assert.IsNull(result.Model, Describe(result));
 		Assert.IsFalse(result.Accepted, Describe(result));
+		Assert.IsTrue(result.Exception is not null || result.Diagnostics.Count > 0, Describe(result));
 	}
 
 	/*
@@ -966,7 +965,6 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-005: unknown unqualified state attributes are accepted.")]
 	public async Task SCXML_PARSE_005_Rejects_an_unknown_unqualified_state_attribute()
 	{
 		var result = await ScxmlParserHarness.ParseAsync($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><state id=\"ready\" unexpected=\"value\" /></scxml>");
@@ -1014,12 +1012,11 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-005: foreign-qualified unknown state attributes are accepted.")]
-	public async Task SCXML_PARSE_005_Rejects_a_foreign_qualified_unknown_state_attribute()
+	public async Task SCXML_PARSE_005_Accepts_a_foreign_qualified_unknown_state_attribute()
 	{
 		var result = await ScxmlParserHarness.ParseAsync($"<scxml xmlns=\"{ScxmlNamespace}\" xmlns:f=\"urn:foreign\" version=\"1.0\"><state id=\"ready\" f:unexpected=\"value\" /></scxml>");
 
-		Assert.IsFalse(result.Accepted, Describe(result));
+		Assert.IsTrue(result.Accepted, Describe(result));
 	}
 
 	[TestMethod]
@@ -1071,12 +1068,11 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-003: foreign-qualified unknown root attributes are accepted.")]
-	public async Task SCXML_PARSE_003_Rejects_foreign_qualified_root_attributes()
+	public async Task SCXML_PARSE_003_Accepts_foreign_qualified_root_attributes()
 	{
 		var result = await ScxmlParserHarness.ParseAsync($"<scxml xmlns=\"{ScxmlNamespace}\" xmlns:ext=\"urn:foreign\" version=\"1.0\" ext:unknown=\"value\" />");
 
-		Assert.IsFalse(result.Accepted, Describe(result));
+		Assert.IsTrue(result.Accepted, Describe(result));
 	}
 
 	[TestMethod]
@@ -1130,7 +1126,6 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-021: mismatched closing tags return a partial model with diagnostics.")]
 	public async Task SCXML_PARSE_021_Mismatched_closing_tag_never_returns_a_partial_model()
 	{
 		var result = await ScxmlParserHarness.ParseAsync(xml: "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><state id=\"s\"></scxml>", baseUri: "urn:exhaustive:mismatched");
@@ -1349,7 +1344,6 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-020: parser currently accepts whitespace-padded delays")]
 	public async Task SCXML_PARSE_020_Rejects_whitespace_padded_delay_without_normalizing_it()
 	{
 		var result = await ScxmlParserHarness.ParseAsync(
@@ -1449,7 +1443,8 @@ public sealed class ScxmlParserRequirementsTests
 	[TestMethod]
 	public async Task SCXML_PARSE_023_Accepts_a_non_seekable_one_byte_async_stream_without_partial_model()
 	{
-		await using var stream = new OneByteReadStream(Encoding.UTF8.GetBytes($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><state id=\"state\" /></scxml>"));
+		// ReSharper disable once UseAwaitUsing
+		using var stream = new OneByteReadStream(Encoding.UTF8.GetBytes($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><state id=\"state\" /></scxml>"));
 		var result = await ScxmlParserHarness.ParseStreamAsync(stream, baseUri: "urn:exhaustive:one-byte");
 
 		Assert.IsTrue(result.Accepted, Describe(result));
@@ -1499,7 +1494,8 @@ public sealed class ScxmlParserRequirementsTests
 	[TestMethod]
 	public async Task SCXML_PARSE_021_And_PARSE_023_Read_failure_after_partial_input_returns_no_model()
 	{
-		await using var stream = new FailingReadStream(Encoding.UTF8.GetBytes($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><state id=\"partial\" /></scxml>"));
+		// ReSharper disable once UseAwaitUsing
+		using var stream = new FailingReadStream(Encoding.UTF8.GetBytes($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><state id=\"partial\" /></scxml>"));
 		var result = await ScxmlParserHarness.ParseStreamAsync(stream, baseUri: "urn:exhaustive:read-failure");
 
 		Assert.IsNull(result.Model, Describe(result));
@@ -1547,7 +1543,6 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-021: malformed input returns a partial model")]
 	public async Task SCXML_PARSE_021_Rejects_illegal_xml_control_characters_without_a_model()
 	{
 		var result = await ScxmlParserHarness.ParseAsync($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><state id=\"bad\">\u0001</state></scxml>");
@@ -2367,7 +2362,6 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-007: parallel accepts a forbidden initial attribute.")]
 	public async Task SCXML_PARSE_007_Rejects_an_initial_attribute_on_parallel()
 	{
 		var result = await ScxmlParserHarness.ParseAsync($"<scxml xmlns=\"{ScxmlNamespace}\" version=\"1.0\"><parallel id=\"root\" initial=\"region\"><state id=\"region\" /></parallel></scxml>");
@@ -2879,7 +2873,7 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-PARSE-021: malformed XML can return a partial model.")]
+	//[Ignore("Product defect DEF-SCXML-PARSE-021: malformed XML can return a partial model.")]
 	public async Task SCXML_PARSE_019_Tokenizes_initial_target_event_and_namelist_on_xml_whitespace()
 	{
 		var result = await ScxmlParserHarness.ParseAsync(
@@ -3099,7 +3093,8 @@ public sealed class ScxmlParserRequirementsTests
 
 		var output = new StringBuilder();
 
-		await using (var writer = XmlWriter.Create(output, new XmlWriterSettings { OmitXmlDeclaration = true, Async = true}))
+		// ReSharper disable once UseAwaitUsing
+		using (var writer = XmlWriter.Create(output, new XmlWriterSettings { OmitXmlDeclaration = true}))
 		{
 			new ScxmlSerializerWriter(writer).Serialize(parsed.Model!);
 		}

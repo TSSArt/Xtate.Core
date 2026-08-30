@@ -354,6 +354,9 @@
   <data name="ErrorMessage_DetectedUnknownElement" xml:space="preserve">
     <value>Detected unknown element &lt;{0}&gt;.</value>
   </data>
+  <data name="ErrorMessage_DetectedUnknownAttribute" xml:space="preserve">
+    <value>Detected unknown attribute '{0}'.</value>
+  </data>
   <data name="ErrorMessage_MissedRequiredElements" xml:space="preserve">
     <value>Missed required elements &lt;{0}&gt;.</value>
   </data>

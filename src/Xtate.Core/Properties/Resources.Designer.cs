@@ -385,7 +385,16 @@ namespace Xtate {
                 return ResourceManager.GetString("ErrorMessage_DetectedUnknownElement", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Detected unknown attribute &apos;{0}&apos;..
+        /// </summary>
+        internal static string ErrorMessage_DetectedUnknownAttribute {
+            get {
+                return ResourceManager.GetString("ErrorMessage_DetectedUnknownAttribute", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to DoneData not supported in NULL data model..
         /// </summary>
