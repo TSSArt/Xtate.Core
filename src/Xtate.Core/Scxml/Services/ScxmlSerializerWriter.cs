@@ -36,9 +36,26 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 		writer.WriteStartElement(prefix: "", localName: "scxml", Const.ScxmlNs);
 		writer.WriteAttributeString(localName: "version", value: @"1.0");
 
+		if (entity.Name is { } name)
+		{
+			writer.WriteAttributeString(localName: "name", name);
+		}
+
 		if (entity.DataModelType is { } dataModelType)
 		{
 			writer.WriteAttributeString(localName: "datamodel", dataModelType);
+		}
+
+		var binding = entity.Binding switch
+					  {
+						  BindingType.Early => null,
+						  BindingType.Late  => @"late",
+						  _                 => throw Infra.Unmatched(entity.Binding)
+					  };
+
+		if (binding is not null)
+		{
+			writer.WriteAttributeString(localName: "binding", binding);
 		}
 
 		var target = entity.Initial?.Transition?.Target ?? default;

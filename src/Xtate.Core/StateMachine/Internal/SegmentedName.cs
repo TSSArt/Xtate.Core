@@ -49,6 +49,11 @@ internal static class SegmentedName
 
 	public static int GetHashCode<T>(ImmutableArray<T> segments)
 	{
+		if (segments.IsDefaultOrEmpty)
+		{
+			return 0;
+		}
+
 		var hashCode = new HashCode();
 
 		foreach (var t in segments)

@@ -83,13 +83,13 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 #region Interface IReadOnlyCollection<IIdentifier>
 
-	public int Count => _parts.Length;
+	public int Count => _parts.IsDefaultOrEmpty ? 0 : _parts.Length;
 
 #endregion
 
 #region Interface IReadOnlyList<IIdentifier>
 
-	public IIdentifier this[int index] => _parts[index];
+	public IIdentifier this[int index] => _parts.IsDefaultOrEmpty ? throw new IndexOutOfRangeException() : _parts[index];
 
 #endregion
 
@@ -109,7 +109,7 @@ public readonly struct EventName : IReadOnlyList<IIdentifier>, IEquatable<EventN
 
 #pragma warning restore IDE0028
 
-	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _parts.GetEnumerator();
+	public ImmutableArray<IIdentifier>.Enumerator GetEnumerator() => _parts.IsDefaultOrEmpty ? ImmutableArray<IIdentifier>.Empty.GetEnumerator() : _parts.GetEnumerator();
 
 	public override int GetHashCode() => SegmentedName.GetHashCode(_parts);
 

@@ -22,9 +22,9 @@ namespace Xtate.Interpreter.Model;
 
 public abstract class StateEntityNode : IStateEntity, IDocumentId
 {
-	public static readonly IComparer<StateEntityNode> EntryOrder = new DocumentOrderComparer(reverseOrder: false);
+	public static readonly IComparer<StateEntityNode> EntryOrder = new OrderComparer(reverseOrder: false);
 
-	public static readonly IComparer<StateEntityNode> ExitOrder = new DocumentOrderComparer(reverseOrder: true);
+	public static readonly IComparer<StateEntityNode> ExitOrder = new OrderComparer(reverseOrder: true);
 
 	private DocumentIdSlot _documentIdSlot;
 
@@ -99,7 +99,7 @@ public abstract class StateEntityNode : IStateEntity, IDocumentId
 
 	private NotSupportedException GetNotSupportedException() => new(Res.Format(Resources.Exception_SpecifiedMethodIsNotSupportedInType, GetType().Name));
 
-	private sealed class DocumentOrderComparer(bool reverseOrder) : IComparer<StateEntityNode>
+	private sealed class OrderComparer(bool reverseOrder) : IComparer<StateEntityNode>
 	{
 	#region Interface IComparer<StateEntityNode>
 
@@ -109,11 +109,66 @@ public abstract class StateEntityNode : IStateEntity, IDocumentId
 
 		private static int InternalCompare(StateEntityNode? x, StateEntityNode? y)
 		{
-			if (x == y) return 0;
+			if (ReferenceEquals(x, y)) return 0;
 			if (y is null) return 1;
 			if (x is null) return -1;
 
-			return x.DocumentId.CompareTo(y.DocumentId);
+			var xId = x.DocumentId;
+			var yId = y.DocumentId;
+
+			return xId >= 0 && yId >= 0 ? xId.CompareTo(yId) : HierarchyCompare(x, y);
+		}
+
+		private static int HierarchyCompare(StateEntityNode x, StateEntityNode y)
+		{
+			var depth = 0;
+
+			for (var node = x; node.Parent is not null; node = node.Parent)
+			{
+				depth++;
+			}
+
+			for (var node = y; node.Parent is not null; node = node.Parent)
+			{
+				depth--;
+			}
+
+			var xNode = x;
+			var yNode = y;
+
+			while (depth > 0)
+			{
+				xNode = xNode.Parent!;
+				depth--;
+			}
+
+			while (depth < 0)
+			{
+				yNode = yNode.Parent!;
+				depth++;
+			}
+
+			if (ReferenceEquals(xNode, yNode))
+			{
+				return ReferenceEquals(xNode, x) ? -1 : 1;
+			}
+
+			while (!ReferenceEquals(xNode.Parent, yNode.Parent))
+			{
+				xNode = xNode.Parent!;
+				yNode = yNode.Parent!;
+			}
+
+			foreach (var state in xNode.Parent!.States)
+			{
+				if (ReferenceEquals(state, xNode))
+					return -1;
+
+				if (ReferenceEquals(state, yNode))
+					return 1;
+			}
+
+			throw Infra.Fail<Exception>();
 		}
 	}
 }
