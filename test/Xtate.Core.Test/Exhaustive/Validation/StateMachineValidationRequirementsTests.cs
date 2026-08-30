@@ -1,6 +1,23 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Xtate.StateMachine;
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using Xtate.Core.Test.Exhaustive.Interpreter;
+using Xtate.Core.Test.Exhaustive.Parsing;
+using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.Exhaustive.Validation;
 
@@ -52,7 +69,7 @@ public sealed class StateMachineValidationRequirementsTests
 	{
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new AssignEntity()));
 
-		Assert.AreEqual(2, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 2, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -98,13 +115,13 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_send_event_literal_and_expression_together()
 	{
 		var send = new SendEntity
-		{
-			EventName = "event.literal",
-			EventExpression = new ValueExpression { Expression = "eventExpression" }
-		};
+				   {
+					   EventName = "event.literal",
+					   EventExpression = new ValueExpression { Expression = "eventExpression" }
+				   };
 
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(send));
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -150,7 +167,7 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_cancel_with_neither_literal_nor_expression_id()
 	{
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new CancelEntity()));
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -196,7 +213,7 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Accepts_send_with_only_a_literal_event()
 	{
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new SendEntity { EventName = "event.literal" }));
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -242,7 +259,7 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Accepts_cancel_with_only_a_literal_id()
 	{
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new CancelEntity { SendId = "send-1" }));
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -288,13 +305,13 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_cancel_with_both_literal_and_expression_ids()
 	{
 		var cancel = new CancelEntity
-		{
-			SendId = "send-1",
-			SendIdExpression = new ValueExpression { Expression = "sendIdExpression" }
-		};
+					 {
+						 SendId = "send-1",
+						 SendIdExpression = new ValueExpression { Expression = "sendIdExpression" }
+					 };
 
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(cancel));
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -340,17 +357,18 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_invoke_with_both_literal_and_expression_types()
 	{
 		var invoke = new InvokeEntity
-		{
-			Type = new FullUri("urn:example:invoke"),
-			TypeExpression = new ValueExpression { Expression = "invokeType" }
-		};
+					 {
+						 Type = new FullUri("urn:example:invoke"),
+						 TypeExpression = new ValueExpression { Expression = "invokeType" }
+					 };
 
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"state", Invoke = [invoke] }]
-		});
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States = [new StateEntity { Id = (Identifier)"state", Invoke = [invoke] }]
+			});
 
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -396,18 +414,19 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_invoke_with_namelist_and_parameters_together()
 	{
 		var invoke = new InvokeEntity
-		{
-			Type = new FullUri("urn:example:invoke"),
-			NameList = [new LocationExpression { Expression = "input" }],
-			Parameters = [new ParamEntity { Name = "other", Expression = new ValueExpression { Expression = "value" } }]
-		};
+					 {
+						 Type = new FullUri("urn:example:invoke"),
+						 NameList = [new LocationExpression { Expression = "input" }],
+						 Parameters = [new ParamEntity { Name = "other", Expression = new ValueExpression { Expression = "value" } }]
+					 };
 
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"state", Invoke = [invoke] }]
-		});
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States = [new StateEntity { Id = (Identifier)"state", Invoke = [invoke] }]
+			});
 
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	[TestMethod]
@@ -417,31 +436,31 @@ public sealed class StateMachineValidationRequirementsTests
 	CASE-METADATA
 	cases:
 	  - case_id: SCXML-VALID-002-EXISTING-PARAM-009-CASE-001
-	    requirement_ids: [SCXML-VALID-002]
-	    description: True row supplies an invoke namelist as the only payload form and is accepted.
-	    partition: positive-namelist
-	    input: useNameList=true
-	    stimulus: Validate the constructed public model once.
-	    expected: Zero diagnostics with a namelist-only invoke payload.
-	    expected_exception_or_event: none
-	    forbidden: Rejection, parameters added alongside namelist, or unrelated diagnostic.
-	    dimensions: { payload_form: namelist, useNameList: true }
-	    risk: medium
-	    target_frameworks_platforms: all-project-targets/platform-independent
-	    compile_notes: none
+		requirement_ids: [SCXML-VALID-002]
+		description: True row supplies an invoke namelist as the only payload form and is accepted.
+		partition: positive-namelist
+		input: useNameList=true
+		stimulus: Validate the constructed public model once.
+		expected: Zero diagnostics with a namelist-only invoke payload.
+		expected_exception_or_event: none
+		forbidden: Rejection, parameters added alongside namelist, or unrelated diagnostic.
+		dimensions: { payload_form: namelist, useNameList: true }
+		risk: medium
+		target_frameworks_platforms: all-project-targets/platform-independent
+		compile_notes: none
 	  - case_id: SCXML-VALID-002-EXISTING-PARAM-009-CASE-002
-	    requirement_ids: [SCXML-VALID-002]
-	    description: False row supplies invoke parameters as the only payload form and is accepted.
-	    partition: positive-parameters
-	    input: useNameList=false
-	    stimulus: Validate the constructed public model once.
-	    expected: Zero diagnostics with a parameters-only invoke payload.
-	    expected_exception_or_event: none
-	    forbidden: Rejection, namelist added alongside parameters, or unrelated diagnostic.
-	    dimensions: { payload_form: parameters, useNameList: false }
-	    risk: medium
-	    target_frameworks_platforms: all-project-targets/platform-independent
-	    compile_notes: none
+		requirement_ids: [SCXML-VALID-002]
+		description: False row supplies invoke parameters as the only payload form and is accepted.
+		partition: positive-parameters
+		input: useNameList=false
+		stimulus: Validate the constructed public model once.
+		expected: Zero diagnostics with a parameters-only invoke payload.
+		expected_exception_or_event: none
+		forbidden: Rejection, namelist added alongside parameters, or unrelated diagnostic.
+		dimensions: { payload_form: parameters, useNameList: false }
+		risk: medium
+		target_frameworks_platforms: all-project-targets/platform-independent
+		compile_notes: none
 	*/
 	/*
 	TEST-METADATA
@@ -485,17 +504,23 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Accepts_each_single_invoke_payload_form(bool useNameList)
 	{
 		var invoke = new InvokeEntity { Type = new FullUri("urn:example:invoke") };
+
 		if (useNameList)
-			invoke.NameList = [new LocationExpression { Expression = "input" }];
-		else
-			invoke.Parameters = [new ParamEntity { Name = "input", Expression = new ValueExpression { Expression = "value" } }];
-
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
 		{
-			States = [new StateEntity { Id = (Identifier)"state", Invoke = [invoke] }]
-		});
+			invoke.NameList = [new LocationExpression { Expression = "input" }];
+		}
+		else
+		{
+			invoke.Parameters = [new ParamEntity { Name = "input", Expression = new ValueExpression { Expression = "value" } }];
+		}
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States = [new StateEntity { Id = (Identifier)"state", Invoke = [invoke] }]
+			});
+
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -545,7 +570,7 @@ public sealed class StateMachineValidationRequirementsTests
 		var second = StateMachineValidationHarness.Validate(model);
 
 		CollectionAssert.AreEqual(first.ToArray(), second.ToArray());
-		Assert.AreEqual(2, first.Count);
+		Assert.AreEqual(expected: 2, first.Count);
 	}
 
 	/*
@@ -590,12 +615,14 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_001_Rejects_param_without_required_name()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new SendEntity
-		{
-			Parameters = [new ParamEntity { Expression = new ValueExpression { Expression = "value" } }]
-		}));
+		var diagnostics = StateMachineValidationHarness.Validate(
+			ModelWith(
+				new SendEntity
+				{
+					Parameters = [new ParamEntity { Expression = new ValueExpression { Expression = "value" } }]
+				}));
 
-		Assert.IsTrue(diagnostics.Count >= 1, string.Join(" | ", diagnostics));
+		Assert.IsTrue(diagnostics.Count >= 1, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -640,13 +667,15 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_002_Accepts_param_with_only_expression()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new SendEntity
-		{
-			EventName = "event",
-			Parameters = [new ParamEntity { Name = "value", Expression = new ValueExpression { Expression = "source" } }]
-		}));
+		var diagnostics = StateMachineValidationHarness.Validate(
+			ModelWith(
+				new SendEntity
+				{
+					EventName = "event",
+					Parameters = [new ParamEntity { Name = "value", Expression = new ValueExpression { Expression = "source" } }]
+				}));
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -692,16 +721,16 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_content_with_both_expression_and_inline_body()
 	{
 		var send = new SendEntity
-		{
-			Content = new ContentEntity
-			{
-				Expression = new ValueExpression { Expression = "payload" },
-				Body = new ContentBody { Value = "inline payload" }
-			}
-		};
+				   {
+					   Content = new ContentEntity
+								 {
+									 Expression = new ValueExpression { Expression = "payload" },
+									 Body = new ContentBody { Value = "inline payload" }
+								 }
+				   };
 
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(send));
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -746,13 +775,15 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_002_Rejects_content_with_neither_expression_nor_body()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new SendEntity
-		{
-			EventName = "event",
-			Content = new ContentEntity()
-		}));
+		var diagnostics = StateMachineValidationHarness.Validate(
+			ModelWith(
+				new SendEntity
+				{
+					EventName = "event",
+					Content = new ContentEntity()
+				}));
 
-		Assert.AreEqual(2, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 2, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -797,12 +828,14 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_002_Accepts_content_with_only_inline_body()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(new SendEntity
-		{
-			Content = new ContentEntity { Body = new ContentBody { Value = "payload" } }
-		}));
+		var diagnostics = StateMachineValidationHarness.Validate(
+			ModelWith(
+				new SendEntity
+				{
+					Content = new ContentEntity { Body = new ContentBody { Value = "payload" } }
+				}));
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -848,21 +881,21 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_002_Rejects_param_with_both_expression_and_location()
 	{
 		var send = new SendEntity
-		{
-			EventName = "event",
-			Parameters =
-			[
-				new ParamEntity
-				{
-					Name = "payload",
-					Expression = new ValueExpression { Expression = "value" },
-					Location = new LocationExpression { Expression = "source" }
-				}
-			]
-		};
+				   {
+					   EventName = "event",
+					   Parameters =
+					   [
+						   new ParamEntity
+						   {
+							   Name = "payload",
+							   Expression = new ValueExpression { Expression = "value" },
+							   Location = new LocationExpression { Expression = "source" }
+						   }
+					   ]
+				   };
 
 		var diagnostics = StateMachineValidationHarness.Validate(ModelWith(send));
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -908,12 +941,12 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_003_Rejects_root_initial_when_no_root_states_exist()
 	{
 		var model = new StateMachineEntity
-		{
-			Initial = new InitialEntity { Transition = new TransitionEntity { Target = [(Identifier)"missing-state"] } }
-		};
+					{
+						Initial = new InitialEntity { Transition = new TransitionEntity { Target = [(Identifier)"missing-state"] } }
+					};
 
 		var diagnostics = StateMachineValidationHarness.Validate(model);
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -956,20 +989,20 @@ public sealed class StateMachineValidationRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-		[Ignore("Product defect DEF-SCXML-VALID-004: duplicate state identifiers are not diagnosed.")]
+	[Ignore("Product defect DEF-SCXML-VALID-004: duplicate state identifiers are not diagnosed.")]
 	public void SCXML_VALID_004_Rejects_duplicate_state_identifiers()
 	{
 		var model = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity { Id = (Identifier)"duplicate" },
-				new StateEntity { Id = (Identifier)"duplicate" }
-			]
-		};
+					{
+						States =
+						[
+							new StateEntity { Id = (Identifier)"duplicate" },
+							new StateEntity { Id = (Identifier)"duplicate" }
+						]
+					};
 
 		var diagnostics = StateMachineValidationHarness.Validate(model);
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1015,7 +1048,7 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_001_Rejects_an_out_of_range_root_binding_enum_value()
 	{
 		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity { Binding = (BindingType)99 });
-		Assert.AreEqual(1, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 1, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1060,12 +1093,13 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_006_Rejects_history_without_default_transition_and_invalid_type()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"compound", HistoryStates = [new HistoryEntity { Type = (HistoryType)99 }] }]
-		});
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States = [new StateEntity { Id = (Identifier)"compound", HistoryStates = [new HistoryEntity { Type = (HistoryType)99 }] }]
+			});
 
-		Assert.AreEqual(2, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 2, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1110,28 +1144,29 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_006_Accepts_shallow_history_with_one_default_target()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"compound",
-					States = [new StateEntity { Id = (Identifier)"child" }],
-					HistoryStates =
-					[
-						new HistoryEntity
-						{
-							Id = (Identifier)"resume",
-							Type = HistoryType.Shallow,
-							Transition = new TransitionEntity { Target = [(Identifier)"child"] }
-						}
-					]
-				}
-			]
-		});
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States =
+				[
+					new StateEntity
+					{
+						Id = (Identifier)"compound",
+						States = [new StateEntity { Id = (Identifier)"child" }],
+						HistoryStates =
+						[
+							new HistoryEntity
+							{
+								Id = (Identifier)"resume",
+								Type = HistoryType.Shallow,
+								Transition = new TransitionEntity { Target = [(Identifier)"child"] }
+							}
+						]
+					}
+				]
+			});
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1177,15 +1212,16 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_008_Rejects_raise_and_send_inside_finalize()
 	{
 		var finalize = new FinalizeEntity
-		{
-			Action = [new RaiseEntity { OutgoingEvent = new EventEntity("forbidden") }, new SendEntity { EventName = "also-forbidden" }]
-		};
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"state", Invoke = [new InvokeEntity { Type = new FullUri("urn:test"), Finalize = finalize }] }]
-		});
+					   {
+						   Action = [new RaiseEntity { OutgoingEvent = new EventEntity("forbidden") }, new SendEntity { EventName = "also-forbidden" }]
+					   };
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States = [new StateEntity { Id = (Identifier)"state", Invoke = [new InvokeEntity { Type = new FullUri("urn:test"), Finalize = finalize }] }]
+			});
 
-		Assert.AreEqual(2, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 2, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1231,16 +1267,16 @@ public sealed class StateMachineValidationRequirementsTests
 	public void SCXML_VALID_007_Accepts_a_final_state_with_valid_done_data()
 	{
 		var final = new FinalEntity
-		{
-			Id = (Identifier)"complete",
-			DoneData = new DoneDataEntity
-			{
-				Parameters = [new ParamEntity { Name = "result", Expression = new ValueExpression { Expression = "value" } }]
-			}
-		};
+					{
+						Id = (Identifier)"complete",
+						DoneData = new DoneDataEntity
+								   {
+									   Parameters = [new ParamEntity { Name = "result", Expression = new ValueExpression { Expression = "value" } }]
+								   }
+					};
 		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity { States = [final] });
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1285,23 +1321,24 @@ public sealed class StateMachineValidationRequirementsTests
 	[TestMethod]
 	public void SCXML_VALID_005_Accepts_distinct_children_as_orthogonal_parallel_regions()
 	{
-		var diagnostics = StateMachineValidationHarness.Validate(new StateMachineEntity
-		{
-			States =
-			[
-				new ParallelEntity
-				{
-					Id = (Identifier)"parallel",
-					States =
-					[
-						new StateEntity { Id = (Identifier)"left" },
-						new StateEntity { Id = (Identifier)"right" }
-					]
-				}
-			]
-		});
+		var diagnostics = StateMachineValidationHarness.Validate(
+			new StateMachineEntity
+			{
+				States =
+				[
+					new ParallelEntity
+					{
+						Id = (Identifier)"parallel",
+						States =
+						[
+							new StateEntity { Id = (Identifier)"left" },
+							new StateEntity { Id = (Identifier)"right" }
+						]
+					}
+				]
+			});
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1347,16 +1384,19 @@ public sealed class StateMachineValidationRequirementsTests
 	public async Task SCXML_VALID_011_Repeated_and_concurrent_build_validation_is_stable_and_does_not_mutate_the_public_graph()
 	{
 		var model = new StateMachineEntity
-		{
-			Initial = new InitialEntity { Transition = new TransitionEntity { Target = [(Identifier)"ready"] } },
-			States = [new StateEntity { Id = (Identifier)"ready" }]
-		};
-		var before = (model.Initial!.Transition!.Target!, model.States![0].Id);
+					{
+						Initial = new InitialEntity { Transition = new TransitionEntity { Target = [(Identifier)"ready"] } },
+						States = [new StateEntity { Id = (Identifier)"ready" }]
+					};
+		var before = (model.Initial!.Transition!.Target, model.States![0].Id);
 
-		var results = await Task.WhenAll(Enumerable.Range(0, 16).Select(_ => Task.Run(() => StateMachineValidationHarness.Validate(model))));
+		var results = await Task.WhenAll(Enumerable.Range(start: 0, count: 16).Select(_ => Task.Run(() => StateMachineValidationHarness.Validate(model))));
 
 		foreach (var result in results)
+		{
 			CollectionAssert.AreEqual(Array.Empty<string>(), result.ToArray());
+		}
+
 		Assert.AreEqual(before.Item1[0], model.Initial.Transition.Target[0]);
 		Assert.AreEqual(before.Item2, model.States[0].Id);
 	}
@@ -1404,15 +1444,15 @@ public sealed class StateMachineValidationRequirementsTests
 	public async Task SCXML_VALID_011_A_failed_validation_does_not_poison_a_later_valid_build()
 	{
 		var invalid = new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"same" }, new StateEntity { Id = (Identifier)"same" }]
-		};
+					  {
+						  States = [new StateEntity { Id = (Identifier)"same" }, new StateEntity { Id = (Identifier)"same" }]
+					  };
 		var valid = new StateMachineEntity { States = [new StateEntity { Id = (Identifier)"fresh" }] };
 
 		_ = StateMachineValidationHarness.Validate(invalid);
 		var diagnostics = await Task.Run(() => StateMachineValidationHarness.Validate(valid));
 
-		Assert.AreEqual(0, diagnostics.Count, string.Join(" | ", diagnostics));
+		Assert.AreEqual(expected: 0, diagnostics.Count, string.Join(separator: " | ", diagnostics));
 	}
 
 	/*
@@ -1458,14 +1498,14 @@ public sealed class StateMachineValidationRequirementsTests
 	public async Task SCXML_VALID_012_Xml_parse_and_direct_public_model_validation_agree_on_a_valid_scenario()
 	{
 		const string xml = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" initial=\"ready\"><state id=\"ready\" /></scxml>";
-		var parsed = await Xtate.Core.Test.Exhaustive.Parsing.ScxmlParserHarness.ParseAsync(xml);
+		var parsed = await ScxmlParserHarness.ParseAsync(xml);
 		var direct = new StateMachineEntity
-		{
-			Initial = new InitialEntity { Transition = new TransitionEntity { Target = [(Identifier)"ready"] } },
-			States = [new StateEntity { Id = (Identifier)"ready" }]
-		};
+					 {
+						 Initial = new InitialEntity { Transition = new TransitionEntity { Target = [(Identifier)"ready"] } },
+						 States = [new StateEntity { Id = (Identifier)"ready" }]
+					 };
 
-		Assert.IsTrue(parsed.Accepted, string.Join(" | ", parsed.Diagnostics));
+		Assert.IsTrue(parsed.Accepted, string.Join(separator: " | ", parsed.Diagnostics));
 		var directDiagnostics = StateMachineValidationHarness.Validate(direct);
 		var parsedDiagnostics = StateMachineValidationHarness.Validate(parsed.Model!);
 		CollectionAssert.AreEqual(directDiagnostics.ToArray(), parsedDiagnostics.ToArray());
@@ -1525,7 +1565,7 @@ public sealed class StateMachineValidationRequirementsTests
 			failed = true;
 		}
 
-		Assert.IsTrue(failed, "SCXML-VALID-009: an unsupported data-model type must not execute as if supported.");
+		Assert.IsTrue(failed, message: "SCXML-VALID-009: an unsupported data-model type must not execute as if supported.");
 	}
 
 	[TestMethod]
@@ -1536,10 +1576,10 @@ public sealed class StateMachineValidationRequirementsTests
 	CASE-METADATA
 	cases:
 	  - case_id: SCXML-VALID-009-EXISTING-PARAM-010-ROWS
-	    description: Each declared DataRow is an independently reported lexical or configuration partition for SCXML-VALID-009.
-	    partition: parameterized-existing
-	    input: The exact DataRow arguments immediately above this method.
-	    expected: Each row satisfies the method's explicit expected-result assertion.
+		description: Each declared DataRow is an independently reported lexical or configuration partition for SCXML-VALID-009.
+		partition: parameterized-existing
+		input: The exact DataRow arguments immediately above this method.
+		expected: Each row satisfies the method's explicit expected-result assertion.
 	*/
 	/*
 	TEST-METADATA
@@ -1648,18 +1688,19 @@ public sealed class StateMachineValidationRequirementsTests
 			failed = true;
 		}
 
-		Assert.IsTrue(failed, "SCXML-VALID-010: an invalid expression must fail compilation/execution.");
+		Assert.IsTrue(failed, message: "SCXML-VALID-010: an invalid expression must fail compilation/execution.");
 	}
 
-	private static IStateMachine ModelWith(IExecutableEntity action) => new StateMachineEntity
-	{
-		States =
-		[
-			new StateEntity
-			{
-				Id = (Identifier)"state",
-				OnEntry = [new OnEntryEntity { Action = [action] }]
-			}
-		]
-	};
+	private static IStateMachine ModelWith(IExecutableEntity action) =>
+		new StateMachineEntity
+		{
+			States =
+			[
+				new StateEntity
+				{
+					Id = (Identifier)"state",
+					OnEntry = [new OnEntryEntity { Action = [action] }]
+				}
+			]
+		};
 }

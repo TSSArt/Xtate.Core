@@ -1,10 +1,25 @@
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+using System.Collections.Specialized;
 using System.IO;
 using System.Net;
-using System.Net.Mime;
-using System.Collections.Specialized;
 using System.Text;
 using System.Xml;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xtate.ResourceLoaders;
 using Xtate.Scxml;
 using Xtate.Scxml.Services;
@@ -62,16 +77,17 @@ public sealed class XIncludeRequirementsTests
 		var resolver = new CountingResolver("<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"should-not-load\" />");
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new DisabledOptions()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new DisabledOptions()
+						   };
 
 		while (reader.Read()) { }
 
-		Assert.AreEqual(0, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 0, resolver.GetEntityCalls);
 	}
+
 	/*
 	TEST-METADATA
 	test_id: SCXML-XINC-001-EXISTING-052
@@ -118,15 +134,16 @@ public sealed class XIncludeRequirementsTests
 		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/child.xml\" /></scxml>";
 		var resolver = new CountingResolver("<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"included\" />");
 
-		using var sourceReader = XmlReader.Create(new StringReader(source), new XmlReaderSettings { Async = false }, "https://fixtures.invalid/root.scxml");
+		using var sourceReader = XmlReader.Create(new StringReader(source), new XmlReaderSettings { Async = false }, baseUri: "https://fixtures.invalid/root.scxml");
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		var elements = new List<(string Name, string Id)>();
+
 		while (reader.Read())
 		{
 			if (reader.NodeType == XmlNodeType.Element)
@@ -135,7 +152,7 @@ public sealed class XIncludeRequirementsTests
 			}
 		}
 
-		Assert.AreEqual(1, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 1, resolver.GetEntityCalls);
 		Assert.AreEqual(includeUri, resolver.RequestedUris.Single().AbsoluteUri);
 		CollectionAssert.AreEqual(new[] { ("scxml", string.Empty), ("state", "included") }, elements);
 	}
@@ -182,20 +199,21 @@ public sealed class XIncludeRequirementsTests
 	[TestMethod]
 	public void SCXML_XINC_001_Resolves_relative_href_against_in_scope_xml_base()
 	{
-		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" xml:base=\"https://fixtures.invalid/models/\"><xi:include href=\"child.xml\" /></scxml>";
+		const string source =
+			"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" xml:base=\"https://fixtures.invalid/models/\"><xi:include href=\"child.xml\" /></scxml>";
 		var resolver = new CountingResolver("<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"included\" />");
 
-		using var sourceReader = XmlReader.Create(new StringReader(source), new XmlReaderSettings { Async = false }, "https://fixtures.invalid/root.scxml");
+		using var sourceReader = XmlReader.Create(new StringReader(source), new XmlReaderSettings { Async = false }, baseUri: "https://fixtures.invalid/root.scxml");
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		while (reader.Read()) { }
 
-		Assert.AreEqual("https://fixtures.invalid/models/child.xml", resolver.RequestedUris.Single().AbsoluteUri);
+		Assert.AreEqual(expected: "https://fixtures.invalid/models/child.xml", resolver.RequestedUris.Single().AbsoluteUri);
 	}
 
 	[TestMethod]
@@ -205,10 +223,10 @@ public sealed class XIncludeRequirementsTests
 	CASE-METADATA
 	cases:
 	  - case_id: SCXML-XINC-002-EXISTING-PARAM-008-ROWS
-	    description: Each declared DataRow is an independently reported lexical or configuration partition for SCXML-XINC-002.
-	    partition: parameterized-existing
-	    input: The exact DataRow arguments immediately above this method.
-	    expected: Each row satisfies the method's explicit expected-result assertion.
+		description: Each declared DataRow is an independently reported lexical or configuration partition for SCXML-XINC-002.
+		partition: parameterized-existing
+		input: The exact DataRow arguments immediately above this method.
+		expected: Each row satisfies the method's explicit expected-result assertion.
 	*/
 	/*
 	TEST-METADATA
@@ -257,19 +275,20 @@ public sealed class XIncludeRequirementsTests
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		var stateIds = new List<string>();
+
 		while (reader.Read())
 		{
-			if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "state") stateIds.Add(reader.GetAttribute("id")!);
+			if (reader is { NodeType: XmlNodeType.Element, LocalName: "state" }) stateIds.Add(reader.GetAttribute("id")!);
 		}
 
-		Assert.AreEqual(1, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 1, resolver.GetEntityCalls);
 		Assert.AreEqual(includeUri, resolver.RequestedUris.Single().AbsoluteUri);
 		CollectionAssert.AreEqual(new[] { "included" }, stateIds);
 	}
@@ -320,24 +339,26 @@ public sealed class XIncludeRequirementsTests
 		const string firstUri = "https://fixtures.invalid/first.xml";
 		const string secondUri = "https://fixtures.invalid/second.xml";
 		var source = $"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\"><xi:include href=\"{firstUri}\" /></scxml>";
-		var resolver = new MappingResolver(new Dictionary<string, string>
-		{
-			[firstUri] = $"<state xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\" id=\"first\"><xi:include href=\"{secondUri}\" /></state>",
-			[secondUri] = "<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"second\" />"
-		});
+		var resolver = new MappingResolver(
+			new Dictionary<string, string>
+			{
+				[firstUri] = $"<state xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\" id=\"first\"><xi:include href=\"{secondUri}\" /></state>",
+				[secondUri] = "<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"second\" />"
+			});
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new NestingOptions(0)
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new NestingOptions(0)
+						   };
 
 		var stateIds = new List<string>();
+
 		while (reader.Read())
 		{
-			if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "state") stateIds.Add(reader.GetAttribute("id")!);
+			if (reader is { NodeType: XmlNodeType.Element, LocalName: "state" }) stateIds.Add(reader.GetAttribute("id")!);
 		}
 
 		CollectionAssert.AreEqual(new[] { firstUri, secondUri }, resolver.RequestedUris.Select(static uri => uri.AbsoluteUri).ToArray());
@@ -391,21 +412,23 @@ public sealed class XIncludeRequirementsTests
 		const string firstUri = "https://fixtures.invalid/limit-first.xml";
 		const string secondUri = "https://fixtures.invalid/limit-second.xml";
 		var source = $"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\"><xi:include href=\"{firstUri}\" /></scxml>";
-		var resolver = new MappingResolver(new Dictionary<string, string>
-		{
-			[firstUri] = $"<state xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\"><xi:include href=\"{secondUri}\" /></state>",
-			[secondUri] = "<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"too-deep\" />"
-		});
+		var resolver = new MappingResolver(
+			new Dictionary<string, string>
+			{
+				[firstUri] = $"<state xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\"><xi:include href=\"{secondUri}\" /></state>",
+				[secondUri] = "<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"too-deep\" />"
+			});
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new NestingOptions(1)
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new NestingOptions(1)
+						   };
 
 		var failed = false;
+
 		try
 		{
 			while (reader.Read()) { }
@@ -414,7 +437,8 @@ public sealed class XIncludeRequirementsTests
 		{
 			failed = true;
 		}
-		Assert.IsTrue(failed, "SCXML-XINC-006: a finite nesting limit must reject the over-bound chain.");
+
+		Assert.IsTrue(failed, message: "SCXML-XINC-006: a finite nesting limit must reject the over-bound chain.");
 		Assert.IsTrue(resolver.RequestedUris.Count <= 2, $"SCXML-XINC-006 exceeded the bounded resolver budget: {resolver.RequestedUris.Count}");
 	}
 
@@ -465,19 +489,21 @@ public sealed class XIncludeRequirementsTests
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-003: a missing href must fail before resource acquisition.");
 		}
 		catch (XIncludeException) { }
-		Assert.AreEqual(0, resolver.GetEntityCalls);
+
+		Assert.AreEqual(expected: 0, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -527,20 +553,21 @@ public sealed class XIncludeRequirementsTests
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-003: an empty href must fail before resource acquisition.");
 		}
 		catch (XIncludeException) { }
 
-		Assert.AreEqual(0, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 0, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -591,20 +618,21 @@ public sealed class XIncludeRequirementsTests
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-003: in-document fragment references must be rejected.");
 		}
 		catch (XIncludeException) { }
 
-		Assert.AreEqual(0, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 0, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -654,19 +682,21 @@ public sealed class XIncludeRequirementsTests
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-003: a null resolver result must fail.");
 		}
 		catch (XIncludeException) { }
-		Assert.AreEqual(1, resolver.GetEntityCalls);
+
+		Assert.AreEqual(expected: 1, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -711,25 +741,27 @@ public sealed class XIncludeRequirementsTests
 	[TestMethod]
 	public void SCXML_XINC_004_Text_parse_mode_delivers_xml_looking_input_as_text()
 	{
-		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/text.txt\" parse=\"text\" /></scxml>";
+		const string source =
+			"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/text.txt\" parse=\"text\" /></scxml>";
 		var resolver = new CountingResolver("<not-a-state />");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		var textNodes = new List<string>();
+
 		while (reader.Read())
 		{
 			if (reader.NodeType == XmlNodeType.Text) textNodes.Add(reader.Value);
 		}
 
 		CollectionAssert.AreEqual(new[] { "<not-a-state />" }, textNodes);
-		Assert.AreEqual(1, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 1, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -774,25 +806,27 @@ public sealed class XIncludeRequirementsTests
 	[TestMethod]
 	public void SCXML_XINC_004_Unsupported_parse_value_fails_before_the_resolver_is_called()
 	{
-		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/child.xml\" parse=\"TEXT\" /></scxml>";
+		const string source =
+			"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/child.xml\" parse=\"TEXT\" /></scxml>";
 		var resolver = new CountingResolver("<state />");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-004: unsupported parse values must fail.");
 		}
 		catch (XIncludeException) { }
 
-		Assert.AreEqual(0, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 0, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -837,25 +871,27 @@ public sealed class XIncludeRequirementsTests
 	[TestMethod]
 	public void SCXML_XINC_004_Empty_parse_value_fails_before_the_resolver_is_called()
 	{
-		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/child.xml\" parse=\"\" /></scxml>";
+		const string source =
+			"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/child.xml\" parse=\"\" /></scxml>";
 		var resolver = new CountingResolver("<state />");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-004: an empty parse value must fail before resource acquisition.");
 		}
 		catch (XIncludeException) { }
 
-		Assert.AreEqual(0, resolver.GetEntityCalls);
+		Assert.AreEqual(expected: 0, resolver.GetEntityCalls);
 	}
 
 	/*
@@ -905,17 +941,17 @@ public sealed class XIncludeRequirementsTests
 
 		using (var sourceReader = XmlReader.Create(new StringReader(source)))
 		using (var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		})
+							{
+								XmlResolver = resolver,
+								ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+								XIncludeOptions = new Options()
+							})
 		{
 			while (reader.Read()) { }
 		}
 
 		Assert.IsNotNull(resolver.LastStream);
-		Assert.IsTrue(resolver.LastStream.Disposed, "SCXML-XINC-008: acquired include stream must be closed exactly through the nested reader lifecycle.");
+		Assert.IsTrue(resolver.LastStream.Disposed, message: "SCXML-XINC-008: acquired include stream must be closed exactly through the nested reader lifecycle.");
 	}
 
 	/*
@@ -964,16 +1000,17 @@ public sealed class XIncludeRequirementsTests
 		var resolver = new CountingResolver("<state");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
-		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+		var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
+					 {
+						 XmlResolver = resolver,
+						 ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+						 XIncludeOptions = new Options()
+					 };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-008: malformed included XML must fail.");
 		}
 		catch (Exception exception)
@@ -1028,22 +1065,23 @@ public sealed class XIncludeRequirementsTests
 	public void SCXML_XINC_005_Propagates_external_headers_once_to_the_resolver()
 	{
 		const string uri = "https://fixtures.invalid/header-aware.xml";
-		const string source = $"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"{uri}\" accept=\"application/scxml+xml\" accept-language=\"en-US\" /></scxml>";
+		const string source =
+			$"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"{uri}\" accept=\"application/scxml+xml\" accept-language=\"en-US\" /></scxml>";
 		var resolver = new HeaderResolver("<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"included\" />");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		while (reader.Read()) { }
 
-		Assert.AreEqual(1, resolver.Headers.Count);
-		Assert.AreEqual("application/scxml+xml", resolver.Headers[0]["Accept"]);
-		Assert.AreEqual("en-US", resolver.Headers[0]["Accept-Language"]);
+		Assert.AreEqual(expected: 1, resolver.Headers.Count);
+		Assert.AreEqual(expected: "application/scxml+xml", resolver.Headers[0]["Accept"]);
+		Assert.AreEqual(expected: "en-US", resolver.Headers[0]["Accept-Language"]);
 	}
 
 	/*
@@ -1089,21 +1127,22 @@ public sealed class XIncludeRequirementsTests
 	public void SCXML_XINC_005_Does_not_emit_headers_for_empty_header_attributes()
 	{
 		const string uri = "https://fixtures.invalid/no-headers.xml";
-		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"" + uri + "\" accept=\"\" accept-language=\"\" /></scxml>";
+		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"" + uri +
+							  "\" accept=\"\" accept-language=\"\" /></scxml>";
 		var resolver = new HeaderResolver("<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"included\" />");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		while (reader.Read()) { }
 
-		Assert.AreEqual(1, resolver.Headers.Count);
-		Assert.AreEqual(0, resolver.Headers[0].Count);
+		Assert.AreEqual(expected: 1, resolver.Headers.Count);
+		Assert.AreEqual(expected: 0, resolver.Headers[0].Count);
 	}
 
 	/*
@@ -1154,20 +1193,23 @@ public sealed class XIncludeRequirementsTests
 		var resolver = new CycleResolver($"<state xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"{includeNamespace}\" id=\"cycle\"><xi:include href=\"{uri}\" /></state>");
 
 		using var sourceReader = XmlReader.Create(new StringReader(source));
-		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new NestingOptions(1)
-		};
+		var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
+					 {
+						 XmlResolver = resolver,
+						 ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+						 XIncludeOptions = new NestingOptions(1)
+					 };
 
 		try
 		{
 			while (reader.Read()) { }
+
 			Assert.Fail("SCXML-XINC-006: circular inclusion must fail at the configured nesting bound.");
 		}
 		catch (XIncludeException) { }
+
 		reader.Dispose();
+
 		if (!resolver.Streams.All(static stream => stream.Disposed))
 		{
 			Assert.Inconclusive("SCXML-XINC-006/008 PRODUCT DEF-XINC-001: nesting failure leaves an acquired include stream undisposed.");
@@ -1220,25 +1262,28 @@ public sealed class XIncludeRequirementsTests
 		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\" xml:lang=\"en\"><xi:include href=\"" + uri + "\" /></scxml>";
 		var resolver = new CountingResolver("<?xml version=\"1.0\"?><state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"included\" xml:lang=\"pl\" />");
 
-		using var sourceReader = XmlReader.Create(new StringReader(source), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit }, "https://fixtures.invalid/root.scxml");
+		using var sourceReader = XmlReader.Create(new StringReader(source), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit }, baseUri: "https://fixtures.invalid/root.scxml");
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		string? language = null;
-	string? baseUri = null;
-	while (reader.Read())
-		if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "state")
+		string? baseUri = null;
+
+		while (reader.Read())
 		{
-			language = reader.GetAttribute("lang", "http://www.w3.org/XML/1998/namespace");
-			baseUri = reader.BaseURI;
+			if (reader is { NodeType: XmlNodeType.Element, LocalName: "state" })
+			{
+				language = reader.GetAttribute(localName: "lang", namespaceUri: "http://www.w3.org/XML/1998/namespace");
+				baseUri = reader.BaseURI;
+			}
 		}
 
-	Assert.AreEqual("pl", language);
-	Assert.AreEqual(uri, baseUri);
+		Assert.AreEqual(expected: "pl", language);
+		Assert.AreEqual(uri, baseUri);
 	}
 
 	/*
@@ -1288,14 +1333,15 @@ public sealed class XIncludeRequirementsTests
 		var resolver = new CountingResolver("<state xmlns=\"http://www.w3.org/2005/07/scxml\" id=\"included\"><!--kept--><?fixture value?></state>");
 		using var sourceReader = XmlReader.Create(new StringReader(source));
 		using var reader = new XIncludeReader(sourceReader, inner => new XmlBaseReader(inner) { XmlResolver = resolver })
-		{
-			XmlResolver = resolver,
-			ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
-			XIncludeOptions = new Options()
-		};
+						   {
+							   XmlResolver = resolver,
+							   ResourceFactory = (stream, contentType) => new Resource(stream, contentType),
+							   XIncludeOptions = new Options()
+						   };
 
 		var comments = new List<string>();
 		var processingInstructions = new List<string>();
+
 		while (reader.Read())
 		{
 			if (reader.NodeType == XmlNodeType.Comment) comments.Add(reader.Value);
@@ -1309,33 +1355,52 @@ public sealed class XIncludeRequirementsTests
 
 	private sealed class Options : IXIncludeOptions
 	{
+	#region Interface IXIncludeOptions
+
 		public bool XIncludeAllowed => true;
+
 		public int MaxNestingLevel => 16;
+
+	#endregion
 	}
 
 	private sealed class DisabledOptions : IXIncludeOptions
 	{
+	#region Interface IXIncludeOptions
+
 		public bool XIncludeAllowed => false;
+
 		public int MaxNestingLevel => 16;
+
+	#endregion
 	}
 
 	private sealed class NestingOptions(int maxNestingLevel) : IXIncludeOptions
 	{
+	#region Interface IXIncludeOptions
+
 		public bool XIncludeAllowed => true;
+
 		public int MaxNestingLevel => maxNestingLevel;
+
+	#endregion
 	}
 
 	private sealed class CountingResolver(string includedXml) : XmlResolver
 	{
 		public int GetEntityCalls { get; private set; }
+
 		public List<Uri> RequestedUris { get; } = [];
+
 		public TrackingMemoryStream? LastStream { get; private set; }
+
 		public override ICredentials? Credentials { set { } }
 
 		public override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
 		{
 			GetEntityCalls++;
 			RequestedUris.Add(absoluteUri);
+
 			return LastStream = new TrackingMemoryStream(Encoding.UTF8.GetBytes(includedXml));
 		}
 	}
@@ -1343,6 +1408,7 @@ public sealed class XIncludeRequirementsTests
 	private sealed class TrackingMemoryStream(byte[] buffer) : MemoryStream(buffer, writable: false)
 	{
 		public bool Disposed { get; private set; }
+
 		protected override void Dispose(bool disposing)
 		{
 			Disposed = true;
@@ -1353,11 +1419,13 @@ public sealed class XIncludeRequirementsTests
 	private sealed class MappingResolver(IReadOnlyDictionary<string, string> resources) : XmlResolver
 	{
 		public List<Uri> RequestedUris { get; } = [];
+
 		public override ICredentials? Credentials { set { } }
 
 		public override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
 		{
 			RequestedUris.Add(absoluteUri);
+
 			return new MemoryStream(Encoding.UTF8.GetBytes(resources[absoluteUri.AbsoluteUri]), writable: false);
 		}
 	}
@@ -1365,11 +1433,13 @@ public sealed class XIncludeRequirementsTests
 	private sealed class NullResolver : XmlResolver
 	{
 		public int GetEntityCalls { get; private set; }
+
 		public override ICredentials? Credentials { set { } }
 
 		public override object? GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
 		{
 			GetEntityCalls++;
+
 			return null;
 		}
 	}
@@ -1377,21 +1447,38 @@ public sealed class XIncludeRequirementsTests
 	private sealed class HeaderResolver(string includedXml) : XmlResolver, IExternalEntityGetter
 	{
 		public List<NameValueCollection> Headers { get; } = [];
+
 		public override ICredentials? Credentials { set { } }
+
+	#region Interface IExternalEntityGetter
+
 		public override bool SupportsType(Uri absoluteUri, Type? type) => true;
-		public object GetEntity(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn) { Headers.Add(headers ?? []); return new MemoryStream(Encoding.UTF8.GetBytes(includedXml)); }
+
+		public object GetEntity(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn)
+		{
+			Headers.Add(headers ?? []);
+
+			return new MemoryStream(Encoding.UTF8.GetBytes(includedXml));
+		}
+
 		public ValueTask<object> GetEntityAsync(Uri uri, NameValueCollection? headers, Type? ofObjectToReturn) => new(GetEntity(uri, headers, ofObjectToReturn));
-		public override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) => GetEntity(absoluteUri, null, ofObjectToReturn);
+
+	#endregion
+
+		public override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn) => GetEntity(absoluteUri, headers: null, ofObjectToReturn);
 	}
 
 	private sealed class CycleResolver(string includedXml) : XmlResolver
 	{
 		public List<TrackingMemoryStream> Streams { get; } = [];
+
 		public override ICredentials? Credentials { set { } }
+
 		public override object GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
 		{
 			var stream = new TrackingMemoryStream(Encoding.UTF8.GetBytes(includedXml));
 			Streams.Add(stream);
+
 			return stream;
 		}
 	}

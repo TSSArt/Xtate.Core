@@ -114,7 +114,7 @@ public class DataModelDateTimeCoverageTest
 
 		Span<char> destination = stackalloc char[64];
 		Assert.IsTrue(dateTime.TryFormat(destination, out var charsWritten, format: "O", CultureInfo.InvariantCulture));
-		Assert.AreEqual(dateTime.ToString(format: "O", CultureInfo.InvariantCulture), new string(destination[..charsWritten].ToArray()));
+		Assert.AreEqual(dateTime.ToString(format: "O", CultureInfo.InvariantCulture), new string([.. destination[..charsWritten]]));
 		Assert.IsFalse(dateTimeOffset.TryFormat([], out charsWritten, format: "O", CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: 0, charsWritten);
 	}

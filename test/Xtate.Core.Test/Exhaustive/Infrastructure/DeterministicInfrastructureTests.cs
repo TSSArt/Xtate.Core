@@ -1,4 +1,19 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Xtate.Core.Test.Exhaustive.Infrastructure;
 
@@ -49,10 +64,12 @@ public sealed class DeterministicInfrastructureTests
 	{
 		using var scheduler = new VirtualScheduler();
 		var trace = new List<string>();
-		using (scheduler.Schedule(1, () => trace.Add("cancelled"))) { }
+
+		using (scheduler.Schedule(delayMilliseconds: 1, () => trace.Add("cancelled"))) { }
+
 		scheduler.AdvanceTo(1);
-		Assert.AreEqual(0, trace.Count);
-		Assert.AreEqual(0, scheduler.PendingCount);
+		Assert.AreEqual(expected: 0, trace.Count);
+		Assert.AreEqual(expected: 0, scheduler.PendingCount);
 	}
 
 	/* TEST-METADATA
@@ -98,11 +115,11 @@ public sealed class DeterministicInfrastructureTests
 	{
 		using var scheduler = new VirtualScheduler();
 		var trace = new List<string>();
-		scheduler.Schedule(0, () => trace.Add("zero"));
-		Assert.AreEqual(0, trace.Count);
+		scheduler.Schedule(delayMilliseconds: 0, () => trace.Add("zero"));
+		Assert.AreEqual(expected: 0, trace.Count);
 		scheduler.AdvanceTo(0);
 		CollectionAssert.AreEqual(new[] { "zero" }, trace);
-		Assert.AreEqual(0, scheduler.PendingCount);
+		Assert.AreEqual(expected: 0, scheduler.PendingCount);
 	}
 
 	/* TEST-METADATA
@@ -148,10 +165,10 @@ public sealed class DeterministicInfrastructureTests
 	{
 		using var scheduler = new VirtualScheduler();
 		var trace = new List<string>();
-		scheduler.Schedule(2, () => trace.Add("due"));
+		scheduler.Schedule(delayMilliseconds: 2, () => trace.Add("due"));
 		scheduler.AdvanceTo(1);
-		Assert.AreEqual(0, trace.Count);
-		Assert.AreEqual(1, scheduler.PendingCount);
+		Assert.AreEqual(expected: 0, trace.Count);
+		Assert.AreEqual(expected: 1, scheduler.PendingCount);
 	}
 
 	/*
@@ -177,7 +194,7 @@ public sealed class DeterministicInfrastructureTests
 	preconditions: [new virtual scheduler]
 	dependencies: [VirtualScheduler]
 	arrange: Schedule three equal/one later callbacks and dispose the middle equal-time lease.
-	stimulus: Advance virtual time to 5 then by 5.
+	stimulus: Advance virtual time to 5 than by 5.
 	expected: [trace is 'first,second,third', pending count is 0]
 	expected_exception_or_event: none
 	forbidden: [cancelled callback execution, timestamp reordering, retained scheduled callback]
@@ -199,19 +216,18 @@ public sealed class DeterministicInfrastructureTests
 		using var scheduler = new VirtualScheduler();
 		var trace = new List<string>();
 
-		scheduler.Schedule(10, () => trace.Add("third"));
-		scheduler.Schedule(5, () => trace.Add("first"));
-		using var cancelled = scheduler.Schedule(5, () => trace.Add("cancelled"));
-		scheduler.Schedule(5, () => trace.Add("second"));
-		cancelled.Dispose();
+		scheduler.Schedule(delayMilliseconds: 10, () => trace.Add("third"));
+		scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("first"));
+		using var cancelled = scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("cancelled"));
+		scheduler.Schedule(delayMilliseconds: 5, () => trace.Add("second"));
 
 		scheduler.AdvanceTo(5);
 		CollectionAssert.AreEqual(new[] { "first", "second" }, trace);
-		Assert.AreEqual(1, scheduler.PendingCount);
+		Assert.AreEqual(expected: 1, scheduler.PendingCount);
 
 		scheduler.AdvanceBy(5);
 		CollectionAssert.AreEqual(new[] { "first", "second", "third" }, trace);
-		Assert.AreEqual(0, scheduler.PendingCount);
+		Assert.AreEqual(expected: 0, scheduler.PendingCount);
 	}
 
 	/*
@@ -257,8 +273,10 @@ public sealed class DeterministicInfrastructureTests
 	public void INFRA_RES_001_ResourceLedger_detects_and_proves_resource_cleanup()
 	{
 		using var ledger = new ResourceLedger();
+
 		using (ledger.Track("reader"))
 		using (ledger.Track("stream")) { }
+
 		ledger.AssertEmpty();
 	}
 
@@ -306,7 +324,7 @@ public sealed class DeterministicInfrastructureTests
 	{
 		var reference = WeakReferenceProbe.ObserveCollectedObject();
 
-		Assert.IsFalse(reference.IsAlive, "The probe object remained reachable after bounded full collections.");
+		Assert.IsFalse(reference.IsAlive, message: "The probe object remained reachable after bounded full collections.");
 	}
 
 	/*
@@ -362,7 +380,7 @@ public sealed class DeterministicInfrastructureTests
 		}
 		catch (TimeoutException) { }
 
-		Assert.AreEqual(3, watchdog.Operations);
+		Assert.AreEqual(expected: 3, watchdog.Operations);
 	}
 
 	/*
@@ -408,13 +426,13 @@ public sealed class DeterministicInfrastructureTests
 	public void INFRA_TRACE_001_Ordered_trace_assigns_stable_sequences_and_snapshots_without_reordering()
 	{
 		var trace = new OrderedTrace();
-		trace.Record("queue", "external");
-		trace.Record("state", "entered");
-		trace.Record("queue", "internal");
+		trace.Record(category: "queue", value: "external");
+		trace.Record(category: "state", value: "entered");
+		trace.Record(category: "queue", value: "internal");
 
 		CollectionAssert.AreEqual(new[] { "0:queue:external", "1:state:entered", "2:queue:internal" }, trace.Snapshot());
-		Assert.AreEqual(3, trace.Entries.Count);
-		Assert.AreEqual(2, trace.Entries[2].Sequence);
+		Assert.AreEqual(expected: 3, trace.Entries.Count);
+		Assert.AreEqual(expected: 2, trace.Entries[2].Sequence);
 	}
 
 	/*
@@ -510,15 +528,29 @@ public sealed class DeterministicInfrastructureTests
 	[TestMethod]
 	public void INFRA_SCHED_002_Scheduler_rejects_invalid_time_and_post_disposal_work()
 	{
-		using var scheduler = new VirtualScheduler();
+		var scheduler = new VirtualScheduler();
 
-		try { scheduler.Schedule(-1, static () => { }); Assert.Fail("Negative delays must be rejected."); }
+		try
+		{
+			scheduler.Schedule(delayMilliseconds: -1, static () => { });
+			Assert.Fail("Negative delays must be rejected.");
+		}
 		catch (ArgumentOutOfRangeException) { }
-		try { scheduler.AdvanceBy(-1); Assert.Fail("Negative advancement must be rejected."); }
+
+		try
+		{
+			scheduler.AdvanceBy(-1);
+			Assert.Fail("Negative advancement must be rejected.");
+		}
 		catch (ArgumentOutOfRangeException) { }
 
 		scheduler.Dispose();
-		try { scheduler.Schedule(0, static () => { }); Assert.Fail("Disposed schedulers must reject new work."); }
+
+		try
+		{
+			scheduler.Schedule(delayMilliseconds: 0, static () => { });
+			Assert.Fail("Disposed schedulers must reject new work.");
+		}
 		catch (ObjectDisposedException) { }
 	}
 
@@ -565,12 +597,12 @@ public sealed class DeterministicInfrastructureTests
 	public void INFRA_SCHED_003_Scheduler_rejects_virtual_time_overflow()
 	{
 		using var scheduler = new VirtualScheduler();
-		scheduler.Schedule(1, static () => { });
+		scheduler.Schedule(delayMilliseconds: 1, static () => { });
 
 		try
 		{
 			scheduler.AdvanceTo(long.MaxValue);
-			scheduler.Schedule(1, static () => { });
+			scheduler.Schedule(delayMilliseconds: 1, static () => { });
 			Assert.Fail("Virtual time overflow must be rejected.");
 		}
 		catch (OverflowException) { }

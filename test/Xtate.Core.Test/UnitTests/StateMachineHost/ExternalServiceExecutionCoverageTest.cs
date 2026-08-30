@@ -195,9 +195,9 @@ public class ExternalServiceExecutionCoverageTest
 	}
 
 	private static TestExternalServiceController CreateController(InvokeId invokeId,
-														  IExternalService service,
-														  IExternalCommunication communication,
-														  ILogger<ExternalServiceController> logger) =>
+																  IExternalService service,
+																  IExternalCommunication communication,
+																  ILogger<ExternalServiceController> logger) =>
 		new()
 		{
 			ExternalService = service,
@@ -206,18 +206,6 @@ public class ExternalServiceExecutionCoverageTest
 			Logger = logger,
 			ExternalServiceInvokeId = Mock.Of<IExternalServiceInvokeId>(i => i.InvokeId == invokeId)
 		};
-
-	private sealed class TestExternalServiceController : ExternalServiceController
-	{
-		public int ExecuteCount { get; private set; }
-
-		protected override async ValueTask Execute()
-		{
-			ExecuteCount++;
-
-			await base.Execute();
-		}
-	}
 
 	private static Mock<IExternalCommunication> CreateCommunication(List<IOutgoingEvent> events, SendStatus status)
 	{
@@ -247,6 +235,18 @@ public class ExternalServiceExecutionCoverageTest
 			yield return item;
 
 			await Task.Yield();
+		}
+	}
+
+	private sealed class TestExternalServiceController : ExternalServiceController
+	{
+		public int ExecuteCount { get; private set; }
+
+		protected override async ValueTask Execute()
+		{
+			ExecuteCount++;
+
+			await base.Execute();
 		}
 	}
 

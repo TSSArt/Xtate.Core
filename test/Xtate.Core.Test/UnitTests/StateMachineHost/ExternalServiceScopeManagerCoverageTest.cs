@@ -128,8 +128,8 @@ public class ExternalServiceScopeManagerCoverageTest
 	}
 
 	private static async ValueTask<TestExternalServiceScopeManager> CreateManager(IExternalServiceController controller,
-																	  IExternalServiceCollection collection,
-																	  ITaskMonitor taskMonitor)
+																				  IExternalServiceCollection collection,
+																				  ITaskMonitor taskMonitor)
 	{
 		var services = new ServiceCollection();
 		services.AddConstant(controller);
@@ -144,6 +144,16 @@ public class ExternalServiceScopeManagerCoverageTest
 				   TaskMonitor = taskMonitor
 			   };
 	}
+
+	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData) =>
+		new(
+			invokeData,
+			Mock.Of<IEventDispatcher>(),
+			Mock.Of<IStateMachineSessionId>(s => s.SessionId == SessionId.FromString("parent")),
+			Mock.Of<IStateMachineLocation>(),
+			Mock.Of<ICaseSensitivity>());
+
+	private static InvokeData CreateInvokeData(InvokeId invokeId) => new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
 	private sealed class TestExternalServiceScopeManager : ExternalServiceScopeManager
 	{
@@ -165,16 +175,6 @@ public class ExternalServiceScopeManagerCoverageTest
 			await base.DisposeAsyncCore();
 		}
 	}
-
-	private static ExternalServiceClass CreateExternalServiceClass(InvokeData invokeData) =>
-		new(
-			invokeData,
-			Mock.Of<IEventDispatcher>(),
-			Mock.Of<IStateMachineSessionId>(s => s.SessionId == SessionId.FromString("parent")),
-			Mock.Of<IStateMachineLocation>(),
-			Mock.Of<ICaseSensitivity>());
-
-	private static InvokeData CreateInvokeData(InvokeId invokeId) => new(invokeId, new FullUri("urn:service"), Source: null, RawContent: null, DataModelValue.Undefined, DataModelValue.Undefined);
 
 	[ExcludeFromCodeCoverage]
 	private sealed class CapturingTaskMonitor : ITaskMonitor

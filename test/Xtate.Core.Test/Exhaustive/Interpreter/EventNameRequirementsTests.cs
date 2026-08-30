@@ -1,4 +1,20 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.Exhaustive.Interpreter;
@@ -56,7 +72,10 @@ public sealed class EventNameRequirementsTests
 	[DataRow("alpha..beta", false, 3, "alpha..beta")]
 	[DataRow("cafe\u0301", false, 1, "cafe\u0301")]
 	[DataRow("CAFÉ", false, 1, "CAFÉ")]
-	public void SCXML_EVENT_001_Event_name_preserves_the_specified_segment_sequence(string? source, bool isDefault, int count, string expected)
+	public void SCXML_EVENT_001_Event_name_preserves_the_specified_segment_sequence(string? source,
+																					bool isDefault,
+																					int count,
+																					string expected)
 	{
 		var name = EventName.FromString(source);
 
@@ -202,32 +221,32 @@ public sealed class EventNameRequirementsTests
 	[TestMethod]
 	public void SCXML_EVENT_002_Platform_error_event_names_are_distinct_and_canonical()
 	{
-		Assert.AreEqual("error.execution", EventName.ErrorExecution.ToString());
-		Assert.AreEqual("error.communication", EventName.ErrorCommunication.ToString());
-		Assert.AreEqual("error.platform", EventName.ErrorPlatform.ToString());
+		Assert.AreEqual(expected: "error.execution", EventName.ErrorExecution.ToString());
+		Assert.AreEqual(expected: "error.communication", EventName.ErrorCommunication.ToString());
+		Assert.AreEqual(expected: "error.platform", EventName.ErrorPlatform.ToString());
 		Assert.AreNotEqual(EventName.ErrorExecution, EventName.ErrorCommunication);
 		Assert.AreNotEqual(EventName.ErrorCommunication, EventName.ErrorPlatform);
 	}
 
 	public static IEnumerable<object[]> EventDescriptorCases()
 	{
-		return new[]
-		{
-			Case("alpha", "alpha", true),
-			Case("alpha.beta", "alpha", true),
-			Case("alpha.beta", "alpha.beta", true),
-			Case("alpha.beta.gamma", "alpha.beta", true),
-			Case("alpha.beta.gamma", "alpha.*", true),
-			Case("alpha.beta.gamma", "alpha.", true),
-			Case("alpha.beta.gamma", "*", true),
-			Case("alpha.beta", "alpha.gamma", false),
-			Case("alpha", "alphabet", false),
-			Case("alpha.beta", "Alpha", false),
-			Case("CAFÉ", "café", false),
-			Case("cafe\u0301", "café", false),
-			Case("alpha", "", false),
-			Case("alpha", " ", false)
-		};
+		return
+		[
+			Case(eventName: "alpha", descriptors: "alpha", expected: true),
+				   Case(eventName: "alpha.beta", descriptors: "alpha", expected: true),
+				   Case(eventName: "alpha.beta", descriptors: "alpha.beta", expected: true),
+				   Case(eventName: "alpha.beta.gamma", descriptors: "alpha.beta", expected: true),
+				   Case(eventName: "alpha.beta.gamma", descriptors: "alpha.*", expected: true),
+				   Case(eventName: "alpha.beta.gamma", descriptors: "alpha.", expected: true),
+				   Case(eventName: "alpha.beta.gamma", descriptors: "*", expected: true),
+				   Case(eventName: "alpha.beta", descriptors: "alpha.gamma", expected: false),
+				   Case(eventName: "alpha", descriptors: "alphabet", expected: false),
+				   Case(eventName: "alpha.beta", descriptors: "Alpha", expected: false),
+				   Case(eventName: "CAFÉ", descriptors: "café", expected: false),
+				   Case(eventName: "cafe\u0301", descriptors: "café", expected: false),
+				   Case(eventName: "alpha", descriptors: "", expected: false),
+				   Case(eventName: "alpha", descriptors: " ", expected: false)
+		];
 	}
 
 	private static object[] Case(string eventName, string descriptors, bool expected) => [eventName, descriptors, expected];

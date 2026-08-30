@@ -1,11 +1,27 @@
-using System.Text;
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using System.IO;
+using System.Text;
 using System.Xml;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xtate.Core.Test.Exhaustive.Interpreter;
+using Xtate.Core.Test.Exhaustive.Parsing;
 using Xtate.Scxml.Services;
 using Xtate.StateMachine;
-using Xtate.Core.Test.Exhaustive.Parsing;
-using Xtate.Core.Test.Exhaustive.Interpreter;
 using Xtate.StateMachine.Builder.Services;
 
 namespace Xtate.Core.Test.Exhaustive.Serialization;
@@ -59,8 +75,8 @@ public sealed class ScxmlSerializerRequirementsTests
 		var document = Serialize(new StateMachineEntity { States = [new StateEntity { Id = (Identifier)"idle" }] });
 		var root = document.DocumentElement!;
 
-		Assert.AreEqual("http://www.w3.org/2005/07/scxml", root.NamespaceURI);
-		Assert.AreEqual("1.0", root.GetAttribute("version"));
+		Assert.AreEqual(expected: "http://www.w3.org/2005/07/scxml", root.NamespaceURI);
+		Assert.AreEqual(expected: "1.0", root.GetAttribute("version"));
 	}
 
 	/*
@@ -106,19 +122,19 @@ public sealed class ScxmlSerializerRequirementsTests
 	public void SCXML_SER_001_Serializes_root_name_binding_and_ordered_state_children()
 	{
 		var machine = new StateMachineEntity
-		{
-			Name = "fixture",
-			Binding = BindingType.Late,
-			States = [new StateEntity { Id = (Identifier)"idle" }]
-		};
+					  {
+						  Name = "fixture",
+						  Binding = BindingType.Late,
+						  States = [new StateEntity { Id = (Identifier)"idle" }]
+					  };
 
 		var document = Serialize(machine);
 		var root = document.DocumentElement!;
 
-		Assert.AreEqual("scxml", root.LocalName);
-		Assert.AreEqual("fixture", root.GetAttribute("name"));
-		Assert.AreEqual("late", root.GetAttribute("binding"));
-		Assert.AreEqual("idle", ((XmlElement)root.FirstChild!).GetAttribute("id"));
+		Assert.AreEqual(expected: "scxml", root.LocalName);
+		Assert.AreEqual(expected: "fixture", root.GetAttribute("name"));
+		Assert.AreEqual(expected: "late", root.GetAttribute("binding"));
+		Assert.AreEqual(expected: "idle", ((XmlElement)root.FirstChild!).GetAttribute("id"));
 	}
 
 	/*
@@ -161,34 +177,34 @@ public sealed class ScxmlSerializerRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-		[Ignore("Product defect DEF-SCXML-SER-001: serializer omits public model properties.")]
+	[Ignore("Product defect DEF-SCXML-SER-001: serializer omits public model properties.")]
 	public void SCXML_SER_001_Preserves_every_public_assign_property_including_xpath_type_and_attr()
 	{
 		var assign = new AssignEntity
-		{
-			Location = new LocationExpression { Expression = "item/@name" },
-			Expression = new ValueExpression { Expression = "'Ada'" },
-			Type = "replacechildren",
-			Attribute = "xml:lang"
-		};
+					 {
+						 Location = new LocationExpression { Expression = "item/@name" },
+						 Expression = new ValueExpression { Expression = "'Ada'" },
+						 Type = "replacechildren",
+						 Attribute = "xml:lang"
+					 };
 		var machine = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"idle",
-					OnEntry = [new OnEntryEntity { Action = [assign] }]
-				}
-			]
-		};
+					  {
+						  States =
+						  [
+							  new StateEntity
+							  {
+								  Id = (Identifier)"idle",
+								  OnEntry = [new OnEntryEntity { Action = [assign] }]
+							  }
+						  ]
+					  };
 
 		var assignElement = (XmlElement)Serialize(machine).SelectSingleNode("/*[local-name()='scxml']/*[local-name()='state']/*[local-name()='onentry']/*[local-name()='assign']")!;
 
-		Assert.AreEqual("item/@name", assignElement.GetAttribute("location"));
-		Assert.AreEqual("'Ada'", assignElement.GetAttribute("expr"));
-		Assert.AreEqual("replacechildren", assignElement.GetAttribute("type"), "SCXML-SER-001: serializer must not lose the XPath assignment action.");
-		Assert.AreEqual("xml:lang", assignElement.GetAttribute("attr"), "SCXML-SER-001: serializer must not lose the XPath assignment attribute.");
+		Assert.AreEqual(expected: "item/@name", assignElement.GetAttribute("location"));
+		Assert.AreEqual(expected: "'Ada'", assignElement.GetAttribute("expr"));
+		Assert.AreEqual(expected: "replacechildren", assignElement.GetAttribute("type"), message: "SCXML-SER-001: serializer must not lose the XPath assignment action.");
+		Assert.AreEqual(expected: "xml:lang", assignElement.GetAttribute("attr"), message: "SCXML-SER-001: serializer must not lose the XPath assignment attribute.");
 	}
 
 	/*
@@ -234,20 +250,20 @@ public sealed class ScxmlSerializerRequirementsTests
 	public void SCXML_SER_002_Escapes_attribute_values_and_produces_well_formed_xml()
 	{
 		var machine = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"state",
-					OnEntry = [new OnEntryEntity { Action = [new LogEntity { Label = "A & B < C \"quoted\"" }] }]
-				}
-			]
-		};
+					  {
+						  States =
+						  [
+							  new StateEntity
+							  {
+								  Id = (Identifier)"state",
+								  OnEntry = [new OnEntryEntity { Action = [new LogEntity { Label = "A & B < C \"quoted\"" }] }]
+							  }
+						  ]
+					  };
 
 		var document = Serialize(machine);
 		var log = (XmlElement)document.SelectSingleNode("/*[local-name()='scxml']/*[local-name()='state']/*[local-name()='onentry']/*[local-name()='log']")!;
-		Assert.AreEqual("A & B < C \"quoted\"", log.GetAttribute("label"));
+		Assert.AreEqual(expected: "A & B < C \"quoted\"", log.GetAttribute("label"));
 	}
 
 	/*
@@ -294,20 +310,20 @@ public sealed class ScxmlSerializerRequirementsTests
 	public void SCXML_SER_002_Preserves_xml_significant_inline_payload_text()
 	{
 		var machine = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"state",
-					OnEntry = [new OnEntryEntity { Action = [new SendEntity { EventName = "payload", Content = new ContentEntity { Body = new ContentBody { Value = "A & B < C" } } }] }]
-				}
-			]
-		};
+					  {
+						  States =
+						  [
+							  new StateEntity
+							  {
+								  Id = (Identifier)"state",
+								  OnEntry = [new OnEntryEntity { Action = [new SendEntity { EventName = "payload", Content = new ContentEntity { Body = new ContentBody { Value = "A & B < C" } } }] }]
+							  }
+						  ]
+					  };
 
 		var document = Serialize(machine);
 		var content = (XmlElement)document.SelectSingleNode("/*[local-name()='scxml']/*[local-name()='state']/*[local-name()='onentry']/*[local-name()='send']/*[local-name()='content']")!;
-		Assert.AreEqual("A & B < C", content.InnerText);
+		Assert.AreEqual(expected: "A & B < C", content.InnerText);
 	}
 
 	/*
@@ -353,23 +369,23 @@ public sealed class ScxmlSerializerRequirementsTests
 	public void SCXML_SER_002_Formats_delays_deterministically_in_seconds_or_milliseconds()
 	{
 		var machine = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"state",
-					OnEntry =
-					[
-						new OnEntryEntity { Action = [new SendEntity { EventName = "one", DelayMs = 2000 }, new SendEntity { EventName = "two", DelayMs = 125 }] }
-					]
-				}
-			]
-		};
+					  {
+						  States =
+						  [
+							  new StateEntity
+							  {
+								  Id = (Identifier)"state",
+								  OnEntry =
+								  [
+									  new OnEntryEntity { Action = [new SendEntity { EventName = "one", DelayMs = 2000 }, new SendEntity { EventName = "two", DelayMs = 125 }] }
+								  ]
+							  }
+						  ]
+					  };
 
 		var sends = Serialize(machine).SelectNodes("/*[local-name()='scxml']/*[local-name()='state']/*[local-name()='onentry']/*[local-name()='send']")!;
-		Assert.AreEqual("2s", ((XmlElement)sends[0]!).GetAttribute("delay"));
-		Assert.AreEqual("125ms", ((XmlElement)sends[1]!).GetAttribute("delay"));
+		Assert.AreEqual(expected: "2s", ((XmlElement)sends[0]!).GetAttribute("delay"));
+		Assert.AreEqual(expected: "125ms", ((XmlElement)sends[1]!).GetAttribute("delay"));
 	}
 
 	/*
@@ -415,36 +431,36 @@ public sealed class ScxmlSerializerRequirementsTests
 	public void SCXML_SER_002_Preserves_send_uri_and_namelist_attributes()
 	{
 		var machine = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"state",
-					OnEntry =
-					[
-						new OnEntryEntity
-						{
-							Action =
-							[
-								new SendEntity
-								{
-									EventName = "notice",
-									Target = new FullUri("#_parent"),
-									Type = new FullUri("urn:example:event"),
-									NameList = [new LocationExpression { Expression = "first" }, new LocationExpression { Expression = "second" }]
-								}
-							]
-						}
-					]
-				}
-			]
-		};
+					  {
+						  States =
+						  [
+							  new StateEntity
+							  {
+								  Id = (Identifier)"state",
+								  OnEntry =
+								  [
+									  new OnEntryEntity
+									  {
+										  Action =
+										  [
+											  new SendEntity
+											  {
+												  EventName = "notice",
+												  Target = new FullUri("#_parent"),
+												  Type = new FullUri("urn:example:event"),
+												  NameList = [new LocationExpression { Expression = "first" }, new LocationExpression { Expression = "second" }]
+											  }
+										  ]
+									  }
+								  ]
+							  }
+						  ]
+					  };
 
 		var send = (XmlElement)Serialize(machine).SelectSingleNode("/*[local-name()='scxml']/*[local-name()='state']/*[local-name()='onentry']/*[local-name()='send']")!;
-		Assert.AreEqual("#_parent", send.GetAttribute("target"));
-		Assert.AreEqual("urn:example:event", send.GetAttribute("type"));
-		Assert.AreEqual("first second", send.GetAttribute("namelist"));
+		Assert.AreEqual(expected: "#_parent", send.GetAttribute("target"));
+		Assert.AreEqual(expected: "urn:example:event", send.GetAttribute("type"));
+		Assert.AreEqual(expected: "first second", send.GetAttribute("namelist"));
 	}
 
 	/*
@@ -490,12 +506,12 @@ public sealed class ScxmlSerializerRequirementsTests
 	public void SCXML_SER_002_Preserves_enabled_invoke_autoforward()
 	{
 		var machine = new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"state", Invoke = [new InvokeEntity { AutoForward = true }] }]
-		};
+					  {
+						  States = [new StateEntity { Id = (Identifier)"state", Invoke = [new InvokeEntity { AutoForward = true }] }]
+					  };
 
 		var invoke = (XmlElement)Serialize(machine).SelectSingleNode("/*[local-name()='scxml']/*[local-name()='state']/*[local-name()='invoke']")!;
-		Assert.AreEqual("true", invoke.GetAttribute("autoforward"));
+		Assert.AreEqual(expected: "true", invoke.GetAttribute("autoforward"));
 	}
 
 	/*
@@ -541,16 +557,16 @@ public sealed class ScxmlSerializerRequirementsTests
 	public async Task SCXML_SER_003_Round_trips_a_minimal_state_identity_through_the_public_parser_seam()
 	{
 		var machine = new StateMachineEntity
-		{
-			States = [new StateEntity { Id = (Identifier)"idle" }]
-		};
+					  {
+						  States = [new StateEntity { Id = (Identifier)"idle" }]
+					  };
 
 		var result = await ScxmlParserHarness.ParseAsync(SerializeText(machine));
 
-		Assert.IsTrue(result.Accepted, string.Join(" | ", result.Diagnostics));
+		Assert.IsTrue(result.Accepted, string.Join(separator: " | ", result.Diagnostics));
 		var model = result.Model!;
-		Assert.AreEqual(1, model.States.Count());
-		Assert.AreEqual("idle", model.States[0].Id!.Value);
+		Assert.AreEqual(expected: 1, model.States.Count());
+		Assert.AreEqual(expected: "idle", model.States[0].Id!.Value);
 	}
 
 	/*
@@ -596,28 +612,28 @@ public sealed class ScxmlSerializerRequirementsTests
 	public async Task SCXML_SER_003_Round_trips_transition_events_targets_and_internal_type()
 	{
 		var machine = new StateMachineEntity
-		{
-			States =
-			[
-				new StateEntity
-				{
-					Id = (Identifier)"source",
-					Transitions =
-					[
-						new TransitionEntity
-						{
-							EventDescriptors = [(EventDescriptor)"go", (EventDescriptor)"retry"],
-							Target = [(Identifier)"first", (Identifier)"second"],
-							Type = TransitionType.Internal
-						}
-					]
-				}
-			]
-		};
+					  {
+						  States =
+						  [
+							  new StateEntity
+							  {
+								  Id = (Identifier)"source",
+								  Transitions =
+								  [
+									  new TransitionEntity
+									  {
+										  EventDescriptors = [(EventDescriptor)"go", (EventDescriptor)"retry"],
+										  Target = [(Identifier)"first", (Identifier)"second"],
+										  Type = TransitionType.Internal
+									  }
+								  ]
+							  }
+						  ]
+					  };
 
 		var result = await ScxmlParserHarness.ParseAsync(SerializeText(machine));
 
-		Assert.IsTrue(result.Accepted, string.Join(" | ", result.Diagnostics));
+		Assert.IsTrue(result.Accepted, string.Join(separator: " | ", result.Diagnostics));
 		var state = (IState)result.Model!.States[0];
 		var transition = state.Transitions[0];
 		Assert.AreEqual(TransitionType.Internal, transition.Type);
@@ -667,12 +683,13 @@ public sealed class ScxmlSerializerRequirementsTests
 	[TestMethod]
 	public async Task SCXML_SER_003_Serializing_a_parsed_model_is_idempotent_for_semantic_attributes()
 	{
-		const string xml = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" name=\"fixture\"><state id=\"idle\"><transition event=\"go\" target=\"done\" /></state><final id=\"done\" /></scxml>";
+		const string xml =
+			"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" name=\"fixture\"><state id=\"idle\"><transition event=\"go\" target=\"done\" /></state><final id=\"done\" /></scxml>";
 		var first = await ScxmlParserHarness.ParseAsync(xml);
-		Assert.IsTrue(first.Accepted, string.Join(" | ", first.Diagnostics));
+		Assert.IsTrue(first.Accepted, string.Join(separator: " | ", first.Diagnostics));
 
 		var second = await ScxmlParserHarness.ParseAsync(SerializeText(first.Model!));
-		Assert.IsTrue(second.Accepted, string.Join(" | ", second.Diagnostics));
+		Assert.IsTrue(second.Accepted, string.Join(separator: " | ", second.Diagnostics));
 		Assert.AreEqual(first.Model!.Name, second.Model!.Name);
 		Assert.AreEqual(first.Model.States.Count(), second.Model.States.Count());
 		CollectionAssert.AreEqual(first.Model.States.Select(static state => state.Id!.Value).ToArray(), second.Model.States.Select(static state => state.Id!.Value).ToArray());
@@ -722,12 +739,12 @@ public sealed class ScxmlSerializerRequirementsTests
 	{
 		const string xml = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" initial=\"start\"><state id=\"start\"><transition target=\"done\" /></state><final id=\"done\" /></scxml>";
 		var parsed = await ScxmlParserHarness.ParseAsync(xml);
-		Assert.IsTrue(parsed.Accepted, string.Join(" | ", parsed.Diagnostics));
+		Assert.IsTrue(parsed.Accepted, string.Join(separator: " | ", parsed.Diagnostics));
 
 		var originalResult = await ScxmlRuntimeHarness.ExecuteAsync(xml);
 		var roundTrippedResult = await ScxmlRuntimeHarness.ExecuteAsync(SerializeText(parsed.Model!));
 
-		Assert.AreEqual(originalResult, roundTrippedResult, "SCXML-SER-004: execution result changed after serialization.");
+		Assert.AreEqual(originalResult, roundTrippedResult, message: "SCXML-SER-004: execution result changed after serialization.");
 	}
 
 	/*
@@ -777,6 +794,7 @@ public sealed class ScxmlSerializerRequirementsTests
 		using var writer = XmlWriter.Create(stream, new XmlWriterSettings { OmitXmlDeclaration = true });
 
 		var failed = false;
+
 		try
 		{
 			new ScxmlSerializerWriter(writer).Serialize(machine);
@@ -787,7 +805,7 @@ public sealed class ScxmlSerializerRequirementsTests
 			failed = true;
 		}
 
-		Assert.IsTrue(failed, "SCXML-SER-005: a writer failure must be observable to the caller.");
+		Assert.IsTrue(failed, message: "SCXML-SER-005: a writer failure must be observable to the caller.");
 	}
 
 	/*
@@ -842,7 +860,7 @@ public sealed class ScxmlSerializerRequirementsTests
 		var text = SerializeText(builderModel);
 		var parsed = await ScxmlParserHarness.ParseAsync(text);
 
-		Assert.IsTrue(parsed.Accepted, string.Join(" | ", parsed.Diagnostics));
+		Assert.IsTrue(parsed.Accepted, string.Join(separator: " | ", parsed.Diagnostics));
 		Assert.AreEqual(builderModel.Initial!.Transition!.Target[0], parsed.Model!.Initial!.Transition!.Target[0]);
 		Assert.AreEqual(builderModel.States[0].Id, parsed.Model.States[0].Id);
 	}
@@ -851,12 +869,14 @@ public sealed class ScxmlSerializerRequirementsTests
 	{
 		var document = new XmlDocument();
 		document.LoadXml(SerializeText(machine));
+
 		return document;
 	}
 
 	private static string SerializeText(IStateMachine machine)
 	{
 		var output = new StringBuilder();
+
 		using (var writer = XmlWriter.Create(output, new XmlWriterSettings { OmitXmlDeclaration = true }))
 		{
 			new ScxmlSerializerWriter(writer).Serialize(machine);

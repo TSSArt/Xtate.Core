@@ -1,5 +1,22 @@
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xtate.Core.Test.Exhaustive.Parsing;
 using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
@@ -54,11 +71,12 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_LIFE_001_And_LIFE_008_Root_final_reports_accepted_started_then_completed()
 	{
 		var trace = new InterpreterStateTrace();
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<final id="complete" />
-			</scxml>
-			""", trace);
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<final id="complete" />
+				   </scxml>
+				   """, trace);
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 		CollectionAssert.AreEqual(new[] { StateMachineInterpreterState.Accepted, StateMachineInterpreterState.Started, StateMachineInterpreterState.Completed }, trace.States.ToArray());
@@ -106,7 +124,7 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_LIFE_001_Interpreter_trace_records_state_entry_and_exit_events()
 	{
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		await ScxmlRuntimeHarness.ExecuteAsync("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><final id=\"complete\" /></scxml>", null, log);
+		await ScxmlRuntimeHarness.ExecuteAsync(scxml: "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><final id=\"complete\" /></scxml>", notification: null, log);
 
 		CollectionAssert.IsSubsetOf(new[] { 4, 6, 7 }, log.EventIds.ToArray());
 	}
@@ -153,13 +171,15 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_TRANS_010_Eventless_microstep_logs_exit_transition_then_entry_categories()
 	{
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		await ScxmlRuntimeHarness.ExecuteAsync("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><state id=\"source\"><transition target=\"complete\" /></state><final id=\"complete\" /></scxml>", null, log);
+		await ScxmlRuntimeHarness.ExecuteAsync(
+			scxml: "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><state id=\"source\"><transition target=\"complete\" /></state><final id=\"complete\" /></scxml>",
+			notification: null, log);
 
 		var eventIds = log.EventIds.ToArray();
-		var exit = Array.IndexOf(eventIds, 8);
-		var transition = Array.IndexOf(eventIds, 10);
-		var entry = Array.LastIndexOf(eventIds, 6);
-		Assert.IsTrue(exit >= 0 && transition > exit && entry > transition, string.Join(",", eventIds));
+		var exit = Array.IndexOf(eventIds, value: 8);
+		var transition = Array.IndexOf(eventIds, value: 10);
+		var entry = Array.LastIndexOf(eventIds, value: 6);
+		Assert.IsTrue(exit >= 0 && transition > exit && entry > transition, string.Join(separator: ",", eventIds));
 	}
 
 	/* TEST-METADATA
@@ -168,7 +188,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_EXEC_001_Raise_queues_an_internal_event_that_drives_the_next_microstep()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<state id="source">
 					<onentry><raise event="advance" /></onentry>
@@ -188,15 +209,16 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_EXEC_004_Log_emits_its_label_without_preventing_completion()
 	{
 		var actionLog = new InterpreterLogTrace<ILogController>();
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="source"><onentry><log label="checkpoint" /></onentry><transition target="complete" /></state>
-				<final id="complete" />
-			</scxml>
-			""", null, null, actionLog);
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="source"><onentry><log label="checkpoint" /></onentry><transition target="complete" /></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, notification: null, logger: null, actionLog);
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
-		Assert.AreEqual("checkpoint", actionLog.Entries.Single().Message);
+		Assert.AreEqual(expected: "checkpoint", actionLog.Entries.Single().Message);
 	}
 
 	/* TEST-METADATA
@@ -248,15 +270,20 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_EXEC_008_Executable_log_blocks_preserve_document_order_through_one_thousand_actions(int actionCount)
 	{
 		var document = new StringBuilder("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"><state id=\"source\"><onentry>");
-		for (var index = 0; index < actionCount; index++) document.Append($"<log label=\"step-{index}\" />");
+
+		for (var index = 0; index < actionCount; index++)
+		{
+			document.Append($"<log label=\"step-{index}\" />");
+		}
+
 		document.Append("</onentry><transition target=\"complete\" /></state><final id=\"complete\" /></scxml>");
 		var actionLog = new InterpreterLogTrace<ILogController>();
 
-		var result = await ScxmlRuntimeHarness.ExecuteAsync(document.ToString(), null, null, actionLog);
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(document.ToString(), notification: null, logger: null, actionLog);
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 		Assert.AreEqual(actionCount, actionLog.Entries.Count);
-		Assert.AreEqual("step-0", actionLog.Entries[0].Message);
+		Assert.AreEqual(expected: "step-0", actionLog.Entries[0].Message);
 		Assert.AreEqual($"step-{actionCount - 1}", actionLog.Entries[actionCount - 1].Message);
 	}
 
@@ -301,7 +328,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_LIFE_002_And_TRANS_001_Default_initial_state_takes_an_eventless_transition_to_final()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<state id="initial">
 					<transition target="complete" />
@@ -354,7 +382,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_LIFE_002_Explicit_root_initial_target_overrides_document_order_default()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="selected">
 				<state id="unselected" />
 				<state id="selected"><transition target="complete" /></state>
@@ -407,11 +436,12 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_LIFE_002_Invalid_root_initial_target_is_rejected()
 	{
 		await Assert.ThrowsExactlyAsync<DependencyInjectionException>(async () =>
-			await ScxmlRuntimeHarness.ExecuteAsync("""
-				<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="missing">
-					<state id="present" />
-				</scxml>
-				"""));
+																		  await ScxmlRuntimeHarness.ExecuteAsync(
+																			  """
+																			  <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="missing">
+																			  	<state id="present" />
+																			  </scxml>
+																			  """));
 	}
 
 	/* TEST-METADATA
@@ -453,10 +483,10 @@ public sealed class InterpreterLifecycleRequirementsTests
 	generation_status: generated-review-required
 	*/
 	[TestMethod]
-	[Ignore("According SCXML spec <initial> is not part of <scxml> element")]
-	public async Task SCXML_LIFE_002_Explicit_root_initial_element_overrides_document_order_default()
+	public async Task SCXML_LIFE_002_Root_initial_element_is_rejected()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlParserHarness.ParseAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<initial><transition target="selected" /></initial>
 				<state id="unselected" />
@@ -465,7 +495,9 @@ public sealed class InterpreterLifecycleRequirementsTests
 			</scxml>
 			""");
 
-		Assert.AreEqual(DataModelValue.Undefined, result);
+		Assert.IsFalse(result.Accepted);
+		Assert.IsNull(result.Model);
+		Assert.IsTrue(result.Diagnostics.Any(static message => message.Contains(value: "unknown element", StringComparison.OrdinalIgnoreCase)));
 	}
 
 	/* TEST-METADATA
@@ -510,17 +542,18 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_STATE_001_And_STATE_003_Compound_entry_logs_ancestor_before_descendant()
 	{
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent">
-					<state id="child"><transition target="complete" /></state>
-				</state>
-				<final id="complete" />
-			</scxml>
-			""", null, log);
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="parent">
+				   		<state id="child"><transition target="complete" /></state>
+				   	</state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, notification: null, log);
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
-		AssertLogOrder(log, "Entering state [parent]", "Entering state [child]");
+		AssertLogOrder(log, first: "Entering state [parent]", second: "Entering state [child]");
 	}
 
 	/* TEST-METADATA
@@ -565,19 +598,20 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_STATE_001_Parallel_regions_enter_in_document_order()
 	{
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<parallel id="parallel">
-					<state id="first"><final id="firstDone" /></state>
-					<state id="second"><final id="secondDone" /></state>
-					<transition event="done.state.parallel" target="complete" />
-				</parallel>
-				<final id="complete" />
-			</scxml>
-			""", null, log);
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<parallel id="parallel">
+				   		<state id="first"><final id="firstDone" /></state>
+				   		<state id="second"><final id="secondDone" /></state>
+				   		<transition event="done.state.parallel" target="complete" />
+				   	</parallel>
+				   	<final id="complete" />
+				   </scxml>
+				   """, notification: null, log);
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
-		AssertLogOrder(log, "Entering state [first]", "Entering state [second]");
+		AssertLogOrder(log, first: "Entering state [first]", second: "Entering state [second]");
 	}
 
 	/* TEST-METADATA
@@ -623,21 +657,22 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_STATE_001_And_TRANS_008_Multitarget_transition_enters_shared_ancestor_once_in_document_order()
 	{
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="source"><transition event="advance" target="left right" /></state>
-				<parallel id="work">
-					<state id="left"><final id="leftComplete" /></state>
-					<state id="right"><final id="rightComplete" /></state>
-					<transition event="done.state.work" target="complete" />
-				</parallel>
-				<final id="complete" />
-			</scxml>
-			""", log, "advance");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="source"><transition event="advance" target="left right" /></state>
+				   	<parallel id="work">
+				   		<state id="left"><final id="leftComplete" /></state>
+				   		<state id="right"><final id="rightComplete" /></state>
+				   		<transition event="done.state.work" target="complete" />
+				   	</parallel>
+				   	<final id="complete" />
+				   </scxml>
+				   """, log, "advance");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
-		Assert.AreEqual(1, log.Entries.Count(entry => entry.Message == "Entering state [work]"));
-		AssertLogOrder(log, "Entering state [left]", "Entering state [right]");
+		Assert.AreEqual(expected: 1, log.Entries.Count(entry => entry.Message == "Entering state [work]"));
+		AssertLogOrder(log, first: "Entering state [left]", second: "Entering state [right]");
 	}
 
 	/* TEST-METADATA
@@ -681,7 +716,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_STATE_003_Explicit_initial_child_selects_its_declared_transition_target()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<state id="parent">
 					<initial><transition target="selected" /></initial>
@@ -736,7 +772,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_STATE_003_Compound_initial_attribute_selects_its_declared_child()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<state id="parent" initial="selected">
 					<state id="unselected" />
@@ -755,7 +792,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_STATE_004_And_STATE_005_All_parallel_regions_must_finalize_before_parent_done_event_transitions()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<parallel id="work">
 					<state id="left"><final id="leftDone" /></state>
@@ -776,7 +814,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[Timeout(5000)]
 	public async Task SCXML_STATE_004_Nested_parallel_completion_enables_the_containing_parallel_completion()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<parallel id="outer">
 					<state id="left"><final id="leftComplete" /></state>
@@ -804,16 +843,17 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[Timeout(5000)]
 	public async Task SCXML_STATE_004_Parallel_parent_done_event_waits_for_the_last_region_to_finalize()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<parallel id="work">
-					<state id="left"><transition event="finish.left" target="leftComplete" /><final id="leftComplete" /></state>
-					<state id="right"><transition event="finish.right" target="rightComplete" /><final id="rightComplete" /></state>
-					<transition event="done.state.work" target="complete" />
-				</parallel>
-				<final id="complete" />
-			</scxml>
-			""", "finish.left", "finish.right");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<parallel id="work">
+				   		<state id="left"><transition event="finish.left" target="leftComplete" /><final id="leftComplete" /></state>
+				   		<state id="right"><transition event="finish.right" target="rightComplete" /><final id="rightComplete" /></state>
+				   		<transition event="done.state.work" target="complete" />
+				   	</parallel>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "finish.left", "finish.right");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -832,9 +872,19 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_STATE_007_Valid_nested_topologies_complete_without_corrupting_default_entry(int depth)
 	{
 		var document = new StringBuilder("<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\">");
-		for (var index = 0; index < depth; index++) document.Append($"<state id=\"s{index}\">");
+
+		for (var index = 0; index < depth; index++)
+		{
+			document.Append($"<state id=\"s{index}\">");
+		}
+
 		document.Append("<transition target=\"complete\" />");
-		for (var index = 0; index < depth; index++) document.Append("</state>");
+
+		for (var index = 0; index < depth; index++)
+		{
+			document.Append("</state>");
+		}
+
 		document.Append("<final id=\"complete\" /></scxml>");
 
 		var result = await ScxmlRuntimeHarness.ExecuteAsync(document.ToString());
@@ -848,7 +898,8 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_EVENT_003_And_TRANS_007_Raised_internal_events_are_processed_FIFO_before_completion()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			"""
 			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
 				<state id="source">
 					<onentry><raise event="first" /><raise event="second" /></onentry>
@@ -869,15 +920,16 @@ public sealed class InterpreterLifecycleRequirementsTests
 	public async Task SCXML_STATE_002_Nested_active_states_exit_deepest_first()
 	{
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		var result = await ScxmlRuntimeHarness.ExecuteAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent"><state id="child"><transition target="complete" /></state></state>
-				<final id="complete" />
-			</scxml>
-			""", null, log);
+		var result = await ScxmlRuntimeHarness.ExecuteAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="parent"><state id="child"><transition target="complete" /></state></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, notification: null, log);
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
-		AssertLogOrder(log, "Exiting state [child]", "Exiting state [parent]");
+		AssertLogOrder(log, first: "Exiting state [child]", second: "Exiting state [parent]");
 	}
 
 	/* TEST-METADATA
@@ -886,12 +938,13 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_EVENT_004_External_event_is_dispatched_to_the_active_session()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="waiting"><transition event="advance" target="complete" /></state>
-				<final id="complete" />
-			</scxml>
-			""", "advance");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="waiting"><transition event="advance" target="complete" /></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "advance");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -902,15 +955,16 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_EVENT_004_External_events_preserve_FIFO_order_for_targetless_then_targeted_transitions()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="waiting">
-					<transition event="first" />
-					<transition event="second" target="complete" />
-				</state>
-				<final id="complete" />
-			</scxml>
-			""", "first", "second");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="waiting">
+				   		<transition event="first" />
+				   		<transition event="second" target="complete" />
+				   	</state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "first", "second");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -927,15 +981,16 @@ public sealed class InterpreterLifecycleRequirementsTests
 	{
 		var typeAttribute = transitionType.Length == 0 ? string.Empty : $" type=\"{transitionType}\"";
 		var log = new InterpreterLogTrace<StateMachineInterpreter>();
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync($"""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent" initial="child">
-					<state id="child"><transition event="finish" target="complete" /></state>
-					<transition event="advance" target="child"{typeAttribute} />
-				</state>
-				<final id="complete" />
-			</scxml>
-			""", log, "advance", "finish");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			$"""
+			 <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+			 	<state id="parent" initial="child">
+			 		<state id="child"><transition event="finish" target="complete" /></state>
+			 		<transition event="advance" target="child"{typeAttribute} />
+			 	</state>
+			 	<final id="complete" />
+			 </scxml>
+			 """, log, "advance", "finish");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 		Assert.AreEqual(expectedParentEntryCount, log.Entries.Count(entry => entry.Message == "Entering state [parent]"));
@@ -948,16 +1003,17 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[Timeout(5000)]
 	public async Task SCXML_TRANS_003_First_document_order_transition_wins_when_multiple_transitions_match()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="source">
-					<transition event="advance" target="complete" />
-					<transition event="advance" target="trap" />
-				</state>
-				<state id="trap" />
-				<final id="complete" />
-			</scxml>
-			""", "advance");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="source">
+				   		<transition event="advance" target="complete" />
+				   		<transition event="advance" target="trap" />
+				   	</state>
+				   	<state id="trap" />
+				   	<final id="complete" />
+				   </scxml>
+				   """, "advance");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -969,16 +1025,17 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[Timeout(5000)]
 	public async Task SCXML_TRANS_004_Descendant_source_transition_preempts_a_conflicting_ancestor_transition()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent">
-					<state id="child"><transition event="advance" target="complete" /></state>
-					<transition event="advance" target="trap" />
-				</state>
-				<state id="trap" />
-				<final id="complete" />
-			</scxml>
-			""", "advance");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="parent">
+				   		<state id="child"><transition event="advance" target="complete" /></state>
+				   		<transition event="advance" target="trap" />
+				   	</state>
+				   	<state id="trap" />
+				   	<final id="complete" />
+				   </scxml>
+				   """, "advance");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -989,18 +1046,19 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_HIST_001_And_HIST_002_Shallow_history_restores_the_recorded_child_instead_of_its_default()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent" initial="original">
-					<history id="remember" type="shallow"><transition target="fallback" /></history>
-					<state id="original"><transition event="finish" target="complete" /></state>
-					<state id="fallback" />
-					<transition event="leave" target="outside" />
-				</state>
-				<state id="outside"><transition event="return" target="remember" /></state>
-				<final id="complete" />
-			</scxml>
-			""", "leave", "return", "finish");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="parent" initial="original">
+				   		<history id="remember" type="shallow"><transition target="fallback" /></history>
+				   		<state id="original"><transition event="finish" target="complete" /></state>
+				   		<state id="fallback" />
+				   		<transition event="leave" target="outside" />
+				   	</state>
+				   	<state id="outside"><transition event="return" target="remember" /></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "leave", "return", "finish");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -1011,21 +1069,22 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_HIST_001_And_HIST_003_Deep_history_restores_the_recorded_nested_leaf()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent" initial="branch">
-					<history id="remember" type="deep"><transition target="fallback" /></history>
-					<state id="branch" initial="start">
-						<state id="start"><transition event="select" target="remembered" /></state>
-						<state id="remembered"><transition event="finish" target="complete" /></state>
-					</state>
-					<state id="fallback" />
-					<transition event="leave" target="outside" />
-				</state>
-				<state id="outside"><transition event="return" target="remember" /></state>
-				<final id="complete" />
-			</scxml>
-			""", "select", "leave", "return", "finish");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="parent" initial="branch">
+				   		<history id="remember" type="deep"><transition target="fallback" /></history>
+				   		<state id="branch" initial="start">
+				   			<state id="start"><transition event="select" target="remembered" /></state>
+				   			<state id="remembered"><transition event="finish" target="complete" /></state>
+				   		</state>
+				   		<state id="fallback" />
+				   		<transition event="leave" target="outside" />
+				   	</state>
+				   	<state id="outside"><transition event="return" target="remember" /></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "select", "leave", "return", "finish");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -1037,25 +1096,26 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[Timeout(5000)]
 	public async Task SCXML_HIST_004_Shallow_and_deep_history_pseudostates_in_one_parent_remain_independent()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="parent" initial="branch">
-					<history id="shallow" type="shallow"><transition target="fallback" /></history>
-					<history id="deep" type="deep"><transition target="fallback" /></history>
-					<state id="branch" initial="start">
-						<state id="start"><transition event="select" target="remembered" /></state>
-						<state id="remembered"><transition event="finish" target="complete" /></state>
-					</state>
-					<state id="fallback" />
-					<transition event="leave" target="outside" />
-				</state>
-				<state id="outside">
-					<transition event="return.shallow" target="shallow" />
-					<transition event="return.deep" target="deep" />
-				</state>
-				<final id="complete" />
-			</scxml>
-			""", "select", "leave", "return.shallow", "select", "leave", "return.deep", "finish");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="parent" initial="branch">
+				   		<history id="shallow" type="shallow"><transition target="fallback" /></history>
+				   		<history id="deep" type="deep"><transition target="fallback" /></history>
+				   		<state id="branch" initial="start">
+				   			<state id="start"><transition event="select" target="remembered" /></state>
+				   			<state id="remembered"><transition event="finish" target="complete" /></state>
+				   		</state>
+				   		<state id="fallback" />
+				   		<transition event="leave" target="outside" />
+				   	</state>
+				   	<state id="outside">
+				   		<transition event="return.shallow" target="shallow" />
+				   		<transition event="return.deep" target="deep" />
+				   	</state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "select", "leave", "return.shallow", "select", "leave", "return.deep", "finish");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -1066,16 +1126,17 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_HIST_002_Uninitialized_history_uses_its_default_transition()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outside">
-				<state id="parent">
-					<history id="remember" type="shallow"><transition target="fallback" /></history>
-					<state id="fallback"><transition event="finish" target="complete" /></state>
-				</state>
-				<state id="outside"><transition event="return" target="remember" /></state>
-				<final id="complete" />
-			</scxml>
-			""", "return", "finish");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" initial="outside">
+				   	<state id="parent">
+				   		<history id="remember" type="shallow"><transition target="fallback" /></history>
+				   		<state id="fallback"><transition event="finish" target="complete" /></state>
+				   	</state>
+				   	<state id="outside"><transition event="return" target="remember" /></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "return", "finish");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -1086,16 +1147,17 @@ public sealed class InterpreterLifecycleRequirementsTests
 	[TestMethod]
 	public async Task SCXML_EVENT_003_Internal_events_are_processed_before_an_already_queued_external_event()
 	{
-		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync("""
-			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
-				<state id="source">
-					<onentry><raise event="internal.advance" /></onentry>
-					<transition event="internal.advance" target="ready" />
-				</state>
-				<state id="ready"><transition event="external.advance" target="complete" /></state>
-				<final id="complete" />
-			</scxml>
-			""", "external.advance");
+		var result = await ScxmlRuntimeHarness.ExecuteWithExternalEventsAsync(
+			scxml: """
+				   <scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+				   	<state id="source">
+				   		<onentry><raise event="internal.advance" /></onentry>
+				   		<transition event="internal.advance" target="ready" />
+				   	</state>
+				   	<state id="ready"><transition event="external.advance" target="complete" /></state>
+				   	<final id="complete" />
+				   </scxml>
+				   """, "external.advance");
 
 		Assert.AreEqual(DataModelValue.Undefined, result);
 	}
@@ -1105,7 +1167,6 @@ public sealed class InterpreterLifecycleRequirementsTests
 		var messages = log.Entries.Select(static entry => entry.Message).ToArray();
 		var firstIndex = Array.IndexOf(messages, first);
 		var secondIndex = Array.IndexOf(messages, second);
-		Assert.IsTrue(firstIndex >= 0 && secondIndex > firstIndex, string.Join(" | ", messages));
+		Assert.IsTrue(firstIndex >= 0 && secondIndex > firstIndex, string.Join(separator: " | ", messages));
 	}
-
 }

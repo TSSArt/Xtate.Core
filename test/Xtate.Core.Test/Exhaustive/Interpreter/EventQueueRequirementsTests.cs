@@ -1,6 +1,22 @@
+// Copyright © 2019-2026 Sergii Artemenko
+// 
+// This file is part of the Xtate project. <https://xtate.net/>
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+// 
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using System.Threading;
 using System.Threading.Channels;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Services;
 using Xtate.StateMachine;
@@ -58,9 +74,9 @@ public sealed class EventQueueRequirementsTests
 		await queue.Dispatch(new IncomingEvent { Name = EventName.FromString("second"), Type = EventType.External }, CancellationToken.None);
 
 		Assert.IsTrue(queue.TryReadEvent(out var first));
-		Assert.AreEqual("first", first.Name.ToString());
+		Assert.AreEqual(expected: "first", first?.Name.ToString());
 		Assert.IsTrue(queue.TryReadEvent(out var second));
-		Assert.AreEqual("second", second.Name.ToString());
+		Assert.AreEqual(expected: "second", second?.Name.ToString());
 		Assert.IsFalse(queue.TryReadEvent(out _));
 
 		queue.Complete();
@@ -115,7 +131,7 @@ public sealed class EventQueueRequirementsTests
 		queue.Dispose();
 
 		Assert.IsTrue(queue.TryReadEvent(out var accepted));
-		Assert.AreEqual("accepted", accepted.Name.ToString());
+		Assert.AreEqual(expected: "accepted", accepted?.Name.ToString());
 		Assert.IsFalse(await queue.WaitToEvent());
 		await Assert.ThrowsExactlyAsync<ChannelClosedException>(async () => await queue.Dispatch(new IncomingEvent { Name = EventName.FromString("rejected") }, CancellationToken.None));
 	}
@@ -163,10 +179,10 @@ public sealed class EventQueueRequirementsTests
 	{
 		using var queue = new EventQueue();
 		using var cancellation = new CancellationTokenSource();
-		cancellation.Cancel();
+		await cancellation.CancelAsync();
 
 		await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () =>
-			await queue.Dispatch(new IncomingEvent { Name = EventName.FromString("cancelled"), Type = EventType.External }, cancellation.Token));
+																   await queue.Dispatch(new IncomingEvent { Name = EventName.FromString("cancelled"), Type = EventType.External }, cancellation.Token));
 
 		Assert.IsFalse(queue.TryReadEvent(out _));
 	}

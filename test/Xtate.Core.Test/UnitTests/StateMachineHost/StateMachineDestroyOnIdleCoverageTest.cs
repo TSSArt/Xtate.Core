@@ -73,9 +73,9 @@ public class StateMachineDestroyOnIdleCoverageTest
 			   };
 	}
 
-	private static StateMachineDestroyOnIdle CreateService(TimeSpan timeout,
-														   IStateMachineInterpreter interpreter,
-														   ILogger<StateMachineDestroyOnIdle> logger) =>
+	public static StateMachineDestroyOnIdle CreateService(TimeSpan timeout,
+														  IStateMachineInterpreter interpreter,
+														  ILogger<StateMachineDestroyOnIdle> logger) =>
 		new()
 		{
 			Logger = logger,

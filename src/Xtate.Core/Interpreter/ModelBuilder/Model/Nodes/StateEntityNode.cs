@@ -162,10 +162,14 @@ public abstract class StateEntityNode : IStateEntity, IDocumentId
 			foreach (var state in xNode.Parent!.States)
 			{
 				if (ReferenceEquals(state, xNode))
+				{
 					return -1;
+				}
 
 				if (ReferenceEquals(state, yNode))
+				{
 					return 1;
+				}
 			}
 
 			throw Infra.Fail<Exception>();

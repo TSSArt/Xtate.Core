@@ -54,7 +54,7 @@ public class PersistedExternalServiceController : ExternalServiceController
 
 		if (exception is OperationCanceledException && SuspendEventDispatcher.IsSuspendRequested)
 		{
-			return ValueTask.FromException(new ExternalServiceSuspendedException(message: Resources.Exception_ExternalServiceHasBeenSuspended, exception) { Owner = this });
+			return ValueTask.FromException(new ExternalServiceSuspendedException(Resources.Exception_ExternalServiceHasBeenSuspended, exception) { Owner = this });
 		}
 
 		return base.HandleExecutionException(exception);
