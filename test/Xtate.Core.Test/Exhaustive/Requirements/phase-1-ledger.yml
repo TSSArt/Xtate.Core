@@ -1,0 +1,302 @@
+# Greenfield requirement ledger.  This is intentionally independent from existing tests.
+SCXML-SER-001:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "3.2 <scxml>; 3.13 <assign>; project public IAssign contract"
+  normative_text_summary: "Serialization preserves all semantic model properties and ordered children."
+  positive_partitions: "required namespace/version, root name/binding, state child, XPath assignment type/attr"
+  negative_partitions: "N/A for this serializer-only checkpoint"
+  error_partitions: "writer failure pending"
+  component_test: "Exhaustive/Serialization/ScxmlSerializerRequirementsTests.cs"
+  end_to_end_test: "pending"
+  cleanup_or_resource_evidence: "XmlWriter disposed by test helper"
+  status: "Implemented / Failing Product"
+  defect_or_exception: "DEF-SCXML-SER-001"
+SCXML-PARSE-001:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "3.2 <scxml> document element and namespace"
+  normative_text_summary: "An SCXML document uses the exact SCXML root element and namespace."
+  positive_partitions: "exact namespace/root, base URI"
+  negative_partitions: "missing namespace, wrong namespace, wrong root casing"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-002:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 §3.2 version attribute"
+  normative_text_summary: "The version attribute is required and the supported version is exactly 1.0."
+  positive_partitions: "1.0"
+  negative_partitions: "missing, empty, leading/trailing whitespace, numeric variants"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-003:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 §3.2 root attributes; XML namespace extension model"
+  normative_text_summary: "Root attributes preserve supported semantic values; malformed lexical values and unknown unqualified attributes are rejected while foreign-qualified extensions are allowed."
+  positive_partitions: "initial, Unicode name, late binding, foreign-qualified extension"
+  negative_partitions: "uppercase and whitespace-padded binding, unknown unqualified attribute"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "Implemented / Failing Product"
+  defect_or_exception: "DEF-SCXML-PARSE-003"
+SCXML-PARSE-004:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 §3.2 root child content model"
+  normative_text_summary: "Legal root children retain document order; executable content and non-whitespace character data are not root children."
+  positive_partitions: "state/final order, comments, processing instruction"
+  negative_partitions: "raise at root, non-whitespace root text"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-021:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "XML well-formedness prerequisite for an SCXML document"
+  normative_text_summary: "Malformed XML is rejected and must not escape as a partially constructed model."
+  positive_partitions: "N/A"
+  negative_partitions: "truncated element, mismatched tag, duplicate attribute, unknown entity"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "Implemented / Failing Product"
+  defect_or_exception: "DEF-SCXML-PARSE-021"
+SCXML-PARSE-020:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 §6.2 delay lexical form"
+  normative_text_summary: "Supported delay units retain their exact millisecond meaning; unsupported fractional form is rejected."
+  positive_partitions: "zero, seconds, milliseconds"
+  negative_partitions: "fractional seconds; seconds-to-milliseconds overflow"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-012:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 executable content: raise and log"
+  normative_text_summary: "Raise and log parse as executable content and retain document order and log attributes."
+  positive_partitions: "raise event, log label/expression, ordered onentry actions"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-010:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 §3.13 transition attributes"
+  normative_text_summary: "Transition event and target token lists retain their ordered values and type='internal' is parsed."
+  positive_partitions: "multiple event descriptors, multiple targets, internal type"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-006:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 state child content model"
+  normative_text_summary: "Nested state elements retain compound hierarchy and identifiers."
+  positive_partitions: "compound parent with nested atomic child"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-008:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 final state element"
+  normative_text_summary: "A final child is parsed as a final state and retains its identifier."
+  positive_partitions: "root final with ID"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-007:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 parallel state element"
+  normative_text_summary: "Parallel state regions parse as ordered child states and retain the parallel model type."
+  positive_partitions: "two named regions in document order"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-009:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 initial element"
+  normative_text_summary: "An explicit initial element and history pseudo-state retain their transition targets and history semantics."
+  positive_partitions: "compound explicit initial with one target; deep history with ID and one default transition target"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-011:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 onentry and onexit executable content"
+  normative_text_summary: "Entry and exit blocks remain distinct and preserve executable-action order, including an empty block."
+  positive_partitions: "empty onentry; log then raise onexit"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-013:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 conditional executable content"
+  normative_text_summary: "An if action preserves its condition, branch markers, and executable actions in document order."
+  positive_partitions: "if action before elseif and else markers with actions in every branch"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-014:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 foreach executable content"
+  normative_text_summary: "A foreach action retains required array/item expressions, optional index location, and ordered executable content."
+  positive_partitions: "array, item, index, and one log action"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-015:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 send executable content"
+  normative_text_summary: "A literal send preserves routing, delay, identifier, name list, parameters, and content."
+  positive_partitions: "literal event/target/type/id, seconds delay, two parameter forms, raw content"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-016:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 invoke executable content"
+  normative_text_summary: "A literal invoke retains its source, type, ID, namelist, autoforward flag, parameters, finalize actions, and content."
+  positive_partitions: "literal source/type/id, true autoforward, namelist, parameter, finalize log, inline content"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-017:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 datamodel, data, donedata, and content elements"
+  normative_text_summary: "Data declarations and final done-data retain expression, inline, parameter, and content forms."
+  positive_partitions: "expression data, inline data, final done-data parameter and content"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-018:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 foreign executable content extension model"
+  normative_text_summary: "A foreign executable element retains its namespace, local name, and nested outer XML."
+  positive_partitions: "namespaced action with attribute and nested namespaced child"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-PARSE-019:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 whitespace-separated identifier and descriptor lists"
+  normative_text_summary: "Initial, target, event, and namelist values tokenize on XML whitespace while retaining token order."
+  positive_partitions: "leading/trailing spaces, tabs, and CR/LF across all four list-valued attributes"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "Implemented / Failing Product"
+  defect_or_exception: "DEF-SCXML-PARSE-019"
+SCXML-PARSE-023:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML parser async construction-route contract"
+  normative_text_summary: "Async parsing accepts an incremental, non-seekable stream without returning a partial model."
+  positive_partitions: "one-byte non-seekable async stream"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "reader is disposed and CloseInput=false preserves caller stream ownership"
+  status: "In Progress"
+SCXML-PARSE-022:
+  authority_url: https://www.w3.org/TR/xml/
+  authority_section_or_assertion: "XML encoding declaration and BOM processing"
+  normative_text_summary: "UTF-16 XML with its BOM parses correctly and preserves Unicode identifiers."
+  positive_partitions: "UTF-16 LE with BOM, Unicode state ID"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "caller stream disposed by test"
+  status: "In Progress"
+SCXML-PARSE-024:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "XML external-entity security boundary"
+  normative_text_summary: "DOCTYPE input is prohibited before an external entity can be acquired."
+  negative_partitions: "external file entity"
+  component_test: "Exhaustive/Parsing/ScxmlParserRequirementsTests.cs"
+  cleanup_or_resource_evidence: "XmlReader and StringReader are disposed in parser harness"
+  status: "In Progress"
+SCXML-XINC-002:
+  authority_url: https://www.w3.org/TR/xinclude/
+  authority_section_or_assertion: "XInclude namespace version recognition"
+  normative_text_summary: "Both supported 2001 and 2003 XInclude namespace forms resolve and splice an included XML resource."
+  positive_partitions: "2001 and 2003 namespace URI forms"
+  component_test: "Exhaustive/Parsing/XIncludeRequirementsTests.cs"
+  cleanup_or_resource_evidence: "reader and acquired resource stream are disposed by the test lifecycle"
+  status: "In Progress"
+SCXML-XINC-006:
+  authority_url: https://www.w3.org/TR/xinclude/
+  authority_section_or_assertion: "XInclude nesting-limit option"
+  normative_text_summary: "A zero configured nesting limit permits a bounded nested include chain."
+  positive_partitions: "zero/unlimited limit with two nested includes"
+  component_test: "Exhaustive/Parsing/XIncludeRequirementsTests.cs"
+  cleanup_or_resource_evidence: "nested reader stack is disposed through the outer XIncludeReader"
+  status: "In Progress"
+SCXML-VALID-001:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML required executable-content properties; public model validation contract"
+  normative_text_summary: "Independent missing required properties produce distinct validation diagnostics."
+  negative_partitions: "assign missing location and value; out-of-range root binding enum"
+  component_test: "Exhaustive/Validation/StateMachineValidationRequirementsTests.cs"
+  status: "In Progress"
+SCXML-VALID-002:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML mutually exclusive executable-content forms"
+  normative_text_summary: "Mutually exclusive send and invoke forms are rejected and cancel requires one ID form."
+  positive_partitions: "send literal event; cancel literal ID"
+  negative_partitions: "send event/eventexpr; cancel neither ID form; cancel literal/expression pair; invoke type/typeexpr; content expr/body; param expr/location"
+  component_test: "Exhaustive/Validation/StateMachineValidationRequirementsTests.cs"
+  status: "In Progress"
+SCXML-VALID-003:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 root initial-state constraints"
+  normative_text_summary: "A root initial transition is invalid when the document declares no root states."
+  negative_partitions: "initial with zero states"
+  component_test: "Exhaustive/Validation/StateMachineValidationRequirementsTests.cs"
+  status: "In Progress"
+SCXML-VALID-004:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "SCXML 1.0 unique state and history identifiers"
+  normative_text_summary: "Duplicate state identifiers must yield a controlled validation error before execution or target resolution."
+  negative_partitions: "two root states with the same explicit identifier"
+  component_test: "Exhaustive/Validation/StateMachineValidationRequirementsTests.cs"
+  status: "Implemented / Failing Product"
+  defect_or_exception: "DEF-SCXML-VALID-004"
+SCXML-XINC-001:
+  authority_url: https://www.w3.org/TR/xinclude/
+  authority_section_or_assertion: "XInclude 1.0 inclusion and URI resolution"
+  normative_text_summary: "Enabled XML inclusion resolves an href once and replaces the include element with acquired XML."
+  positive_partitions: "absolute href, relative href under xml:base, XML parse default, deterministic resolver"
+  negative_partitions: "disabled acquisition pending"
+  component_test: "Exhaustive/Parsing/XIncludeRequirementsTests.cs"
+  cleanup_or_resource_evidence: "source and XInclude readers are disposed; included stream is owned by the reader"
+  status: "In Progress"
+SCXML-XINC-003:
+  authority_url: https://www.w3.org/TR/xinclude/
+  authority_section_or_assertion: "XInclude 1.0 href attribute processing"
+  normative_text_summary: "An include without href fails before external resource acquisition."
+  negative_partitions: "missing href"
+  component_test: "Exhaustive/Parsing/XIncludeRequirementsTests.cs"
+  cleanup_or_resource_evidence: "source and XInclude readers are disposed; counted resolver proves no acquisition"
+  status: "In Progress"
+SCXML-XINC-004:
+  authority_url: https://www.w3.org/TR/xinclude/
+  authority_section_or_assertion: "XInclude 1.0 parse attribute"
+  normative_text_summary: "parse='text' includes bytes as character data, even when the input resembles XML."
+  positive_partitions: "text mode, XML-looking text"
+  negative_partitions: "uppercase unsupported parse value; no resolver acquisition"
+  component_test: "Exhaustive/Parsing/XIncludeRequirementsTests.cs"
+  cleanup_or_resource_evidence: "source and XInclude readers are disposed"
+  status: "In Progress"
+SCXML-XINC-008:
+  authority_url: https://www.w3.org/TR/xinclude/
+  authority_section_or_assertion: "XInclude resource lifecycle under nested acquisition"
+  normative_text_summary: "A successfully acquired included stream is closed once its nested XML reader completes."
+  positive_partitions: "successful included XML stream"
+  component_test: "Exhaustive/Parsing/XIncludeRequirementsTests.cs"
+  cleanup_or_resource_evidence: "tracking acquired stream observes Dispose after reader completion"
+  status: "In Progress"
+SCXML-SER-002:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "XML well-formedness required by SCXML document format"
+  normative_text_summary: "Attribute values serialize as well-formed XML without semantic loss."
+  positive_partitions: "ampersand, less-than, quote, seconds delay, milliseconds delay, send URI and namelist, invoke autoforward"
+  component_test: "Exhaustive/Serialization/ScxmlSerializerRequirementsTests.cs"
+  status: "In Progress"
+SCXML-SER-003:
+  authority_url: https://www.w3.org/TR/scxml/
+  authority_section_or_assertion: "3.2 <scxml>; 3.4 <state>"
+  normative_text_summary: "A serializable SCXML state model round-trips through the public parser with its state identity intact."
+  positive_partitions: "simple state identifier; transition events, targets, and internal type"
+  component_test: "Exhaustive/Serialization/ScxmlSerializerRequirementsTests.cs"
+  end_to_end_test: "minimal state-ID serializer-to-parser semantic round trip"
+  cleanup_or_resource_evidence: "XmlWriter and XmlReader are disposed by independent test seams"
+  status: "In Progress"
