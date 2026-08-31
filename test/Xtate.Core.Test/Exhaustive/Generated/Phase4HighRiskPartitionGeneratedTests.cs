@@ -90,8 +90,8 @@ public sealed class Phase4HighRiskPartitionGeneratedTests
 	compile_notes: GeneratedHostRequirementHarness and durable-store reference model are intentionally unresolved test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Phase4_high_risk_partition_has_exact_authority_oracle(Phase4PartitionCase testCase)
 	{
 		// Arrange

@@ -132,8 +132,8 @@ public sealed class Phase5HighRiskPartitionGeneratedTests
 	compile_notes: GeneratedReliabilityHarness, child-process runner, metrics adapter, and independent reference models are intentionally unresolved test-side infrastructure.
 	generation_status: generated-review-required
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Phase5_high_risk_partition_is_bounded_and_reproducible(Phase5PartitionCase testCase)
 	{
 		// Arrange

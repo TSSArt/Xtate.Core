@@ -130,8 +130,8 @@ public sealed class Phase3DataModelXPathRequirementsGeneratedTests
 	compile_notes: ExplicitDataModelXPathHarness, IndependentXPathOracle, and CompleteTreeSnapshot are intentionally unresolved test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Explicit_data_model_or_xpath_case_has_exact_authority_derived_outcome(ExplicitDataModelXPathCase testCase)
 	{
 		// Arrange

@@ -154,8 +154,8 @@ public sealed class Phase3XPathProbeExplicitGeneratedTests
 	compile_notes: ExplicitXPathProbeHarness, IndependentXPathOracle, and CompleteTreeSnapshot are planned test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task XPath_probe_has_exact_authority_derived_outcome(XPathProbeCase testCase)
 	{
 		// Arrange

@@ -117,8 +117,8 @@ public sealed class Phase5RobustnessReliabilityRequirementsGeneratedTests
 	compile_notes: ExplicitReliabilityHarness, child-process runner, metrics adapter, and independent models are intentionally unresolved test-side helpers.
 	generation_status: generated-review-required
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Explicit_reliability_case_is_bounded_safe_and_reproducible(ExplicitReliabilityCase testCase)
 	{
 		// Arrange

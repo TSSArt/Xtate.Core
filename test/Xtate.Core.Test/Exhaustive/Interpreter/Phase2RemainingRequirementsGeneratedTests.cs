@@ -506,8 +506,8 @@ public sealed class Phase2RemainingRequirementsGeneratedTests
 	target_frameworks_platforms, and compile_notes.  The compact literal table below is the complete
 	per-case metadata representation permitted by runbook section “Parameterized and generated cases”.
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task SCXML_Phase2_requirement_case_has_authority_derived_oracle(GeneratedPhaseTwoCase @case)
 	{
 		// Arrange

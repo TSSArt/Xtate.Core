@@ -142,8 +142,8 @@ public sealed class Phase4HostPersistenceIoSecurityRequirementsGeneratedTests
 	compile_notes: ExplicitHostRequirementHarness, VirtualScheduler, FaultPlan, and ResourceLedger are intentionally unresolved test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Explicit_host_persistence_or_io_case_preserves_contract_and_cleanup(ExplicitHostRequirementCase testCase)
 	{
 		// Arrange

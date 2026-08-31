@@ -99,8 +99,8 @@ public sealed class Phase1ParsingValidationSerializationExplicitGeneratedTests
 	compile_notes: ExplicitScxmlSourceHarness, RecordingXIncludeResolver, and FaultingXmlWriter are planned test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Parsing_validation_and_serialization_case_has_exact_outcome(ScxmlSourceCase testCase)
 	{
 		// Arrange

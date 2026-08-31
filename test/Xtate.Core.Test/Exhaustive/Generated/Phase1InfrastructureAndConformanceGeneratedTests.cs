@@ -59,8 +59,8 @@ public sealed class Phase1InfrastructureAndConformanceGeneratedTests
 	compile_notes: GeneratedInfrastructureHarness and W3cCorpusMapper are intentionally unresolved test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Phase1_infrastructure_or_conformance_case_has_exact_disposition(Phase1Case testCase)
 	{
 		// Arrange

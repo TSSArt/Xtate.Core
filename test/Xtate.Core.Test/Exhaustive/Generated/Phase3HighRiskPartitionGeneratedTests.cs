@@ -116,8 +116,8 @@ public sealed class Phase3HighRiskPartitionGeneratedTests
 	compile_notes: GeneratedDataModelXPathHarness, XPathReferenceOracle, and CompleteXmlTreeSnapshotComparer are intentionally unresolved test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Phase3_high_risk_partition_has_exact_authority_oracle(Phase3PartitionCase testCase)
 	{
 		// Arrange

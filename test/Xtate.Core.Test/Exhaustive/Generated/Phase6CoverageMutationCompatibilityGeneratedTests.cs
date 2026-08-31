@@ -111,8 +111,8 @@ public sealed class Phase6CoverageMutationCompatibilityGeneratedTests
 	compile_notes: PhaseSixEvidenceHarness and immutable campaign-artifact contracts are intentionally unresolved test-side infrastructure; this source must not execute during generation mode.
 	generation_status: generated-review-required
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Phase6_gate_has_exact_pass_and_fail_discriminators(PhaseSixGateCase testCase)
 	{
 		// Arrange

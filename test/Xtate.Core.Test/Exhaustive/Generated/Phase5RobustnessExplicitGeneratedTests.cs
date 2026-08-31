@@ -119,8 +119,8 @@ public sealed class Phase5RobustnessExplicitGeneratedTests
 	compile_notes: RobustnessScenarioHarness, IndependentScxmlModel, and deterministic resource probes are planned test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Robustness_case_satisfies_its_bounded_oracle(RobustnessCase testCase)
 	{
 		// Arrange

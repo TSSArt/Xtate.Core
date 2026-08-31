@@ -1568,7 +1568,7 @@ public sealed class StateMachineValidationRequirementsTests
 	}
 
 	[TestMethod]
-	[DataRow((object)null)]
+	[DataRow((object?)null)]
 	[DataRow("null")]
 	/*
 	CASE-METADATA

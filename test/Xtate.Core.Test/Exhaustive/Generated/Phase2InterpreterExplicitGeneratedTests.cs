@@ -100,8 +100,8 @@ public sealed class Phase2InterpreterExplicitGeneratedTests
 	compile_notes: ExplicitInterpreterScenarioHarness and InterpreterReferenceTrace are planned test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Interpreter_case_matches_its_exact_trace(InterpreterScenarioCase testCase)
 	{
 		// Arrange

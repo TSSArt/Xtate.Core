@@ -104,8 +104,8 @@ public sealed class Phase4HostPersistenceSecurityExplicitGeneratedTests
 	compile_notes: ExplicitHostScenarioHarness, DeterministicRaceGate, and PersistenceReferenceModel are planned test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
-	[DynamicData(nameof(Cases), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(Cases))]
 	public async Task Host_persistence_and_security_case_has_exact_linearized_outcome(HostScenarioCase testCase)
 	{
 		// Arrange

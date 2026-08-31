@@ -201,7 +201,7 @@ public sealed class Phase1RemainingRequirementsGeneratedTests
 	compile_notes: PhaseOneContractHarness and parser-policy fixture generator are intentionally unresolved test-side helpers.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(ParseCases))]
 	public async Task SCXML_PARSE_Matrix_Executes_authority_case(PhaseOneCase @case)
 	{
@@ -300,7 +300,7 @@ public sealed class Phase1RemainingRequirementsGeneratedTests
 	compile_notes: PhaseOneContractHarness provides future instrumented XInclude adapter and resource ledger.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(XIncludeCases))]
 	public async Task SCXML_XINC_Matrix_Executes_authority_case(PhaseOneCase @case)
 	{
@@ -419,7 +419,7 @@ public sealed class Phase1RemainingRequirementsGeneratedTests
 	compile_notes: PhaseOneContractHarness supplies future compiled-model comparison and data-model registry adapter.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(ValidationCases))]
 	public async Task SCXML_VALID_Matrix_Executes_authority_case(PhaseOneCase @case)
 	{
@@ -508,7 +508,7 @@ public sealed class Phase1RemainingRequirementsGeneratedTests
 	compile_notes: PhaseOneContractHarness provides future route-equivalence canonicalizer and faulting writer adapter.
 	generation_status: generated-uncompiled
 	*/
-	[DataTestMethod]
+	[TestMethod]
 	[DynamicData(nameof(SerializationCases))]
 	public async Task SCXML_SER_Matrix_Executes_authority_case(PhaseOneCase @case)
 	{
