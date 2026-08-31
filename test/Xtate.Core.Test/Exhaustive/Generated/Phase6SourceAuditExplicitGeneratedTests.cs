@@ -30,7 +30,7 @@ public sealed class Phase6SourceAuditExplicitGeneratedTests
 			Source: "/* TEST-METADATA test_id: DUP */ [TestMethod] void A(){} /* TEST-METADATA test_id: DUP */ [TestMethod] void B(){}", ["TEST-ID-DUPLICATE"]),
 		new(
 			CaseId: "PHASE6-CASE-001-CASE-001", RequirementIds: "PHASE6-CASE-001", Description: "A DynamicData case factory derived only from GeneratedRequirementCase.For is rejected.",
-			Source: "[TestMethod][DynamicData(nameof(Cases))] void M(Case c){} IEnumerable<object[]> Cases()=>Ids.Select(id=>new object[]{GeneratedRequirementCase.For(id)});",
+			Source: "/* TEST-METADATA test_id: CASE; expected: generated cases have explicit records; forbidden: identifier-only factory */ [TestMethod][DynamicData(nameof(Cases))] void M(Case c){} IEnumerable<object[]> Cases()=>Ids.Select(id=>new object[]{GeneratedRequirementCase.For(id)});",
 			["CASE-ID-ONLY-FACTORY"]),
 		new(
 			CaseId: "PHASE6-ORACLE-001-CASE-001", RequirementIds: "PHASE6-ORACLE-001",
