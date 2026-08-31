@@ -70,7 +70,6 @@ public sealed class XIncludeRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-XINC-001: disabled inclusion still invokes the resolver.")]
 	public void SCXML_XINC_001_Disabled_inclusion_does_not_acquire_external_resources()
 	{
 		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><xi:include href=\"https://fixtures.invalid/disabled.xml\" /></scxml>";
@@ -405,7 +404,6 @@ public sealed class XIncludeRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-XINC-006: finite nesting limit does not reject an over-bound acyclic include chain.")]
 	public void SCXML_XINC_006_Finite_nesting_limit_rejects_the_first_include_beyond_the_bound()
 	{
 		const string includeNamespace = "http://www.w3.org/2001/XInclude";
@@ -610,7 +608,6 @@ public sealed class XIncludeRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-XINC-003: in-document fragment href is not rejected")]
 	public void SCXML_XINC_003_In_document_fragment_href_fails_without_external_acquisition()
 	{
 		const string source = "<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" xmlns:xi=\"http://www.w3.org/2001/XInclude\"><state id=\"local\" /><xi:include href=\"#local\" /></scxml>";

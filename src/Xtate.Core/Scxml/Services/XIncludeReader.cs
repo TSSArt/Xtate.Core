@@ -153,7 +153,7 @@ public class XIncludeReader : DelegatedXmlReader
 			case XmlNodeType.DocumentFragment:
 				return _sourceReaders?.Count > 0 ? ProcessNodeResult.Continue : ProcessNodeResult.Ready;
 
-			case XmlNodeType.Element when IsIncludeElement():
+			case XmlNodeType.Element when IsIncludeElement() && XIncludeOptions?.XIncludeAllowed == true:
 				var result = await ProcessIncludeElement(useAsync).ConfigureAwait(false);
 
 				return result ? ProcessNodeResult.Ready : ProcessNodeResult.Complete;
@@ -213,7 +213,7 @@ public class XIncludeReader : DelegatedXmlReader
 	{
 		ExtractIncludeElementAttributes();
 
-		if (string.IsNullOrEmpty(_hrefValue))
+		if (string.IsNullOrEmpty(_hrefValue) || _hrefValue[0] == '#')
 		{
 			throw new XIncludeException(Resources.Exception_IndocumentReferencesNotSupported, InnerReader);
 		}
@@ -307,6 +307,8 @@ public class XIncludeReader : DelegatedXmlReader
 
 	private async ValueTask<bool> ProcessInterDocXmlInclusion(Uri uri, bool useAsync)
 	{
+		EnsureNestingLevel();
+
 		var resource = await LoadAcquiredData(uri, useAsync).ConfigureAwait(false);
 		var stream = await resource.GetStream(true).ConfigureAwait(false);
 		var reader = Create(stream, GetXmlReaderSettings(useAsync), uri.ToString());
@@ -328,16 +330,19 @@ public class XIncludeReader : DelegatedXmlReader
 		return settings;
 	}
 
-	private void PushInnerReader(XmlReader newInnerReader)
+	private void EnsureNestingLevel()
 	{
-		_sourceReaders ??= new Stack<XmlReader>();
-
 		var maxNestingLevel = XIncludeOptions?.MaxNestingLevel ?? 0;
 
-		if (maxNestingLevel > 0 && _sourceReaders.Count > maxNestingLevel)
+		if (maxNestingLevel > 0 && (_sourceReaders?.Count ?? 0) >= maxNestingLevel)
 		{
 			throw new XIncludeException(Resources.Exception_NestingReachedLevelInclusion, InnerReader);
 		}
+	}
+
+	private void PushInnerReader(XmlReader newInnerReader)
+	{
+		_sourceReaders ??= new Stack<XmlReader>();
 
 		_sourceReaders.Push(InnerReader);
 
@@ -346,6 +351,8 @@ public class XIncludeReader : DelegatedXmlReader
 
 	private async ValueTask<bool> ProcessInterDocTextInclusion(Uri uri, bool useAsync)
 	{
+		EnsureNestingLevel();
+
 		var resource = await LoadAcquiredData(uri, useAsync).ConfigureAwait(false);
 
 		var content = IsXml(resource)

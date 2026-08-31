@@ -692,7 +692,16 @@ namespace Xtate {
                 return ResourceManager.GetString("ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to State identifiers must be unique..
+        /// </summary>
+        internal static string ErrorMessage_StateIdentifiersMustBeUnique {
+            get {
+                return ResourceManager.GetString("ErrorMessage_StateIdentifiersMustBeUnique", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Must be present Event or EventExpression or Content in Send element..
         /// </summary>

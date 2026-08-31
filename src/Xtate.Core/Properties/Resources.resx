@@ -321,6 +321,9 @@
   <data name="ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement" xml:space="preserve">
     <value>Must be present at least Event or Condition or Target in Transition element.</value>
   </data>
+  <data name="ErrorMessage_StateIdentifiersMustBeUnique" xml:space="preserve">
+    <value>State identifiers must be unique.</value>
+  </data>
   <data name="Exception_ValueCannotBeParsed" xml:space="preserve">
     <value>Value cannot be parsed for type {0}.</value>
   </data>

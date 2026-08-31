@@ -177,7 +177,6 @@ public sealed class ScxmlSerializerRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-SER-001: serializer omits public model properties.")]
 	public void SCXML_SER_001_Preserves_every_public_assign_property_including_xpath_type_and_attr()
 	{
 		var assign = new AssignEntity
@@ -306,7 +305,6 @@ public sealed class ScxmlSerializerRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-SER-002: inline payload text is not XML-escaped")]
 	public void SCXML_SER_002_Preserves_xml_significant_inline_payload_text()
 	{
 		var machine = new StateMachineEntity

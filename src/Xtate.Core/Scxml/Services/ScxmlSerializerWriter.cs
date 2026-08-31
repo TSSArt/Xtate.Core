@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.IO;
 using System.Xml;
 using Xtate.Ancestor.Extensions;
 using Xtate.StateMachine;
@@ -26,6 +27,10 @@ namespace Xtate.Scxml.Services;
 public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 {
 	private const string Space = " ";
+
+	private static readonly char[] XmlChars = ['<', '&', ']'];
+
+	private static readonly XmlReaderSettings WriteInlineContentSettings = new() { ConformanceLevel = ConformanceLevel.Fragment, DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
 
 	public void Serialize(IStateMachine stateMachine) => Visit(ref stateMachine);
 
@@ -238,6 +243,29 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 			writer.WriteString(converter(item));
 
 			writeDelimiter = true;
+		}
+	}
+
+	private void WriteInlineContent(string value)
+	{
+		try
+		{
+			if (value.IndexOfAny(XmlChars) >= 0)
+			{
+				using var reader = XmlReader.Create(new StringReader(value), WriteInlineContentSettings);
+
+				while (reader.Read()) { }
+			}
+			else
+			{
+				XmlConvert.VerifyXmlChars(value);
+			}
+
+			writer.WriteRaw(value);
+		}
+		catch (XmlException)
+		{
+			writer.WriteString(value);
 		}
 	}
 
@@ -473,6 +501,16 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 			writer.WriteAttributeString(localName: "expr", expression);
 		}
 
+		if (entity.Type is { } type)
+		{
+			writer.WriteAttributeString(localName: "type", type);
+		}
+
+		if (entity.Attribute is { } attribute)
+		{
+			writer.WriteAttributeString(localName: "attr", attribute);
+		}
+
 		base.Visit(ref entity);
 
 		writer.WriteEndElement();
@@ -639,7 +677,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 
 		if (entity.Value is { } value)
 		{
-			writer.WriteRaw(value);
+			WriteInlineContent(value);
 		}
 	}
 
@@ -649,7 +687,7 @@ public class ScxmlSerializerWriter(XmlWriter writer) : StateMachineVisitor
 
 		if (entity.Value is { } value)
 		{
-			writer.WriteRaw(value);
+			WriteInlineContent(value);
 		}
 	}
 

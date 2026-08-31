@@ -22,6 +22,8 @@ namespace Xtate.StateMachine.Validator.Services;
 [InstantiatedByIoC]
 public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 {
+	private readonly HashSet<string> _stateIdentifiers = [];
+
 	public required IErrorProcessorService<StateMachineValidator> ErrorProcessorService { private get; [SetByIoC] init; }
 
 #region Interface IStateMachineValidator
@@ -29,6 +31,14 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 	public virtual void Validate(IStateMachine stateMachine) => Visit(ref stateMachine);
 
 #endregion
+
+	private void ValidateStateIdentifier(IEntity entity, IIdentifier? identifier)
+	{
+		if (identifier is not null && !_stateIdentifiers.Add(identifier.Value))
+		{
+			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_StateIdentifiersMustBeUnique);
+		}
+	}
 
 	protected override void Visit(ref IAssign entity)
 	{
@@ -207,6 +217,8 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IHistory entity)
 	{
+		ValidateStateIdentifier(entity, entity.Id);
+
 		if (entity.Transition is null)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_TransitionMustBePresentInHistoryElement);
@@ -380,6 +392,8 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IStateMachine entity)
 	{
+		_stateIdentifiers.Clear();
+
 		if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InitialStatePropertyCannotBeUsedWithoutAnyStates);
@@ -395,10 +409,26 @@ public class StateMachineValidator : StateMachineVisitor, IStateMachineValidator
 
 	protected override void Visit(ref IState entity)
 	{
+		ValidateStateIdentifier(entity, entity.Id);
+
 		if (entity.Initial is not null && entity.States.IsDefaultOrEmpty)
 		{
 			ErrorProcessorService.AddError(entity, Resources.ErrorMessage_InitialStatePropertyCanBeUsedOnlyInComplexStates);
 		}
+
+		base.Visit(ref entity);
+	}
+
+	protected override void Visit(ref IParallel entity)
+	{
+		ValidateStateIdentifier(entity, entity.Id);
+
+		base.Visit(ref entity);
+	}
+
+	protected override void Visit(ref IFinal entity)
+	{
+		ValidateStateIdentifier(entity, entity.Id);
 
 		base.Visit(ref entity);
 	}

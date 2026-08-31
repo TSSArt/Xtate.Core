@@ -989,7 +989,6 @@ public sealed class StateMachineValidationRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-VALID-004: duplicate state identifiers are not diagnosed.")]
 	public void SCXML_VALID_004_Rejects_duplicate_state_identifiers()
 	{
 		var model = new StateMachineEntity
@@ -1569,9 +1568,8 @@ public sealed class StateMachineValidationRequirementsTests
 	}
 
 	[TestMethod]
-	[Ignore("Product defect DEF-SCXML-VALID-009: the built-in SCXML data-model identifiers fail runtime handler construction.")]
-	[DataRow("scxml")]
-	[DataRow("http://www.w3.org/TR/scxml/")]
+	[DataRow((object)null)]
+	[DataRow("null")]
 	/*
 	CASE-METADATA
 	cases:
@@ -1620,9 +1618,10 @@ public sealed class StateMachineValidationRequirementsTests
 	compile_notes: none
 	generation_status: existing-annotated
 	*/
-	public async Task SCXML_VALID_009_Supported_data_model_type_and_alias_execute(string dataModelType)
+	public async Task SCXML_VALID_009_Supported_data_model_type_and_alias_execute(string? dataModelType)
 	{
-		var xml = $"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\" datamodel=\"{dataModelType}\"><final id=\"done\" /></scxml>";
+		var dataModelAttribute = dataModelType is null ? string.Empty : $" datamodel=\"{dataModelType}\"";
+		var xml = $"<scxml xmlns=\"http://www.w3.org/2005/07/scxml\" version=\"1.0\"{dataModelAttribute}><final id=\"done\" /></scxml>";
 
 		try
 		{
@@ -1630,7 +1629,7 @@ public sealed class StateMachineValidationRequirementsTests
 		}
 		catch (Exception exception)
 		{
-			Assert.Fail($"SCXML-VALID-009: supported data-model '{dataModelType}' was rejected: {exception.GetType().Name}: {exception.Message}");
+			Assert.Fail($"SCXML-VALID-009: supported data-model '{dataModelType ?? "default"}' was rejected: {exception.GetType().Name}: {exception.Message}");
 		}
 	}
 
