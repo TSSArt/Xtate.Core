@@ -175,16 +175,13 @@ public sealed class Phase4HighRiskPartitionGeneratedTests
 				CaseId: "IO-HTTP-014-CASE-101", Expected: "Byte limit accepts N and rejects N+1 before dispatch", Forbidden: "No character sizing, partial dispatch, or retained stream.")
 		],
 		[
-			new Phase4PartitionCase(
-				CaseId: "IO-PIPE-004-CASE-101", Expected: "Bounded valid decode and controlled invalid-frame error", Forbidden: "No dangerous allocation, pool residue, or crash.")
+			new Phase4PartitionCase(CaseId: "IO-PIPE-004-CASE-101", Expected: "Bounded valid decode and controlled invalid-frame error", Forbidden: "No dangerous allocation, pool residue, or crash.")
 		],
 		[
-			new Phase4PartitionCase(
-				CaseId: "RES-SEC-001-CASE-101", Expected: "Denied acquisition makes zero provider calls", Forbidden: "No escalation, cache bypass, or retained buffer.")
+			new Phase4PartitionCase(CaseId: "RES-SEC-001-CASE-101", Expected: "Denied acquisition makes zero provider calls", Forbidden: "No escalation, cache bypass, or retained buffer.")
 		],
 		[
-			new Phase4PartitionCase(
-				CaseId: "PERSIST-SUSP-006-CASE-101", Expected: "Recover last committed snapshot and replay once", Forbidden: "No hybrid, duplicate/lost send, or leaked lock.")
+			new Phase4PartitionCase(CaseId: "PERSIST-SUSP-006-CASE-101", Expected: "Recover last committed snapshot and replay once", Forbidden: "No hybrid, duplicate/lost send, or leaked lock.")
 		]
 	];
 

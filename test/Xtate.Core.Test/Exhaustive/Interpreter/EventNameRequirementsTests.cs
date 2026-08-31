@@ -228,26 +228,23 @@ public sealed class EventNameRequirementsTests
 		Assert.AreNotEqual(EventName.ErrorCommunication, EventName.ErrorPlatform);
 	}
 
-	public static IEnumerable<object[]> EventDescriptorCases()
-	{
-		return
-		[
-			Case(eventName: "alpha", descriptors: "alpha", expected: true),
-				   Case(eventName: "alpha.beta", descriptors: "alpha", expected: true),
-				   Case(eventName: "alpha.beta", descriptors: "alpha.beta", expected: true),
-				   Case(eventName: "alpha.beta.gamma", descriptors: "alpha.beta", expected: true),
-				   Case(eventName: "alpha.beta.gamma", descriptors: "alpha.*", expected: true),
-				   Case(eventName: "alpha.beta.gamma", descriptors: "alpha.", expected: true),
-				   Case(eventName: "alpha.beta.gamma", descriptors: "*", expected: true),
-				   Case(eventName: "alpha.beta", descriptors: "alpha.gamma", expected: false),
-				   Case(eventName: "alpha", descriptors: "alphabet", expected: false),
-				   Case(eventName: "alpha.beta", descriptors: "Alpha", expected: false),
-				   Case(eventName: "CAFÉ", descriptors: "café", expected: false),
-				   Case(eventName: "cafe\u0301", descriptors: "café", expected: false),
-				   Case(eventName: "alpha", descriptors: "", expected: false),
-				   Case(eventName: "alpha", descriptors: " ", expected: false)
-		];
-	}
+	public static IEnumerable<object[]> EventDescriptorCases() =>
+	[
+		Case(eventName: "alpha", descriptors: "alpha", expected: true),
+		Case(eventName: "alpha.beta", descriptors: "alpha", expected: true),
+		Case(eventName: "alpha.beta", descriptors: "alpha.beta", expected: true),
+		Case(eventName: "alpha.beta.gamma", descriptors: "alpha.beta", expected: true),
+		Case(eventName: "alpha.beta.gamma", descriptors: "alpha.*", expected: true),
+		Case(eventName: "alpha.beta.gamma", descriptors: "alpha.", expected: true),
+		Case(eventName: "alpha.beta.gamma", descriptors: "*", expected: true),
+		Case(eventName: "alpha.beta", descriptors: "alpha.gamma", expected: false),
+		Case(eventName: "alpha", descriptors: "alphabet", expected: false),
+		Case(eventName: "alpha.beta", descriptors: "Alpha", expected: false),
+		Case(eventName: "CAFÉ", descriptors: "café", expected: false),
+		Case(eventName: "cafe\u0301", descriptors: "café", expected: false),
+		Case(eventName: "alpha", descriptors: "", expected: false),
+		Case(eventName: "alpha", descriptors: " ", expected: false)
+	];
 
 	private static object[] Case(string eventName, string descriptors, bool expected) => [eventName, descriptors, expected];
 }

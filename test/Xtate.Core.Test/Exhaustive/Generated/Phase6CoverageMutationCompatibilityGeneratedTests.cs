@@ -248,12 +248,10 @@ public sealed class Phase6CoverageMutationCompatibilityGeneratedTests
 				Forbidden: "No imported fixture may be the sole normative witness.")
 		],
 		[
-			new PhaseSixGateCase(
-				CaseId: "PHASE6-CRITICAL-COVERAGE-CASE-001", ExpectedDecision: "pass 100.00%; fail 99.99%", Forbidden: "No rounding may pass below 100% critical coverage.")
+			new PhaseSixGateCase(CaseId: "PHASE6-CRITICAL-COVERAGE-CASE-001", ExpectedDecision: "pass 100.00%; fail 99.99%", Forbidden: "No rounding may pass below 100% critical coverage.")
 		],
 		[
-			new PhaseSixGateCase(
-				CaseId: "PHASE6-OTHER-COVERAGE-CASE-001", ExpectedDecision: "pass 95.00%; fail 94.99%", Forbidden: "No non-critical threshold may apply to critical code.")
+			new PhaseSixGateCase(CaseId: "PHASE6-OTHER-COVERAGE-CASE-001", ExpectedDecision: "pass 95.00%; fail 94.99%", Forbidden: "No non-critical threshold may apply to critical code.")
 		],
 		[
 			new PhaseSixGateCase(
@@ -262,8 +260,7 @@ public sealed class Phase6CoverageMutationCompatibilityGeneratedTests
 		],
 		[new PhaseSixGateCase(CaseId: "PHASE6-RESOURCE-GATE-CASE-001", ExpectedDecision: "fail retained timer on net8", Forbidden: "No nonzero owned-resource ledger may pass.")],
 		[
-			new PhaseSixGateCase(
-				CaseId: "PHASE6-PLATFORM-GATE-CASE-001", ExpectedDecision: "fail missing net8 supported-Unix lane", Forbidden: "No successful lane may substitute for an absent lane.")
+			new PhaseSixGateCase(CaseId: "PHASE6-PLATFORM-GATE-CASE-001", ExpectedDecision: "fail missing net8 supported-Unix lane", Forbidden: "No successful lane may substitute for an absent lane.")
 		],
 		[
 			new PhaseSixGateCase(

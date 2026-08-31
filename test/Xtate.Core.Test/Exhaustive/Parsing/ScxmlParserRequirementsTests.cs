@@ -2873,7 +2873,7 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-	//[Ignore("Product defect DEF-SCXML-PARSE-021: malformed XML can return a partial model.")]
+
 	public async Task SCXML_PARSE_019_Tokenizes_initial_target_event_and_namelist_on_xml_whitespace()
 	{
 		var result = await ScxmlParserHarness.ParseAsync(
@@ -3094,7 +3094,7 @@ public sealed class ScxmlParserRequirementsTests
 		var output = new StringBuilder();
 
 		// ReSharper disable once UseAwaitUsing
-		using (var writer = XmlWriter.Create(output, new XmlWriterSettings { OmitXmlDeclaration = true}))
+		using (var writer = XmlWriter.Create(output, new XmlWriterSettings { OmitXmlDeclaration = true }))
 		{
 			new ScxmlSerializerWriter(writer).Serialize(parsed.Model!);
 		}

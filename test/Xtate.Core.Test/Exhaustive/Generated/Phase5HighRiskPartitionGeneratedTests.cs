@@ -211,8 +211,7 @@ public sealed class Phase5HighRiskPartitionGeneratedTests
 				CaseId: "PROP-CONFIG-001-CASE-101", Expected: "Exact reference trace and reproducible artifact", Forbidden: "No differential mismatch, session leak, or missing seed.")
 		],
 		[
-			new Phase5PartitionCase(
-				CaseId: "FAULT-STORE-001-CASE-101", Expected: "Primary fault plus exact cleanup", Forbidden: "No swallowed fault, later side effect, or leaked resource.")
+			new Phase5PartitionCase(CaseId: "FAULT-STORE-001-CASE-101", Expected: "Primary fault plus exact cleanup", Forbidden: "No swallowed fault, later side effect, or leaked resource.")
 		],
 		[
 			new Phase5PartitionCase(

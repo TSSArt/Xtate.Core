@@ -246,12 +246,10 @@ public sealed class Phase3HighRiskPartitionGeneratedTests
 		],
 		[new Phase3PartitionCase(CaseId: "XPATH-FOREACH-001-CASE-101", Expected: "One-based shallow-copy iteration", Forbidden: "No zero-based index or scope leak.")],
 		[
-			new Phase3PartitionCase(
-				CaseId: "XPATH-CONTENT-004-CASE-101", Expected: "Content fidelity and cached failure", Forbidden: "No truncation, repeated acquisition, or retained stream.")
+			new Phase3PartitionCase(CaseId: "XPATH-CONTENT-004-CASE-101", Expected: "Content fidelity and cached failure", Forbidden: "No truncation, repeated acquisition, or retained stream.")
 		],
 		[
-			new Phase3PartitionCase(
-				CaseId: "DM-PROP-003-CASE-101", Expected: "Mutation differential with reproducible seed", Forbidden: "No mismatch, partial mutation, or missing reproducer.")
+			new Phase3PartitionCase(CaseId: "DM-PROP-003-CASE-101", Expected: "Mutation differential with reproducible seed", Forbidden: "No mismatch, partial mutation, or missing reproducer.")
 		]
 	];
 

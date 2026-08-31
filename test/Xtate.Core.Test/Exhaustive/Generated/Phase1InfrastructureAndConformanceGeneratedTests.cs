@@ -103,8 +103,7 @@ public sealed class Phase1InfrastructureAndConformanceGeneratedTests
 				Forbidden: "No production-oracle reuse, nondeterminism, or leak.")
 		],
 		[
-			new Phase1Case(
-				CaseId: "W3C-SCXML-MAP-001-CASE-101", Expected: "One explicit disposition per corpus item", Forbidden: "No unmapped/silently skipped fixture or execution claim.")
+			new Phase1Case(CaseId: "W3C-SCXML-MAP-001-CASE-101", Expected: "One explicit disposition per corpus item", Forbidden: "No unmapped/silently skipped fixture or execution claim.")
 		]
 	];
 

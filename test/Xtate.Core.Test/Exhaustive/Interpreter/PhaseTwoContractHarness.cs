@@ -54,7 +54,7 @@ internal sealed class PhaseTwoContractScope : IAsyncDisposable
 
 #endregion
 
-	[SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Global")]
+	[SuppressMessage(category: "ReSharper", checkId: "ParameterOnlyUsedForPreconditionCheck.Global")]
 	public Task<PhaseTwoObservation> ExecuteAsync(string stimulus, int operationBound)
 	{
 		if (string.IsNullOrWhiteSpace(stimulus)) throw new ArgumentException(message: @"A stimulus is required.", nameof(stimulus));
