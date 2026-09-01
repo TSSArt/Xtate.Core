@@ -66,7 +66,7 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 
 		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, newHandle) is { } oldHandle)
 		{
-			oldHandle.Unregister(WaitingSemaphore);
+			oldHandle.Unregister(waitObject: null);
 		}
 	}
 
@@ -81,7 +81,7 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 	{
 		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, value: null) is { } oldHandle)
 		{
-			oldHandle.Unregister(WaitingSemaphore);
+			oldHandle.Unregister(waitObject: null);
 		}
 	}
 

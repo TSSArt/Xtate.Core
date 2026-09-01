@@ -29,7 +29,7 @@ internal static class TaskPolyfills
 				? task
 				: token.IsCancellationRequested
 					? Task.FromCanceled(token)
-					: task.ContinueWith(_ => { }, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+					: task.ContinueWith(t => t.GetAwaiter().GetResult(), token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
 	}
 
 	extension<TResult>(Task<TResult> task)
@@ -39,7 +39,7 @@ internal static class TaskPolyfills
 				? task
 				: token.IsCancellationRequested
 					? Task.FromCanceled<TResult>(token)
-					: task.ContinueWith(t => t.Result, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+					: task.ContinueWith(t => t.GetAwaiter().GetResult(), token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
 	}
 }
 

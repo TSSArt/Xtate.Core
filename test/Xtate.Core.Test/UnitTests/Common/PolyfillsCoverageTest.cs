@@ -120,6 +120,85 @@ public class PolyfillsCoverageTest
 
 		// ReSharper restore AccessToDisposedClosure
 	}
+
+	[TestMethod]
+	public async Task Net462TaskWaitAsyncDoesNotCaptureCurrentScheduler()
+	{
+		var schedulerPair = new ConcurrentExclusiveSchedulerPair(TaskScheduler.Default, maxConcurrencyLevel: 1);
+		var source = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		using var started = new ManualResetEventSlim(initialState: false);
+		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+		var waiter = Task.Factory.StartNew(() =>
+										   {
+											   started.Set();
+											   source.Task.WaitAsync(timeout.Token).GetAwaiter().GetResult();
+										   },
+										   CancellationToken.None,
+										   TaskCreationOptions.None,
+										   schedulerPair.ExclusiveScheduler);
+
+		Assert.IsTrue(started.Wait(TimeSpan.FromSeconds(5)));
+		source.SetResult();
+		await waiter;
+	}
+
+	[TestMethod]
+	public async Task Net462TaskWaitAsyncPreservesAntecedentExceptions()
+	{
+		using var cancellation = new CancellationTokenSource();
+		var nonGenericSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var genericSource = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var nonGenericWait = nonGenericSource.Task.WaitAsync(cancellation.Token);
+		var genericWait = genericSource.Task.WaitAsync(cancellation.Token);
+
+		nonGenericSource.SetException(new InvalidOperationException("non-generic"));
+		genericSource.SetException(new InvalidOperationException("generic"));
+
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await nonGenericWait);
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await genericWait);
+	}
+
+	[TestMethod]
+	public async Task Net462TaskWaitAsyncMatchesRuntimeCompletionAndCancellationPrecedence()
+	{
+		using var alreadyCanceled = new CancellationTokenSource();
+		alreadyCanceled.Cancel();
+		var completed = Task.CompletedTask;
+		var completedGeneric = Task.FromResult(42);
+
+		Assert.AreSame(completed, completed.WaitAsync(alreadyCanceled.Token));
+		Assert.AreSame(completedGeneric, completedGeneric.WaitAsync(alreadyCanceled.Token));
+
+		var pending = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var pendingGeneric = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var canceledWait = pending.Task.WaitAsync(alreadyCanceled.Token);
+		var canceledGenericWait = pendingGeneric.Task.WaitAsync(alreadyCanceled.Token);
+		var canceledException = await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await canceledWait);
+		var canceledGenericException = await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await canceledGenericWait);
+
+		Assert.AreEqual(alreadyCanceled.Token, canceledException.CancellationToken);
+		Assert.AreEqual(alreadyCanceled.Token, canceledGenericException.CancellationToken);
+	}
+
+	[TestMethod]
+	public async Task Net462TaskWaitAsyncPreservesSourceCancellationTokenAndGenericResult()
+	{
+		using var waitCancellation = new CancellationTokenSource();
+		using var sourceCancellation = new CancellationTokenSource();
+		sourceCancellation.Cancel();
+		var source = Task.FromCanceled<int>(sourceCancellation.Token);
+		var wait = source.WaitAsync(waitCancellation.Token);
+		var canceledException = await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await wait);
+
+		Assert.AreEqual(sourceCancellation.Token, canceledException.CancellationToken);
+
+		var successfulSource = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var successfulWait = successfulSource.Task.WaitAsync(waitCancellation.Token);
+		successfulSource.SetResult(42);
+
+		Assert.AreEqual(expected: 42, await successfulWait);
+	}
 #endif
 
 	private static void AssertWrites(bool value, int size, byte[] expected)
