@@ -29,7 +29,7 @@ internal static class HttpContentPolyfills
 
 		public Task<Stream> ReadAsStreamAsync(CancellationToken token)
 		{
-			token.ThrowIfCancellationRequested();
+			_ = token; // Drop CT for compatibility
 
 			return httpContent.ReadAsStreamAsync();
 		}

@@ -66,9 +66,7 @@ public class DelegatedStreamCoverageTest
 		stream.Position = 0;
 		stream.CopyTo(copied, bufferSize: 16);
 		CollectionAssert.AreEqual(new byte[] { 9, 8, 3 }, copied.ToArray());
-#if NET462
 		Assert.IsTrue(stream.CopyToCalled);
-#endif
 
 		stream.Position = 0;
 		var spanBuffer = new byte[2];
@@ -150,17 +148,15 @@ public class DelegatedStreamCoverageTest
 
 	private sealed class TestDelegatedStream(Stream innerStream) : DelegatedStream(innerStream)
 	{
-		public void DisposeCore(bool disposing) => Dispose(disposing);
-
-#if NET462
 		public bool CopyToCalled { get; private set; }
+
+		public void DisposeCore(bool disposing) => Dispose(disposing);
 
 		public override void CopyTo(Stream destination, int bufferSize)
 		{
 			CopyToCalled = true;
 			base.CopyTo(destination, bufferSize);
 		}
-#endif
 	}
 
 	private sealed class ProbeStream : MemoryStream

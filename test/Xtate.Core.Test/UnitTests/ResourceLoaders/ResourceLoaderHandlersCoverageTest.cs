@@ -20,6 +20,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Threading;
 using Xtate.Interpreter;
 using Xtate.IoBoundTask;
@@ -29,9 +30,6 @@ using Xtate.ResourceLoaders.File.Services;
 using Xtate.ResourceLoaders.Resx.Services;
 using Xtate.ResourceLoaders.Services;
 using Xtate.ResourceLoaders.Web.Services;
-#if NET8_0_OR_GREATER
-using System.Reflection;
-#endif
 
 namespace Xtate.Core.Test.UnitTests.ResourceLoaders;
 

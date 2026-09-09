@@ -83,15 +83,6 @@ public class StateMachineDestroyOnIdleCoverageTest
 			StateMachineInterpreterFactory = () => new ValueTask<IStateMachineInterpreter>(interpreter)
 		};
 
-	private sealed record DestroyOnIdleTimeout(TimeSpan IdleTimeout) : IDestroyOnIdleTimeout;
-
-	private sealed class InvocationCounter
-	{
-		public int Count { get; set; }
-	}
-
-#if NET5_0_OR_GREATER
-
 	[TestMethod]
 	public async Task ZeroIdleTimeoutTriggersInterpreterDestroySignal()
 	{
@@ -136,5 +127,10 @@ public class StateMachineDestroyOnIdleCoverageTest
 		Assert.AreSame(failure, loggedException);
 	}
 
-#endif
+	private sealed record DestroyOnIdleTimeout(TimeSpan IdleTimeout) : IDestroyOnIdleTimeout;
+
+	private sealed class InvocationCounter
+	{
+		public int Count { get; set; }
+	}
 }

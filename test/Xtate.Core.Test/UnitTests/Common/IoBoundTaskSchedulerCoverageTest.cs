@@ -27,61 +27,153 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class IoBoundTaskSchedulerCoverageTest
 {
 	[TestMethod]
-	public async Task SchedulerQueuesBehindConcurrencyLimitExposesQueueAndNeverExecutesInline()
+	public async Task SchedulerHonorsConcurrencyLimitExposesQueueAndRecoversWorkerSlots()
 	{
-		var scheduler = new IoBoundTaskScheduler(maximumConcurrencyLevel: 1);
+		var scheduler = new IoBoundTaskScheduler(maximumConcurrencyLevel: 2);
 		var factory = new TaskFactory(scheduler);
-		using var started = new ManualResetEventSlim(initialState: false);
 		using var release = new ManualResetEventSlim(initialState: false);
-		var executionThreads = new List<int>();
-		var first = factory.StartNew(() =>
-									 {
-										 lock (executionThreads)
-										 {
-											 executionThreads.Add(Environment.CurrentManagedThreadId);
-										 }
+		using var firstTwoStarted = new CountdownEvent(initialCount: 2);
+		var startedCount = 0;
+		var runningCount = 0;
+		var peakConcurrency = 0;
+		var tasks = Enumerable.Range(start: 0, count: 8)
+							  .Select(_ => factory.StartNew(() =>
+															{
+																var running = Interlocked.Increment(ref runningCount);
+																UpdateMaximum(ref peakConcurrency, running);
 
-										 started.Set();
-										 release.Wait();
-									 });
+																if (Interlocked.Increment(ref startedCount) <= 2)
+																{
+																	firstTwoStarted.Signal();
+																}
 
-		Assert.IsTrue(started.Wait(TimeSpan.FromSeconds(5)), message: "The first scheduler worker did not start.");
-		var second = factory.StartNew(() =>
-									  {
-										  lock (executionThreads)
-										  {
-											  executionThreads.Add(Environment.CurrentManagedThreadId);
-										  }
-									  });
+																try
+																{
+																	release.Wait();
+																}
+																finally
+																{
+																	Interlocked.Decrement(ref runningCount);
+																}
+															}))
+							  .ToArray();
 
 		try
 		{
+			Assert.IsTrue(firstTwoStarted.Wait(TimeSpan.FromSeconds(5)), message: "The scheduler did not reach its configured concurrency.");
 			var scheduled = GetScheduledTasks(scheduler);
-			Assert.IsTrue(scheduled.Contains(second));
-			Assert.IsFalse(TryExecuteInline(scheduler, second));
-			Assert.AreEqual(expected: 1, scheduler.MaximumConcurrencyLevel);
-			Assert.AreEqual(TimeSpan.FromSeconds(5), IoBoundTaskScheduler.KeepAliveThreadTimeout);
+			Assert.IsTrue(scheduled.Length >= 6, message: "Tasks beyond the concurrency limit should remain visible to the debugger snapshot.");
+			Assert.IsFalse(TryExecuteInline(scheduler, tasks[^1]), message: "A thread outside this scheduler must not inline its tasks.");
+			Assert.AreEqual(expected: 2, scheduler.MaximumConcurrencyLevel);
 		}
 		finally
 		{
 			release.Set();
 		}
 
-		await Task.WhenAll(first, second);
-		Assert.HasCount(expected: 2, executionThreads);
+		await CompletesWithin(Task.WhenAll(tasks), TimeSpan.FromSeconds(5));
+		Assert.AreEqual(expected: 2, peakConcurrency);
+		Assert.AreEqual(expected: 8, startedCount);
 		Assert.IsFalse(GetScheduledTasks(scheduler).Any());
+
+		var afterDrain = factory.StartNew(() =>
+											  (ThreadId: Environment.CurrentManagedThreadId, Thread.CurrentThread.IsThreadPoolThread, Thread.CurrentThread.IsBackground));
+		var worker = await CompletesWithin(afterDrain, TimeSpan.FromSeconds(5));
+		Assert.AreNotEqual(notExpected: 0, worker.ThreadId);
+		Assert.IsFalse(worker.IsThreadPoolThread, message: "Blocking I/O must execute on a dedicated thread rather than a ThreadPool thread.");
+		Assert.IsTrue(worker.IsBackground, message: "A scheduler worker must not keep the process alive.");
 	}
 
 	[TestMethod]
-	public void SchedulerRejectsInvalidConcurrencyAndKeepAliveRanges()
+	public async Task WarmWorkerDoesNotPreventNextBurstFromScalingUp()
 	{
-		Assert.ThrowsExactly<ArgumentOutOfRangeException>([ExcludeFromCodeCoverage]() => new IoBoundTaskScheduler(maximumConcurrencyLevel: 0));
-		var property = typeof(IoBoundTaskScheduler).GetProperty(nameof(IoBoundTaskScheduler.KeepAliveThreadTimeout))!;
+		const int concurrency = 4;
+		var scheduler = new IoBoundTaskScheduler(concurrency);
+		var factory = new TaskFactory(scheduler);
+		await CompletesWithin(factory.StartNew(() => { }), TimeSpan.FromSeconds(5));
 
-		var negative = Assert.ThrowsExactly<TargetInvocationException>([ExcludeFromCodeCoverage]() => property.SetValue(obj: null, TimeSpan.FromMilliseconds(-1)));
-		var excessive = Assert.ThrowsExactly<TargetInvocationException>([ExcludeFromCodeCoverage]() => property.SetValue(obj: null, TimeSpan.FromSeconds(61)));
-		Assert.IsInstanceOfType<ArgumentOutOfRangeException>(negative.InnerException);
-		Assert.IsInstanceOfType<ArgumentOutOfRangeException>(excessive.InnerException);
+		await Task.Delay(TimeSpan.FromMilliseconds(250));
+
+		using var release = new ManualResetEventSlim(initialState: false);
+		using var allStarted = new CountdownEvent(concurrency);
+		var tasks = Enumerable.Range(start: 0, concurrency)
+							  .Select(_ => factory.StartNew(() =>
+															{
+																allStarted.Signal();
+																release.Wait();
+															}))
+							  .ToArray();
+
+		try
+		{
+			Assert.IsTrue(allStarted.Wait(TimeSpan.FromSeconds(4)), message: "A warm worker serialized a burst instead of allowing scale-up.");
+		}
+		finally
+		{
+			release.Set();
+		}
+
+		await CompletesWithin(Task.WhenAll(tasks), TimeSpan.FromSeconds(5));
+	}
+
+	[TestMethod]
+	public async Task SchedulerWorkerInlinesNestedTaskAndAvoidsSingleThreadDeadlock()
+	{
+		var scheduler = new IoBoundTaskScheduler(maximumConcurrencyLevel: 1);
+		var factory = new TaskFactory(scheduler);
+		var parent = factory.StartNew(() =>
+									  {
+										  var parentThread = Environment.CurrentManagedThreadId;
+										  var child = factory.StartNew(() => Environment.CurrentManagedThreadId);
+										  child.Wait();
+
+										  return (ParentThread: parentThread, ChildThread: child.Result);
+									  });
+
+		var result = await CompletesWithin(parent, TimeSpan.FromSeconds(5));
+		Assert.AreEqual(result.ParentThread, result.ChildThread, message: "The synchronously awaited child should inline on the scheduler worker.");
+	}
+
+	[TestMethod]
+	public async Task FaultedTaskIsCapturedAndDoesNotStopQueueDraining()
+	{
+		var factory = new TaskFactory(new IoBoundTaskScheduler(maximumConcurrencyLevel: 1));
+		var faulted = factory.StartNew([ExcludeFromCodeCoverage]() => throw new InvalidOperationException("Expected task failure."));
+		var following = factory.StartNew(() => 42);
+
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => faulted);
+		Assert.AreEqual(expected: 42, await CompletesWithin(following, TimeSpan.FromSeconds(5)));
+	}
+
+	private static async Task CompletesWithin(Task task, TimeSpan timeout)
+	{
+		var completed = await Task.WhenAny(task, Task.Delay(timeout));
+		Assert.AreSame(task, completed, message: "The scheduler task did not complete before the timeout.");
+		await task;
+	}
+
+	private static async Task<T> CompletesWithin<T>(Task<T> task, TimeSpan timeout)
+	{
+		await CompletesWithin((Task)task, timeout);
+
+		return await task;
+	}
+
+	private static void UpdateMaximum(ref int maximum, int candidate)
+	{
+		var current = Volatile.Read(ref maximum);
+
+		while (candidate > current)
+		{
+			var observed = Interlocked.CompareExchange(ref maximum, candidate, current);
+
+			if (observed == current)
+			{
+				return;
+			}
+
+			current = observed;
+		}
 	}
 
 	private static Task[] GetScheduledTasks(IoBoundTaskScheduler scheduler)

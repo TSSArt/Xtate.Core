@@ -1092,4 +1092,7 @@ Exception: {3}</value>
   <data name="Exception_ExternalServiceHasBeenSuspended" xml:space="preserve">
 	  <value>External service has been suspended.</value>
   </data>
+  <data name="Exception_IoBoundTaskSchedulerInfrastructureFailure" xml:space="preserve">
+	  <value>IoBoundTaskScheduler infrastructure failure: {0}</value>
+  </data>
 </root>

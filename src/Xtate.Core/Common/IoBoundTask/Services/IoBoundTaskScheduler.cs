@@ -15,9 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Diagnostics;
+
 namespace Xtate.IoBoundTask.Services;
 
-public sealed class IoBoundTaskScheduler : TaskScheduler
+public class IoBoundTaskScheduler : TaskScheduler
 {
 	private const int NoWaitTimeout = 0;
 
@@ -27,21 +29,20 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 
 	private static readonly Semaphore WaitingSemaphore = new(initialCount: 0, int.MaxValue);
 
-	private static RegisteredWaitHandle? _startNewWorkerRegisteredWaitHandle;
+	[ThreadStatic]
+	private static IoBoundTaskScheduler? _executingScheduler;
 
-	private static int _waitingThreadCount;
+	private readonly ConcurrentQueue<Task> _taskQueue = new();
 
-	private ConcurrentQueue<Task>? _taskQueue;
+	private int _availableWorkerSlots;
 
-	private Semaphore? _taskSemaphore;
-
-	static IoBoundTaskScheduler() => RegisterStartNewWorker();
+	static IoBoundTaskScheduler() => ThreadPool.RegisterWaitForSingleObject(WaitingSemaphore, StartNewWorker, state: null, IndefiniteTimeout, executeOnlyOnce: false);
 
 	public IoBoundTaskScheduler(int maximumConcurrencyLevel = 256)
 	{
-		if (maximumConcurrencyLevel <= 0) throw new ArgumentOutOfRangeException(nameof(maximumConcurrencyLevel));
+		Infra.RequiresPositive(maximumConcurrencyLevel);
 
-		MaximumConcurrencyLevel = maximumConcurrencyLevel;
+		MaximumConcurrencyLevel = _availableWorkerSlots = maximumConcurrencyLevel;
 	}
 
 	public static TimeSpan KeepAliveThreadTimeout
@@ -60,28 +61,15 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 
 	public override int MaximumConcurrencyLevel { get; }
 
-	private static void RegisterStartNewWorker()
-	{
-		var newHandle = ThreadPool.RegisterWaitForSingleObject(WaitingSemaphore, StartNewWorker, state: null, IndefiniteTimeout, executeOnlyOnce: false);
-
-		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, newHandle) is { } oldHandle)
-		{
-			oldHandle.Unregister(waitObject: null);
-		}
-	}
-
 	private static void StartNewWorker(object? _0, bool _1)
 	{
-		var thread = new Thread(WorkerThread) { IsBackground = true };
-
-		thread.Start();
-	}
-
-	private static void UnregisterStartNewWorker()
-	{
-		if (Interlocked.Exchange(ref _startNewWorkerRegisteredWaitHandle, value: null) is { } oldHandle)
+		try
 		{
-			oldHandle.Unregister(waitObject: null);
+			new Thread(WorkerThread) { IsBackground = true }.Start();
+		}
+		catch
+		{
+			WaitingSemaphore.Release();
 		}
 	}
 
@@ -89,46 +77,23 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 	{
 		var signaled = true;
 
-		try
+		while (signaled)
 		{
-			while (signaled)
+			if (SchedulerQueue.TryDequeue(out var scheduler))
 			{
-				if (SchedulerQueue.TryDequeue(out var scheduler))
-				{
-					scheduler.WorkerRunQueuedTasks();
-				}
-
-				signaled = WaitingSemaphore.WaitOne(NoWaitTimeout);
-
-				if (signaled || KeepAliveThreadTimeout == TimeSpan.Zero)
-				{
-					continue;
-				}
-
-				UnregisterStartNewWorker();
-
-				Interlocked.Increment(ref _waitingThreadCount);
-
-				try
-				{
-					signaled = WaitingSemaphore.WaitOne(KeepAliveThreadTimeout);
-				}
-				finally
-				{
-					Interlocked.Decrement(ref _waitingThreadCount);
-				}
+				scheduler.WorkerRunQueuedTasks();
 			}
-		}
-		finally
-		{
-			if (Interlocked.CompareExchange(ref _waitingThreadCount, value: 0, comparand: 0) == 0)
+
+			signaled = WaitingSemaphore.WaitOne(NoWaitTimeout);
+
+			if (!signaled && KeepAliveThreadTimeout > TimeSpan.Zero)
 			{
-				RegisterStartNewWorker();
+				signaled = WaitingSemaphore.WaitOne(KeepAliveThreadTimeout);
 			}
 		}
 	}
 
-	private static void PublishSchedulerException(Exception _) { }
+	private static void PublishSchedulerException(Exception ex) => Trace.TraceError(Resources.Exception_IoBoundTaskSchedulerInfrastructureFailure, ex);
 
 	private void WorkerRunQueuedTasks()
 	{
@@ -136,13 +101,9 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 		{
 			ProcessTaskQueue();
 
-			Infra.NotNull(_taskQueue);
-
 			while (!_taskQueue.IsEmpty)
 			{
-				Infra.NotNull(_taskSemaphore);
-
-				if (_taskSemaphore.WaitOne(NoWaitTimeout))
+				if (TryAcquireWorkerSlot())
 				{
 					ProcessTaskQueue();
 				}
@@ -162,12 +123,11 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 
 	private void ProcessTaskQueue()
 	{
-		Infra.NotNull(_taskSemaphore);
+		var previousScheduler = _executingScheduler;
+		_executingScheduler = this;
 
 		try
 		{
-			Infra.NotNull(_taskQueue);
-
 			while (_taskQueue.TryDequeue(out var task))
 			{
 				TryExecuteTask(task);
@@ -175,32 +135,16 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 		}
 		finally
 		{
-			_taskSemaphore.Release();
+			_executingScheduler = previousScheduler;
+			Interlocked.Increment(ref _availableWorkerSlots);
 		}
 	}
 
 	protected override void QueueTask(Task task)
 	{
-		if (_taskQueue is not { } taskQueue)
-		{
-			taskQueue = new ConcurrentQueue<Task>();
-			taskQueue = Interlocked.CompareExchange(ref _taskQueue, taskQueue, comparand: null) ?? taskQueue;
-		}
+		_taskQueue.Enqueue(task);
 
-		if (_taskSemaphore is not { } taskSemaphore)
-		{
-			taskSemaphore = new Semaphore(MaximumConcurrencyLevel, MaximumConcurrencyLevel);
-
-			if (Interlocked.CompareExchange(ref _taskSemaphore, taskSemaphore, comparand: null) is { } currentTaskSemaphore)
-			{
-				taskSemaphore.Dispose();
-				taskSemaphore = currentTaskSemaphore;
-			}
-		}
-
-		taskQueue.Enqueue(task);
-
-		if (taskSemaphore.WaitOne(NoWaitTimeout))
+		if (TryAcquireWorkerSlot())
 		{
 			SchedulerQueue.Enqueue(this);
 
@@ -208,7 +152,24 @@ public sealed class IoBoundTaskScheduler : TaskScheduler
 		}
 	}
 
-	protected override IEnumerable<Task> GetScheduledTasks() => _taskQueue ?? [];
+	private bool TryAcquireWorkerSlot()
+	{
+		var initVal = _availableWorkerSlots;
 
-	protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => false;
+		while (initVal > 0)
+		{
+			if (Interlocked.CompareExchange(ref _availableWorkerSlots, initVal - 1, initVal) is var oldVal && oldVal == initVal)
+			{
+				return true;
+			}
+
+			initVal = oldVal;
+		}
+
+		return false;
+	}
+
+	protected override IEnumerable<Task> GetScheduledTasks() => _taskQueue;
+
+	protected override bool TryExecuteTaskInline(Task task, bool taskWasPreviouslyQueued) => ReferenceEquals(_executingScheduler, this) && TryExecuteTask(task);
 }

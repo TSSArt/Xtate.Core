@@ -378,15 +378,6 @@ namespace Xtate {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Detected unknown element &lt;{0}&gt;..
-        /// </summary>
-        internal static string ErrorMessage_DetectedUnknownElement {
-            get {
-                return ResourceManager.GetString("ErrorMessage_DetectedUnknownElement", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to Detected unknown attribute &apos;{0}&apos;..
         /// </summary>
         internal static string ErrorMessage_DetectedUnknownAttribute {
@@ -394,7 +385,16 @@ namespace Xtate {
                 return ResourceManager.GetString("ErrorMessage_DetectedUnknownAttribute", resourceCulture);
             }
         }
-
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Detected unknown element &lt;{0}&gt;..
+        /// </summary>
+        internal static string ErrorMessage_DetectedUnknownElement {
+            get {
+                return ResourceManager.GetString("ErrorMessage_DetectedUnknownElement", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to DoneData not supported in NULL data model..
         /// </summary>
@@ -692,16 +692,7 @@ namespace Xtate {
                 return ResourceManager.GetString("ErrorMessage_MustBePresentAtLeastEventOrConditionOrTargetInTransitionElement", resourceCulture);
             }
         }
-
-        /// <summary>
-        ///   Looks up a localized string similar to State identifiers must be unique..
-        /// </summary>
-        internal static string ErrorMessage_StateIdentifiersMustBeUnique {
-            get {
-                return ResourceManager.GetString("ErrorMessage_StateIdentifiersMustBeUnique", resourceCulture);
-            }
-        }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Must be present Event or EventExpression or Content in Send element..
         /// </summary>
@@ -898,6 +889,15 @@ namespace Xtate {
         internal static string ErrorMessage_SourceAndSourceExpressionCantBeUsedAtTheSameTimeInInvokeElement {
             get {
                 return ResourceManager.GetString("ErrorMessage_SourceAndSourceExpressionCantBeUsedAtTheSameTimeInInvokeElement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to State identifiers must be unique..
+        /// </summary>
+        internal static string ErrorMessage_StateIdentifiersMustBeUnique {
+            get {
+                return ResourceManager.GetString("ErrorMessage_StateIdentifiersMustBeUnique", resourceCulture);
             }
         }
         
@@ -1691,6 +1691,15 @@ namespace Xtate {
         internal static string Exception_InvokedServiceMetaMissedInvokeId {
             get {
                 return ResourceManager.GetString("Exception_InvokedServiceMetaMissedInvokeId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IoBoundTaskScheduler infrastructure failure: {0}.
+        /// </summary>
+        internal static string Exception_IoBoundTaskSchedulerInfrastructureFailure {
+            get {
+                return ResourceManager.GetString("Exception_IoBoundTaskSchedulerInfrastructureFailure", resourceCulture);
             }
         }
         

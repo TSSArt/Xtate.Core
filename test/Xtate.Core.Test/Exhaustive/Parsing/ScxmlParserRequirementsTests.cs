@@ -2873,7 +2873,6 @@ public sealed class ScxmlParserRequirementsTests
 	generation_status: existing-annotated
 	*/
 	[TestMethod]
-
 	public async Task SCXML_PARSE_019_Tokenizes_initial_target_event_and_namelist_on_xml_whitespace()
 	{
 		var result = await ScxmlParserHarness.ParseAsync(
