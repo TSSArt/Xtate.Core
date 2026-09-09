@@ -33,7 +33,8 @@ namespace Xtate.Core.Test.DevTests;
 public class HostStateMachineResumptionTest
 {
 	[TestMethod]
-	[Timeout(60000)]
+	[DoNotParallelize]
+	[Timeout(30000)]
 	public async Task HostStartResumesNestedStateMachineInvoke()
 	{
 		var storageProvider = new StateMachinePersistenceTest.TestStorage();
