@@ -26,35 +26,25 @@ public class TaskMonitor : ITaskMonitor
 
 #region Interface ITaskMonitor
 
-	public Task WaitAsync(Task task, CancellationToken token) =>
-		task.IsCompleted || !token.CanBeCanceled
-			? task
-			: token.IsCancellationRequested
-				? Task.FromCanceled(token)
-				: WaitAndMonitor(task, token);
+	public Task WaitAsync(Task task, CancellationToken token) => task.IsCompleted || !token.CanBeCanceled ? task : WaitAndMonitor(task, token);
 
-	public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) =>
-		task.IsCompleted || !token.CanBeCanceled
-			? task
-			: token.IsCancellationRequested
-				? Task.FromCanceled<TResult>(token)
-				: WaitAndMonitor(task, token);
+	public Task<TResult> WaitAsync<TResult>(Task<TResult> task, CancellationToken token) => task.IsCompleted || !token.CanBeCanceled ? task : WaitAndMonitor(task, token);
 
-	public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token) =>
-		valueTask.IsCompleted || !token.CanBeCanceled
-			? valueTask
-			: new ValueTask(
-				token.IsCancellationRequested
-					? Task.FromCanceled(token)
-					: WaitAndMonitor(valueTask.AsTask(), token));
+	public ValueTask WaitAsync(ValueTask valueTask, CancellationToken token) => valueTask.IsCompleted || !token.CanBeCanceled ? valueTask : new ValueTask(WaitAndMonitor(AsTask(valueTask), token));
 
 	public ValueTask<TResult> WaitAsync<TResult>(ValueTask<TResult> valueTask, CancellationToken token) =>
-		valueTask.IsCompleted || !token.CanBeCanceled
-			? valueTask
-			: new ValueTask<TResult>(
-				token.IsCancellationRequested
-					? Task.FromCanceled<TResult>(token)
-					: WaitAndMonitor(valueTask.AsTask(), token));
+		valueTask.IsCompleted || !token.CanBeCanceled ? valueTask : new ValueTask<TResult>(WaitAndMonitor(AsTask(valueTask), token));
+
+#if NETSTANDARD2_1 || NETCOREAPP3_0_OR_GREATER
+	private static Task AsTask(ValueTask valueTask) => valueTask.AsTask();
+	
+	private static Task<TResult> AsTask<TResult>(ValueTask<TResult> valueTask) => valueTask.AsTask();
+
+#else
+	private static async Task AsTask(ValueTask valueTask) => await valueTask.ConfigureAwait(false);
+
+	private static async Task<TResult> AsTask<TResult>(ValueTask<TResult> valueTask) => await valueTask.ConfigureAwait(false);
+#endif
 
 	public void Forget(Task task)
 	{
@@ -75,12 +65,7 @@ public class TaskMonitor : ITaskMonitor
 
 	public void Forget(ValueTask valueTask)
 	{
-		if (valueTask.IsCompletedSuccessfully)
-		{
-			return;
-		}
-
-		if (valueTask.IsFaulted || valueTask.IsCanceled)
+		if (valueTask.IsCompleted)
 		{
 			valueTask.GetAwaiter().GetResult();
 
@@ -92,12 +77,7 @@ public class TaskMonitor : ITaskMonitor
 
 	public void Forget<TResult>(ValueTask<TResult> valueTask)
 	{
-		if (valueTask.IsCompletedSuccessfully)
-		{
-			return;
-		}
-
-		if (valueTask.IsFaulted || valueTask.IsCanceled)
+		if (valueTask.IsCompleted)
 		{
 			valueTask.GetAwaiter().GetResult();
 
@@ -111,31 +91,33 @@ public class TaskMonitor : ITaskMonitor
 
 	private async Task WaitAndMonitor(Task task, CancellationToken token)
 	{
+		var wait = task.WaitAsync(token);
+
 		try
 		{
-			await task.WaitAsync(token).ConfigureAwait(false);
+			await wait.ConfigureAwait(false);
 		}
-		finally
+		catch (OperationCanceledException ex) when (token.IsCancellationRequested && ex.CancellationToken == token && !ReferenceEquals(wait, task))
 		{
-			if (!task.IsCompleted)
-			{
-				_ = MonitorTaskCompletion(task);
-			}
+			_ = MonitorTaskCompletion(task);
+
+			throw;
 		}
 	}
 
 	private async Task<TResult> WaitAndMonitor<TResult>(Task<TResult> task, CancellationToken token)
 	{
+		var wait = task.WaitAsync(token);
+
 		try
 		{
-			return await task.WaitAsync(token).ConfigureAwait(false);
+			return await wait.ConfigureAwait(false);
 		}
-		finally
+		catch (OperationCanceledException ex) when (token.IsCancellationRequested && ex.CancellationToken == token && !ReferenceEquals(wait, task))
 		{
-			if (!task.IsCompleted)
-			{
-				_ = MonitorTaskCompletion(task);
-			}
+			_ = MonitorTaskCompletion(task);
+
+			throw;
 		}
 	}
 

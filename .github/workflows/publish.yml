@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 env:
   Configuration: Release
@@ -87,7 +88,12 @@ jobs:
       with:
         name: packages
         path: bin/packages
+    - name: NuGet Login
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
     - name: Publish to NuGet.org
-      run: dotnet nuget push bin/packages/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ secrets.NUGET_ORG_TOKEN }}
+      run: dotnet nuget push bin/packages/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{ steps.login.outputs.NUGET_API_KEY }} 
     - name: Publish to GitHub
       run: dotnet nuget push bin/packages/*.nupkg -s https://nuget.pkg.github.com/TSSArt/index.json -k ${{ secrets.XTATE_GITHUB_TOKEN }}

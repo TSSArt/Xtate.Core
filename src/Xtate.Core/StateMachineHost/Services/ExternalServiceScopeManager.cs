@@ -132,6 +132,7 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 	private async ValueTask WaitAndCleanup(InvokeId invokeId, IExternalServiceController externalServiceController, TaskCompletionSource resultTcs)
 	{
 		Exception? exception = null;
+		Exception? cleanupException = null;
 
 		try
 		{
@@ -142,22 +143,28 @@ public class ExternalServiceScopeManager : IExternalServiceScopeManager, IDispos
 			exception = ex;
 		}
 
-		await Cleanup(invokeId).ConfigureAwait(false);
-
-		switch (exception)
+		try
 		{
-			case null:
-				resultTcs.SetResult();
+			await Cleanup(invokeId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			cleanupException = ex;
+		}
 
-				break;
+		switch (exception, cleanupException)
+		{
+			case (null, null): resultTcs.SetResult(); break;
 
-			case OperationCanceledException ocx when resultTcs.TrySetCanceled(ocx.CancellationToken):
-				break;
+			case (OperationCanceledException ocx, null or OperationCanceledException): resultTcs.SetCanceled(ocx.CancellationToken); break;
 
-			default:
-				resultTcs.SetException(exception);
+			case (null, OperationCanceledException ocx): resultTcs.SetCanceled(ocx.CancellationToken); break;
 
-				break;
+			case (not null, null): resultTcs.SetException(exception); break;
+
+			case (null, not null): resultTcs.SetException(cleanupException); break;
+
+			case (not null, not null): resultTcs.SetException([exception, cleanupException]); break;
 		}
 	}
 

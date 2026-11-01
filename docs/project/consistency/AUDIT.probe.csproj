@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AUDIT.probe.cs" />
+    <Compile Include="AUDIT.probe.stubs.cs" />
+    <Compile Include="../../../src/Xtate.Core/Common/TaskMonitor/Services/TaskMonitor.cs" Link="TaskMonitor.cs" />
+    <Compile Include="../../../src/Xtate.Core/Common/TaskMonitor/Abstractions/ITaskMonitor.cs" Link="ITaskMonitor.cs" />
+    <Compile Include="../../../src/Xtate.Core/Common/Extensions/TaskExtensions.cs" Link="TaskExtensions.cs" />
+    <Compile Include="../../../src/Xtate.Core/Common/Extensions/ValueTaskExtensions.cs" Link="ValueTaskExtensions.cs" />
+    <Compile Include="../../../src/Xtate.Core/Common/Helpers/LazyTask.cs" Link="LazyTask.cs" />
+    <Compile Include="../../../src/Xtate.Core/StateMachineHost/Services/StateMachineControllerBase.cs" Link="StateMachineControllerBase.cs" />
+    <Compile Include="../../../src/Xtate.Core/StateMachineHost/Abstractions/StateMachineStatus.cs" Link="StateMachineStatus.cs" />
+    <Compile Include="../../../src/Xtate.Core/StateMachineHost/Abstractions/IStateMachineStatus.cs" Link="IStateMachineStatus.cs" />
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll" />
+  </ItemGroup>
+</Project>

@@ -1095,4 +1095,7 @@ Exception: {3}</value>
   <data name="Exception_IoBoundTaskSchedulerInfrastructureFailure" xml:space="preserve">
 	  <value>IoBoundTaskScheduler infrastructure failure: {0}</value>
   </data>
+  <data name="Exception_TheUnderlyingTaskIsAlreadyInFinalState" xml:space="preserve">
+	  <value>The underlying task is already in a final state.</value>
+  </data>
 </root>

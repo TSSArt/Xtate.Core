@@ -17,6 +17,7 @@
 
 using Xtate.Interpreter;
 using Xtate.Logging;
+using Xtate.TaskMonitor;
 
 namespace Xtate.StateMachineHost.Services;
 
@@ -35,6 +36,8 @@ public class StateMachineDestroyOnIdle
 	public required Func<ValueTask<IStateMachineInterpreter>> StateMachineInterpreterFactory { private get; [SetByIoC] init; }
 
 	public required IDestroyOnIdleTimeout? DestroyOnIdleTimeout { private get; [SetByIoC] init; }
+	
+	public required ITaskMonitor? TaskMonitor { private get; [SetByIoC] init; }
 
 	public ValueTask<INotifyStateChanged?> Factory()
 	{
@@ -95,7 +98,7 @@ public class StateMachineDestroyOnIdle
 			}
 			catch (Exception ex)
 			{
-				owner.Logger.Write(Level.Error, eventId: 1, Resources.Message_AnErrorOccurredWhileTriggeringTheDestroySignal, ex);
+				owner.Logger.Write(Level.Error, eventId: 1, Resources.Message_AnErrorOccurredWhileTriggeringTheDestroySignal, ex).Forget(owner.TaskMonitor);
 			}
 		}
 	}

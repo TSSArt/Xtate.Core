@@ -2462,6 +2462,15 @@ namespace Xtate {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The underlying task is already in a final state..
+        /// </summary>
+        internal static string Exception_TheUnderlyingTaskIsAlreadyInFinalState {
+            get {
+                return ResourceManager.GetString("Exception_TheUnderlyingTaskIsAlreadyInFinalState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The URI must be absolute..
         /// </summary>
         internal static string Exception_TheUriMustBeAbsolute {

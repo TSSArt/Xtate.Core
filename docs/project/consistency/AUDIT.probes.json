@@ -1,0 +1,53 @@
+{
+  "runtime": ".NET 10.0.13",
+  "boundary": "Source-linked production task monitor, LazyTask, extensions, controller Start/ExecuteAsync and status with audit-only collaborators. IoC container behavior is not exercised. These reproduce current behavior; they are not passing regression tests for remediation or a full integration run.",
+  "probes": [
+    {
+      "id": "pre_cancelled_wait_abandons_source",
+      "current_deviation_reproduced": true,
+      "evidence": {
+        "Registrations": 0,
+        "Consumptions": 0,
+        "logged_failures": 0
+      }
+    },
+    {
+      "id": "successful_valuetask_forget_skips_getresult",
+      "current_deviation_reproduced": true,
+      "evidence": {
+        "Consumptions": 0
+      }
+    },
+    {
+      "id": "reporter_failure_escapes_observer",
+      "current_deviation_reproduced": true,
+      "evidence": {
+        "observer_status": "Faulted",
+        "note": "Probe retrieves the private observer for evidence; production discards it."
+      }
+    },
+    {
+      "id": "lazy_result_cannot_receive_post_cancellation_fault",
+      "current_deviation_reproduced": true,
+      "evidence": {
+        "result_status": "Canceled",
+        "note": "Factory fault goes through Execute rethrow and the unmonitored Forget/Preserve path, established by linked source control flow."
+      }
+    },
+    {
+      "id": "synchronous_startup_failure_leaves_separate_faulted_proxies",
+      "current_deviation_reproduced": true,
+      "evidence": {
+        "result_status": "Faulted",
+        "readiness_waits": 0,
+        "note": "Actual Start/ExecuteAsync/status sources; IoC initialization is not exercised. Audit now observes both proxy exceptions explicitly."
+      }
+    }
+  ],
+  "structural_counts": {
+    "files": 76,
+    "members": 389,
+    "awaits": 94,
+    "parse_errors": 0
+  }
+}

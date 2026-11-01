@@ -1,0 +1,45 @@
+{
+  "approved_context": "User explicitly approved the sanitized abstract lifecycle description and existing Google-session use; no repository attached",
+  "status": "SUCCESS",
+  "stderr_warning": "--mode plan has no effect while slash command expansion is disabled",
+  "requested_model": "claude-sonnet-4-6",
+  "schema_version": 1,
+  "flags": [
+    "--mode plan",
+    "--sandbox",
+    "--disable-slash-commands",
+    "--print-timeout 60s"
+  ],
+  "exit_code": 0,
+  "response": "## Risk Analysis\n\n| # | Risk | Nature | Acceptance-Test Scenario | Reportable Against Existing Rules? |\n|---|------|---------|--------------------------|-------------------------------------|\n| **1** | `Cleanup` exception **silently discards** `saved` — if `scope.DisposeAsync()` throws, the original caught exception is lost and `R` is completed with the cleanup fault instead | **Definite control-flow consequence** — the code path is unambiguous: `await Cleanup()` runs unconditionally after the catch block, and any throw there propagates before R is completed with `saved` | Inject a faulting `controller.GetResult()`, then make `scope.DisposeAsync()` also throw. Assert: `R.Task` faults with the *cleanup* exception, not the original. Confirm original exception is unobservable. | **Yes** — violates the written rule on explicit task ownership (owner of `R` never receives the causally first error) |\n| **2** | **Disposal-loop early exit** leaves remaining scopes undisposed when the first disposal exception breaks the loop | **Definite control-flow consequence** — a thrown exception from any iteration terminates the loop, and no finally/continue wraps subsequent scopes | Construct three scopes; make scope #2's `DisposeAsync()` throw. Assert: scope #3's `DisposeAsync()` is never called. Confirm scope #3 resource is still live after owner exit. | **Yes** — nonblocking async-execution convention implies completing all async cleanup; loop break contradicts this for remaining owners |\n| **3** | **Scheduler token semantics mismatch** — callers pass cancellation tokens expecting responsive cancellation; Schedule body ignores them, so cancellation only takes effect at the delayed-dispatch boundary via the linked token | **Policy choice** — whether \"Schedule respects caller token\" means immediate body exit or only pre-dispatch cancellation is explicitly unresolved | Schedule an event; cancel the caller token before the dispatch delay expires. Assert current behavior: body completes normally, event is suppressed only at dispatch. Document this as *specified gap*, not a bug. | **No** — needs a decision: define whether caller-token scope is body-lifetime or dispatch-gate only |\n| **4** | **Disposal-cancellation race on linked token** — if owner disposal fires while a scheduled event's dispatch is in-flight, the linked token cancels the dispatch, but the task-monitor holds the background routine and may observe cancellation on `R` non-deterministically | **Policy choice** — cleanup failure precedence and disposal races are explicitly flagged as unresolved | Trigger owner disposal concurrently with a dispatching scheduled event. Assert: either (a) `R` faults with a `OperationCanceledException` or (b) event completes; result must be one of the two, not both. Document which outcome is contractual. | **No** — needs a decision: define cancellation precedence when disposal and dispatch race |\n\n---\n\n**Word count (body): ~310**\n\n**Summary:** Risks 1 and 2 are deterministic and reportable today against the nonblocking-execution and explicit-ownership rules. Risks 3 and 4 require policy decisions before acceptance criteria can be written as pass/fail assertions rather than documentation checkpoints.\n",
+  "adjudication": [
+    {
+      "source": "StateMachineScopeManager.cs and ExternalServiceScopeManager.cs await Cleanup before completing result sources; caller result can remain pending",
+      "task": "CONS-001",
+      "claim": "Cleanup completes caller result with cleanup fault",
+      "disposition": "Rejected"
+    },
+    {
+      "source": "That is a C13 cleanup policy choice outside this narrowed audit",
+      "claim": "Nonblocking async convention requires disposal loops to attempt all scopes",
+      "disposition": "Rejected as C47 inference"
+    },
+    {
+      "source": "InProcEventScheduler links DisposeToken and ScheduledEvent.CancellationToken, not the ScheduleEvent argument",
+      "claim": "Caller scheduling token is used at delayed dispatch",
+      "disposition": "Rejected"
+    },
+    {
+      "source": "Scheduler owns DelayedFire tasks; R belongs to the independent scope-manager scenario",
+      "claim": "Scheduler dispatch has the state-machine result source R",
+      "disposition": "Rejected"
+    },
+    {
+      "source": "Mapped to CONS-001 without adopting the incorrect expected result",
+      "claim": "Use controlled controller completion and injected cleanup failure",
+      "disposition": "Useful test design, independently verified"
+    }
+  ],
+  "limitation": "A successful print response is not evidence of enforced plan-mode isolation; no tools/files/commands were requested, and no project was attached",
+  "kind": "Independent opinion, not audit authority or a separate task list"
+}

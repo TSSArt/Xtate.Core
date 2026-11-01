@@ -115,6 +115,7 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 	private async ValueTask WaitAndCleanup(SessionId sessionId, IStateMachineController controller, TaskCompletionSource<DataModelValue> resultTcs)
 	{
 		Exception? exception = null;
+		Exception? cleanupException = null;
 		var resultValue = DataModelValue.Undefined;
 
 		try
@@ -126,22 +127,28 @@ public class StateMachineScopeManager : IStateMachineScopeManager, IDisposable, 
 			exception = ex;
 		}
 
-		await Cleanup(sessionId).ConfigureAwait(false);
-
-		switch (exception)
+		try
 		{
-			case null:
-				resultTcs.SetResult(resultValue);
+			await Cleanup(sessionId).ConfigureAwait(false);
+		}
+		catch (Exception ex)
+		{
+			cleanupException = ex;
+		}
 
-				break;
+		switch (exception, cleanupException)
+		{
+			case (null, null): resultTcs.SetResult(resultValue); break;
 
-			case OperationCanceledException ocx when resultTcs.TrySetCanceled(ocx.CancellationToken):
-				break;
+			case (OperationCanceledException ocx, null or OperationCanceledException): resultTcs.SetCanceled(ocx.CancellationToken); break;
 
-			default:
-				resultTcs.SetException(exception);
+			case (null, OperationCanceledException ocx): resultTcs.SetCanceled(ocx.CancellationToken); break;
 
-				break;
+			case (not null, null): resultTcs.SetException(exception); break;
+
+			case (null, not null): resultTcs.SetException(cleanupException); break;
+
+			case (not null, not null): resultTcs.SetException([exception, cleanupException]); break;
 		}
 	}
 

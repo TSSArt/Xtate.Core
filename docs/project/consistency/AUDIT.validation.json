@@ -1,0 +1,45 @@
+{
+  "status": "pass",
+  "criterion": "C47",
+  "files": 76,
+  "applicable": 54,
+  "counts": {
+    "Not applicable": 22,
+    "Deviation": 9,
+    "Justified exception": 1,
+    "Compliant": 44
+  },
+  "members": 389,
+  "await_expressions": 94,
+  "modern_and_legacy_conditional_variants": "inspected and structurally enumerated",
+  "source_linked_reproductions": 5,
+  "tasks": 8,
+  "priorities": {
+    "P2": 3,
+    "P1": 5
+  },
+  "local_links_checked": 125,
+  "source_and_supporting_fingerprints": "unchanged, including all 1083 original maintained inputs",
+  "conventions": "pinned revision and digest unchanged",
+  "dependencies": {
+    "CONS-006": [
+      "CONS-007",
+      "CONS-004"
+    ],
+    "CONS-001": [
+      "CONS-007"
+    ],
+    "CONS-003": [],
+    "CONS-002": [],
+    "CONS-008": [],
+    "CONS-007": [],
+    "CONS-005": [
+      "CONS-007",
+      "CONS-004"
+    ],
+    "CONS-004": [
+      "CONS-007"
+    ]
+  },
+  "completion_scope": "Approved C47 static audit and complete remediation plan; no implementation or whole-solution correctness claim"
+}

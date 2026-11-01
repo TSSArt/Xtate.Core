@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "workspace_id": "xtate-core-conventions",
+  "source_root": "../../..",
+  "files": {
+    "inventory": "INVENTORY.json",
+    "todo_progress": "TODO.progress.json",
+    "conventions": [
+      "CONVENTIONS.md"
+    ],
+    "todo": "TODO.md",
+    "document_progress": "DOCUMENTING.progress.json",
+    "coverage": "COVERAGE.md",
+    "evidence": "EVIDENCE.json",
+    "checkpoint_helper": "DOCUMENTING.checkpoint.ps1",
+    "audit_inventory": "AUDIT.inventory.json",
+    "audit_evidence": [
+      "AUDIT.coverage.json",
+      "AUDIT.structure.json",
+      "AUDIT.probes.json",
+      "AUDIT.antigravity.json",
+      "AUDIT.probe.csproj",
+      "AUDIT.probe.cs",
+      "AUDIT.probe.stubs.cs",
+      "AUDIT.checkpoint.ps1",
+      "AUDIT.validate.ps1",
+      "AUDIT.validation.json"
+    ],
+    "policy_inputs": "AUDIT.policy-inputs.json",
+    "policy_adoption_helper": "DOCUMENTING.adopt.ps1",
+    "audit_inspector": [
+      "AUDIT.inspect.csproj",
+      "AUDIT.inspect.cs",
+      "AUDIT.compilation.json",
+      "AUDIT.refresh.py"
+    ]
+  },
+  "conventions_revision": 61,
+  "conventions_digest": "15FB78A6A7CD38564792BA8AEDECA97B127AF14C4AC608FFB3C0C53D99325A46"
+}
