@@ -245,6 +245,14 @@ public static class XmlConverter
 
 				case XmlNodeType.Text:
 					var text = xmlReader.Value;
+
+					if (list is not null)
+					{
+						list.Add(key: null, text, metadata: null);
+
+						break;
+					}
+
 					await xmlReader.ReadAsync().ConfigureAwait(false);
 
 					return text;
@@ -324,6 +332,15 @@ public static class XmlConverter
 
 				case XmlNodeType.Text:
 					var text = xmlReader.Value;
+
+					if (list is not null)
+					{
+						// Mixed content: keep accumulated children and append the text.
+						list.Add(key: null, text, metadata: null);
+
+						break;
+					}
+
 					xmlReader.Read();
 
 					return text;

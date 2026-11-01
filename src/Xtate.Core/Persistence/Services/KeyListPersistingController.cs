@@ -29,6 +29,8 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 
 	private const int IdList = 1;
 
+	private const int ElementSize = sizeof(int);
+
 	private readonly Bucket _bucket;
 
 	private readonly KeyList<T> _keyList;
@@ -44,16 +46,18 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 		{
 			var recordBucket = bucket.Nested(_records.Count);
 
-			if (!recordBucket.TryGet(Id, out int documentId) || !recordBucket.TryGet(IdList, out var bytes))
+			if (!recordBucket.TryGet(Id, out int documentId))
 			{
 				break;
 			}
 
-			var list = new List<T>(bytes.Length / 4);
+			recordBucket.TryGet(IdList, out var bytes);
 
-			for (var i = 0; i < list.Count; i++)
+			var list = new List<T>(bytes.Length / ElementSize);
+
+			for (var span = bytes.Span; span.Length >= ElementSize; span = span[ElementSize..])
 			{
-				var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(bytes[(i * 4)..].Span);
+				var itemDocumentId = BinaryPrimitives.ReadInt32LittleEndian(span);
 
 				var result = entityMap.TryGetEntityByDocumentId(itemDocumentId, out var entity);
 				Infra.Assert(result);
@@ -89,12 +93,12 @@ internal sealed class KeyListPersistingController<T> : IDisposable where T : cla
 			throw new ArgumentOutOfRangeException(nameof(action), action, message: null);
 		}
 
-		using var ss = new StackSpan<byte>(list.Count * 4);
+		using var ss = new StackSpan<byte>(list.Count * ElementSize);
 		var span = ss ? ss : stackalloc byte[ss];
 
 		for (var i = 0; i < list.Count; i++)
 		{
-			BinaryPrimitives.WriteInt32LittleEndian(span[(i * 4)..], list[i].UseAncestor.As<IDocumentId>().DocumentId);
+			BinaryPrimitives.WriteInt32LittleEndian(span[(i * ElementSize)..], list[i].UseAncestor.As<IDocumentId>().DocumentId);
 		}
 
 		var documentId = entity.UseAncestor.As<IDocumentId>().DocumentId;

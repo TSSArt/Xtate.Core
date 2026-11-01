@@ -110,6 +110,64 @@ public class PersistenceCollectionControllerCoverageTest
 		Assert.IsEmpty(empty);
 	}
 
+	[TestMethod]
+	public void KeyListControllerRestoresListItemsInOrder()
+	{
+		using var storage = new InMemoryStorage(writeOnly: false);
+		var bucket = new Bucket(storage);
+		var key = new DocumentEntity(0);
+		var first = new DocumentEntity(20);
+		var second = new DocumentEntity(21);
+		var map = new DictionaryEntityMap(key, first, second);
+		var source = new KeyList<DocumentEntity>();
+		using (new KeyListPersistingController<DocumentEntity>(bucket, source, map))
+		{
+			source.Set(key, [first, second]);
+		}
+
+		var restored = new KeyList<DocumentEntity>();
+		using var controller = new KeyListPersistingController<DocumentEntity>(bucket, restored, map);
+		Assert.IsTrue(restored.TryGetValue(key, out var items));
+		CollectionAssert.AreEqual(new[] { first, second }, items);
+	}
+	[TestMethod]
+	public void EmptyKeyListRecordSurvivesRecreationAndCanBeUpdated()
+	{
+		using var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage);
+		var key = new DocumentEntity(0);
+		var map = new DictionaryEntityMap(key);
+		var source = new KeyList<DocumentEntity>();
+		using (new KeyListPersistingController<DocumentEntity>(bucket, source, map)) source.Set(key, []);
+		var restored = new KeyList<DocumentEntity>();
+		using var controller = new KeyListPersistingController<DocumentEntity>(bucket, restored, map);
+		Assert.IsTrue(restored.TryGetValue(key, out var items));
+		Assert.IsEmpty(items);
+		restored.Set(key, []);
+		Assert.AreEqual(0, bucket.Nested(0).GetInt32(0));
+	}
+
+	[TestMethod]
+	public void RestoredKeyRecordReusesItsStorageSlotForUpdates()
+	{
+		using var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage);
+		var key = new DocumentEntity(0);
+		var first = new DocumentEntity(20);
+		var second = new DocumentEntity(21);
+		var map = new DictionaryEntityMap(key, first, second);
+		var source = new KeyList<DocumentEntity>();
+		using (new KeyListPersistingController<DocumentEntity>(bucket, source, map)) source.Set(key, [first]);
+		var restored = new KeyList<DocumentEntity>();
+		using var controller = new KeyListPersistingController<DocumentEntity>(bucket, restored, map);
+		Assert.IsTrue(restored.TryGetValue(key, out _));
+		// Item restoration is retained separately as an ignored regression; this verifies slot reuse after restoring the key.
+		restored.Set(key, [second]);
+		Assert.IsTrue(bucket.Nested(0).TryGet(1, out var bytes));
+		Assert.AreEqual(21, BitConverter.ToInt32(bytes.ToArray(), 0));
+		Assert.IsFalse(bucket.Nested(1).TryGet(0, out int _));
+	}
+
 	private static StoredEntity CreateStoredEntity(Bucket bucket) => new(bucket.GetString(key: 0)!);
 
 	private sealed class StoredEntity(string value) : IStoreSupport

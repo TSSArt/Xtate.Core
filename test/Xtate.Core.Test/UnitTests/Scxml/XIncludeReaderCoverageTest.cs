@@ -78,17 +78,102 @@ public class XIncludeReaderCoverageTest
 		while (reader.Read()) { }
 	}
 
-	private static XIncludeReader CreateReader(MemoryResolver resolver,
+	[TestMethod]
+	[DataRow(false, false)]
+	[DataRow(false, true)]
+	[DataRow(true, false)]
+	[DataRow(true, true)]
+	public async Task StandardResolverCanReturnStreamOrResource(bool useAsync, bool resource)
+	{
+		using var reader = CreateReader(new StandardResolver(resource), useAsync);
+		var values = new List<string>();
+		while (useAsync ? await reader.ReadAsync() : reader.Read())
+		{
+			if (reader.NodeType == XmlNodeType.Text) values.Add(reader.Value);
+		}
+		CollectionAssert.AreEqual(new[] { useAsync ? "included" : "plain" }, values);
+	}
+
+	[TestMethod]
+	[DataRow("null", false)]
+	[DataRow("null", true)]
+	[DataRow("load", false)]
+	[DataRow("load", true)]
+	[DataRow("uri", false)]
+	[DataRow("resolve", true)]
+	public async Task ResolverFailuresAreWrappedAsXIncludeExceptions(string failure, bool useAsync)
+	{
+		using var reader = CreateReader(new StandardResolver(false, failure), useAsync);
+		await Assert.ThrowsExactlyAsync<XIncludeException>(async () =>
+		{
+			while (useAsync ? await reader.ReadAsync() : reader.Read()) { }
+		});
+	}
+
+	[TestMethod]
+	public async Task AsyncXmlAsTextPreservesMarkupAndIgnoresNamespacedExtensionAttributes()
+	{
+		const string include = "<xi:include xmlns:p='urn:extension' p:ignored='value' href='included.xml' parse='text'/>";
+		using var reader = CreateReader(new MemoryResolver(), true, includeOverride: include);
+		var values = new List<string>();
+		while (await reader.ReadAsync())
+		{
+			if (reader.NodeType == XmlNodeType.Text) values.Add(reader.Value);
+		}
+		StringAssert.Contains(string.Concat(values), "<included>xml text</included>");
+	}
+
+	[TestMethod]
+	public void NamespacedIncludeExtensionAttributesDoNotAffectTextLoading()
+	{
+		const string include = "<xi:include xmlns:p='urn:extension' p:ignored='value' href='text.txt' parse='text'/>";
+		using var reader = CreateReader(new MemoryResolver(), false, includeOverride: include);
+		var values = new List<string>();
+		while (reader.Read())
+		{
+			if (reader.NodeType == XmlNodeType.Text) values.Add(reader.Value);
+		}
+		Assert.AreEqual("plain text", string.Concat(values));
+	}
+
+	private sealed class StandardResolver(bool resource, string? failure = null) : XmlResolver
+	{
+		public override ICredentials? Credentials { set { } }
+
+		public override bool SupportsType(Uri absoluteUri, Type? type) => resource;
+
+		public override Uri ResolveUri(Uri? baseUri, string? relativeUri) => failure switch
+		{
+			"uri" => throw new UriFormatException("invalid URI"),
+			"resolve" => throw new InvalidOperationException("cannot resolve"),
+			_ => base.ResolveUri(baseUri, relativeUri)
+		};
+
+		public override object? GetEntity(Uri absoluteUri, string? role, Type? ofObjectToReturn)
+		{
+			if (failure == "null") return null;
+			if (failure == "load") throw new IOException("load failed");
+			var xml = absoluteUri.AbsolutePath.EndsWith("included.xml", StringComparison.Ordinal);
+			var stream = new MemoryStream(Encoding.UTF8.GetBytes(xml ? "<included>included</included>" : "plain"));
+			return resource ? new Resource(stream, new ContentType(xml ? "application/xml" : "text/plain")) : stream;
+		}
+
+		public override Task<object> GetEntityAsync(Uri absoluteUri, string? role, Type? ofObjectToReturn) =>
+			Task.FromResult(GetEntity(absoluteUri, role, ofObjectToReturn)!);
+	}
+
+	private static XIncludeReader CreateReader(XmlResolver resolver,
 											   bool useAsync,
 											   bool includeText = false,
-											   bool includeXmlAsText = false)
+											   bool includeXmlAsText = false,
+											   string? includeOverride = null)
 	{
 		var include = includeXmlAsText
 			? "<xi:include href='included.xml' parse='text'/>"
 			: includeText || !useAsync
 				? "<xi:include href='text.txt' parse='text' encoding='utf-8' accept='text/plain' accept-language='en-US'/>"
 				: "<xi:include href='included.xml'/>";
-		var source = "<root xmlns:xi='http://www.w3.org/2001/XInclude'>" + include + "</root>";
+		var source = "<root xmlns:xi='http://www.w3.org/2001/XInclude'>" + (includeOverride ?? include) + "</root>";
 		var settings = new XmlReaderSettings { Async = useAsync, XmlResolver = resolver };
 		var innerReader = XmlReader.Create(new StringReader(source), settings, baseUri: "https://example.test/root.xml");
 

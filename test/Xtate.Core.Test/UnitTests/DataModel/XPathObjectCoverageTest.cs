@@ -24,6 +24,55 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 [TestClass]
 public class XPathObjectCoverageTest
 {
+	public static IEnumerable<object[]> TypedTextValues => new[]
+	{
+		new object[] { new DataModelValue(true), "true" },
+		new object[] { new DataModelValue(42), "42" },
+		new object[] { new DataModelValue(2147483648L), "2147483648" },
+		new object[] { new DataModelValue(1.25d), "1.25" },
+		new object[] { new DataModelValue(1.25m), "1.25" },
+		new object[] { new DataModelValue(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)), "2026-01-02T03:04:05Z" },
+		new object[] { new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2))), "2026-01-02T03:04:05+02:00" }
+	};
+
+	[TestMethod]
+	[DynamicData(nameof(TypedTextValues))]
+	public void TypedTextNodeSerializesUsingXmlLexicalForm(DataModelValue value, string expected)
+	{
+		var list = new DataModelList { ["value"] = value };
+		var iterator = new DataModelXPathNavigator(list).Select("value/text()");
+		Assert.AreEqual(expected, new XPathObject(iterator).ToObject());
+	}
+
+	[TestMethod]
+	public void MixedElementAndTextSelectionPreservesTextEntries()
+	{
+		var data = XmlConverter.FromXml("<root><child>one</child>two</root>");
+		var result = (DataModelList)new XPathObject(new DataModelXPathNavigator(data).Select("root/node()")).ToObject()!;
+		Assert.AreEqual(2, result.Count);
+		Assert.AreEqual("one", result["child"].AsString());
+		Assert.AreEqual("two", result[1].AsString());
+	}
+
+	[TestMethod]
+	public void MixedDataModelNodeSelectionPreservesElementAndTextEntries()
+	{
+		var children = new DataModelList();
+		children.Add("child", "one");
+		children.Add(key: null, "two", metadata: null);
+		var data = new DataModelList { ["root"] = children };
+		var result = (DataModelList)new XPathObject(new DataModelXPathNavigator(data).Select("root/node()")).ToObject()!;
+		Assert.AreEqual(2, result.Count);
+		Assert.AreEqual("one", result["child"].AsString());
+		Assert.AreEqual("two", result[1].AsString());
+	}
+	[TestMethod]
+	public void AttributeSelectionCannotBeConvertedToAnElementOrTextObject()
+	{
+		var data = XmlConverter.FromXml("<root attribute='value'/>");
+		var value = new XPathObject(new DataModelXPathNavigator(data).Select("root/@attribute"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => value.ToObject());
+	}
 	[TestMethod]
 	public void ScalarObjectsExposeTypeObjectAndXPathConversions()
 	{

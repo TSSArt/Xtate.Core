@@ -177,6 +177,11 @@ public class DataModelXPathNavigator : XPathNavigator
 
 	public override bool MoveToFirstNamespace(XPathNamespaceScope namespaceScope)
 	{
+		if (Current.GetNodeType() != XPathNodeType.Element)
+		{
+			return false;
+		}
+
 		if (Current.GetFirstNamespace(out var namespaceNode))
 		{
 			PushNode(namespaceNode);
@@ -184,21 +189,70 @@ public class DataModelXPathNavigator : XPathNavigator
 			return true;
 		}
 
-		return MoveToParentFirstNamespace(namespaceScope);
+		return MoveToInheritedNamespace(_pathLength - 1, namespaceScope, push: true);
 	}
 
-	public override bool MoveToNextNamespace(XPathNamespaceScope namespaceScope) => _pathLength != 0 && (Parent.GetNextNamespace(ref Current) || MoveToParentFirstNamespace(namespaceScope));
+	public override bool MoveToNextNamespace(XPathNamespaceScope namespaceScope)
+	{
+		if (_pathLength == 0 || Current.GetNodeType() != XPathNodeType.Namespace || Current.Adapter == AdapterFactory.XmlnsXmlNodeAdapter)
+		{
+			return false;
+		}
 
-	private bool MoveToParentFirstNamespace(XPathNamespaceScope namespaceScope)
+		var elementIndex = _pathLength - 1;
+
+		// The namespace node keeps the metadata of its declaring element, which may be an ancestor of its parent.
+		for (var index = elementIndex; index >= 0; index --)
+		{
+			if (!ReferenceEquals(PathItem(index).Metadata, Current.Metadata))
+			{
+				continue;
+			}
+
+			var namespaceNode = Current;
+
+			while (PathItem(index).GetNextNamespace(ref namespaceNode))
+			{
+				if (index == elementIndex || !IsNamespaceHidden(namespaceNode.GetLocalName(), index, elementIndex))
+				{
+					Current = namespaceNode;
+
+					return true;
+				}
+			}
+
+			return MoveToInheritedNamespace(index - 1, namespaceScope, push: false);
+		}
+
+		return false;
+	}
+
+	private bool MoveToInheritedNamespace(int ancestorIndex, XPathNamespaceScope namespaceScope, bool push)
 	{
 		if (namespaceScope == XPathNamespaceScope.Local)
 		{
 			return false;
 		}
 
-		if (MoveToParent() && MoveToFirstNamespace(namespaceScope))
+		var elementIndex = push ? ancestorIndex + 1 : _pathLength - 1;
+
+		for (var index = ancestorIndex; index >= 0; index --)
 		{
-			return true;
+			if (!PathItem(index).GetFirstNamespace(out var namespaceNode))
+			{
+				continue;
+			}
+
+			do
+			{
+				if (!IsNamespaceHidden(namespaceNode.GetLocalName(), index, elementIndex))
+				{
+					SetNamespaceNode(namespaceNode, push);
+
+					return true;
+				}
+			}
+			while (PathItem(index).GetNextNamespace(ref namespaceNode));
 		}
 
 		if (namespaceScope == XPathNamespaceScope.ExcludeXml)
@@ -206,9 +260,44 @@ public class DataModelXPathNavigator : XPathNavigator
 			return false;
 		}
 
-		Current = new Node(DataModelValue.Undefined, AdapterFactory.XmlnsXmlNodeAdapter);
+		SetNamespaceNode(new Node(DataModelValue.Undefined, AdapterFactory.XmlnsXmlNodeAdapter), push);
 
 		return true;
+	}
+
+	// A prefix declared on an ancestor is hidden when an element between the declaring one (exclusive) and the context element (inclusive) redeclares it.
+	private bool IsNamespaceHidden(string prefix, int declaringIndex, int elementIndex)
+	{
+		for (var index = declaringIndex + 1; index <= elementIndex; index ++)
+		{
+			if (!PathItem(index).GetFirstNamespace(out var namespaceNode))
+			{
+				continue;
+			}
+
+			do
+			{
+				if (namespaceNode.GetLocalName() == prefix)
+				{
+					return true;
+				}
+			}
+			while (PathItem(index).GetNextNamespace(ref namespaceNode));
+		}
+
+		return false;
+	}
+
+	private void SetNamespaceNode(Node namespaceNode, bool push)
+	{
+		if (push)
+		{
+			PushNode(namespaceNode);
+		}
+		else
+		{
+			Current = namespaceNode;
+		}
 	}
 
 	public override XPathNavigator Clone() => new DataModelXPathNavigator(this);
@@ -494,7 +583,8 @@ public class DataModelXPathNavigator : XPathNavigator
 
 		var includeElement = new Element(Current.ParentProperty, value);
 
-		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement, valueObject: null), out var value1))
+		// The top-level list has no parent to collapse into, so normalization must stop below it.
+		if (_pathLength > 1 && ShouldNormalize(Entries(list, Current.ParentIndex, includeElement, valueObject: null), out var value1))
 		{
 			PopNode();
 

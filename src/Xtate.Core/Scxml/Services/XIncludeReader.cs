@@ -372,7 +372,7 @@ public class XIncludeReader : DelegatedXmlReader
 
 		await using (stream.ConfigureAwait(false))
 		{
-			using var xmlReader = Create(stream);
+			using var xmlReader = Create(stream, new XmlReaderSettings { Async = useAsync });
 
 			var stringBuilder = new StringBuilder();
 

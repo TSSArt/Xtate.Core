@@ -188,7 +188,7 @@ public class NamedPipeController(IOptions<NamedPipeIoProcessorOptions> options)
 
 			while (length > 0)
 			{
-				var read = await pipeStream.ReadAsync(buffer, offset, (int)length - offset, token).ConfigureAwait(false);
+				var read = await pipeStream.ReadAsync(buffer, offset, (int)length, token).ConfigureAwait(false);
 
 				if (read == 0)
 				{

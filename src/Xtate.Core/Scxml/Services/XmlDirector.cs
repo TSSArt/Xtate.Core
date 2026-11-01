@@ -556,6 +556,7 @@ public abstract class XmlDirector<TDirector> where TDirector : XmlDirector<TDire
 			Infra.RequiresNonEmptyString(name);
 			Infra.Requires(located);
 
+			UseRawContent(value: false);
 			policy.AddElement(ns, name, located, ElementType.ZeroToOne);
 
 			return this;

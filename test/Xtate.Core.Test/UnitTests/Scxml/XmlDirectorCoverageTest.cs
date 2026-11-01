@@ -81,6 +81,46 @@ public class XmlDirectorCoverageTest
 		Assert.AreEqual(expected: 14, CoverageDirector.SysOneToManyFound);
 	}
 
+	[TestMethod]
+	[DataRow("raw")]
+	[DataRow("attribute")]
+	[DataRow("element")]
+	public async Task PolicyCallbackFailuresAreReported(string kind)
+	{
+		var director = CreateDirector("<root value='one'><child/></root>", true);
+		await director.PopulateFailure(kind);
+		var expected = kind switch
+		{
+			"raw" => Resources.ErrorMessage_FailureContentProcessing,
+			"attribute" => Resources.ErrorMessage_FailureAttributeProcessing,
+			_ => Resources.ErrorMessage_FailureElementProcessing
+		};
+		CollectionAssert.Contains(director.Errors, expected);
+	}
+
+	[TestMethod]
+	public async Task PopulationAtEndOfInputReturnsTheUnchangedModel()
+	{
+		var director = CreateDirector("<root/>", true);
+		await director.PopulateRaw();
+		var result = await director.PopulateModel();
+		Assert.IsNull(result.Required);
+		Assert.IsEmpty(result.Elements);
+	}
+
+	[TestMethod]
+	[DataRow("duplicate")]
+	[DataRow("raw-after-single")]
+	[DataRow("single-after-raw")]
+	public void IncompatibleRawContentAndElementPoliciesAreRejected(string kind) =>
+		Assert.ThrowsExactly<ArgumentException>(() => CoverageDirector.BuildInvalidPolicy(kind));
+
+	[TestMethod]
+	[DataRow("raw-after-element")]
+	[DataRow("element-after-raw")]
+	public void IncompatibleOptionalElementAndRawContentPoliciesAreRejected(string kind) =>
+		Assert.ThrowsExactly<ArgumentException>(() => CoverageDirector.BuildInvalidPolicy(kind));
+
 	private static CoverageDirector CreateDirector(string xml, bool useAsync)
 	{
 		var settings = new XmlReaderSettings { Async = useAsync };
@@ -140,6 +180,43 @@ public class XmlDirectorCoverageTest
 		public ValueTask<Model> PopulateRaw() => Populate(new Model(), RawPolicy);
 
 		public ValueTask<Model> PopulateUnknown() => Populate(new Model(), UnknownPolicy);
+
+		public ValueTask<Model> PopulateFailure(string kind)
+		{
+			var policy = BuildPolicy<Model>(builder =>
+			{
+				if (kind == "raw")
+				{
+					builder.RawContent((_, _) => throw new InvalidOperationException("raw content failed"));
+				}
+				else if (kind == "attribute")
+				{
+					builder.OptionalAttribute("value", (_, _) => throw new InvalidOperationException("attribute failed"));
+				}
+				else
+				{
+					builder.OptionalElement("child", (director, _) =>
+					{
+						director._reader.Close();
+						throw new InvalidOperationException("child failed");
+					});
+				}
+			});
+			policy.FillNameTable(_reader.NameTable!);
+			return Populate(new Model(), policy);
+		}
+
+		public static void BuildInvalidPolicy(string kind) => BuildPolicy<Model>(builder =>
+		{
+			switch (kind)
+			{
+				case "duplicate": builder.RawContent((_, _) => { }).RawContent((_, _) => { }); break;
+				case "raw-after-element": builder.OptionalElement("child", VisitElement).RawContent((_, _) => { }); break;
+				case "element-after-raw": builder.RawContent((_, _) => { }).OptionalElement("child", VisitElement); break;
+				case "raw-after-single": builder.SingleElement("child", VisitElement).RawContent((_, _) => { }); break;
+				case "single-after-raw": builder.RawContent((_, _) => { }).SingleElement("child", VisitElement); break;
+			}
+		});
 
 		public ValueTask SkipCurrent() => Skip();
 
