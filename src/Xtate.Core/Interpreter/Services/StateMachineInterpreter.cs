@@ -752,12 +752,12 @@ public class StateMachineInterpreter : IStateMachineInterpreter
 
 					StateMachineContext.InternalQueue.Enqueue(new IncomingEvent { Type = EventType.Internal, Name = EventName.GetDoneStateName(parent.Id), Data = doneData });
 
-					if (grandparent is ParallelNode)
+					// A completed parallel may in turn complete the parallel that encloses it.
+					while (grandparent is ParallelNode && grandparent.States.All(IsInFinalState))
 					{
-						if (grandparent.States.All(IsInFinalState))
-						{
-							StateMachineContext.InternalQueue.Enqueue(new IncomingEvent { Type = EventType.Internal, Name = EventName.GetDoneStateName(grandparent.Id) });
-						}
+						StateMachineContext.InternalQueue.Enqueue(new IncomingEvent { Type = EventType.Internal, Name = EventName.GetDoneStateName(grandparent.Id) });
+
+						grandparent = grandparent.Parent;
 					}
 				}
 			}

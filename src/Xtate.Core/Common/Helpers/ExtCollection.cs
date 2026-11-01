@@ -173,6 +173,11 @@ public class ExtCollection<TValue1, TValue2>(IEqualityComparer<TValue1>? compare
 			{
 				var newList = list.Remove(value2, _comparer2);
 
+				if (newList.Count == list.Count)
+				{
+					return false;
+				}
+
 				if (dictionary.TryUpdate(value1, newList.Count > 1 ? newList : newList[0], list))
 				{
 					Interlocked.Decrement(ref _count);

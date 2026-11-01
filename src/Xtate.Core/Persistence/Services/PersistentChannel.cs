@@ -64,6 +64,9 @@ public class PersistentChannel<T> : Channel<T> where T : class
 		Writer = new ChannelWriter(this);
 	}
 
+	// A direct handoff must not overtake items that are already queued in the storage.
+	private bool CanHandOff => _waitCount > 0 && _tailIndex == _headIndex;
+
 	private int Count => unchecked(_tailIndex - _headIndex) + (_nextItem is not null ? 1 : 0);
 
 	private bool TryRead([MaybeNullWhen(false)] out T item)
@@ -146,7 +149,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 			throw new ChannelClosedException();
 		}
 
-		if (_waitCount == 0 || Interlocked.CompareExchange(ref _nextItem, item, comparand: null) is not null)
+		if (!CanHandOff || Interlocked.CompareExchange(ref _nextItem, item, comparand: null) is not null)
 		{
 			return false;
 		}
@@ -165,7 +168,7 @@ public class PersistentChannel<T> : Channel<T> where T : class
 			throw new ChannelClosedException();
 		}
 
-		if (_waitCount == 0 || Interlocked.CompareExchange(ref _nextItem, item, comparand: null) is not null)
+		if (!CanHandOff || Interlocked.CompareExchange(ref _nextItem, item, comparand: null) is not null)
 		{
 			await Enqueue(item, token).ConfigureAwait(false);
 		}
@@ -204,6 +207,13 @@ public class PersistentChannel<T> : Channel<T> where T : class
 	{
 		await _lock.WaitAsync(token).ConfigureAwait(false);
 
+		if (_nextItem is not null)
+		{
+			_lock.Release();
+
+			return;
+		}
+
 		var cellIndex = unchecked(++_headIndex);
 		T? item = null;
 
@@ -216,10 +226,12 @@ public class PersistentChannel<T> : Channel<T> where T : class
 
 			await _storage.CheckPoint(0).ConfigureAwait(false);
 
-			if (Interlocked.CompareExchange(ref _nextItem, item, comparand: null) is not null)
+			// A newer item may have been handed off directly while this one was being restored.
+			// Keep the older item first in line and return the newer one to the head of the storage.
+			if (Interlocked.Exchange(ref _nextItem, item) is { } newerItem)
 			{
 				_bucket.Add(Keys.Head, unchecked(--_headIndex));
-				_store(_bucket.Nested(cellIndex), item);
+				_store(_bucket.Nested(cellIndex), newerItem);
 
 				await _storage.CheckPoint(0).ConfigureAwait(false);
 			}

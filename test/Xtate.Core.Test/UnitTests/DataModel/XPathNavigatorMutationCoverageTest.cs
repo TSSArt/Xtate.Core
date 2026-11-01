@@ -17,7 +17,6 @@
 
 
 using System.IO;
-using System.Xml;
 using System.Xml.XPath;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
@@ -27,6 +26,49 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 [TestClass]
 public class XPathNavigatorMutationCoverageTest
 {
+	[TestMethod]
+	public void ReplacingAnElementInsideAnAnonymousListCollapsesBothScalarWrappers()
+	{
+		var anonymous = new DataModelList { new DataModelList { ["child"] = "old" } };
+		var data = new DataModelList { ["root"] = anonymous };
+		var navigator = (DataModelXPathNavigator)new DataModelXPathNavigator(data).SelectSingleNode("root/*/child")!;
+		navigator.Replace(new XPathObject("new"));
+		Assert.AreEqual("new", data["root"].AsString());
+	}
+
+	[TestMethod]
+	public void DeletingSiblingOfTopLevelTextKeepsTheText()
+	{
+		var data = new DataModelList();
+		data.Add(key: null, "text", metadata: null);
+		data.Add("child", "old", metadata: null);
+		new DataModelXPathNavigator(data).SelectSingleNode("child")!.DeleteSelf();
+		Assert.AreEqual(1, data.Count);
+		Assert.AreEqual("text", data.Entries.Single().Value.AsString());
+		Assert.IsNull(data.Entries.Single().Key);
+	}
+
+	[TestMethod]
+	public void InsertingBeforeTopLevelElementKeepsBothEntries()
+	{
+		var data = new DataModelList { ["child"] = "old" };
+		var navigator = (DataModelXPathNavigator)new DataModelXPathNavigator(data).SelectSingleNode("child")!;
+		navigator.PreviousSibling(new XPathObject("new"));
+		Assert.AreEqual(2, data.Count);
+		Assert.AreEqual("new", data.Entries.First().Value.AsString());
+		Assert.AreEqual("old", data["child"].AsString());
+	}
+
+	[TestMethod]
+	public void ReplacingTheOnlyTopLevelElementWithTextPreservesTheReplacement()
+	{
+		var data = new DataModelList { ["child"] = "old" };
+		var navigator = (DataModelXPathNavigator)new DataModelXPathNavigator(data).SelectSingleNode("child")!;
+		navigator.Replace(new XPathObject("new"));
+		Assert.AreEqual("new", new DataModelXPathNavigator(data).Value);
+		Assert.AreEqual(1, data.Count);
+		Assert.IsNull(data.Entries.Single().Key);
+	}
 	[TestMethod]
 	[DataRow("first", "newold")]
 	[DataRow("last", "oldnew")]
@@ -219,11 +261,11 @@ public class XPathNavigatorMutationCoverageTest
 		var data = new DataModelList { ["root"] = "text" };
 		var navigator = new DataModelXPathNavigator(data).SelectSingleNode("root")!;
 		navigator.CreateAttribute(null, "first", null, "one");
-		navigator = new DataModelXPathNavigator(data).SelectSingleNode("root")!;
-		navigator.CreateAttribute(null, "second", null, null);
-		navigator = new DataModelXPathNavigator(data).SelectSingleNode("root")!;
-		Assert.AreEqual("one", navigator.GetAttribute("first", ""));
-		Assert.AreEqual("", navigator.GetAttribute("second", ""));
-		Assert.IsTrue(navigator.HasAttributes);
+		var secondNavigator = new DataModelXPathNavigator(data).SelectSingleNode("root")!;
+		secondNavigator.CreateAttribute(null, "second", null, null);
+		var reloaded = new DataModelXPathNavigator(data).SelectSingleNode("root")!;
+		Assert.AreEqual("one", reloaded.GetAttribute("first", ""));
+		Assert.AreEqual("", reloaded.GetAttribute("second", ""));
+		Assert.IsTrue(reloaded.HasAttributes);
 	}
 }

@@ -383,7 +383,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 		var list = Parent.DataModelValue.AsList();
 
-		if (ShouldNormalize(Entries(list, replace ? Current.ParentIndex : -1, includeElement: default, valueObject), out var value))
+		if (_pathLength > 1 && ShouldNormalize(Entries(list, replace ? Current.ParentIndex : -1, includeElement: default, valueObject), out var value))
 		{
 			PopNode();
 
@@ -535,7 +535,7 @@ public class DataModelXPathNavigator : XPathNavigator
 
 		var list = Parent.DataModelValue.AsList();
 
-		if (ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: null), out var value))
+		if (_pathLength > 1 && ShouldNormalize(Entries(list, Current.ParentIndex, includeElement: default, valueObject: null), out var value))
 		{
 			PopNode();
 

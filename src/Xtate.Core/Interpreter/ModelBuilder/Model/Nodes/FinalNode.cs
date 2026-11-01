@@ -39,6 +39,8 @@ public class FinalNode(DocumentIdNode documentIdNode, IFinal final) : StateEntit
 
 	public override bool IsAtomicState => true;
 
+	public override DataModelNode? DataModel => null;
+
 #region Interface IAncestorProvider
 
 	object IAncestorProvider.Ancestor => final;

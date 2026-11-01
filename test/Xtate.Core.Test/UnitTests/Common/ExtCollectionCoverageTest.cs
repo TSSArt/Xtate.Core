@@ -24,6 +24,63 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class ExtCollectionCoverageTest
 {
 	[TestMethod]
+	public void RemovingAnAbsentValueFromAMultiValueKeyDoesNotChangeTheCount()
+	{
+		var collection = new ExtCollection<string, string>();
+		collection.Add("key", "first");
+		collection.Add("key", "second");
+		Assert.IsFalse(collection.Remove("key", "missing"));
+		Assert.AreEqual(2, collection.Count);
+		Assert.IsTrue(collection.TryRemoveGroup("key", out var values));
+		CollectionAssert.AreEqual(new[] { "first", "second" }, values.ToArray());
+	}
+	[TestMethod]
+	public void ExtDictionaryRetriesUpdateAndDeleteWhenFactoriesObserveACompetingChange()
+	{
+		var dictionary = new ExtDictionary<string, int> { ["key"] = 1 };
+		var updates = 0;
+		Assert.AreEqual(11, dictionary.UpdateOrRemove("key", (_, _, _) => false, (_, value, _) =>
+		{
+			if (++updates == 1) dictionary["key"] = 10;
+			return value + 1;
+		}, 0));
+		Assert.AreEqual(2, updates);
+		var deletes = 0;
+		Assert.AreEqual(0, dictionary.UpdateOrRemove("key", (_, _, _) =>
+		{
+			if (++deletes == 1) dictionary["key"] = 20;
+			return true;
+		}, (_, value, _) => value, 0));
+		Assert.AreEqual(2, deletes);
+		Assert.IsTrue(dictionary.IsEmpty);
+	}
+
+	[TestMethod]
+	public async Task ExtDictionarySharesPendingLookupAndReturnsMissingResultWithoutRegistration()
+	{
+		var dictionary = new ExtDictionary<string, int>();
+		Assert.IsFalse((await dictionary.TryGetValueAsync("missing")).Found);
+		Assert.IsTrue(dictionary.TryAddPending("pending"));
+		var first = dictionary.TryGetValueAsync("pending").AsTask();
+		var second = dictionary.TryGetValueAsync("pending").AsTask();
+		Assert.AreSame(first, second);
+		dictionary["pending"] = 42;
+		Assert.AreEqual((true, 42), await first);
+		Assert.AreEqual((true, 42), await second);
+	}
+
+	[TestMethod]
+	public void EmptyExtCollectionSupportsEnumerationAndMissingRemoval()
+	{
+		var collection = new ExtCollection<int, string>();
+		Assert.IsEmpty(collection);
+		Assert.IsFalse(collection.Remove(1, "missing"));
+		collection.Add(2, "other");
+		Assert.IsFalse(collection.Remove(1, "missing"));
+		Assert.AreEqual(1, collection.Count);
+	}
+
+	[TestMethod]
 	public async Task ExtDictionaryCompletesPendingLookupWhenValueIsAddedUpdatedOrRemoved()
 	{
 		var dictionary = new ExtDictionary<string, int>(StringComparer.OrdinalIgnoreCase);
