@@ -31,6 +31,20 @@ namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 public class ExternalServiceInfrastructureCoverageTest
 {
 	[TestMethod]
+	public async Task LocalCollectionDispatchesThroughAGloballyRegisteredController()
+	{
+		var id = InvokeId.FromString("global");
+		var controller = new Mock<IExternalServiceController>();
+		var global = new ExternalServiceGlobalCollection();
+		global.SetExternalServiceController(id.UniqueId, controller.Object);
+		var deadLetters = new Mock<IDeadLetterQueue<IExternalServiceCollection>>(MockBehavior.Strict);
+		var collection = new ExternalServiceCollection { ExternalServiceGlobalCollection = global, DeadLetterQueue = deadLetters.Object };
+		var message = new IncomingEvent { Name = (EventName)"global.event" };
+		await collection.Dispatch(id, message, CancellationToken.None);
+		controller.Verify(value => value.Dispatch(message, CancellationToken.None), Times.Once);
+		deadLetters.VerifyNoOtherCalls();
+	}
+	[TestMethod]
 	public async Task GlobalCollectionWaitsForRegisteredControllerDispatchesEventsAndUnregisters()
 	{
 		var collection = new ExternalServiceGlobalCollection();
@@ -187,12 +201,12 @@ public class ExternalServiceInfrastructureCoverageTest
 		match.Setup(p => p.TryGetActivator(new FullUri("urn:service"))).Returns(activator.Object);
 		var factory = new ExternalServiceFactory
 					  {
-						  ServiceFactories = ToAsyncEnumerable(miss.Object, match.Object),
+						  ServiceFactories = ToAsyncEnumerable(miss.Object, match.Object, miss.Object),
 						  ExternalServiceType = Mock.Of<IExternalServiceType>(t => t.Type == new FullUri("urn:service"))
 					  };
 
 		Assert.AreSame(expectedService, await factory.CreateService());
-		miss.Verify(p => p.TryGetActivator(new FullUri("urn:service")), Times.Once);
+		miss.Verify(p => p.TryGetActivator(new FullUri("urn:service")), Times.Exactly(2));
 		match.Verify(p => p.TryGetActivator(new FullUri("urn:service")), Times.Once);
 		activator.Verify(static a => a.Create(), Times.Once);
 	}

@@ -16,12 +16,23 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Xtate.StateMachine.Internal;
+using Xtate.DataTypes;
 
 namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class SegmentedNameCoverageTest
 {
+	[TestMethod]
+	public void NumericDataModelSegmentsUseSpanFormattingAndRespectCapacity()
+	{
+		ImmutableArray<DataModelNumber> segments = [DataModelNumber.FromInt32(12), DataModelNumber.FromInt32(34)];
+		var destination = new char[5];
+		Assert.IsTrue(SegmentedName.TryFormat(segments, ".", destination, out var written));
+		Assert.AreEqual("12.34", new string(destination, 0, written));
+		Assert.IsFalse(SegmentedName.TryFormat(segments, ".", new char[4], out written));
+		Assert.AreEqual(3, written);
+	}
 	[TestMethod]
 	public void EmptyHashAndNullSegmentsHaveStableEmptyRepresentations()
 	{

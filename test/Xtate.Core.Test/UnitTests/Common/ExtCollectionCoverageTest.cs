@@ -24,6 +24,31 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class ExtCollectionCoverageTest
 {
 	[TestMethod]
+	public void RemovingTheOnlyValueRemovesTheGroupAndDecrementsTheCount()
+	{
+		var collection = new ExtCollection<string, string>();
+		collection.Add("key", "value");
+		Assert.IsTrue(collection.Remove("key", "value"));
+		Assert.AreEqual(0, collection.Count);
+		Assert.IsFalse(collection.TryRemoveGroup("key", out _));
+	}
+
+	[TestMethod]
+	public void GetOrAddKeepsAValuePublishedWhileItsFactoryWasRunning()
+	{
+		var dictionary = new ExtDictionary<string, int>();
+		var calls = 0;
+		var actual = dictionary.GetOrAdd("key", (_, _) =>
+		{
+			calls++;
+			dictionary["key"] = 42;
+			return 7;
+		}, 0);
+		Assert.AreEqual(42, actual);
+		Assert.AreEqual(1, calls);
+		Assert.AreEqual(0, dictionary.UpdateOrRemove("missing", (_, _, _) => throw new InvalidOperationException(), (_, _, _) => throw new InvalidOperationException(), 0));
+	}
+	[TestMethod]
 	public void RemovingAnAbsentValueFromAMultiValueKeyDoesNotChangeTheCount()
 	{
 		var collection = new ExtCollection<string, string>();

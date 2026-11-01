@@ -27,12 +27,60 @@ using Xtate.IoProcessors.NamedPipe;
 using Xtate.IoProcessors.NamedPipe.Services;
 using Xtate.Persistence.Services;
 using Xtate.Persistence.Extensions;
+using Xtate.Persistence.Internal;
 
 namespace Xtate.Core.Test.UnitTests.IoProcessors;
 
 [TestClass]
 public class NamedPipeFramingCoverageTest
 {
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public async Task SenderRejectsMismatchedTimestampsAndUnknownResponseErrors(bool unknownError)
+	{
+		var name = Guid.NewGuid().ToString("N");
+		var options = new NamedPipeIoProcessorOptions { Name = name, Timeout = TimeSpan.FromSeconds(10) };
+		var controller = new NamedPipeController(Mock.Of<IOptions<NamedPipeIoProcessorOptions>>(value => value.Value == options));
+		var pipeName = (string)typeof(NamedPipeController).GetMethod("GetPipeName", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [name])!;
+		using var pipe = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+		var server = Respond();
+		try
+		{
+			if (unknownError)
+			{
+				await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
+					await controller.SendEvent(null, null, SessionId.FromString("target"), new IncomingEvent(), timeout.Token));
+			}
+			else
+			{
+				await Assert.ThrowsExactlyAsync<ProcessorException>(async () =>
+					await controller.SendEvent(null, null, SessionId.FromString("target"), new IncomingEvent(), timeout.Token));
+			}
+		}
+		finally
+		{
+			await server;
+		}
+
+		async Task Respond()
+		{
+			await pipe.WaitForConnectionAsync(timeout.Token);
+			var read = typeof(NamedPipeController).GetMethod("ReceiveMessage", BindingFlags.Instance | BindingFlags.NonPublic)!.MakeGenericMethod(typeof(NamedPipeEventMessage));
+			Func<Bucket, NamedPipeEventMessage> restore = bucket => new NamedPipeEventMessage(bucket);
+			var request = await (ValueTask<NamedPipeEventMessage>)read.Invoke(controller, [pipe, restore, timeout.Token])!;
+			using var storage = new InMemoryStorage(false);
+			var bucket = new Bucket(storage);
+			new NamedPipeResponseMessage(request.Timestamp.AddTicks(1)).Store(bucket);
+			if (unknownError) bucket.Add(Key.Type, (NamedPipeErrorType)999);
+			var length = storage.GetTransactionLogSize();
+			var frame = new byte[sizeof(long) + length];
+			Array.Copy(BitConverter.GetBytes((long)length), frame, sizeof(long));
+			storage.WriteTransactionLogToSpan(frame.AsSpan(sizeof(long)), false);
+			await pipe.WriteAsync(frame, 0, frame.Length, timeout.Token);
+		}
+	}
 	[TestMethod]
 	public async Task OversizedOutgoingMessageIsRejectedBeforeWritingToThePipe()
 	{

@@ -22,12 +22,31 @@ using Xtate.DataTypes;
 using Xtate.IoC;
 using Xtate.StateMachineHost;
 using Xtate.StateMachineHost.DependencyInjection;
+using Xtate.StateMachine.Validator;
 
 namespace Xtate.Core.Test.UnitTests.Interpreter;
 
 [TestClass]
 public class InterpreterParallelTransitionCoverageTest
 {
+	[TestMethod]
+	public async Task UndefinedTransitionTargetIsReportedAsAValidationError()
+	{
+		const string source = "<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'><state id='work'><transition target='missing'/></state></scxml>";
+		var error = await Assert.ThrowsExactlyAsync<DependencyInjectionException>(async () => await Execute(source));
+		Assert.IsInstanceOfType<StateMachineValidationException>(error.GetBaseException());
+	}
+	[TestMethod]
+	public async Task FailedInvokeIsHandledBeforeWaitingForAnotherExternalEvent()
+	{
+		const string source = """
+			<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0">
+			  <state id="work"><invoke type="urn:unregistered-service"/><transition event="error.communication" target="done"/></state>
+			  <final id="done"><donedata><content>handled</content></donedata></final>
+			</scxml>
+			""";
+		Assert.AreEqual("handled", (await Execute(source)).AsString());
+	}
 	[TestMethod]
 	public async Task DrainingALargeInternalQueueIsProgressRatherThanLiveLock()
 	{

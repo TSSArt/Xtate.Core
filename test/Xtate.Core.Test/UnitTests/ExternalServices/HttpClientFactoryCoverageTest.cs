@@ -23,6 +23,24 @@ namespace Xtate.Core.Test.UnitTests.ExternalServices;
 [TestClass]
 public class HttpClientFactoryCoverageTest
 {
+#if NET462
+	[TestMethod]
+	public void ExpiredLegacyHandlersAreReplacedAndReleasedAfterTheirGracePeriod()
+	{
+		using var factory = new HttpClientFactory { HandlerLifetime = TimeSpan.Zero, HandlerGracePeriod = TimeSpan.Zero };
+		using var first = factory.GetClient();
+		var firstEntry = GetActiveEntry(factory)!;
+		using var second = factory.GetClient();
+		var secondEntry = GetActiveEntry(factory)!;
+		Assert.AreNotSame(firstEntry, secondEntry);
+		using var third = factory.GetClient();
+		var thirdEntry = GetActiveEntry(factory)!;
+		Assert.AreNotSame(secondEntry, thirdEntry);
+		var next = thirdEntry.GetType().GetField("NextEntry")!;
+		Assert.AreSame(secondEntry, next.GetValue(thirdEntry));
+		Assert.IsNull(next.GetValue(secondEntry));
+	}
+#endif
 	[TestMethod]
 	public void FactoryCreatesDistinctClientsOverSharedActiveHandlerAndDisposesIdempotently()
 	{

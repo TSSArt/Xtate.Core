@@ -37,7 +37,7 @@ public class StateMachineDestroyOnIdle
 
 	public required IDestroyOnIdleTimeout? DestroyOnIdleTimeout { private get; [SetByIoC] init; }
 	
-	public required ITaskMonitor? TaskMonitor { private get; [SetByIoC] init; }
+	public required ITaskMonitor TaskMonitor { private get; [SetByIoC] init; }
 
 	public ValueTask<INotifyStateChanged?> Factory()
 	{

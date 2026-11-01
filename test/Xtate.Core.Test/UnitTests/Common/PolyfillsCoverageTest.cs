@@ -29,6 +29,31 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class PolyfillsCoverageTest
 {
 	[TestMethod]
+	public async Task SuppressedExecutionContextWaitStillPublishesTheTaskResult()
+	{
+		using var cancellation = new CancellationTokenSource();
+		var completion = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+		Task<int> wait;
+		using (ExecutionContext.SuppressFlow())
+		{
+			wait = completion.Task.WaitAsync(cancellation.Token);
+		}
+		completion.SetResult(42);
+		Assert.AreEqual(42, await wait);
+	}
+
+	[TestMethod]
+	public async Task SetCanceledRetainsTheTokenAndRejectsAnAlreadyCompletedSource()
+	{
+		using var cancellation = new CancellationTokenSource();
+		cancellation.Cancel();
+		var completion = new TaskCompletionSource<int>();
+		completion.SetCanceled(cancellation.Token);
+		var error = await Assert.ThrowsExactlyAsync<TaskCanceledException>(async () => await completion.Task);
+		Assert.AreEqual(cancellation.Token, error.CancellationToken);
+		Assert.ThrowsExactly<InvalidOperationException>(() => completion.SetCanceled(cancellation.Token));
+	}
+	[TestMethod]
 	public void BitConverterTryWriteBytesWritesPrimitiveValuesAndRejectsSmallDestinations()
 	{
 		Assert.IsFalse(BitConverter.TryWriteBytes([], value: true));

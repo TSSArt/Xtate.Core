@@ -25,6 +25,14 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class BucketConverterCoverageTest
 {
 	[TestMethod]
+	public void ReadingAnExistingValueAsAnUnsupportedTypeIsRejected()
+	{
+		using var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage);
+		bucket.Add("stored", 42);
+		Assert.ThrowsExactly<NotSupportedException>(() => bucket.TryGet("stored", out decimal _));
+	}
+	[TestMethod]
 	public void BucketRoundTripsSupportedPrimitiveUriAndDataModelValues()
 	{
 		AssertSupportedPrimitiveUriAndDataModelValues(uint.MaxValue);

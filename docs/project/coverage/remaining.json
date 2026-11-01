@@ -1,48 +1,75 @@
 {
   "Date": "2026-11-01",
-  "LinesValid": 21661,
-  "Files": [
+  "PrimaryFramework": "net10.0",
+  "TargetLineRate": 0.99,
+  "LineRate": 0.9901000000000001,
+  "BranchRate": 0.9373,
+  "LinesCovered": 21521,
+  "LinesValid": 21736,
+  "CoverageArtifact": "TestResults/goal-final17/ser_apex_2026-11-01_19_19_15/In/apex/coverage.cobertura.xml",
+  "Frameworks": [
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/Services/StateMachineInterpreter.cs",
-      "UncoveredSequencePointLineCount": 35,
-      "Lines": [
-        "231",
-        "232",
-        "343",
-        "346",
-        "392",
-        "393",
-        "394",
-        "451",
-        "482",
-        "483",
-        "484",
-        "487",
-        "488",
-        "489",
-        "716",
-        "717",
-        "718",
-        "792",
-        "793",
-        "794",
-        "797",
-        "977",
-        "978",
-        "989",
-        "1107",
-        "1135",
-        "1136",
-        "1138",
-        "1155",
-        "1221",
-        "1222",
-        "1223",
-        "1224",
-        "1351",
-        "1352"
-      ]
+      "Framework": "net10.0",
+      "Passed": 4724,
+      "Failed": 0,
+      "Skipped": 0,
+      "LinesCovered": 21521,
+      "LinesValid": 21736,
+      "LineRate": 0.9901000000000001,
+      "BranchRate": 0.9373,
+      "CoverageArtifact": "TestResults/goal-final17/ser_apex_2026-11-01_19_19_15/In/apex/coverage.cobertura.xml",
+      "TestArtifact": "TestResults/goal-final17/full_net10.0_20261101191919.trx"
     },
+    {
+      "Framework": "net11.0",
+      "Passed": 4724,
+      "Failed": 0,
+      "Skipped": 0,
+      "LinesCovered": 21529,
+      "LinesValid": 21736,
+      "LineRate": 0.9904000000000001,
+      "BranchRate": 0.9378,
+      "CoverageArtifact": "TestResults/goal-final17/ser_apex_2026-11-01_19_19_09/In/apex/coverage.cobertura.xml",
+      "TestArtifact": "TestResults/goal-final17/full_net11.0_20261101191913.trx"
+    },
+    {
+      "Framework": "net462",
+      "Passed": 4723,
+      "Failed": 0,
+      "Skipped": 0,
+      "LinesCovered": 21789,
+      "LinesValid": 22008,
+      "LineRate": 0.99,
+      "BranchRate": 0.9344,
+      "CoverageArtifact": "TestResults/goal-final17/ser_apex_2026-11-01_19_19_34/In/apex/coverage.cobertura.xml",
+      "TestArtifact": "TestResults/goal-final17/full_net462_20261101191945.trx"
+    },
+    {
+      "Framework": "net8.0",
+      "Passed": 4724,
+      "Failed": 0,
+      "Skipped": 0,
+      "LinesCovered": 21520,
+      "LinesValid": 21735,
+      "LineRate": 0.9901000000000001,
+      "BranchRate": 0.9373,
+      "CoverageArtifact": "TestResults/goal-final17/ser_apex_2026-11-01_19_19_27/In/apex/coverage.cobertura.xml",
+      "TestArtifact": "TestResults/goal-final17/full_net8.0_20261101191931.trx"
+    },
+    {
+      "Framework": "net9.0",
+      "Passed": 4724,
+      "Failed": 0,
+      "Skipped": 0,
+      "LinesCovered": 21521,
+      "LinesValid": 21736,
+      "LineRate": 0.9901000000000001,
+      "BranchRate": 0.9373,
+      "CoverageArtifact": "TestResults/goal-final17/ser_apex_2026-11-01_19_19_21/In/apex/coverage.cobertura.xml",
+      "TestArtifact": "TestResults/goal-final17/full_net9.0_20261101191925.trx"
+    }
+  ],
+  "Files": [
     {
       "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/IoBoundTask/Services/IoBoundTaskScheduler.cs",
       "UncoveredSequencePointLineCount": 20,
@@ -70,97 +97,6 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/StateMachinePersistingInterpreter.cs",
-      "UncoveredSequencePointLineCount": 18,
-      "Lines": [
-        "106",
-        "107",
-        "219",
-        "241",
-        "242",
-        "243",
-        "266",
-        "267",
-        "268",
-        "271",
-        "272",
-        "273",
-        "306",
-        "307",
-        "308",
-        "474",
-        "476",
-        "478"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Services/XPathDataModelHandler.cs",
-      "UncoveredSequencePointLineCount": 18,
-      "Lines": [
-        "54",
-        "58",
-        "106",
-        "108",
-        "111",
-        "163",
-        "165",
-        "168",
-        "220",
-        "222",
-        "225",
-        "248",
-        "249",
-        "250",
-        "252",
-        "253",
-        "254",
-        "257"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/KeyListPersistingController.cs",
-      "UncoveredSequencePointLineCount": 17,
-      "Lines": [
-        "52",
-        "54",
-        "55",
-        "56",
-        "58",
-        "59",
-        "61",
-        "62",
-        "64",
-        "65",
-        "66",
-        "67",
-        "69",
-        "70",
-        "71",
-        "88",
-        "89"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelList.Core.cs",
-      "UncoveredSequencePointLineCount": 14,
-      "Lines": [
-        "114",
-        "115",
-        "393",
-        "394",
-        "396",
-        "436",
-        "665",
-        "666",
-        "667",
-        "1006",
-        "1022",
-        "1023",
-        "1044",
-        "1045"
-      ]
-    },
-    {
       "File": "Temp/Nuget/packages/xtate.sharedcontent/1.2.0/contentFiles/any/any/Properties/AnnotationsAttributes.cs",
       "UncoveredSequencePointLineCount": 13,
       "Lines": [
@@ -180,8 +116,43 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathObject.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XmlConverter.cs",
       "UncoveredSequencePointLineCount": 12,
+      "Lines": [
+        "264",
+        "275",
+        "276",
+        "277",
+        "285",
+        "286",
+        "287",
+        "353",
+        "394",
+        "402",
+        "436",
+        "444"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Services/XPathDataModelHandler.cs",
+      "UncoveredSequencePointLineCount": 11,
+      "Lines": [
+        "54",
+        "58",
+        "106",
+        "108",
+        "111",
+        "163",
+        "165",
+        "168",
+        "220",
+        "222",
+        "225"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathObject.cs",
+      "UncoveredSequencePointLineCount": 11,
       "Lines": [
         "43",
         "76",
@@ -193,187 +164,36 @@
         "137",
         "141",
         "215",
-        "217",
-        "220"
+        "217"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XmlConverter.cs",
-      "UncoveredSequencePointLineCount": 12,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/Services/StateMachineInterpreter.cs",
+      "UncoveredSequencePointLineCount": 10,
       "Lines": [
-        "256",
-        "267",
-        "268",
-        "269",
-        "277",
-        "278",
-        "279",
-        "336",
-        "377",
-        "385",
-        "419",
-        "427"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathNavigator/DataModelXPathNavigator.cs",
-      "UncoveredSequencePointLineCount": 11,
-      "Lines": [
-        "200",
-        "201",
-        "209",
-        "211",
-        "383",
-        "489",
-        "490",
-        "498",
-        "499",
-        "501",
-        "502"
+        "451",
+        "797",
+        "977",
+        "978",
+        "989",
+        "1107",
+        "1135",
+        "1136",
+        "1138",
+        "1155"
       ]
     },
     {
       "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/XmlDirector.cs",
-      "UncoveredSequencePointLineCount": 11,
+      "UncoveredSequencePointLineCount": 7,
       "Lines": [
-        "145",
-        "147",
         "148",
         "161",
-        "192",
-        "193",
         "233",
         "435",
         "436",
         "437",
-        "661"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/ExtDictionary.cs",
-      "UncoveredSequencePointLineCount": 10,
-      "Lines": [
-        "226",
-        "278",
-        "279",
-        "288",
-        "293",
-        "336",
-        "391",
-        "400",
-        "401",
-        "403"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/ExtCollection.cs",
-      "UncoveredSequencePointLineCount": 10,
-      "Lines": [
-        "42",
-        "43",
-        "125",
-        "143",
-        "166",
-        "167",
-        "182",
-        "193",
-        "198",
-        "199"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/PersistentChannel.cs",
-      "UncoveredSequencePointLineCount": 10,
-      "Lines": [
-        "145",
-        "146",
-        "150",
-        "151",
-        "220",
-        "221",
-        "222",
-        "224",
-        "225",
-        "299"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Services/DataModelConverter.cs",
-      "UncoveredSequencePointLineCount": 8,
-      "Lines": [
-        "102",
-        "116",
-        "232",
-        "281",
-        "297",
-        "309",
-        "352",
-        "353"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/NamedPipe/Services/NamedPipeController.cs",
-      "UncoveredSequencePointLineCount": 8,
-      "Lines": [
-        "138",
-        "139",
-        "148",
-        "224",
-        "253",
-        "254",
-        "281",
-        "282"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/StateMachineReader.cs",
-      "UncoveredSequencePointLineCount": 7,
-      "Lines": [
-        "174",
-        "254",
-        "352",
-        "353",
-        "354",
-        "355",
-        "356"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/XIncludeReader.cs",
-      "UncoveredSequencePointLineCount": 7,
-      "Lines": [
-        "123",
-        "382",
-        "383",
-        "384",
-        "385",
-        "386",
-        "387"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/Http/Services/HttpIoProcessorHost.cs",
-      "UncoveredSequencePointLineCount": 7,
-      "Lines": [
-        "64",
-        "65",
-        "71",
-        "72",
-        "73",
-        "78",
-        "80"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/DisposingToken.cs",
-      "UncoveredSequencePointLineCount": 6,
-      "Lines": [
-        "70",
-        "71",
-        "73",
-        "97",
-        "98",
-        "100"
+        "662"
       ]
     },
     {
@@ -389,73 +209,39 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/ScxmlDirector.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Services/DataModelConverter.cs",
       "UncoveredSequencePointLineCount": 6,
       "Lines": [
-        "306",
-        "307",
-        "471",
-        "472",
-        "512",
-        "513"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Logging/Services/Logger.cs",
-      "UncoveredSequencePointLineCount": 6,
-      "Lines": [
-        "221",
-        "222",
-        "223",
-        "224",
-        "225",
-        "226"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/StreamStorage.cs",
-      "UncoveredSequencePointLineCount": 6,
-      "Lines": [
-        "292",
-        "293",
-        "294",
-        "371",
-        "372",
-        "373"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelNumber.cs",
-      "UncoveredSequencePointLineCount": 6,
-      "Lines": [
-        "53",
-        "121",
-        "122",
-        "170",
         "232",
-        "455"
+        "281",
+        "297",
+        "309",
+        "352",
+        "353"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/Bucket.cs",
-      "UncoveredSequencePointLineCount": 5,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/ExtCollection.cs",
+      "UncoveredSequencePointLineCount": 6,
       "Lines": [
-        "378",
-        "413",
-        "474",
-        "519",
-        "521"
+        "125",
+        "143",
+        "187",
+        "198",
+        "203",
+        "204"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/ExternalServiceClass.cs",
-      "UncoveredSequencePointLineCount": 5,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/DisposingToken.cs",
+      "UncoveredSequencePointLineCount": 6,
       "Lines": [
-        "61",
-        "62",
-        "64",
-        "66",
-        "67"
+        "70",
+        "71",
+        "73",
+        "97",
+        "98",
+        "100"
       ]
     },
     {
@@ -470,106 +256,14 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/StateMachineScopeManager.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelList.Core.cs",
       "UncoveredSequencePointLineCount": 5,
       "Lines": [
-        "158",
-        "159",
-        "236",
-        "237",
-        "238"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelList.Adapters.cs",
-      "UncoveredSequencePointLineCount": 5,
-      "Lines": [
-        "230",
-        "231",
-        "232",
-        "233",
-        "234"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Properties/Resources.Designer.cs",
-      "UncoveredSequencePointLineCount": 5,
-      "Lines": [
-        "32",
-        "33",
-        "58",
-        "59",
-        "60"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachine/Internal/SegmentedName.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "53",
-        "54",
-        "105",
-        "106"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ExternalServices/HttpClient/Services/HttpClientService.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "90",
-        "91",
-        "95",
-        "96"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/NamedPipe/Services/NamedPipeIoProcessorHost.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "37",
-        "38",
-        "39",
-        "42"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathNavigator/NodeAdapters/ElementNodeAdapter.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "33",
-        "34",
-        "36",
-        "38"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/ModelBuilder/Services/InterpreterModelBuilder.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "166",
-        "460",
-        "461",
-        "462"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/ScxmlSerializerWriter.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "58",
-        "260",
-        "261",
-        "262"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/Http/Services/HttpController.cs",
-      "UncoveredSequencePointLineCount": 4,
-      "Lines": [
-        "145",
-        "185",
-        "222",
-        "287"
+        "436",
+        "665",
+        "666",
+        "667",
+        "1006"
       ]
     },
     {
@@ -583,66 +277,81 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/PersistentEventQueue.cs",
-      "UncoveredSequencePointLineCount": 3,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/Http/Services/HttpController.cs",
+      "UncoveredSequencePointLineCount": 4,
       "Lines": [
-        "52",
-        "53",
-        "54"
+        "145",
+        "185",
+        "222",
+        "287"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/Abstractions/ResilientIoProcessorHostBase.cs",
-      "UncoveredSequencePointLineCount": 3,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathNavigator/DataModelXPathNavigator.cs",
+      "UncoveredSequencePointLineCount": 4,
       "Lines": [
-        "58",
-        "59",
-        "60"
+        "227",
+        "472",
+        "578",
+        "579"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/DataModelListPersistingController.cs",
-      "UncoveredSequencePointLineCount": 3,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathNavigator/NodeAdapters/ElementNodeAdapter.cs",
+      "UncoveredSequencePointLineCount": 4,
       "Lines": [
-        "97",
-        "202",
-        "384"
+        "33",
+        "34",
+        "36",
+        "38"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/Abstractions/IoProcessorHostBase.cs",
-      "UncoveredSequencePointLineCount": 3,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ExternalServices/HttpClient/Services/HttpClientService.cs",
+      "UncoveredSequencePointLineCount": 4,
       "Lines": [
-        "45",
-        "46",
-        "47"
+        "90",
+        "91",
+        "95",
+        "96"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/Services/EntityParsers/ExceptionEntityParser.cs",
-      "UncoveredSequencePointLineCount": 3,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/Bucket.cs",
+      "UncoveredSequencePointLineCount": 4,
       "Lines": [
-        "26",
-        "27",
-        "28"
+        "378",
+        "413",
+        "474",
+        "519"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathNavigator/AdapterFactory.cs",
-      "UncoveredSequencePointLineCount": 3,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/StateMachinePersistingInterpreter.cs",
+      "UncoveredSequencePointLineCount": 4,
       "Lines": [
-        "52",
-        "65",
-        "79"
+        "219",
+        "243",
+        "268",
+        "273"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoC/Tools/Services/SafeFactory.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/NamedPipe/Services/NamedPipeController.cs",
       "UncoveredSequencePointLineCount": 3,
       "Lines": [
-        "39",
-        "40",
-        "41"
+        "224",
+        "253",
+        "254"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/StreamStorage.cs",
+      "UncoveredSequencePointLineCount": 3,
+      "Lines": [
+        "292",
+        "293",
+        "294"
       ]
     },
     {
@@ -655,52 +364,38 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelList.Debug.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/ExtDictionary.cs",
       "UncoveredSequencePointLineCount": 3,
       "Lines": [
-        "112",
-        "113",
-        "152"
+        "226",
+        "288",
+        "293"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/SharedMemoryStreams.cs",
-      "UncoveredSequencePointLineCount": 2,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/DataModelListPersistingController.cs",
+      "UncoveredSequencePointLineCount": 3,
       "Lines": [
-        "76",
-        "128"
+        "97",
+        "202",
+        "384"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/LazyTask.cs",
-      "UncoveredSequencePointLineCount": 2,
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Handlers/XPath/Internal/XPathNavigator/AdapterFactory.cs",
+      "UncoveredSequencePointLineCount": 3,
       "Lines": [
-        "60",
-        "61"
+        "52",
+        "65",
+        "79"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/PersistentEventScheduler.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/StateMachineReader.cs",
       "UncoveredSequencePointLineCount": 2,
       "Lines": [
-        "115",
-        "160"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Services/DataConverter.cs",
-      "UncoveredSequencePointLineCount": 2,
-      "Lines": [
-        "123",
-        "149"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/PersistedInterpreterModelGetter.cs",
-      "UncoveredSequencePointLineCount": 2,
-      "Lines": [
-        "79",
-        "80"
+        "174",
+        "254"
       ]
     },
     {
@@ -712,67 +407,35 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/ExternalServiceCollection.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/PersistentEventScheduler.cs",
       "UncoveredSequencePointLineCount": 2,
       "Lines": [
-        "71",
-        "72"
+        "115",
+        "160"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/ExternalServiceFactory.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/SharedMemoryStreams.cs",
       "UncoveredSequencePointLineCount": 2,
       "Lines": [
-        "54",
-        "55"
+        "76",
+        "128"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/DataModelReferenceTracker.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoProcessors/Http/Services/HttpIoProcessorHost.cs",
       "UncoveredSequencePointLineCount": 2,
       "Lines": [
-        "46",
-        "47"
+        "64",
+        "65"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ExternalServices/HttpClient/Services/HttpClientFormUrlEncodedHandler.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/LazyTask.cs",
       "UncoveredSequencePointLineCount": 2,
       "Lines": [
-        "95",
-        "96"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Model/PersistedScheduledEvent.cs",
-      "UncoveredSequencePointLineCount": 2,
-      "Lines": [
-        "33",
-        "34"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/ExternalServiceScopeManager.cs",
-      "UncoveredSequencePointLineCount": 2,
-      "Lines": [
-        "117",
-        "119"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Model/PersistedInvokeData.cs",
-      "UncoveredSequencePointLineCount": 2,
-      "Lines": [
-        "39",
-        "40"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Extensions/BucketExtensions.cs",
-      "UncoveredSequencePointLineCount": 2,
-      "Lines": [
-        "204",
-        "259"
+        "60",
+        "61"
       ]
     },
     {
@@ -784,10 +447,113 @@
       ]
     },
     {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/KeyListPersistingController.cs",
+      "UncoveredSequencePointLineCount": 2,
+      "Lines": [
+        "92",
+        "93"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ExternalServices/HttpClient/Services/HttpClientFormUrlEncodedHandler.cs",
+      "UncoveredSequencePointLineCount": 2,
+      "Lines": [
+        "95",
+        "96"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/ScxmlDirector.cs",
+      "UncoveredSequencePointLineCount": 2,
+      "Lines": [
+        "471",
+        "472"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Properties/Resources.Designer.cs",
+      "UncoveredSequencePointLineCount": 2,
+      "Lines": [
+        "32",
+        "33"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelList.Debug.cs",
+      "UncoveredSequencePointLineCount": 2,
+      "Lines": [
+        "112",
+        "113"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/ScxmlSerializerWriter.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "58"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/ExternalServiceFactory.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "54"
+      ]
+    },
+    {
       "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/SecurityContext.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
         "83"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Exceptions/XIncludeException.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "61"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/OrderedSetPersistingController.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "154"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ResourceLoaders/Handlers/Resx/Services/ResxResourceLoader.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "56"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Services/XIncludeReader.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "123"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ResourceLoaders/Services/ResourceLoaderService.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "47"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/Internal/StateMachineRuntimeError.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "52"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Model/PersistedRouterEvent.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "28"
       ]
     },
     {
@@ -805,13 +571,6 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/StateMachineControllerBase.cs",
-      "UncoveredSequencePointLineCount": 1,
-      "Lines": [
-        "72"
-      ]
-    },
-    {
       "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Common/Helpers/StackSpan.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
@@ -823,27 +582,6 @@
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
         "60"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoC/AncestorTracker/Services/AncestorTracker.cs",
-      "UncoveredSequencePointLineCount": 1,
-      "Lines": [
-        "110"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ResourceLoaders/Services/ResourceLoaderService.cs",
-      "UncoveredSequencePointLineCount": 1,
-      "Lines": [
-        "47"
-      ]
-    },
-    {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/ResourceLoaders/Handlers/Resx/Services/ResxResourceLoader.cs",
-      "UncoveredSequencePointLineCount": 1,
-      "Lines": [
-        "56"
       ]
     },
     {
@@ -868,10 +606,10 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/OrderedSetPersistingController.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataModel/Services/DataConverter.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
-        "154"
+        "123"
       ]
     },
     {
@@ -882,24 +620,31 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/EntityQueuePersistingController.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/DataTypes/Model/Types/DataModelNumber.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
-        "90"
+        "455"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Model/PersistedRouterEvent.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/StateMachineHost/Services/StateMachineControllerBase.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
-        "28"
+        "72"
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/Internal/StateMachineRuntimeError.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Interpreter/ModelBuilder/Services/InterpreterModelBuilder.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
-        "52"
+        "166"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/IoC/AncestorTracker/Services/AncestorTracker.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "110"
       ]
     },
     {
@@ -910,10 +655,17 @@
       ]
     },
     {
-      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Scxml/Exceptions/XIncludeException.cs",
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Extensions/BucketExtensions.cs",
       "UncoveredSequencePointLineCount": 1,
       "Lines": [
-        "61"
+        "259"
+      ]
+    },
+    {
+      "File": "Projects/TSSArt/xtate.dev/src/Xtate.Core/src/Xtate.Core/Persistence/Services/EntityQueuePersistingController.cs",
+      "UncoveredSequencePointLineCount": 1,
+      "Lines": [
+        "90"
       ]
     },
     {
@@ -923,10 +675,5 @@
         "59"
       ]
     }
-  ],
-  "BranchRate": 0.9211,
-  "LineRate": 0.9804,
-  "LinesCovered": 21238,
-  "Framework": "net10.0",
-  "CoverageArtifact": "TestResults\\goal-latest2\\ser_apex_2026-11-01_15_59_12\\In\\apex\\coverage.cobertura[3].xml"
+  ]
 }

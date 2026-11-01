@@ -92,14 +92,27 @@ public class HttpControllerReceiveCoverageTest
 
 	private static async Task Exchange(string kind, IExternalEventDispatcher<HttpIoProcessor> dispatcher, HttpStatusCode expected)
 	{
-		var reservation = new TcpListener(IPAddress.Loopback, 0);
-		reservation.Start();
-		var port = ((IPEndPoint)reservation.LocalEndpoint).Port;
-		reservation.Stop();
-		var baseUrl = $"http://localhost:{port}/";
 		using var listener = new HttpListener();
-		listener.Prefixes.Add(baseUrl);
-		listener.Start();
+		string baseUrl;
+		for (var attempt = 0; ; attempt++)
+		{
+			var reservation = new TcpListener(IPAddress.Loopback, 0);
+			reservation.Start();
+			var port = ((IPEndPoint)reservation.LocalEndpoint).Port;
+			reservation.Stop();
+			baseUrl = $"http://localhost:{port}/";
+			listener.Prefixes.Clear();
+			listener.Prefixes.Add(baseUrl);
+			try
+			{
+				listener.Start();
+				break;
+			}
+			catch (HttpListenerException error) when (error.NativeErrorCode == 183 && attempt < 9)
+			{
+				// HTTP.sys registrations can claim a TCP-selected port between reservation and Start.
+			}
+		}
 		var options = new HttpIoProcessorOptions { PublicBaseUrl = baseUrl, MaxMessageSize = kind == "oversize" ? 2 : 4096 };
 		var controller = new HttpController(Mock.Of<IOptions<HttpIoProcessorOptions>>(value => value.Value == options))
 		{

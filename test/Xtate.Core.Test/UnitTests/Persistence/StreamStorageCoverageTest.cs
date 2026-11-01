@@ -29,6 +29,30 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class StreamStorageCoverageTest
 {
 	[TestMethod]
+	[DataRow(0)]
+	[DataRow(1)]
+	public async Task ShrinkLeavesAnAlreadyCompactCheckpointUnchanged(int level)
+	{
+		using var stream = new MemoryStream();
+		await using var storage = CreateStorage(stream, false);
+		await storage.InitializeAsync();
+		storage.Set([1], [10]);
+		await storage.CheckPoint(level);
+		var saved = stream.ToArray();
+		await storage.Shrink();
+		CollectionAssert.AreEqual(saved, stream.ToArray());
+		CollectionAssert.AreEqual(new byte[] { 10 }, storage.Get([1]).ToArray());
+	}
+
+	[TestMethod]
+	public async Task TruncatedKeyInsideACheckpointIsReportedAsPersistenceCorruption()
+	{
+		using var stream = new MemoryStream(new byte[] { 1, 1, 2 });
+		await using var storage = CreateStorage(stream, false);
+		var error = await Assert.ThrowsExactlyAsync<PersistenceException>(async () => await storage.InitializeAsync());
+		Assert.IsInstanceOfType<ArgumentOutOfRangeException>(error.InnerException);
+	}
+	[TestMethod]
 	public void ConstructorRequiresNonNullReadableWritableSeekableStream()
 	{
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => CreateStorage(stream: null!));

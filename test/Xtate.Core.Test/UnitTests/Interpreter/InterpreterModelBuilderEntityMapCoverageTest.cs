@@ -16,6 +16,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Reflection;
+using Xtate.DataModel;
+using Xtate.Interpreter.DependencyInjection;
+using Xtate.IoC;
+using Xtate.ResourceLoaders;
 using Xtate.Interpreter;
 using Xtate.Interpreter.Services;
 using Xtate.StateMachine;
@@ -25,6 +29,35 @@ namespace Xtate.Core.Test.UnitTests.Interpreter;
 [TestClass]
 public class InterpreterModelBuilderEntityMapCoverageTest
 {
+	[TestMethod]
+	public async Task EmbeddedExternalScriptContentIsUsedWithoutFetchingTheResourceAgain()
+	{
+		var source = new EmbeddedScriptSource();
+		var script = new Mock<IScript>();
+		script.SetupGet(value => value.Source).Returns(source);
+		script.As<IExecEvaluator>();
+		var stateMachine = new StateMachineEntity { Script = script.Object, States = [new FinalEntity()] };
+		var resources = new Mock<IResourceLoader>(MockBehavior.Strict);
+		var services = new ServiceCollection();
+		services.AddModule<InterpreterModelBuilderModule>();
+		services.AddConstant<IStateMachine>(stateMachine);
+		services.AddConstant(Mock.Of<IDataModelHandler>());
+		services.AddConstant(resources.Object);
+		var provider = services.BuildProvider();
+		var builder = await provider.GetRequiredService<InterpreterModelBuilder>();
+		var model = await builder.BuildModel(true);
+		Assert.IsNotNull(model.Root.Script);
+		Assert.AreEqual("embedded script", source.ReceivedContent);
+		resources.VerifyNoOtherCalls();
+	}
+
+	private sealed class EmbeddedScriptSource : IExternalScriptExpression, IExternalScriptProvider, IExternalScriptConsumer
+	{
+		public Uri Uri => new("https://example.test/embedded.js");
+		public string Content => "embedded script";
+		public string? ReceivedContent { get; private set; }
+		public void SetContent(string content) => ReceivedContent = content;
+	}
 	[TestMethod]
 	public void EntityMapReturnsStoredEntityAndRejectsNullAndOutOfRangeSlots()
 	{

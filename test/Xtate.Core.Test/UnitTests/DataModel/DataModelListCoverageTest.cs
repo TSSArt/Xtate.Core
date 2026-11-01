@@ -27,6 +27,29 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class DataModelListCoverageTest
 {
 	[TestMethod]
+	public void KeyedListSpanFormattingPreservesNamesValuesAndCapacityFailures()
+	{
+		var list = new DataModelList { ["first"] = "one", ["second"] = 2 };
+		const string expected = "(first=one,second=2)";
+		var destination = new char[expected.Length];
+		Assert.IsTrue(list.TryFormat(destination, out var written, default, CultureInfo.InvariantCulture));
+		Assert.AreEqual(expected, new string(destination, 0, written));
+		for (var length = 0; length < expected.Length; length++)
+		{
+			Assert.IsFalse(list.TryFormat(new char[length], out written, default, CultureInfo.InvariantCulture));
+			Assert.IsTrue(written >= 0 && written <= length);
+		}
+	}
+	[TestMethod]
+	public void UnkeyedListFormattingWritesEveryDelimiterAndValue()
+	{
+		var list = new DataModelList { "first", 2 };
+		Span<char> buffer = stackalloc char[32];
+		Assert.IsTrue(list.TryFormat(buffer, out var written, default, CultureInfo.InvariantCulture));
+		Assert.AreEqual("[first,2]", buffer[..written].ToString());
+		Assert.AreEqual("[first,2]", list.ToString(null, CultureInfo.InvariantCulture));
+	}
+	[TestMethod]
 	public void UnkeyedStorageHasNoNamedEntriesAndRemovingItsOnlyKeyRestoresArrayShape()
 	{
 		var unkeyed = new DataModelList { "one", "two" };

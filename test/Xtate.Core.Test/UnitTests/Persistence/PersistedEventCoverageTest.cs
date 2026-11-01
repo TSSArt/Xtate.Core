@@ -32,6 +32,27 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class PersistedEventCoverageTest
 {
 	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void ScheduledEventsRejectMissingAndIncorrectTypeDiscriminators(bool incorrect)
+	{
+		var bucket = CreateBucket();
+		if (incorrect) bucket.Add(Key.TypeInfo, TypeInfo.InvokedService);
+		Assert.ThrowsExactly<ArgumentException>(() => new PersistedScheduledEvent(bucket));
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void InvokeDataRejectsMissingAndIncorrectTypeDiscriminators(bool incorrect)
+	{
+		var bucket = CreateBucket();
+		bucket.AddId(Key.InvokeId, InvokeId.FromString("invoke"));
+		bucket.Add(Key.Type, new FullUri("urn:service"));
+		if (incorrect) bucket.Add(Key.TypeInfo, TypeInfo.ScheduledEvent);
+		Assert.ThrowsExactly<ArgumentException>(() => new PersistedInvokeData(bucket));
+	}
+	[TestMethod]
 	public void NamedPipeResponseMessageRoundTripsSuccessResponse()
 	{
 		var timestamp = new DateTime(year: 2026, month: 7, day: 12, hour: 10, minute: 20, second: 30, DateTimeKind.Utc);

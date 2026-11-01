@@ -31,6 +31,19 @@ namespace Xtate.Core.Test.UnitTests.Scxml;
 public class ScxmlInvalidExpressionCoverageTest
 {
 	[TestMethod]
+	public async Task SingleNameListLocationIsPreservedWithoutWhitespaceSplitting()
+	{
+		const string xml = "<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'><state id='work'><onentry><send event='out' namelist='value'/></onentry></state></scxml>";
+		await using var container = Container.Create<ScxmlModule>();
+		var deserializer = await container.GetRequiredService<IScxmlDeserializer>();
+		using var text = new StringReader(xml);
+		using var reader = XmlReader.Create(text, new XmlReaderSettings { Async = true });
+		var model = await deserializer.Deserialize(reader);
+		var send = (ISend)((IState)model.States[0]).OnEntry[0].Action[0];
+		Assert.HasCount(1, send.NameList);
+		Assert.AreEqual("value", send.NameList[0].Expression);
+	}
+	[TestMethod]
 	public async Task EqualSizedNamespaceScopesKeepTheirDistinctBindings()
 	{
 		const string xml = """

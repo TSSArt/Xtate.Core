@@ -1,70 +1,44 @@
-# Coverage toward 99%
+# 99% line coverage verified
 
-Measured 2026-11-01 with coverlet.collector, Debug, no coverage exclusions added.
-The 99% objective remains active and has not yet been reached.
+Measured 2026-11-01 with coverlet.collector, Debug, Xtate.Core only. Every tested target framework exceeds 99% line coverage using the exact covered/valid line counts. No coverage exclusions were added. Branch coverage is reported separately and remains below 99%.
 
-| Metric (.NET 10, Xtate.Core only) | Baseline | Current |
-| --- | ---: | ---: |
-| Covered lines | 20,311 / 21,661 | 21,238 / 21,661 |
-| Line coverage | 93.76% | 98.04% |
-| Branch coverage | 88.85% | 92.11% |
-| Passing tests | 4,081 | 4,574 |
-| Ignored regression cases added | 0 | 9 |
+| Framework | Covered / valid lines | Line coverage | Branch coverage | Passing tests | Failed / ignored |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| net10.0 (primary) | 21,521 / 21,736 | 99.01% | 93.73% | 4,724 | 0 / 0 |
+| net11.0 | 21,529 / 21,736 | 99.04% | 93.78% | 4,724 | 0 / 0 |
+| net9.0 | 21,521 / 21,736 | 99.01% | 93.73% | 4,724 | 0 / 0 |
+| net8.0 | 21,520 / 21,735 | 99.01% | 93.73% | 4,724 | 0 / 0 |
+| net462 | 21,789 / 22,008 | 99.00% | 93.44% | 4,723 | 0 / 0 |
 
-207 additional covered lines are required for 99% line coverage with the current denominator. Branch coverage is tracked separately and also remains below 99%. Ignored tests do not count as executed coverage. Tests include focused unit checks, interpreter integration checks, and loopback HTTP integration checks.
+The original .NET 10 baseline was 20,311 / 21,661 lines (93.76%), 88.85% branches, and 4,081 passing tests. Current coverage adds 1,210 covered lines and 643 passing cases. Production defect fixes made during this work changed the denominator; no production code was excluded to reach the target.
 
-## Verification
-
-Full suites passed on net8.0, net9.0, net10.0, and net11.0: 4,574 passed and 9 skipped per framework. net462: 4,572 passed and 9 skipped. Earlier builds emitted an existing nullable warning in StateMachineDestroyOnIdle; transient testhost file locks resolved on retry.
-
-Command (PowerShell):
+## Reproduce
 
 ```powershell
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
-dotnet test test/Xtate.Core.Test/Xtate.Core.Test.csproj --no-restore --collect:'XPlat Code Coverage' --results-directory TestResults/goal-latest2 --logger 'trx;LogFilePrefix=full'
+dotnet test test/Xtate.Core.Test/Xtate.Core.Test.csproj --no-restore -p:TestTfmsInParallel=false --collect:'XPlat Code Coverage' --results-directory TestResults/goal-final17 --logger 'trx;LogFilePrefix=full'
 ```
 
-The .NET 10 report is `TestResults/goal-latest2/ser_apex_2026-11-01_15_59_12/In/apex/coverage.cobertura[3].xml`, also present in one of the collector GUID directories. Its TRX is `TestResults/goal-latest2/full_net10.0_20261101155917.trx`. The original baseline is `TestResults/goal-baseline/192e22fa-60d5-4939-8773-4cbd5badddb6/coverage.cobertura.xml`. TestResults is ignored by Git.
+All five full suites passed. Run frameworks sequentially to avoid concurrent testhost startup load and competition for loopback listener ports. The HTTP receive fixture also retries HTTP.sys prefix conflicts when a TCP-selected port is claimed before listener registration.
 
-## Retained failing regressions
+The primary report is `TestResults/goal-final17/ser_apex_2026-11-01_19_19_15/In/apex/coverage.cobertura.xml`; its test result is `TestResults/goal-final17/full_net10.0_20261101191919.trx`. Exact paths and results for every framework are recorded in `remaining.json`. TestResults is ignored by Git. The original baseline remains in `TestResults/goal-baseline/192e22fa-60d5-4939-8773-4cbd5badddb6/coverage.cobertura.xml`.
 
-Each was run and failed before receiving `[Ignore]`. Production logic was left unchanged.
+## Regression retention
 
-| Test | Observed defect | Reproduction TRX |
-| --- | --- | --- |
-| PersistenceCollectionControllerCoverageTest.KeyListControllerRestoresListItemsInOrder | Stored items restore as an empty list; restore loop uses the new list's zero Count. | goal-batch1/batch1.trx |
-| XPathObjectCoverageTest.MixedElementAndTextSelectionPreservesTextEntries | XmlConverter.FromXml discards accumulated child elements when encountering mixed text. | goal-xpath-object/object.trx |
-| XPathNavigatorMutationCoverageTest.DeletingLastNestedElementNormalizesParentToUndefined | Deleting the last nested child leaves it present after normalization reaches the root. | goal-mutation2/mutation.trx |
-| NamedPipeFramingCoverageTest.FragmentedFrameIsReadUntilRequestedLength | Four bytes delivered in two-byte chunks return only two; remaining length and offset are both subtracted. | goal-pipe/pipe.trx |
-| XmlDirectorCoverageTest.IncompatibleOptionalElementAndRawContentPoliciesAreRejected (two cases) | OptionalElement omits UseRawContent(false), allowing incompatible policies in either registration order. | goal-xml-policy/policy.trx |
-| XPathNavigatorMutationCoverageTest.InheritedNamespaceIsVisibleOnDescendantAndReturnsToThatDescendant | MoveToParent after an inherited namespace returns the declaring ancestor instead of the original descendant. | goal-xpath-root/root.trx |
-| XPathNavigatorMutationCoverageTest.NamespaceLookupFindsAncestorBindingWithoutMovingOriginalNavigator | GetNamespace changes the original navigator's position while resolving an inherited namespace. | goal-xpath-root/root-verified.trx |
-| XIncludeReaderCoverageTest.AsyncXmlAsTextPreservesMarkupAndIgnoresNamespacedExtensionAttributes | XML-as-text inclusion creates a reader without Async=true and then calls ReadAsync. | goal-xinclude-async/async.trx |
+Defect-revealing tests were retained and marked `[Ignore]` after reproducing their failures. Subsequent production fixes, including commits `fe248c1e` and `9c5dd395`, repaired the defects and restored these tests. The final suite has no ignored tests.
 
-TRX paths above are relative to TestResults. Preserve these tests and their expected behavior until the corresponding logic is repaired.
+Retained cases include key-list restoration, mixed XML text, XPath mutation and namespace traversal, fragmented named-pipe reads, incompatible XML policies, async XInclude, late binding, nested parallel completion, persistent-channel FIFO ordering, absent multivalue removal, and replacement of a sole top-level XPath element. Their expected behavior was preserved through the fixes.
 
-## Coverage added
+## Added coverage
 
-- Resource catalog presence and numeric-placeholder formatting (326 resources).
-- XPath expression compilation, validation, typed conversions, deep navigation, mutation, ordering, copied insertion, and scalar normalization.
-- HTTP receive decoding, metadata routing, malformed content, size limits, and dispatch failure responses.
-- Memory stream span/memory operations, cancellation, disposal, and persisted content.
-- Interpreter error event classification, logger failure recursion bounds, invoke filtering, and forwarding failures.
-- Persisted operation replay, transition node lookup, checkpoint policy, corrupt execution state, and duplicate side-effect prevention.
-- External-service add checkpoint rollback and retry; corrupt operation rejection.
-- Persistent scheduler add/cancel rollback and channel read checkpoint rollback.
-- Named-pipe complete/truncated frame reads and XInclude resolver fallback/error handling.
-- Invalid empty SCXML expression attributes.
-- Parallel transition conflict precedence in both region orders and default entry of untargeted parallel regions.
-- Data, done-data, and global-script evaluation failure handling; parsed expression namespace shadowing.
-- XML callback failure reporting and incompatible policy registration guards.
-- Persisted service start failures, suspension retention, compaction, removal rollback, and cleanup failures.
-- XPath unnamed-root mutations and multi-node assignment; scalar object graph conversion with shared references.
-- List removal around locked entries and metadata-preserving read-only insertion.
-- Scheduler cancellation failure aggregation, concurrency/timeout limits, and lazy-task late failure observation after cancellation.
+- Resource catalog presence, formatting, culture fallback, and public value conversions.
+- XPath compilation, validation, typed conversion, navigation, namespace scope, mutation, normalization, and assignment.
+- Interpreter lifecycle, transition conflicts, invocation failures, error classification, finalization, cleanup order, and large internal-queue progress.
+- Persisted operation replay, storage rollback and compaction, malformed records, model replacement, shared references, scheduler failure recovery, and channel handoff ordering.
+- HTTP receive formats, routing and malformed requests; named-pipe framing, size limits, response timestamps, invalid wire codes, and host shutdown.
+- SCXML validation, namespace caching, inline serialization, XML callback failures, and XInclude error/fallback behavior.
+- Legacy span formatting, cancellation token preservation, suppressed execution-context waits, and HTTP handler expiration and disposal.
 
-## Next gaps
+## Remaining gaps
 
-Prioritize remaining interpreter lifecycle/error paths, XPath handler assignment validation, collection edge cases and concurrency retries, and resource/transport error paths. Scheduler infrastructure failures and concurrency retry loops need reachability analysis and deterministic tests; avoid timing-dependent coverage attempts. Some unmatched enum/type defaults and invariant guards are unreachable through valid construction. Key-list restoration loop coverage and async XML-as-text inclusion coverage depend on retained ignored logic defects.
-
-See `remaining.json` for source line candidates. A line can have both covered and uncovered sequence points; inspect the XML and source before treating each candidate as an entirely unexecuted line. Do not change the denominator or exclude production code to satisfy the target.
+`remaining.json` lists uncovered sequence-point candidates for the primary framework. Some lines contain both covered and uncovered sequence points. Remaining gaps include defensive invariant/type defaults and scheduler concurrency or infrastructure failure paths. Inspect the XML and source before treating a candidate as an entirely unexecuted line. The 99% line target is verified; this report does not claim 99% branch coverage or execution of netstandard assemblies independently of the tested targets.

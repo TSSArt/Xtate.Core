@@ -68,6 +68,7 @@ public class PersistentChannelCoverageTest
 	{
 		using var storage = new TestTransactionalStorage();
 		var channel = CreateChannel(storage);
+		Assert.IsTrue(channel.Reader.CanCount);
 		Assert.IsFalse(channel.Writer.TryWrite("unused"));
 		Assert.AreEqual(0, channel.Reader.Count);
 		Assert.IsTrue(channel.Writer.TryComplete());

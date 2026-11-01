@@ -18,6 +18,7 @@
 using Xtate.DataTypes;
 using Xtate.Persistence;
 using Xtate.Persistence.Extensions;
+using Xtate.Persistence.Internal;
 using Xtate.Persistence.Services;
 using Xtate.StateMachine;
 
@@ -26,6 +27,20 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 [TestClass]
 public class BucketExtensionsCoverageTest
 {
+	[TestMethod]
+	[DataRow(DataModelValueType.String)]
+	[DataRow(DataModelValueType.Number)]
+	[DataRow(DataModelValueType.Boolean)]
+	[DataRow(DataModelValueType.DateTime)]
+	[DataRow(DataModelValueType.List)]
+	[DataRow((DataModelValueType)999)]
+	public void DataModelValueRecordsRejectMissingPayloadsAndUnknownTypes(DataModelValueType type)
+	{
+		using var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage);
+		bucket.Nested("value").Add(Key.Type, type);
+		Assert.ThrowsExactly<InvalidOperationException>(() => bucket.GetDataModelValue("value"));
+	}
 	[TestMethod]
 	public void EntityAndEntityListStorageCoversNullEmptyRestoreAndInvalidItems()
 	{

@@ -31,6 +31,19 @@ public class HttpMimeTypeHandlerCoverageTest
 	private static readonly DataModelList EmptyParameters = [];
 
 	[TestMethod]
+	public async Task FormResponsePreservesBareFieldNamesWithEmptyValues()
+	{
+		var handler = new HttpClientFormUrlEncodedHandler();
+		using var response = CreateHttpResponse("application/x-www-form-urlencoded", "orphan&named=value");
+		var parsed = await handler.TryParseResponseAsync(response, EmptyParameters, CancellationToken.None);
+		Assert.IsTrue(parsed.HasValue);
+		var list = parsed.Value.AsList();
+		Assert.AreEqual(2, list.Count);
+		Assert.AreEqual(string.Empty, list["orphan"].AsString());
+		Assert.AreEqual("value", list["named"].AsString());
+	}
+
+	[TestMethod]
 	public void FormHandlerAddsAcceptHeaderOnlyOnce()
 	{
 		var handler = new HttpClientFormUrlEncodedHandler();

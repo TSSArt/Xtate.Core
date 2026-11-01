@@ -37,6 +37,33 @@ namespace Xtate.Core.Test.UnitTests.Interpreter;
 public class StateMachineInterpreterCoverageTest
 {
 	[TestMethod]
+	public async Task ClosedExternalReaderProducesAQueueClosedErrorAndLeavesWaitingState()
+	{
+		var reader = new Mock<IEventReader>();
+		reader.Setup(value => value.WaitToEvent()).Returns(new ValueTask<bool>(false));
+		var interpreter = CreateInterpreter(reader.Object, CancellationToken.None);
+		var method = typeof(StateMachineInterpreter).GetMethod("WaitForExternalEvent", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var failure = await Assert.ThrowsExactlyAsync<StateMachineDestroyedException>(async () => await (ValueTask<IIncomingEvent>)method.Invoke(interpreter, null)!);
+		Assert.AreEqual(DestroyReason.QueueClosed, failure.Reason);
+		Assert.AreSame(StateMachineInterpreterState.Proceed, interpreter.NotifiedState);
+	}
+
+	[TestMethod]
+	public void UnsupportedUnhandledErrorPolicyIsRejected()
+	{
+		var interpreter = CreateInterpreter(Mock.Of<IEventReader>(), CancellationToken.None, unhandled: (UnhandledErrorBehaviour)999);
+		var method = typeof(StateMachineInterpreter).GetMethod("ProcessUnhandledError", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var failure = Assert.ThrowsExactly<TargetInvocationException>(() => method.Invoke(interpreter, [new IncomingEvent { Name = EventName.ErrorExecution }]));
+		Assert.IsInstanceOfType<InvalidOperationException>(failure.InnerException);
+	}
+
+	[TestMethod]
+	public void ConvertingAnEventRequiresAnExplicitEventType()
+	{
+		var converter = new DataConverter(Mock.Of<ICaseSensitivity>());
+		Assert.ThrowsExactly<InvalidOperationException>(() => converter.FromEvent(new IncomingEvent { Name = (EventName)"invalid" }));
+	}
+	[TestMethod]
 	public async Task InterpreterExitRunsOnExitBeforeCancellingInvocationsAndClearsConfiguration()
 	{
 		var order = new List<string>();

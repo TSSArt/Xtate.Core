@@ -17,8 +17,10 @@
 
 // ReSharper disable UseAwaitUsing
 
+using System.Reflection;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
+using Xtate.Interpreter.Model;
 using Xtate.Persistence;
 using Xtate.Persistence.Extensions;
 using Xtate.Persistence.Internal;
@@ -30,6 +32,30 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 [TestClass]
 public class PersistedInterpreterModelGetterCoverageTest
 {
+	[TestMethod]
+	public async Task SavingANewModelReplacesAnUnsupportedPersistedVersion()
+	{
+		using var storage = new TestTransactionalStorage();
+		var bucket = new Bucket(storage);
+		bucket.Add(Key.Version, 99);
+		bucket.Add("obsolete", "old value");
+		var root = new StoredModelRoot();
+		var model = Mock.Of<IInterpreterModel>(value => value.Root == root);
+		var getter = new PersistedInterpreterModelGetter
+		{
+			StateMachineSessionId = Mock.Of<IStateMachineSessionId>(value => value.SessionId == SessionId.FromString("session")),
+			StateMachineLocation = null, StateMachineArguments = null, TransactionalStorage = storage,
+			InterpreterModelBuilder = null!, ErrorProcessor = null!
+		};
+		var save = typeof(PersistedInterpreterModelGetter).GetMethod("SaveInterpreterModel", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		await (ValueTask)save.Invoke(getter, [model])!;
+		Assert.AreEqual(1, bucket.GetInt32(Key.Version));
+		Assert.IsNull(bucket.GetString("obsolete"));
+		Assert.AreEqual(SessionId.FromString("session"), bucket.GetSessionId(Key.SessionId));
+		Assert.IsTrue(bucket.TryGet(Key.StateMachineDefinition, out var definition));
+		using var restored = new InMemoryStorage(definition.Span);
+		Assert.AreEqual("new value", new Bucket(restored).GetString("fresh"));
+	}
 	[TestMethod]
 	public void UnsupportedPersistedVersionIsRejected()
 	{
@@ -74,6 +100,15 @@ public class PersistedInterpreterModelGetterCoverageTest
 		var getter = CreateGetter(storage, SessionId.FromString("session"));
 
 		Assert.ThrowsExactly<PersistenceException>(getter.GetStateMachine);
+	}
+
+	private sealed class StoredModelRoot() : StateMachineNode(new DocumentIdNode(null), new StateMachineEntity
+	{
+		Initial = new InitialNode(new DocumentIdNode(null), new InitialEntity { Transition = new TransitionNode(new DocumentIdNode(null), new TransitionEntity()) }),
+		States = []
+	}), IStoreSupport
+	{
+		public void Store(Bucket bucket) => bucket.Add("fresh", "new value");
 	}
 
 	private static ResumedStateMachineGetter CreateGetter(IStorage storage, SessionId sessionId) =>

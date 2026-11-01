@@ -33,6 +33,26 @@ namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 public class ExternalServiceScopeManagerCoverageTest
 {
 	[TestMethod]
+	public async Task DuplicateInvokeIdIsRejectedWithoutCancellingTheOriginalService()
+	{
+		var id = InvokeId.FromString("duplicate");
+		var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+		var controller = new Mock<IExternalServiceController>();
+		controller.Setup(value => value.WaitForCompletion()).Returns(new ValueTask(completion.Task));
+		var collection = new Mock<IExternalServiceCollection>();
+		var monitor = new CapturingTaskMonitor();
+		await using var manager = await CreateManager(controller.Object, collection.Object, monitor);
+		await manager.Start(CreateExternalServiceClass(CreateInvokeData(id)), CancellationToken.None);
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
+			await manager.Start(CreateExternalServiceClass(CreateInvokeData(id)), CancellationToken.None));
+		Assert.IsFalse(monitor.ForgottenTasks.Single().IsCompleted);
+		collection.Verify(value => value.Unregister(id), Times.Never);
+		completion.SetResult();
+		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+		await monitor.ForgottenTasks.Single().WaitAsync(timeout.Token);
+		collection.Verify(value => value.Unregister(id), Times.Once);
+	}
+	[TestMethod]
 	public async Task StartRegistersServiceWaitsForControllerAndCleansUpAfterCompletion()
 	{
 		var invokeId = InvokeId.FromString("invoke");

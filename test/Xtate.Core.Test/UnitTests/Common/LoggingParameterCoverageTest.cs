@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Globalization;
+using Xtate.DataTypes;
 using Xtate.Logging.Provider;
 
 namespace Xtate.Core.Test.UnitTests.Common;
@@ -23,6 +24,16 @@ namespace Xtate.Core.Test.UnitTests.Common;
 [TestClass]
 public class LoggingParameterCoverageTest
 {
+	[TestMethod]
+	public void DataModelNumbersHonorTheParameterFormatAndAvailableSpanCapacity()
+	{
+		var parameter = new LoggingParameter("count", DataModelNumber.FromInt32(42), "D3");
+		var destination = new char[9];
+		Assert.IsTrue(parameter.TryFormat(destination, out var written, default, CultureInfo.InvariantCulture));
+		Assert.AreEqual("count:042", new string(destination, 0, written));
+		Assert.IsFalse(parameter.TryFormat(new char[7], out written, default, CultureInfo.InvariantCulture));
+		Assert.AreEqual(6, written);
+	}
 	[TestMethod]
 	public void NamesFormattingAndFullNameIncludeNamespaceWhenPresent()
 	{
