@@ -32,6 +32,21 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class DataModelConverterCoverageTest
 {
 	[TestMethod]
+	[DataRow(null)]
+	[DataRow("unrecognized-extension-type")]
+	public void UnrecognizedMetadataTypeFallsBackToTheActualListShape(string? type)
+	{
+		var array = new DataModelList { "value" };
+		var obj = new DataModelList { ["key"] = "value" };
+		array.SetMetadata(new DataModelList { ["type"] = type });
+		obj.SetMetadata(new DataModelList { ["type"] = type });
+		Assert.IsTrue(DataModelConverter.IsArray(array));
+		Assert.IsFalse(DataModelConverter.IsObject(array));
+		Assert.IsFalse(DataModelConverter.IsArray(obj));
+		Assert.IsTrue(DataModelConverter.IsObject(obj));
+	}
+
+	[TestMethod]
 	public void ArrayAndObjectDetectionHonorsMetadataBeforeShapeHeuristics()
 	{
 		var empty = new DataModelList();
@@ -187,6 +202,9 @@ public class DataModelConverterCoverageTest
 	[TestMethod]
 	public void XmlKeyTypeStringBufferAndSpanHelpersCoverScalarShapes()
 	{
+		Assert.AreEqual("x", XmlConverter.KeyToPrefixOrDefault(string.Empty));
+		Assert.AreEqual("a b", XmlConverter.NsNameToKey(XmlConverter.XPathElementNamespace, "a_x0020_b"));
+		Assert.AreEqual("1.25", XmlConverter.ToString(new DataModelValue(1.25m)));
 		Assert.AreEqual(expected: "item", XmlConverter.KeyToLocalName(key: null));
 		Assert.AreEqual(expected: "empty", XmlConverter.KeyToLocalName(string.Empty));
 		Assert.AreEqual(expected: "a_x0020_b", XmlConverter.KeyToLocalName("a b"));
@@ -225,6 +243,24 @@ public class DataModelConverterCoverageTest
 		Assert.AreEqual(expected: "null", XmlConverter.GetTypeValue(DataModelValue.Null).AsString());
 		Assert.AreEqual(expected: "undefined", XmlConverter.GetTypeValue(DataModelValue.Undefined).AsString());
 		Assert.ThrowsExactly<InvalidOperationException>([ExcludeFromCodeCoverage]() => XmlConverter.GetTypeValue(new DataModelValue("text")));
+	}
+
+	[TestMethod]
+	public void ScalarXmlFormattingRejectsListsAndUnknownTypeMarkers()
+	{
+		DataModelValue list = new DataModelList { "value" };
+		Assert.ThrowsExactly<InvalidOperationException>(() => XmlConverter.ToString(list));
+		Assert.ThrowsExactly<InvalidOperationException>(() => XmlConverter.GetBufferSizeForValue(list));
+		Assert.ThrowsExactly<InvalidOperationException>(() => XmlConverter.WriteValueToSpan(list, new char[20]));
+		Assert.ThrowsExactly<InvalidOperationException>(() => XmlConverter.FromXml("<value xmlns:x='http://xtate.net/xpath' x:type='unknown'>text</value>"));
+	}
+
+	[TestMethod]
+	public async Task EmptyXmlInputReturnsNoValueSynchronouslyAndAsynchronously()
+	{
+		Assert.IsTrue(XmlConverter.FromXml(string.Empty).IsUndefinedOrNull());
+		using var empty = new MemoryStream();
+		Assert.IsTrue((await XmlConverter.FromXmlStreamAsync(empty)).IsUndefinedOrNull());
 	}
 
 	[TestMethod]

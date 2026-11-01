@@ -26,6 +26,21 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class DataModelReferenceTrackerCoverageTest
 {
 	[TestMethod]
+	public void RepeatedDisposalDetachesTrackedListsFromPersistentUpdates()
+	{
+		using var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage).Nested("references");
+		var list = new DataModelList { ["value"] = "saved" };
+		var tracker = new DataModelReferenceTracker(bucket);
+		var id = tracker.GetRefId(list);
+		tracker.Dispose();
+		tracker.Dispose();
+		list["value"] = "after disposal";
+		using var restoredTracker = new DataModelReferenceTracker(bucket);
+		var restored = (DataModelList)restoredTracker.GetValue(id, DataModelValueType.List, null);
+		Assert.AreEqual("saved", restored["value"].AsString());
+	}
+	[TestMethod]
 	public void TracksRestoresReusesAndRemovesListReferences()
 	{
 		using var storage = new InMemoryStorage(writeOnly: false);

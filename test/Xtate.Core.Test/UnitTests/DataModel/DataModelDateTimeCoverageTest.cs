@@ -25,6 +25,15 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class DataModelDateTimeCoverageTest
 {
 	[TestMethod]
+	public void ConvenienceRoundTripFormattingAndParsingRetainUtcKind()
+	{
+		var date = new DateTime(2026, 11, 1, 12, 30, 45, DateTimeKind.Utc);
+		var value = DataModelDateTime.FromDateTime(date);
+		var text = value.ToString("o");
+		Assert.AreEqual("2026-11-01T12:30:45.0000000Z", text);
+		Assert.AreEqual(value, DataModelDateTime.Parse(text));
+	}
+	[TestMethod]
 	public void ExplicitConvertibleNumericMembersThrowInvalidCastException()
 	{
 		var value = (object)DataModelDateTime.FromDateTime(default);

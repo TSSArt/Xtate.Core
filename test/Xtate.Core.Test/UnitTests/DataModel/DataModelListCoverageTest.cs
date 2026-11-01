@@ -27,6 +27,81 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class DataModelListCoverageTest
 {
 	[TestMethod]
+	public void UnkeyedStorageHasNoNamedEntriesAndRemovingItsOnlyKeyRestoresArrayShape()
+	{
+		var unkeyed = new DataModelList { "one", "two" };
+		Assert.IsEmpty(unkeyed.ListValues("missing", true));
+		Assert.IsEmpty(unkeyed.ListEntries("missing", false));
+		unkeyed.Add("named", "value");
+		Assert.IsTrue(unkeyed.HasKeys);
+		Assert.IsTrue(unkeyed.RemoveFirst("named"));
+		Assert.IsFalse(unkeyed.HasKeys);
+		CollectionAssert.AreEqual(new[] { "one", "two" }, unkeyed.Select(value => value.AsString()).ToArray());
+	}
+
+	[TestMethod]
+	public void ConstantDeepCloneCanReuseAnAlreadyImmutableList()
+	{
+		var constant = new DataModelList { "value" }.AsConstant();
+		Assert.AreSame(constant, constant.DeepClone(DataModelAccess.Constant));
+	}
+
+	[TestMethod]
+	public void GrowingMetadataBearingUnkeyedStoragePreservesValuesAndAccess()
+	{
+		var list = new DataModelList();
+		var metadata = new DataModelList { "metadata" };
+		list.AddInternal(null, "locked", DataModelAccess.ReadOnly, metadata);
+		for (var index = 0; index < 32; index++) list.Add(index);
+		Assert.AreEqual(33, list.Count);
+		Assert.AreEqual("locked", list[0].AsString());
+		Assert.AreSame(metadata, list.GetMetadata(0));
+		for (var index = 0; index < 32; index++) Assert.AreEqual(index, list[index + 1].AsNumber().ToInt32());
+		Assert.ThrowsExactly<InvalidOperationException>(() => list[0] = "changed");
+	}
+
+	[TestMethod]
+	public void DeepCloningAnEmptyListPreservesRequestedAccessWithoutSharingWritableStorage()
+	{
+		var original = new DataModelList();
+		var readOnly = original.DeepClone(DataModelAccess.ReadOnly);
+		var writable = original.DeepClone(DataModelAccess.Writable);
+		Assert.AreNotSame(original, writable);
+		Assert.AreEqual(DataModelAccess.ReadOnly, readOnly.Access);
+		Assert.AreEqual(DataModelAccess.Writable, writable.Access);
+		writable.Add("new");
+		Assert.IsEmpty(original);
+		Assert.IsEmpty(readOnly);
+		Assert.AreSame(DataModelList.Empty, original.DeepClone(DataModelAccess.Constant));
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void RemovingWritableKeyBeforeLockedEntryPreservesLockedEntryIndex(bool all)
+	{
+		var list = new DataModelList { ["remove"] = "value" };
+		list.AddInternal("locked", "preserved", DataModelAccess.ReadOnly);
+		Assert.IsTrue(all ? list.RemoveAll("remove") : list.RemoveFirst("remove"));
+		Assert.AreEqual(2, list.Count);
+		Assert.IsTrue(list[0].IsUndefined());
+		Assert.IsFalse(list.ContainsKey("remove"));
+		Assert.AreEqual("preserved", list[1].AsString());
+		Assert.ThrowsExactly<InvalidOperationException>(() => list[1] = "changed");
+	}
+
+	[TestMethod]
+	public void InsertingKeyedReadOnlyValuePreservesExistingUnkeyedValuesAndMetadata()
+	{
+		var list = new DataModelList { "one", "two", "three" };
+		var metadata = new DataModelList { "metadata" };
+		Assert.IsTrue(list.InsertInternal(1, "named", "inserted", DataModelAccess.ReadOnly, metadata));
+		CollectionAssert.AreEqual(new[] { "one", "inserted", "two", "three" }, list.Select(value => value.AsString()).ToArray());
+		Assert.AreSame(metadata, list.GetMetadata("named"));
+		Assert.ThrowsExactly<InvalidOperationException>(() => list["named"] = "changed");
+	}
+
+	[TestMethod]
 	public void EnumerablesExposeKeysValuesPairsEntriesAndSparseUndefinedSlots()
 	{
 		var list = new DataModelList

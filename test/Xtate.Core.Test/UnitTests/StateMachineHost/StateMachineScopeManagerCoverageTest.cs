@@ -32,6 +32,36 @@ namespace Xtate.Core.Test.UnitTests.StateMachineHost;
 public class StateMachineScopeManagerCoverageTest
 {
 	[TestMethod]
+	public async Task DestroyAllAfterDisposalIsAnIdempotentNoOp()
+	{
+		var controller = new Mock<IStateMachineController>(MockBehavior.Strict);
+		var manager = await CreateManager(controller.Object, Mock.Of<IStateMachineCollection>(), new CapturingTaskMonitor());
+		manager.Dispose();
+		await manager.DestroyAll();
+		await manager.DestroyAll();
+		controller.VerifyNoOtherCalls();
+	}
+
+	[TestMethod]
+	public async Task AsyncDisposalOfActiveScopeRejectsNewStartsAndAllowsResultCleanup()
+	{
+		var completion = new TaskCompletionSource<DataModelValue>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var controller = new Mock<IStateMachineController>();
+		controller.Setup(value => value.GetResult()).Returns(new ValueTask<DataModelValue>(completion.Task));
+		var collection = new Mock<IStateMachineCollection>();
+		var monitor = new CapturingTaskMonitor();
+		var manager = await CreateManager(controller.Object, collection.Object, monitor);
+		var session = SessionId.FromString("dispose-active");
+		var result = await manager.Start(CreateStateMachine(session), SecurityContextType.NewStateMachine);
+		await manager.DisposeAsync();
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await manager.Start(CreateStateMachine(SessionId.FromString("after-dispose")), SecurityContextType.NewStateMachine));
+		completion.SetResult(new DataModelValue("completed"));
+		Assert.AreEqual("completed", (await result.GetResult()).AsString());
+		await Task.WhenAll(monitor.ForgottenTasks);
+		collection.Verify(value => value.Unregister(session), Times.Once);
+	}
+
+	[TestMethod]
 	public async Task ExecuteRegistersControllerReturnsResultAndCleansUp()
 	{
 		var sessionId = SessionId.FromString("execute-session");

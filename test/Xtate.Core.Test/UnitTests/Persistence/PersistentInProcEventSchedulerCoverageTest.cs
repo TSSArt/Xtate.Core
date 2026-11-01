@@ -146,6 +146,43 @@ public class PersistentEventSchedulerCoverageTest
 		Assert.IsEmpty(finalMonitor.Tasks);
 	}
 
+	[TestMethod]
+	public async Task FailedScheduleCheckpointRollsBackAndRetryCanBeRestored()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var type = new FullUri("urn:rollback");
+		var monitor = new CapturingTaskMonitor();
+		var scheduler = CreateScheduler(storage, CreateRouter(type).Object, monitor, TimeSpan.Zero);
+		await scheduler.InitializeAsync();
+		storage.FailNextCheckpoint = true;
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await scheduler.ScheduleEvent(CreateRouterEvent(60_000, type, SendId.FromString("failed")), CancellationToken.None));
+		Assert.IsEmpty(monitor.Tasks);
+		await scheduler.ScheduleEvent(CreateRouterEvent(60_000, type, SendId.FromString("retry")), CancellationToken.None);
+		await scheduler.DisposeAsync();
+		var resumedMonitor = new CapturingTaskMonitor();
+		await using var resumed = CreateScheduler(storage, CreateRouter(type).Object, resumedMonitor, TimeSpan.Zero);
+		await resumed.InitializeAsync();
+		Assert.HasCount(1, resumedMonitor.Tasks);
+	}
+
+	[TestMethod]
+	public async Task FailedCancellationCheckpointPreservesEventForRestart()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var type = new FullUri("urn:rollback");
+		var sendId = SendId.FromString("preserved");
+		var scheduler = CreateScheduler(storage, CreateRouter(type).Object, new CapturingTaskMonitor(), TimeSpan.Zero);
+		await scheduler.InitializeAsync();
+		await scheduler.ScheduleEvent(CreateRouterEvent(60_000, type, sendId), CancellationToken.None);
+		storage.FailNextCheckpoint = true;
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await scheduler.CancelEvent(sendId, CancellationToken.None));
+		await scheduler.DisposeAsync();
+		var resumedMonitor = new CapturingTaskMonitor();
+		await using var resumed = CreateScheduler(storage, CreateRouter(type).Object, resumedMonitor, TimeSpan.Zero);
+		await resumed.InitializeAsync();
+		Assert.HasCount(1, resumedMonitor.Tasks);
+	}
+
 	private static Mock<IEventRouter> CreateRouter(FullUri type)
 	{
 		var router = new Mock<IEventRouter>();
@@ -222,6 +259,8 @@ public class PersistentEventSchedulerCoverageTest
 
 		public int CheckPointCount => _checkPointCount;
 
+		public bool FailNextCheckpoint { get; set; }
+
 	#region Interface IAsyncDisposable
 
 		public ValueTask DisposeAsync() => ValueTask.CompletedTask;
@@ -251,6 +290,11 @@ public class PersistentEventSchedulerCoverageTest
 		public ValueTask CheckPoint(int level)
 		{
 			Interlocked.Increment(ref _checkPointCount);
+			if (FailNextCheckpoint)
+			{
+				FailNextCheckpoint = false;
+				throw new InvalidOperationException("checkpoint failed");
+			}
 
 			return ValueTask.CompletedTask;
 		}

@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections;
+using System.Globalization;
 using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.UnitTests.StateMachine;
@@ -33,12 +34,12 @@ public class EventNameCoverageTest
 		Assert.AreEqual(expected: "platform", eventName[1].Value);
 		Assert.AreEqual(expected: "io", eventName[2].Value);
 		CollectionAssert.AreEqual(new[] { "error", "platform", "io" }, eventName.Select(part => part.Value).ToArray());
-		Assert.AreEqual(expected: "error.platform.io", eventName.ToString(format: null, formatProvider: null));
+		Assert.AreEqual(expected: "error.platform.io", eventName.ToString(format: null, formatProvider: CultureInfo.InvariantCulture));
 
 		var destination = new char[32];
-		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: null));
+		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: "error.platform.io", new string(destination, startIndex: 0, charsWritten));
-		Assert.IsFalse(eventName.TryFormat(new char[4], out _, format: default, provider: null));
+		Assert.IsFalse(eventName.TryFormat(new char[4], out _, format: default, provider: CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -66,8 +67,8 @@ public class EventNameCoverageTest
 		var destination = new char[8];
 
 		Assert.IsTrue(eventName.IsDefault);
-		Assert.AreEqual(string.Empty, eventName.ToString(format: null, formatProvider: null));
-		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: null));
+		Assert.AreEqual(string.Empty, eventName.ToString(format: null, formatProvider: CultureInfo.InvariantCulture));
+		Assert.IsTrue(eventName.TryFormat(destination, out var charsWritten, format: default, provider: CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: 0, charsWritten);
 		Assert.IsFalse(eventName.IsMatchedToEventDescriptor("error"));
 	}

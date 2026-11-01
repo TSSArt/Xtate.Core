@@ -23,6 +23,18 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class SegmentedNameCoverageTest
 {
 	[TestMethod]
+	public void EmptyHashAndNullSegmentsHaveStableEmptyRepresentations()
+	{
+		Assert.AreEqual(0, SegmentedName.GetHashCode(default(ImmutableArray<string>)));
+		Assert.AreEqual(0, SegmentedName.GetHashCode(ImmutableArray<string>.Empty));
+		ImmutableArray<string?> segments = [null, "a", null];
+		Assert.AreEqual(".a.", SegmentedName.ToString(segments, "."));
+		var buffer = new char[3];
+		Assert.IsTrue(SegmentedName.TryFormat(segments, ".", buffer, out var written));
+		Assert.AreEqual(".a.", new string(buffer, 0, written));
+	}
+
+	[TestMethod]
 	public void EqualsHandlesDefaultEmptyEqualAndDifferentSegments()
 	{
 		ImmutableArray<string> defaultSegments = default;

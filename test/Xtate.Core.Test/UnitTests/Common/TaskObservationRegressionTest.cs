@@ -86,19 +86,21 @@ public class TaskObservationRegressionTest
 		// ExecutionContext restoration runs this hook before the cancelled await resumes.
 		// This makes the original complete between cancellation winning and observer selection.
 		var gate = new AsyncLocal<Action?>(args =>
-		{
-			if (args.ThreadContextChanged)
-			{
-				args.CurrentValue?.Invoke();
-			}
-		});
-		gate.Value = () =>
-		{
-			if (Interlocked.Exchange(ref transitionCount, 1) == 0)
-			{
-				original.TrySetException(failure);
-			}
-		};
+										   {
+											   if (args.ThreadContextChanged)
+											   {
+												   args.CurrentValue?.Invoke();
+											   }
+										   })
+				   {
+					   Value = () =>
+							   {
+								   if (Interlocked.Exchange(ref transitionCount, 1) == 0)
+								   {
+									   original.TrySetException(failure);
+								   }
+							   }
+				   };
 		Task wait;
 		try
 		{

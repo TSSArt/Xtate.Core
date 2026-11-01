@@ -29,6 +29,16 @@ namespace Xtate.Core.Test.UnitTests.Interpreter;
 public class EntityParserCoverageTest
 {
 	[TestMethod]
+	public void ExceptionParserRetainsTheOriginalExceptionForLogging()
+	{
+		IEntityParserHandler parser = new ExceptionEntityParser();
+		var exception = new InvalidOperationException("failure", new ArgumentException("cause"));
+		var properties = Parse(parser, exception);
+		Assert.HasCount(1, properties);
+		Assert.AreSame(exception, properties["Exception"].Value);
+		Assert.IsNull(parser.EnumerateProperties("unrelated"));
+	}
+	[TestMethod]
 	public void IncomingEventCopiesIncomingEventProperties()
 	{
 		var source = new IncomingEvent

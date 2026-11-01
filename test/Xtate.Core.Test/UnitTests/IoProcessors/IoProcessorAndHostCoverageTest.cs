@@ -19,6 +19,7 @@
 
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
@@ -39,6 +40,115 @@ namespace Xtate.Core.Test.UnitTests.IoProcessors;
 [TestClass]
 public class IoProcessorAndHostCoverageTest
 {
+	private static readonly HttpClient SharedHttpClient = new();
+
+	[TestMethod]
+	public async Task StartingAfterLinkedCancellationReplacesTheCancelledWorkerToken()
+	{
+		using var cancellation = new CancellationTokenSource();
+		var monitor = new CapturingTaskMonitor();
+		var host = new TestIoProcessorHost
+		{
+			DisposeTokenBase = new DisposeToken(cancellation.Token), TaskMonitorBase = monitor
+		};
+		await ((IIoProcessorHost)host).Start();
+		var firstToken = host.CurrentToken;
+		cancellation.Cancel();
+		await ((IIoProcessorHost)host).Start();
+		Assert.AreEqual(2, host.BackgroundCount);
+		Assert.AreNotEqual(firstToken, host.CurrentToken);
+		Assert.IsTrue(host.CurrentToken.IsCancellationRequested);
+		await ((IIoProcessorHost)host).Stop();
+	}
+
+	[TestMethod]
+	public async Task NamedPipeHostDispatchesReceivedEventAndStopsItsPendingReceive()
+	{
+		var controller = CreateNamedPipeController("host-" + Guid.NewGuid().ToString("N"));
+		var dispatcher = new Mock<IExternalEventDispatcher<NamedPipeIoProcessorHost>>();
+		var monitor = new CapturingTaskMonitor();
+		var host = new NamedPipeIoProcessorHost
+		{
+			NamedPipeController = controller, ExternalEventDispatcher = dispatcher.Object,
+			DisposeTokenBase = new DisposeToken(), TaskMonitorBase = monitor,
+			LoggerBase = Mock.Of<ILogger<ResilientIoProcessorHostBase>>()
+		};
+		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+		var target = SessionId.FromString("receiver");
+		await ((IIoProcessorHost)host).Start();
+		try
+		{
+			await controller.SendEvent(null, null, target, new IncomingEvent { Name = (EventName)"received", Data = "payload" }, timeout.Token);
+			dispatcher.Verify(value => value.Dispatch(target,
+				It.Is<Xtate.DataModel.IIncomingEvent>(message => message.Name.ToString() == "received" && message.Data.AsString() == "payload"),
+				It.IsAny<CancellationToken>()), Times.Once);
+		}
+		finally
+		{
+			await ((IIoProcessorHost)host).Stop();
+			await monitor.LastTask!.WaitAsync(timeout.Token);
+		}
+	}
+
+	[TestMethod]
+	public async Task ResilientHostStopsDuringRetryDelayWithoutStartingAnotherAttempt()
+	{
+		var monitor = new CapturingTaskMonitor();
+		var logger = new Mock<ILogger<ResilientIoProcessorHostBase>>();
+		var host = new TestResilientHost(int.MaxValue)
+		{
+			DisposeTokenBase = new DisposeToken(), TaskMonitorBase = monitor, LoggerBase = logger.Object
+		};
+		logger.Setup(value => value.Write(Level.Error, 1, It.IsAny<string>(), It.IsAny<Exception>()))
+			.Returns(() => ((IIoProcessorHost)host).Stop());
+		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+		await ((IIoProcessorHost)host).Start();
+		await monitor.LastTask!.WaitAsync(timeout.Token);
+		Assert.AreEqual(1, host.AttemptCount);
+		logger.Verify(value => value.Write(Level.Error, 1, It.IsAny<string>(), It.IsAny<Exception>()), Times.Once);
+	}
+
+	[TestMethod]
+	public async Task HttpHostProcessesARequestAndStopsItsListenerAfterShutdown()
+	{
+		var reservation = new TcpListener(IPAddress.Loopback, 0);
+		reservation.Start();
+		var port = ((IPEndPoint)reservation.LocalEndpoint).Port;
+		reservation.Stop();
+		var address = $"http://localhost:{port}/";
+		var options = new HttpIoProcessorOptions { ListenUrl = address, PublicBaseUrl = address };
+		var optionSource = Mock.Of<IOptions<HttpIoProcessorOptions>>(value => value.Value == options);
+		var dispatcher = new Mock<IExternalEventDispatcher<HttpIoProcessor>>();
+		var monitor = new CapturingTaskMonitor();
+		using var host = new LoopbackHttpHost(optionSource)
+		{
+			HttpController = new HttpController(optionSource) { ExternalEventDispatcher = dispatcher.Object, HttpClientFactory = () => new HttpClient() },
+			DisposeTokenBase = new DisposeToken(), TaskMonitorBase = monitor,
+			LoggerBase = Mock.Of<ILogger<ResilientIoProcessorHostBase>>()
+		};
+		dispatcher.Setup(value => value.Dispatch(It.IsAny<ServiceId>(), It.IsAny<Xtate.DataModel.IIncomingEvent>(), It.IsAny<CancellationToken>()))
+			.Returns(() => ((IIoProcessorHost)host).Stop());
+		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+		await ((IIoProcessorHost)host).Start();
+		await host.Started.Task.WaitAsync(timeout.Token);
+		using var response = await SharedHttpClient.PostAsync(address + "session/receiver", null, timeout.Token);
+		Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+		await monitor.LastTask!.WaitAsync(timeout.Token);
+		Assert.IsFalse(host.IsListening);
+		dispatcher.Verify(value => value.Dispatch(It.IsAny<ServiceId>(), It.IsAny<Xtate.DataModel.IIncomingEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+	}
+
+	private sealed class LoopbackHttpHost(IOptions<HttpIoProcessorOptions> options) : HttpIoProcessorHost(options)
+	{
+		public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+		public bool IsListening => Listener.IsListening;
+		protected override void StartListener()
+		{
+			base.StartListener();
+			Started.SetResult();
+		}
+	}
+
 	[TestMethod]
 	public async Task IoProcessorHostStartsOnceStopsAndCanRestartWithFreshToken()
 	{

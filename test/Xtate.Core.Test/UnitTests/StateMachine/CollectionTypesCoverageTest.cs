@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Collections;
+using System.Globalization;
 using Xtate.StateMachine;
 
 namespace Xtate.Core.Test.UnitTests.StateMachine;
@@ -56,7 +57,7 @@ public class CollectionTypesCoverageTest
 		CollectionAssert.AreEqual(new[] { "error.*", "done.invoke" }, directValues);
 		CollectionAssert.AreEqual(new[] { "error.*", "done.invoke" }, nonGenericValues);
 		Assert.AreEqual(expected: "error.* done.invoke", descriptors.ToString());
-		Assert.AreEqual(expected: "error.* done.invoke", descriptors.ToString(format: null, formatProvider: null));
+		Assert.AreEqual(expected: "error.* done.invoke", descriptors.ToString(format: null, formatProvider: CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: "error.* done.invoke", typeof(EventDescriptors).GetMethod(nameof(ToString), [typeof(string), typeof(IFormatProvider)])!.Invoke(descriptors, [null, null]));
 		Assert.IsTrue(descriptors.Equals(same));
 		Assert.IsTrue(descriptors.Equals((object)same));
@@ -65,9 +66,9 @@ public class CollectionTypesCoverageTest
 		Assert.IsFalse(descriptors.Equals(TestHelper.Opaque<object>("not descriptors")));
 
 		var destination = new char[32];
-		Assert.IsTrue(descriptors.TryFormat(destination, out var charsWritten, format: default, provider: null));
+		Assert.IsTrue(descriptors.TryFormat(destination, out var charsWritten, format: default, provider: CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: "error.* done.invoke", new string(destination, startIndex: 0, charsWritten));
-		Assert.IsFalse(descriptors.TryFormat(new char[4], out _, format: default, provider: null));
+		Assert.IsFalse(descriptors.TryFormat(new char[4], out _, format: default, provider: CultureInfo.InvariantCulture));
 
 		EventDescriptors empty = ImmutableArray<IEventDescriptor>.Empty;
 		Assert.AreEqual(string.Empty, empty.ToString());
@@ -108,21 +109,21 @@ public class CollectionTypesCoverageTest
 		CollectionAssert.AreEqual(new[] { "state1", "state2" }, concreteValues);
 		CollectionAssert.AreEqual(new[] { "state1", "state2" }, nonGenericValues);
 		Assert.AreEqual(expected: "state1 state2", target.ToString());
-		Assert.AreEqual(expected: "state1 state2", target.ToString(format: null, formatProvider: null));
+		Assert.AreEqual(expected: "state1 state2", target.ToString(format: null, formatProvider: CultureInfo.InvariantCulture));
 		Assert.IsTrue(target.Equals(same));
 		Assert.AreEqual(same.GetHashCode(), target.GetHashCode());
 		Assert.IsFalse(target.Equals(different));
 		Assert.IsFalse(target.Equals(TestHelper.Opaque<object>("not target")));
 
 		var destination = new char[32];
-		Assert.IsTrue(target.TryFormat(destination, out var charsWritten, format: default, provider: null));
+		Assert.IsTrue(target.TryFormat(destination, out var charsWritten, format: default, provider: CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: "state1 state2", new string(destination, startIndex: 0, charsWritten));
-		Assert.IsFalse(target.TryFormat(new char[4], out _, format: default, provider: null));
+		Assert.IsFalse(target.TryFormat(new char[4], out _, format: default, provider: CultureInfo.InvariantCulture));
 
 		Target empty = ImmutableArray<IIdentifier>.Empty;
 		Assert.AreEqual(string.Empty, empty.ToString());
 		Assert.IsTrue(default(Target).IsDefault);
-		Assert.AreEqual(string.Empty, default(Target).ToString(format: null, formatProvider: null));
+		Assert.AreEqual(string.Empty, default(Target).ToString(format: null, formatProvider: CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]

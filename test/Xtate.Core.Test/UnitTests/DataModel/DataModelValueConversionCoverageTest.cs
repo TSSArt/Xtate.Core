@@ -26,6 +26,37 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class DataModelValueConversionCoverageTest
 {
 	[TestMethod]
+	public void NestedObjectConversionPreservesScalarTypesAndSharedReferences()
+	{
+		var shared = new { Name = "shared" };
+		var dictionary = new Dictionary<string, string> { ["key"] = "value" };
+		var date = new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+		var offset = new DateTimeOffset(date);
+		var lazy = Mock.Of<ILazyValue>(value => value.Value == new DataModelValue("lazy"));
+		object[] graph = [long.MaxValue, 1.5d, 2.5m, date, offset, lazy, shared, shared, dictionary, dictionary];
+		var converted = DataModelValue.FromObject(graph).AsList();
+		Assert.AreEqual(long.MaxValue, converted[0].AsNumber().ToInt64());
+		Assert.AreEqual(1.5d, converted[1].AsNumber().ToDouble());
+		Assert.AreEqual(2.5m, converted[2].AsNumber().ToDecimal());
+		Assert.AreEqual(date, converted[3].AsDateTime().ToDateTime());
+		Assert.AreEqual(offset, converted[4].AsDateTime().ToDateTimeOffset());
+		Assert.AreEqual("lazy", converted[5].AsString());
+		Assert.AreSame(converted[6].AsList(), converted[7].AsList());
+		Assert.AreSame(converted[8].AsList(), converted[9].AsList());
+		converted[6].AsList()["Name"] = "updated";
+		Assert.AreEqual("updated", converted[7].AsList()["Name"].AsString());
+	}
+
+	[TestMethod]
+	public void Int64DataModelNumberRemainsExactWhenWrappedAsAValue()
+	{
+		var number = DataModelNumber.FromInt64(long.MaxValue);
+		var value = DataModelValue.FromDataModelNumber(number);
+		Assert.AreEqual(DataModelNumberType.Int64, value.AsNumber().Type);
+		Assert.AreEqual(long.MaxValue, value.AsNumber().ToInt64());
+	}
+
+	[TestMethod]
 	public void NullableConstructorsImplicitOperatorsAndFactoriesPreserveValueOrNull()
 	{
 		int? intValue = 1;

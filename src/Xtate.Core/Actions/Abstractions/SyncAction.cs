@@ -144,6 +144,7 @@ public abstract class SyncAction : ActionBase, IAction
 
 		internal override void Reset() => _value = null;
 
+		// ReSharper disable once SimplifyTupleCreation
 		internal override async ValueTask Evaluate() => _value = new ValueTuple<T>(await GetValue().ConfigureAwait(false));
 
 		protected abstract ValueTask<T> GetValue();

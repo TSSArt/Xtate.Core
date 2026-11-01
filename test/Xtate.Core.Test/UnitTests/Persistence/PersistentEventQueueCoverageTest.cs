@@ -29,6 +29,15 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 public class PersistentEventQueueCoverageTest
 {
 	[TestMethod]
+	public void SynchronousQueueDisposalOwnsTheTransactionalStorage()
+	{
+		var storage = new TrackingStorage();
+		var queue = new PersistentEventQueue(storage);
+		queue.Dispose();
+		Assert.AreEqual(1, storage.DisposeCount);
+	}
+
+	[TestMethod]
 	public async Task PersistenceModuleReplacesTheInMemoryEventQueue()
 	{
 		await using var container = Container.Create<PersistenceModule>();
@@ -85,6 +94,28 @@ public class PersistentEventQueueCoverageTest
 		Assert.IsTrue(resumedQueue.TryReadEvent(out var actual));
 		Infra.NotNull(actual);
 		Assert.AreEqual(expected.Name, actual.Name);
+	}
+
+	private sealed class TrackingStorage : ITransactionalStorage
+	{
+		private readonly InMemoryStorage _storage = new(false);
+		public int DisposeCount { get; private set; }
+		public ReadOnlyMemory<byte> Get(ReadOnlySpan<byte> key) => _storage.Get(key);
+		public void Set(ReadOnlySpan<byte> key, ReadOnlySpan<byte> value) => _storage.Set(key, value);
+		public void Remove(ReadOnlySpan<byte> key) => _storage.Remove(key);
+		public void RemoveAll(ReadOnlySpan<byte> prefix) => _storage.RemoveAll(prefix);
+		public ValueTask CheckPoint(int level) => default;
+		public ValueTask Shrink() => default;
+		public void Dispose()
+		{
+			DisposeCount++;
+			_storage.Dispose();
+		}
+		public ValueTask DisposeAsync()
+		{
+			Dispose();
+			return default;
+		}
 	}
 
 	private sealed class IncompatiblePersistedIncomingEvent() : IncomingEvent(new EventEntity("incompatible.event")), IStoreSupport

@@ -31,6 +31,16 @@ public class HttpMimeTypeHandlerCoverageTest
 	private static readonly DataModelList EmptyParameters = [];
 
 	[TestMethod]
+	public void FormHandlerAddsAcceptHeaderOnlyOnce()
+	{
+		var handler = new HttpClientFormUrlEncodedHandler();
+		using var request = CreateHttpRequest();
+		handler.PrepareRequest(request, null, EmptyParameters, DataModelValue.Undefined);
+		handler.PrepareRequest(request, null, EmptyParameters, DataModelValue.Undefined);
+		Assert.AreEqual("application/x-www-form-urlencoded; q=0.5", request.Headers.Accept.Single().ToString());
+	}
+
+	[TestMethod]
 	public async Task MimeTypeBaseMatchesParametersAppendsAcceptAndReturnsDefaultResults()
 	{
 		var handler = new TestMimeTypeHandler();

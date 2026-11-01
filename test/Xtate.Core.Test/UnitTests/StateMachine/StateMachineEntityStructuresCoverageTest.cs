@@ -16,6 +16,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using System.Text;
+using System.Globalization;
 using Xtate.Ancestor;
 using Xtate.StateMachine;
 using Xtate.StateMachine.Internal;
@@ -46,7 +47,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(source.Source, entity.Source);
 		Assert.AreSame(source.Expression, entity.Expression);
 		Assert.AreSame(source.InlineContent, entity.InlineContent);
-		Assert.AreEqual(expected: "data1", ((IDebugEntityId)entity).EntityId.ToString());
+		Assert.AreEqual(expected: "data1", ((IDebugEntityId)entity).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<DataEntity, IData>(entity, same));
 		Assert.IsFalse(RefEquals<DataEntity, IData>(entity, different));
 	}
@@ -70,7 +71,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(source.Id, entity.Id);
 		Assert.AreEqual(HistoryType.Deep, entity.Type);
 		Assert.AreSame(source.Transition, entity.Transition);
-		Assert.AreEqual(expected: "hist", ((IDebugEntityId)entity).EntityId.ToString());
+		Assert.AreEqual(expected: "hist", ((IDebugEntityId)entity).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<HistoryEntity, IHistory>(entity, same));
 		Assert.IsFalse(RefEquals<HistoryEntity, IHistory>(entity, different));
 	}
@@ -99,7 +100,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(onEntry, entity.OnEntry[0]);
 		Assert.AreSame(onExit, entity.OnExit[0]);
 		Assert.AreSame(doneData, entity.DoneData);
-		Assert.AreEqual(expected: "final", ((IDebugEntityId)entity).EntityId.ToString());
+		Assert.AreEqual(expected: "final", ((IDebugEntityId)entity).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<FinalEntity, IFinal>(entity, same));
 		Assert.IsFalse(RefEquals<FinalEntity, IFinal>(entity, different));
 	}
@@ -357,7 +358,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreEqual(expected: 123, send.DelayMs);
 		Assert.AreSame(delayExpression, send.DelayExpression);
 		Assert.AreSame(nameListItem, send.NameList[0]);
-		Assert.AreEqual(expected: "send", ((IDebugEntityId)send).EntityId.ToString());
+		Assert.AreEqual(expected: "send", ((IDebugEntityId)send).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<SendEntity, ISend>(send, sameSend));
 		Assert.IsFalse(RefEquals<SendEntity, ISend>(send, differentSend));
 
@@ -414,7 +415,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(onEntry, state.OnEntry[0]);
 		Assert.AreSame(onExit, state.OnExit[0]);
 		Assert.AreSame(invoke, state.Invoke[0]);
-		Assert.AreEqual(expected: "state", ((IDebugEntityId)state).EntityId.ToString());
+		Assert.AreEqual(expected: "state", ((IDebugEntityId)state).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<StateEntity, IState>(state, sameState));
 		Assert.IsFalse(RefEquals<StateEntity, IState>(state, differentState));
 
@@ -443,7 +444,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(onEntry, parallel.OnEntry[0]);
 		Assert.AreSame(onExit, parallel.OnExit[0]);
 		Assert.AreSame(invoke, parallel.Invoke[0]);
-		Assert.AreEqual(expected: "state", ((IDebugEntityId)parallel).EntityId.ToString());
+		Assert.AreEqual(expected: "state", ((IDebugEntityId)parallel).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<ParallelEntity, IParallel>(parallel, sameParallel));
 		Assert.IsFalse(RefEquals<ParallelEntity, IParallel>(parallel, differentParallel));
 	}
@@ -492,7 +493,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(parameter, entity.Parameters[0]);
 		Assert.AreSame(finalize, entity.Finalize);
 		Assert.IsTrue(entity.AutoForward);
-		Assert.AreEqual(expected: "invoke-id", ((IDebugEntityId)entity).EntityId.ToString());
+		Assert.AreEqual(expected: "invoke-id", ((IDebugEntityId)entity).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<InvokeEntity, IInvoke>(entity, same));
 		Assert.IsFalse(RefEquals<InvokeEntity, IInvoke>(entity, different));
 	}
@@ -528,7 +529,7 @@ public class StateMachineEntityStructuresCoverageTest
 		Assert.AreSame(child, entity.States[0]);
 		Assert.AreSame(dataModel, entity.DataModel);
 		Assert.AreSame(script, entity.Script);
-		Assert.AreEqual(expected: "machine", ((IDebugEntityId)entity).EntityId.ToString());
+		Assert.AreEqual(expected: "machine", ((IDebugEntityId)entity).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.IsTrue(RefEquals<StateMachineEntity, IStateMachine>(entity, same));
 		Assert.IsFalse(RefEquals<StateMachineEntity, IStateMachine>(entity, different));
 		Assert.ThrowsExactly<ArgumentNullException>([ExcludeFromCodeCoverage]() => default(StateMachineEntity).Init(null!));

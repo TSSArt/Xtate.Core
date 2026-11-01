@@ -19,12 +19,42 @@
 // ReSharper disable AccessToDisposedClosure
 
 using System.Threading;
+using Xtate.TaskMonitor;
 
 namespace Xtate.Core.Test.UnitTests.Common;
 
 [TestClass]
 public class LazyTaskCoverageTest
 {
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public async Task CancellationPreservesCallerTokenAndLateFactoryFailureRemainsObserved(bool factoryFaults)
+	{
+		using var cancellation = new CancellationTokenSource();
+		var factory = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+		Task? observed = null;
+		var monitor = new Mock<ITaskMonitor>();
+		monitor.Setup(value => value.Forget(It.IsAny<ValueTask>())).Callback<ValueTask>(value => observed = value.AsTask());
+		var lazy = new LazyTask<int>(() => new ValueTask<int>(factory.Task), monitor.Object, cancellation.Token);
+		var result = lazy.Task;
+		cancellation.Cancel();
+		var canceled = await Assert.ThrowsAsync<OperationCanceledException>(async () => await result);
+		Assert.AreEqual(cancellation.Token, canceled.CancellationToken);
+		Assert.IsNotNull(observed);
+		if (factoryFaults)
+		{
+			var failure = new InvalidOperationException("late factory failure");
+			factory.SetException(failure);
+			Assert.AreSame(failure, await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await observed));
+		}
+		else
+		{
+			Assert.IsTrue(factory.TrySetCanceled(cancellation.Token));
+			await observed;
+		}
+	}
+
 	[TestMethod]
 	public async Task TaskStartsFactoryOnlyOnceAndReturnsSharedTask()
 	{

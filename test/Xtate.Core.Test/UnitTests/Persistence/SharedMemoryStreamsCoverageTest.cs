@@ -156,6 +156,41 @@ public class SharedMemoryStreamsCoverageTest
 		Assert.IsTrue(streams.Delete(("second", "three")));
 	}
 
+#if NETCOREAPP2_0_OR_GREATER
+	[TestMethod]
+	public async Task MemoryAndSpanOperationsRoundTripAndHonorCancellationAndDisposal()
+	{
+		var streams = new SharedMemoryStreams<string>();
+		var stream = streams.OpenWrite("memory");
+		stream.Write(new ReadOnlySpan<byte>(new byte[] { 1, 2 }));
+		await stream.WriteAsync(new ReadOnlyMemory<byte>(new byte[] { 3, 4 }));
+		stream.Position = 0;
+		var bytes = new byte[4];
+		Assert.AreEqual(2, stream.Read(bytes.AsSpan(0, 2)));
+		Assert.AreEqual(2, await stream.ReadAsync(bytes.AsMemory(2, 2)));
+		CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, bytes);
+		using var cancelled = new CancellationTokenSource();
+		cancelled.Cancel();
+		await Assert.ThrowsAsync<OperationCanceledException>(async () => _ = await stream.ReadAsync(bytes.AsMemory(), cancelled.Token));
+		await Assert.ThrowsAsync<OperationCanceledException>(async () => await stream.WriteAsync(bytes.AsMemory(), cancelled.Token));
+		stream.Dispose();
+		Assert.ThrowsExactly<ObjectDisposedException>(() => stream.Read(bytes.AsSpan()));
+		Assert.ThrowsExactly<ObjectDisposedException>(() => stream.Write(bytes.AsSpan()));
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => _ = await stream.ReadAsync(bytes.AsMemory()));
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await stream.WriteAsync(bytes.AsMemory()));
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await stream.FlushAsync());
+		await Assert.ThrowsExactlyAsync<ObjectDisposedException>(async () => await stream.CopyToAsync(new MemoryStream()));
+		using var reader = streams.OpenRead("memory");
+		CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4 }, ReadAll(reader));
+	}
+
+	private static byte[] ReadAll(Stream stream)
+	{
+		using var copy = new MemoryStream();
+		stream.CopyTo(copy);
+		return copy.ToArray();
+	}
+#endif
 	[TestMethod]
 	public async Task InMemoryStorageProviderCreatesAndRemovesPartitionedStorage()
 	{

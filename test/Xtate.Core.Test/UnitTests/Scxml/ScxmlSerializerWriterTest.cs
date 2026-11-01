@@ -27,6 +27,13 @@ namespace Xtate.Core.Test.UnitTests.Scxml;
 [TestClass]
 public class ScxmlSerializerWriterTest
 {
+	[TestMethod]
+	public void PlainInlineDataContentSurvivesSerialization()
+	{
+		var xml = Serialize("<scxml xmlns='http://www.w3.org/2005/07/scxml' version='1.0'><datamodel><data id='value'>plain text</data></datamodel><final/></scxml>");
+		var model = Parse(xml);
+		Assert.AreEqual("plain text", model.DataModel!.Data[0].InlineContent!.Value);
+	}
 	private static IStateMachine Parse(string scxml)
 	{
 		var services = new ServiceCollection();

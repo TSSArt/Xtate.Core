@@ -29,6 +29,18 @@ namespace Xtate.Core.Test.UnitTests.Persistence;
 [TestClass]
 public class StateMachineReaderCoverageTest
 {
+	[TestMethod]
+	public void ExternalScriptWithoutEmbeddedContentRestoresItsResourceUri()
+	{
+		var reader = new StateMachineReader();
+		using var storage = new InMemoryStorage(false);
+		var bucket = new Bucket(storage);
+		bucket.Add(Key.TypeInfo, TypeInfo.ExternalScriptExpressionNode);
+		bucket.Add(Key.Uri, new Uri("https://example.test/external.js"));
+		var restored = (IExternalScriptExpression)Invoke(reader, "RestoreExternalScriptExpression", bucket)!;
+		Assert.AreEqual(new Uri("https://example.test/external.js"), restored.Uri);
+		Assert.IsFalse(restored is IExternalScriptProvider);
+	}
 	private static readonly string[] NullableRestoreMethods =
 	[
 		"RestoreStateMachine", "RestoreDataModel", "RestoreInitial", "RestoreTransition", "RestoreAssign", "RestoreCancel",

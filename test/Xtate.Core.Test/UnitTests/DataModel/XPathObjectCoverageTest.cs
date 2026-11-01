@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.IO;
+using System.Text;
 using System.Xml;
 using Xtate.DataModel.XPath.Internal;
 using Xtate.DataTypes;
@@ -24,16 +26,41 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 [TestClass]
 public class XPathObjectCoverageTest
 {
-	public static IEnumerable<object[]> TypedTextValues => new[]
+	[TestMethod]
+	public void MixedElementAndAttributeSelectionCannotBeConvertedToADataModelList()
 	{
-		new object[] { new DataModelValue(true), "true" },
-		new object[] { new DataModelValue(42), "42" },
-		new object[] { new DataModelValue(2147483648L), "2147483648" },
-		new object[] { new DataModelValue(1.25d), "1.25" },
-		new object[] { new DataModelValue(1.25m), "1.25" },
-		new object[] { new DataModelValue(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)), "2026-01-02T03:04:05Z" },
-		new object[] { new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2))), "2026-01-02T03:04:05+02:00" }
-	};
+		var data = XmlConverter.FromXml("<root attribute='value'><child>text</child></root>");
+		var value = new XPathObject(new DataModelXPathNavigator(data).Select("root | root/@attribute"));
+		Assert.ThrowsExactly<InvalidOperationException>(value.ToObject);
+	}
+	[TestMethod]
+	public async Task AsyncXmlConversionPreservesMixedChildrenAndTrailingText()
+	{
+		using var stream = new MemoryStream(Encoding.UTF8.GetBytes("<root><child>one</child>two<empty/>three</root>"));
+		var result = (await XmlConverter.FromXmlStreamAsync(stream)).AsList()["root"].AsList();
+		Assert.AreEqual(4, result.Count);
+		Assert.AreEqual("one", result["child"].AsString());
+		Assert.AreEqual("two", result[1].AsString());
+		Assert.AreEqual(string.Empty, result["empty"].AsString());
+		Assert.AreEqual("three", result[3].AsString());
+	}
+
+	[TestMethod]
+	public async Task AsyncXmlConversionOfEmptyInputReturnsNull()
+	{
+		using var stream = new MemoryStream();
+		Assert.AreEqual(DataModelValue.Null, await XmlConverter.FromXmlStreamAsync(stream));
+	}
+	public static IEnumerable<object[]> TypedTextValues =>
+	[
+		[new DataModelValue(true), "true"],
+		[new DataModelValue(42), "42"],
+		[new DataModelValue(2147483648L), "2147483648"],
+		[new DataModelValue(1.25d), "1.25"],
+		[new DataModelValue(1.25m), "1.25"],
+		[new DataModelValue(new DateTime(2026, 1, 2, 3, 4, 5, DateTimeKind.Utc)), "2026-01-02T03:04:05Z"],
+		[new DataModelValue(new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2))), "2026-01-02T03:04:05+02:00"]
+	];
 
 	[TestMethod]
 	[DynamicData(nameof(TypedTextValues))]
@@ -57,9 +84,11 @@ public class XPathObjectCoverageTest
 	[TestMethod]
 	public void MixedDataModelNodeSelectionPreservesElementAndTextEntries()
 	{
-		var children = new DataModelList();
-		children.Add("child", "one");
-		children.Add(key: null, "two", metadata: null);
+		var children = new DataModelList
+		{
+			{ "child", "one" },
+			{ null, "two", null }
+		};
 		var data = new DataModelList { ["root"] = children };
 		var result = (DataModelList)new XPathObject(new DataModelXPathNavigator(data).Select("root/node()")).ToObject()!;
 		Assert.AreEqual(2, result.Count);
@@ -71,7 +100,7 @@ public class XPathObjectCoverageTest
 	{
 		var data = XmlConverter.FromXml("<root attribute='value'/>");
 		var value = new XPathObject(new DataModelXPathNavigator(data).Select("root/@attribute"));
-		Assert.ThrowsExactly<InvalidOperationException>(() => value.ToObject());
+		Assert.ThrowsExactly<InvalidOperationException>(value.ToObject);
 	}
 	[TestMethod]
 	public void ScalarObjectsExposeTypeObjectAndXPathConversions()

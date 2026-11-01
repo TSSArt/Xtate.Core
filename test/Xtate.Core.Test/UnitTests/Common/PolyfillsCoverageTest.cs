@@ -126,11 +126,12 @@ public class PolyfillsCoverageTest
 		using var started = new ManualResetEventSlim(initialState: false);
 		using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
+		var timeoutToken = timeout.Token;
 		var waiter = Task.Factory.StartNew(
 			() =>
 			{
 				started.Set();
-				source.Task.WaitAsync(timeout.Token).GetAwaiter().GetResult();
+				source.Task.WaitAsync(timeoutToken).GetAwaiter().GetResult();
 			},
 			CancellationToken.None,
 			TaskCreationOptions.None,
@@ -255,7 +256,7 @@ public class PolyfillsCoverageTest
 			using var cancellation = new CancellationTokenSource();
 			var source = new TaskCompletionSource<int>();
 			var complete = Task.Run(() => source.SetResult(42));
-			var cancel = Task.Run(() => cancellation.Cancel());
+			var cancel = Task.Run(cancellation.Cancel);
 			var wait = source.Task.WaitAsync(cancellation.Token);
 			var nonGenericWait = ((Task)source.Task).WaitAsync(cancellation.Token);
 

@@ -160,7 +160,7 @@ public class DataModelDateTimeTest
 		var v = new DateTime(year: 2000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0, DateTimeKind.Unspecified) + TimeSpan.FromTicks(addTicks);
 
 		// act
-		var str = DataModelDateTime.FromDateTime(v).ToString(@"o");
+		var str = DataModelDateTime.FromDateTime(v).ToString(@"o", CultureInfo.InvariantCulture);
 
 		// assert
 		Assert.AreEqual(expected, str);
@@ -242,7 +242,7 @@ public class DataModelDateTimeTest
 	public void TryParseExact_ShouldReturnTrue_IfStringCanBeParsed(string value)
 	{
 		// assert
-		Assert.IsTrue(DataModelDateTime.TryParseExact(value, format: "o", provider: null, DateTimeStyles.None, out _));
+		Assert.IsTrue(DataModelDateTime.TryParseExact(value, format: "o", provider: CultureInfo.InvariantCulture, DateTimeStyles.None, out _));
 	}
 
 	[TestMethod]
@@ -262,7 +262,7 @@ public class DataModelDateTimeTest
 	public void TryParseExact2_ShouldReturnTrue_IfStringCanBeParsed(string value)
 	{
 		// assert
-		Assert.IsTrue(DataModelDateTime.TryParseExact(value, ["o", "s"], provider: null, DateTimeStyles.None, out _));
+		Assert.IsTrue(DataModelDateTime.TryParseExact(value, ["o", "s"], provider: CultureInfo.InvariantCulture, DateTimeStyles.None, out _));
 	}
 
 	[TestMethod]
@@ -283,9 +283,9 @@ public class DataModelDateTimeTest
 	public void Parse_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 	{
 		// act
-		DataModelDateTime.TryParse(value, provider: null, DateTimeStyles.None, out var dttm);
+		DataModelDateTime.TryParse(value, provider: CultureInfo.InvariantCulture, DateTimeStyles.None, out var dttm);
 
-		var parsedDttm = DataModelDateTime.Parse(value);
+		var parsedDttm = DataModelDateTime.Parse(value, CultureInfo.InvariantCulture);
 
 		// assert
 		Assert.AreEqual(dttm, parsedDttm);
@@ -307,9 +307,9 @@ public class DataModelDateTimeTest
 	public void ParseExact_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 	{
 		// act
-		DataModelDateTime.TryParseExact(value, format: "o", provider: null, DateTimeStyles.None, out var dttm);
+		DataModelDateTime.TryParseExact(value, format: "o", provider: CultureInfo.InvariantCulture, DateTimeStyles.None, out var dttm);
 
-		var parsedDttm = DataModelDateTime.ParseExact(value, format: "o", provider: null);
+		var parsedDttm = DataModelDateTime.ParseExact(value, format: "o", provider: CultureInfo.InvariantCulture);
 
 		// assert
 		Assert.AreEqual(dttm, parsedDttm);
@@ -332,9 +332,9 @@ public class DataModelDateTimeTest
 	public void ParseExact2_ShouldReturnSameValueAsTryParse_IfStringCanBeParsed(string value)
 	{
 		// act
-		DataModelDateTime.TryParseExact(value, ["o", "s"], provider: null, DateTimeStyles.None, out var dttm);
+		DataModelDateTime.TryParseExact(value, ["o", "s"], provider: CultureInfo.InvariantCulture, DateTimeStyles.None, out var dttm);
 
-		var parsedDttm = DataModelDateTime.ParseExact(value, ["o", "s"], provider: null);
+		var parsedDttm = DataModelDateTime.ParseExact(value, ["o", "s"], provider: CultureInfo.InvariantCulture);
 
 		// assert
 		Assert.AreEqual(dttm, parsedDttm);
@@ -412,13 +412,13 @@ public class DataModelDateTimeTest
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToBoolean(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToByte(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToChar(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToDecimal(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToDouble(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToDecimal(CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToDouble(CultureInfo.InvariantCulture));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToInt16(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToInt32(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToInt64(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToSByte(null));
-		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToSingle(null));
+		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToSingle(CultureInfo.InvariantCulture));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToUInt16(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToUInt32(null));
 		Assert.ThrowsExactly<InvalidCastException>([ExcludeFromCodeCoverage]() => ((IConvertible)default(DataModelDateTime)).ToUInt64(null));
@@ -427,7 +427,7 @@ public class DataModelDateTimeTest
 	[TestMethod]
 	public void IConvertToDateTime_ShouldReturnSameValue_ForToDateTime()
 	{
-		Assert.AreEqual(expected: default, ((IConvertible)default(DataModelDateTime)).ToDateTime(null));
+		Assert.AreEqual(expected: default, ((IConvertible)default(DataModelDateTime)).ToDateTime(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]
@@ -440,7 +440,7 @@ public class DataModelDateTimeTest
 	public void IConvertToString_ShouldReturnSameValueAsToString()
 	{
 		var dataModelDateTime = default(DataModelDateTime);
-		Assert.AreEqual(dataModelDateTime.ToString(), ((IConvertible)dataModelDateTime).ToString(null));
+		Assert.AreEqual(dataModelDateTime.ToString(format: null, formatProvider: CultureInfo.InvariantCulture), ((IConvertible)dataModelDateTime).ToString(CultureInfo.InvariantCulture));
 	}
 
 	[TestMethod]

@@ -456,6 +456,125 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		externalCommunication.Verify(static communication => communication.TrySend(It.IsAny<IOutgoingEvent>()), Times.Never);
 	}
 
+	[TestMethod]
+	public async Task FailedAddCheckpointRollsBackRecordAndAllowsRetry()
+	{
+		await using var storage = new TestTransactionalStorage { FailCheckPointNumber = 1 };
+		var completion = new TaskCompletionSource<DataModelValue>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var service = new Mock<IExternalService>();
+		service.Setup(value => value.GetResult()).Returns(new ValueTask<DataModelValue>(completion.Task));
+		var monitor = new CapturingTaskMonitor();
+		var collection = CreateCollection();
+		await using var manager = await CreateScopeManager(storage, collection, service.Object, monitor);
+		var invoke = CreateInvokeData("retry");
+		await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await manager.Start(CreateExternalServiceClass(invoke, collection), CancellationToken.None));
+		Assert.IsFalse(new Bucket(storage).Nested(0).TryGet(0, out int _));
+		service.Verify(value => value.GetResult(), Times.Never);
+		var result = await manager.Start(CreateExternalServiceClass(invoke, collection), CancellationToken.None);
+		completion.SetResult(DataModelValue.Undefined);
+		await result.WaitForCompletion();
+		await Task.WhenAll(monitor.ForgottenTasks);
+		Assert.AreEqual(3, storage.CheckPointCount);
+	}
+
+	[TestMethod]
+	public async Task UnknownPersistedOperationIsRejected()
+	{
+		await using var storage = new TestTransactionalStorage();
+		new Bucket(storage).Nested(0).Add(0, 99);
+		await using var manager = await CreateScopeManager(storage, CreateCollection(), Mock.Of<IExternalService>(), new CapturingTaskMonitor());
+		await Assert.ThrowsExactlyAsync<PersistenceException>(async () => await manager.InitializeAsync());
+	}
+
+	[TestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public async Task StartFailureRemovesRecordUnlessServiceWasSuspended(bool suspended)
+	{
+		await using var storage = new TestTransactionalStorage();
+		var invoke = CreateInvokeData("start-failure");
+		var collection = new Mock<IExternalServiceCollection>();
+		Exception expected = suspended ? new ExternalServiceSuspendedException { Owner = new object() } : new InvalidOperationException("registration failed");
+		collection.Setup(value => value.Register(invoke.InvokeId)).Throws(expected);
+		await using var manager = await CreateScopeManager(storage, collection.Object, Mock.Of<IExternalService>(), new CapturingTaskMonitor());
+		var result = await manager.Start(CreateExternalServiceClass(invoke, collection.Object), CancellationToken.None);
+		var actual = await Assert.ThrowsAsync<Exception>(async () => await result.WaitForCompletion());
+		Assert.AreSame(expected, actual);
+		var resumed = new List<InvokeData>();
+		var monitor = new CapturingTaskMonitor();
+		await using var restarted = await CreateScopeManager(storage, CreateCollection(), Mock.Of<IExternalService>(), monitor, resumed.Add);
+		await restarted.InitializeAsync();
+		await Task.WhenAll(monitor.ForgottenTasks);
+		Assert.HasCount(suspended ? 1 : 0, resumed);
+	}
+
+	[TestMethod]
+	public async Task CompactionRetainsSuspendedInvokeWhileDroppingCompletedInvoke()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var completed = CreateInvokeData("completed");
+		var suspended = CreateInvokeData("suspended");
+		var service = new Mock<IExternalService>();
+		service.SetupSequence(value => value.GetResult())
+			.Returns(new ValueTask<DataModelValue>(DataModelValue.Undefined))
+			.Returns(ValueTask.FromException<DataModelValue>(new ExternalServiceSuspendedException { Owner = new object() }));
+		var monitor = new CapturingTaskMonitor();
+		var collection = CreateCollection();
+		await using var manager = await CreateScopeManager(storage, collection, service.Object, monitor);
+		var first = await manager.Start(CreateExternalServiceClass(completed, collection), CancellationToken.None);
+		await first.WaitForCompletion();
+		var second = await manager.Start(CreateExternalServiceClass(suspended, collection), CancellationToken.None);
+		await Assert.ThrowsExactlyAsync<ExternalServiceSuspendedException>(async () => await second.WaitForCompletion());
+		await Task.WhenAll(monitor.ForgottenTasks);
+		var resumed = new List<InvokeData>();
+		var resumedMonitor = new CapturingTaskMonitor();
+		await using var restarted = await CreateScopeManager(storage, CreateCollection(), Mock.Of<IExternalService>(), resumedMonitor, resumed.Add);
+		await restarted.InitializeAsync();
+		await Task.WhenAll(resumedMonitor.ForgottenTasks);
+		Assert.AreEqual(suspended.InvokeId, resumed.Single().InvokeId);
+		Assert.AreEqual(1, storage.ShrinkCount);
+	}
+
+	[TestMethod]
+	public async Task FailedRemovalCheckpointRollsBackRemovalAndPreservesInvokeForRestart()
+	{
+		await using var storage = new TestTransactionalStorage { FailCheckPointNumber = 2 };
+		var invoke = CreateInvokeData("removal-failure");
+		var collection = new Mock<IExternalServiceCollection>();
+		collection.Setup(value => value.Register(invoke.InvokeId)).Throws(new InvalidOperationException("registration failed"));
+		await using var manager = await CreateScopeManager(storage, collection.Object, Mock.Of<IExternalService>(), new CapturingTaskMonitor());
+		var failure = await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await manager.Start(CreateExternalServiceClass(invoke, collection.Object), CancellationToken.None));
+		Assert.AreEqual("checkpoint failed", failure.Message);
+		Assert.IsFalse(new Bucket(storage).Nested(1).TryGet(0, out int _));
+		var resumed = new List<InvokeData>();
+		var monitor = new CapturingTaskMonitor();
+		await using var restarted = await CreateScopeManager(storage, CreateCollection(), Mock.Of<IExternalService>(), monitor, resumed.Add);
+		await restarted.InitializeAsync();
+		await Task.WhenAll(monitor.ForgottenTasks);
+		Assert.AreEqual(invoke.InvokeId, resumed.Single().InvokeId);
+	}
+
+	[TestMethod]
+	public async Task CompletionCleanupFailureIsPropagatedAndPersistedInvokeIsRemoved()
+	{
+		await using var storage = new TestTransactionalStorage();
+		var invoke = CreateInvokeData("cleanup-failure");
+		var collection = new Mock<IExternalServiceCollection>();
+		var failure = new InvalidOperationException("unregister failed");
+		collection.Setup(value => value.Unregister(invoke.InvokeId)).Throws(failure);
+		var service = new Mock<IExternalService>();
+		service.Setup(value => value.GetResult()).Returns(new ValueTask<DataModelValue>(DataModelValue.Undefined));
+		var monitor = new CapturingTaskMonitor();
+		await using var manager = await CreateScopeManager(storage, collection.Object, service.Object, monitor);
+		var result = await manager.Start(CreateExternalServiceClass(invoke, collection.Object), CancellationToken.None);
+		Assert.AreSame(failure, await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await result.WaitForCompletion()));
+		await Task.WhenAll(monitor.ForgottenTasks);
+		var resumed = new List<InvokeData>();
+		await using var restarted = await CreateScopeManager(storage, CreateCollection(), Mock.Of<IExternalService>(), new CapturingTaskMonitor(), resumed.Add);
+		await restarted.InitializeAsync();
+		Assert.IsEmpty(resumed);
+	}
+
 	private static InvokeData CreateInvokeData(string id = "invoke") =>
 		new(
 			InvokeId.FromString(id, "unique-" + id),
@@ -593,6 +712,8 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 	{
 		private readonly InMemoryStorage _storage = new(writeOnly: false);
 
+		public int? FailCheckPointNumber { get; init; }
+
 		public int CheckPointCount { get; private set; }
 
 		public int ShrinkCount { get; private set; }
@@ -631,6 +752,10 @@ public class PersistedExternalServiceScopeManagerCoverageTest
 		public ValueTask CheckPoint(int level)
 		{
 			CheckPointCount++;
+			if (CheckPointCount == FailCheckPointNumber)
+			{
+				throw new InvalidOperationException("checkpoint failed");
+			}
 
 			return ValueTask.CompletedTask;
 		}

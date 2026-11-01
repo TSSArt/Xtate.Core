@@ -463,7 +463,7 @@ public class ScxmlDirector : XmlDirector<ScxmlDirector>
 			if (_xmlReader.LookupNamespace(prefix) is { Length: > 0 } val)
 			{
 				namespaces ??= ArrayPool<PrefixNamespace>.Shared.Rent(_namespacePrefixes.Count);
-				namespaces[count++] = new PrefixNamespace(prefix, val);
+				namespaces[count++] = (prefix, val);
 			}
 		}
 

@@ -27,6 +27,20 @@ namespace Xtate.Core.Test.UnitTests.Scxml;
 public class XmlDirectorCoverageTest
 {
 	[TestMethod]
+	public async Task UnexpectedTextWhereOnlyElementsAreAllowedIsRejected()
+	{
+		var director = CreateDirector("<root required='yes'>unexpected text</root>", true);
+		await Assert.ThrowsExactlyAsync<XmlException>(async () => await director.PopulateModel());
+	}
+
+	[TestMethod]
+	public async Task AttributeCallbackClosingTheReaderReportsItsFailure()
+	{
+		var director = CreateDirector("<root value='one'><child/></root>", true);
+		await Assert.ThrowsExactlyAsync<XmlException>(async () => await director.PopulateFailure("attribute-close"));
+		CollectionAssert.Contains(director.Errors, Resources.ErrorMessage_FailureAttributeProcessing);
+	}
+	[TestMethod]
 	public async Task PopulateAppliesPoliciesAndReportsStructuralErrors()
 	{
 		const string xml =
@@ -189,9 +203,13 @@ public class XmlDirectorCoverageTest
 				{
 					builder.RawContent((_, _) => throw new InvalidOperationException("raw content failed"));
 				}
-				else if (kind == "attribute")
+				else if (kind == "attribute" || kind == "attribute-close")
 				{
-					builder.OptionalAttribute("value", (_, _) => throw new InvalidOperationException("attribute failed"));
+					builder.OptionalAttribute("value", (director, _) =>
+					{
+						if (kind == "attribute-close") director._reader.Close();
+						throw new InvalidOperationException("attribute failed");
+					});
 				}
 				else
 				{

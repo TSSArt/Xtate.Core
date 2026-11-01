@@ -75,6 +75,21 @@ public class ExternalServiceExecutionCoverageTest
 		Assert.AreSame(serviceClass, await provider.GetRequiredService<IExternalServiceSource>());
 		Assert.AreSame(serviceClass, await provider.GetRequiredService<IExternalServiceParameters>());
 		Assert.AreSame(serviceClass, await provider.GetRequiredService<IParentStateMachineSessionId>());
+		var dispatched = new List<IIncomingEvent>();
+		targetDispatcher.Setup(value => value.Dispatch(It.IsAny<IIncomingEvent>(), CancellationToken.None))
+			.Callback<IIncomingEvent, CancellationToken>((message, _) => dispatched.Add(message)).Returns(default(ValueTask));
+		var original = new IncomingEvent { Name = EventName.FromString("parent.message"), Data = new DataModelValue("payload"), Type = EventType.Internal };
+		var parentDispatcher = await provider.GetRequiredService<IParentEventDispatcher>();
+		await parentDispatcher.Dispatch(original, CancellationToken.None);
+		await parentDispatcher.Dispatch(original, CancellationToken.None);
+		Assert.HasCount(2, dispatched);
+		Assert.AreEqual(EventType.External, dispatched[0].Type);
+		Assert.AreEqual(invokeId, dispatched[0].InvokeId);
+		Assert.AreEqual(invokeData.Type, dispatched[0].OriginType);
+		Assert.AreEqual(Const.ScxmlIoProcessorInvokeIdPrefix + invokeId.Value, dispatched[0].Origin!.ToString());
+		Assert.AreSame(dispatched[0].Origin, dispatched[1].Origin);
+		Assert.AreEqual("payload", dispatched[0].Data.AsString());
+		Assert.AreEqual(EventType.Internal, original.Type);
 	}
 
 	[TestMethod]

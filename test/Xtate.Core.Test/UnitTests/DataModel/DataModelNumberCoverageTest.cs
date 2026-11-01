@@ -25,6 +25,26 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class DataModelNumberCoverageTest
 {
 	[TestMethod]
+	public void BoxedComparisonDecimalFormattingAndFloatingConversionPreserveNumericValue()
+	{
+		var number = DataModelNumber.FromDouble(1.25);
+		Assert.AreEqual(0, number.CompareTo((object)DataModelNumber.FromDecimal(1.25m)));
+		Assert.AreEqual(1.25m, number.ToDecimal());
+		Assert.AreEqual("0042", DataModelNumber.FromInt32(42).ToString("D4"));
+		Span<char> buffer = stackalloc char[16];
+		Assert.IsTrue(DataModelNumber.FromDecimal(1.25m).TryFormat(buffer, out var written, "F2", CultureInfo.InvariantCulture));
+		Assert.AreEqual("1.25", buffer[..written].ToString());
+	}
+
+	[TestMethod]
+	public void FloatingAndDecimalNumbersCannotBeConvertedToDates()
+	{
+		IConvertible floating = DataModelNumber.FromDouble(1.25);
+		IConvertible decimalValue = DataModelNumber.FromDecimal(1.25m);
+		Assert.ThrowsExactly<InvalidCastException>(() => floating.ToDateTime(CultureInfo.InvariantCulture));
+		Assert.ThrowsExactly<InvalidCastException>(() => decimalValue.ToDateTime(CultureInfo.InvariantCulture));
+	}
+	[TestMethod]
 	public void FactoryMethodsExposeTypeConversionObjectAndFormattingBehavior()
 	{
 		var int32 = DataModelNumber.FromInt32(42);
@@ -164,7 +184,7 @@ public class DataModelNumberCoverageTest
 			Assert.AreEqual(Convert.ToBoolean(value.ToObject(), CultureInfo.InvariantCulture), InvokeConvertible(value, nameof(IConvertible.ToBoolean)));
 			Assert.AreEqual(Convert.ToSingle(value.ToObject(), CultureInfo.InvariantCulture), InvokeConvertible(value, nameof(IConvertible.ToSingle)));
 			Assert.AreEqual(Convert.ToInt64(value.ToObject(), CultureInfo.InvariantCulture), InvokeConvertible(value, nameof(IConvertible.ToType), typeof(long)));
-			Assert.AreEqual(value.ToString(format: "F1", CultureInfo.InvariantCulture), value.ToString("F1"));
+			Assert.AreEqual(value.ToString(format: "F1", CultureInfo.InvariantCulture), value.ToString("F1", CultureInfo.InvariantCulture));
 			Assert.IsTrue(value.Equals((object)value));
 		}
 

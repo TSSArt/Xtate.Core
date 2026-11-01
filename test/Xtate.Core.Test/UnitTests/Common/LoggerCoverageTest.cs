@@ -29,6 +29,21 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class LoggerCoverageTest
 {
 	[TestMethod]
+	public async Task NonGenericProviderReceivesInterpolatedMessageParameters()
+	{
+		var provider = new CapturingNonGenericProvider(Level.Info);
+		var logger = CreateLogger(Mock.Of<ILogProvider<TestSource>>(), provider);
+		const int number = 42;
+		await logger.Write(Level.Info, 71, $"Number={number:D3}");
+		var entry = provider.Entries.Single();
+		Assert.AreEqual("Number=042", entry.Message);
+		Assert.AreEqual(typeof(TestSource), entry.Source);
+		Assert.AreEqual(nameof(number), entry.Parameters.Single().Name);
+		Assert.AreEqual(42, entry.Parameters.Single().Value);
+		Assert.AreEqual("D3", entry.Parameters.Single().Format);
+	}
+
+	[TestMethod]
 	public void IsEnabledChecksGenericThenNonGenericProvidersAndExposesInvariantFormat()
 	{
 		var generic = new Mock<ILogProvider<TestSource>>();

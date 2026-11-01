@@ -147,6 +147,23 @@ public class InProcEventSchedulerCoverageTest
 		router.Verify(static r => r.Dispatch(It.IsAny<IRouterEvent>(), It.IsAny<CancellationToken>()), Times.Never);
 	}
 
+	[TestMethod]
+	public async Task SynchronousDisposalAttemptsEveryCancellationAndAggregatesCallbackFailures()
+	{
+		var monitor = new CapturingTaskMonitor();
+		using var scheduler = CreateScheduler([], monitor);
+		var type = new FullUri("urn:processor");
+		var first = new ScheduledEvent(CreateRouterEvent(60_000, type, SendId.FromString("first")));
+		var second = new ScheduledEvent(CreateRouterEvent(60_000, type, SendId.FromString("second")));
+		using var firstRegistration = first.CancellationToken.Register(() => throw new InvalidOperationException("first cancellation failed"));
+		using var secondRegistration = second.CancellationToken.Register(() => throw new InvalidOperationException("second cancellation failed"));
+		await scheduler.ScheduleEvent(first, CancellationToken.None);
+		await scheduler.ScheduleEvent(second, CancellationToken.None);
+		var error = Assert.ThrowsExactly<AggregateException>(() => scheduler.Dispose());
+		CollectionAssert.AreEquivalent(new[] { "first cancellation failed", "second cancellation failed" }, error.Flatten().InnerExceptions.Select(value => value.Message).ToArray());
+		await Assert.ThrowsAsync<OperationCanceledException>(async () => await Task.WhenAll(monitor.Tasks));
+	}
+
 	private static TestInProcEventScheduler CreateScheduler(IReadOnlyCollection<IEventRouter> routers,
 															CapturingTaskMonitor monitor,
 															ILogger<IEventScheduler>? logger = null) =>

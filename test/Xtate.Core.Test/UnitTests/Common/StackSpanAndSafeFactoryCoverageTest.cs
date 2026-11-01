@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using Xtate.IoC;
 using Xtate.IoC.Tools.Services;
 
 namespace Xtate.Core.Test.UnitTests.Common;
@@ -22,6 +23,30 @@ namespace Xtate.Core.Test.UnitTests.Common;
 [TestClass]
 public class StackSpanAndSafeFactoryCoverageTest
 {
+	[TestMethod]
+	public async Task SafeFactoryReturnsNullForAnUnresolvableConstructorDependency()
+	{
+		var services = new ServiceCollection();
+		services.AddType<NeedsMissingDependency>();
+		var provider = services.BuildProvider();
+		var factory = await SafeFactory<NeedsMissingDependency>.Constructor(async () => await provider.GetRequiredService<NeedsMissingDependency>());
+		Assert.IsNull(factory.GetValueFunc()());
+	}
+
+	[TestMethod]
+	public async Task SafeFactoryPropagatesApplicationFailures()
+	{
+		var failure = new InvalidOperationException("application failure");
+		var actual = await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () =>
+			await SafeFactory<object>.Constructor(() => throw failure));
+		Assert.AreSame(failure, actual);
+	}
+
+	public interface IMissingDependency;
+	public sealed class NeedsMissingDependency(IMissingDependency dependency)
+	{
+		public IMissingDependency Dependency { get; } = dependency;
+	}
 	[TestMethod]
 	public void StackSpanUsesStackSignalForSmallLengthAndPoolForLargeLength()
 	{

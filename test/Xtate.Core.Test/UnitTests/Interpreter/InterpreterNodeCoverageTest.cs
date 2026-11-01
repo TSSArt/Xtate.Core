@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+using System.Globalization;
 using Xtate.Ancestor;
 using Xtate.DataModel;
 using Xtate.DataModel.Services;
@@ -146,7 +147,7 @@ public class InterpreterNodeCoverageTest
 
 		Assert.AreSame(invokeSource, ((IAncestorProvider)node).Ancestor);
 		Assert.AreEqual(expected: 29, node.DocumentId);
-		Assert.AreEqual(expected: "invoke(#29)", ((IDebugEntityId)node).EntityId.ToString());
+		Assert.AreEqual(expected: "invoke(#29)", ((IDebugEntityId)node).EntityId.ToString(CultureInfo.InvariantCulture));
 		Assert.AreEqual(expected: "invoke", node.Id);
 		Assert.AreEqual(new FullUri("urn:static-type"), node.Type);
 		Assert.AreSame(typeExpression, node.TypeExpression);

@@ -67,7 +67,7 @@ public class ReportedPublicApiUsageCoverageTest
 	[TestMethod]
 	public void PublicConversionAndValidationMembersRemainUsable()
 	{
-		var parsed = DataModelDateTime.Parse("2024-01-02T03:04:05Z");
+		var parsed = DataModelDateTime.Parse("2024-01-02T03:04:05Z", CultureInfo.InvariantCulture);
 		var parsedWithProvider = DataModelDateTime.Parse(value: "2024-01-02T03:04:05Z", CultureInfo.InvariantCulture);
 		var parsedWithStyle = DataModelDateTime.Parse(value: " 2024-01-02T03:04:05Z ", CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
 		var exact = DataModelDateTime.ParseExact(value: "2024-01-02", format: "yyyy-MM-dd", CultureInfo.InvariantCulture);

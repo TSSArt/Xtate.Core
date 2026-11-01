@@ -27,6 +27,37 @@ namespace Xtate.Core.Test.UnitTests.Common;
 public class IoBoundTaskSchedulerCoverageTest
 {
 	[TestMethod]
+	[DataRow(0)]
+	[DataRow(-1)]
+	public void NonPositiveConcurrencyIsRejected(int concurrency) =>
+		Assert.Throws<ArgumentException>(() => new IoBoundTaskScheduler(concurrency));
+
+	[TestMethod]
+	[DoNotParallelize]
+	public void KeepAliveTimeoutAcceptsEndpointsAndRejectsValuesOutsideSupportedRange()
+	{
+		var property = typeof(IoBoundTaskScheduler).GetProperty(nameof(IoBoundTaskScheduler.KeepAliveThreadTimeout))!;
+		var original = IoBoundTaskScheduler.KeepAliveThreadTimeout;
+		try
+		{
+			foreach (var value in new[] { TimeSpan.Zero, TimeSpan.FromSeconds(60) })
+			{
+				property.SetValue(null, value);
+				Assert.AreEqual(value, IoBoundTaskScheduler.KeepAliveThreadTimeout);
+			}
+			foreach (var value in new[] { TimeSpan.FromTicks(-1), TimeSpan.FromSeconds(60) + TimeSpan.FromTicks(1) })
+			{
+				var error = Assert.ThrowsExactly<TargetInvocationException>(() => property.SetValue(null, value));
+				Assert.IsInstanceOfType<ArgumentOutOfRangeException>(error.InnerException);
+			}
+		}
+		finally
+		{
+			property.SetValue(null, original);
+		}
+	}
+
+	[TestMethod]
 	public async Task SchedulerHonorsConcurrencyLimitExposesQueueAndRecoversWorkerSlots()
 	{
 		var scheduler = new IoBoundTaskScheduler(maximumConcurrencyLevel: 2);

@@ -17,7 +17,6 @@
 
 using System.Threading;
 using Xtate.Core.Test.UnitTests.Common;
-using Xtate.DataModel;
 using Xtate.DataTypes;
 using Xtate.Interpreter;
 using Xtate.Logging;

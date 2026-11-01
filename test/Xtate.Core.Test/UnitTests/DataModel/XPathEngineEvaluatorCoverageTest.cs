@@ -35,6 +35,16 @@ namespace Xtate.Core.Test.UnitTests.DataModel;
 public class XPathEngineEvaluatorCoverageTest
 {
 	[TestMethod]
+	public async Task AssignmentUpdatesEveryMatchedNodeAndPreservesUnmatchedValues()
+	{
+		var root = new DataModelList { { "target", "one" }, { "target", "two" }, { "target", "three" }, { "other", "preserved" } };
+		var engine = CreateEngine(root);
+		await engine.Assign(Compile("target", engine), XPathAssignType.ReplaceChildren, null, new XPathObject("updated"));
+		CollectionAssert.AreEqual(new[] { "updated", "updated", "updated" }, root.KeyValues.Where(pair => pair.Key == "target").Select(pair => pair.Value.AsString()).ToArray());
+		Assert.AreEqual("preserved", root["other"].AsString());
+	}
+
+	[TestMethod]
 	public void EngineCreatesRootAndScopedVariablesWithNearestScopePrecedence()
 	{
 		var root = new DataModelList { ["existing"] = "root" };
